@@ -6,6 +6,7 @@
   "scripts": {
     "data:fetch": "node data/scripts/fetch.mjs",
     "data:validate": "node data/scripts/validate.mjs",
+    "data:ror": "node data/scripts/ror.mjs",
     "data:build": "node data/scripts/build.mjs",
     "test": "node --test"
   },

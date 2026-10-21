@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { autoAcronym, buildEdition, loadEdition, talkSlots, wallToInstant } from '../../data/scripts/build.mjs';
+import { buildEdition, loadEdition, talkSlots, wallToInstant } from '../../data/scripts/build.mjs';
+import { searchInstitutions } from '../../data/scripts/search.mjs';
 
 const wall = iso => Date.parse(iso + 'Z');
 
@@ -25,13 +26,6 @@ test('talk slots follow contentIds order and must fit the session', () => {
   assert.equal(talkSlots(s, s, [12, 12]), null);
 });
 
-test('auto acronyms', () => {
-  assert.equal(autoAcronym('Carnegie Mellon University'), 'CMU');
-  assert.equal(autoAcronym('University of California, Irvine'), 'UCI');
-  assert.equal(autoAcronym('KAIST'), 'KAIST');
-  assert.equal(autoAcronym('Google'), null);
-});
-
 const fixture = () => ({
   schemeVersion: 7,
   conference: { year: 2026 },
@@ -45,11 +39,26 @@ const fixture = () => ({
   contents: [
     { id: 20, typeId: 1, title: 'B', tags: null, authors: [{ personId: 1, affiliations: [{ institution: 'MIT' }] }] },
     { id: 21, typeId: 1, title: 'A', authors: [{ personId: 1, affiliations: [{ institution: 'Massachusetts Institute of Technology' }] }], addons: { v: { type: 'video', url: 'https://v' } } },
-    { id: 22, typeId: 1, title: 'Remote', authors: [] },
+    { id: 22, typeId: 1, title: 'Remote', authors: [
+      { personId: 2, affiliations: [{ institution: 'Northeastern University', country: 'United States' }] },
+      { personId: 3, affiliations: [{ institution: 'Northeastern University', country: 'China' }] },
+      { personId: 4, affiliations: [{ institution: 'Massachusetts Tech' }] },
+    ] },
   ],
   people: [{ id: 1, firstName: 'Ada', lastName: null }],
 });
-const opts = { edition: 'chi2026', version: { revision: 1, generated_at: 'x' }, timeZone: 'Europe/Madrid', curated: { 'Massachusetts Institute of Technology': ['MIT'] } };
+const MIT = 'https://ror.org/042nb2s44';
+const NEU_US = 'https://ror.org/04t5xt781';
+const NEU_CN = 'https://ror.org/03awzbc87';
+const org = (name, acronyms = []) => ({ name, acronyms, aliases: [], labels: [], country: null });
+const opts = {
+  edition: 'chi2026', version: { revision: 1, generated_at: 'x' }, timeZone: 'Europe/Madrid',
+  institutions: {
+    rorCache: { mit: MIT, 'massachusetts institute of technology': MIT },
+    rorOrgs: { [MIT]: org('Massachusetts Institute of Technology', ['MIT']), [NEU_US]: org('Northeastern University'), [NEU_CN]: org('Northeastern University') },
+    curated: { ror: { 'Northeastern University': { 'United States': NEU_US, China: NEU_CN } }, aliases: { [MIT]: ['Massachusetts Tech'] } },
+  },
+};
 
 test('buildEdition: keys, talk order, remote items, aliases, people', () => {
   const out = buildEdition(fixture(), opts);
@@ -63,12 +72,27 @@ test('buildEdition: keys, talk order, remote items, aliases, people', () => {
   assert.equal(a.video, 'https://v');
   assert.equal(remote.scheduled, false);
   assert.equal(out.sessions.find(s => s.id === 200).timing, 'none');
-  assert.equal(out.aliases.institutions.length, 1, 'MIT folds into the full name');
-  assert.deepEqual(out.aliases.lookup.mit, ['inst:massachusetts-institute-of-technology']);
-  assert.equal(out.people[0].appearances.length, 2);
-  assert.equal(out.people[0].name, 'Ada');
+  const mit = out.aliases.institutions.find(i => i.rorId === MIT);
+  assert.equal(mit.name, 'Massachusetts Institute of Technology', 'official ROR name, whatever the feed spelling');
+  assert.deepEqual(mit.variants.sort(), ['MIT', 'Massachusetts Institute of Technology', 'Massachusetts Tech'], 'unmatched alias spelling folds in');
+  assert.deepEqual(out.aliases.lookup.mit, ['inst:ror-042nb2s44']);
+  assert.deepEqual(out.aliases.lookup['massachusetts tech'], ['inst:ror-042nb2s44']);
+  assert.equal(b.authors[0].institutionKey, 'inst:ror-042nb2s44');
+  assert.deepEqual(remote.authors.map(a => a.institutionKey), ['inst:ror-04t5xt781', 'inst:ror-03awzbc87', 'inst:ror-042nb2s44'], 'same name, different country');
+  assert.equal(out.aliases.lookup['northeastern university'].length, 2);
+  assert.equal(out.people.find(p => p.id === 1).appearances.length, 2);
+  assert.equal(out.people.find(p => p.id === 1).name, 'Ada');
   assert.deepEqual(out.topics.map(t => t.label), ['Accessibility']);
   assert.equal(out.meta.attribution, 'Programme data © ACM CHI 2026, licensed under CC BY-NC-SA 4.0.');
+});
+
+test('institution search: any spelling lands on the official record', () => {
+  const { aliases } = buildEdition(fixture(), opts);
+  assert.deepEqual(searchInstitutions(aliases, 'massachusetts', 1), ['inst:ror-042nb2s44']);
+  assert.deepEqual(searchInstitutions(aliases, 'mass inst of tech', 1), ['inst:ror-042nb2s44']);
+  assert.deepEqual(searchInstitutions(aliases, 'M.I.T', 1), ['inst:ror-042nb2s44']);
+  assert.equal(searchInstitutions(aliases, 'Northeastern').length, 2);
+  assert.deepEqual(searchInstitutions(aliases, '   '), []);
 });
 
 test('buildEdition is deterministic', () => {
