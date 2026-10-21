@@ -1,0 +1,595 @@
+{
+  "chi2023": {
+    "revision": 1,
+    "publicationVersion": 250,
+    "timeZone": "Europe/Berlin",
+    "papers": {
+      "total": 879,
+      "scheduledWithRoom": 879,
+      "scheduledPct": 100,
+      "unscheduled": 0,
+      "unscheduledIn": []
+    },
+    "talkTiming": {
+      "paperSessions": 148,
+      "talks": 148,
+      "block": 0,
+      "sessionLengthMin": {
+        "85": 110,
+        "90": 38
+      },
+      "sessionSizes": {
+        "3": 1,
+        "5": 6,
+        "6": 141
+      },
+      "talkDurationMin": {
+        "14": 879
+      }
+    },
+    "video": {
+      "papersWithVideo": 862,
+      "pct": 98.1,
+      "scheduledWithVideoPct": 98.1
+    },
+    "nextAppearance": {
+      "authors": 5446,
+      "withTimedAppearance": 5434,
+      "pct": 99.8,
+      "withTwoOrMore": 1433,
+      "twoOrMorePct": 26.3,
+      "example": {
+        "person": "chi2023:91994",
+        "now": 1682233200000,
+        "next": {
+          "role": "author",
+          "sessionKey": "chi2023:96617",
+          "contentKey": "chi2023:96102",
+          "roomKey": "chi2023:11007",
+          "start": 1682351100000,
+          "end": 1682351940000
+        }
+      }
+    },
+    "institutions": {
+      "distinct": 1130,
+      "withRor": 658,
+      "authorAffiliationsWithRorPct": 81.3,
+      "top50WithRor": 45,
+      "top50WithoutRor": [
+        "Microsoft Research",
+        "Google",
+        "University of Maryland",
+        "Adobe Research",
+        "Microsoft"
+      ],
+      "searchQueries": 53,
+      "searchTop1": 52,
+      "searchTop1Pct": 98.1,
+      "searchTop5Pct": 98.1,
+      "searchMisses": [
+        "Carnegie Mellon Unviersity → 없음"
+      ],
+      "ambiguousAliases": 40,
+      "ambiguousExamples": [
+        "aau → inst:ror-04m5j1k67, inst:ror-038b8e254",
+        "ait → inst:ror-04knbh022, inst:ror-0403qcr87",
+        "asu → inst:ror-03efmqc40, inst:ror-00cb9w016, inst:ror-01vme4277",
+        "au → inst:ror-01aj84f44, inst:ror-02v80fc35",
+        "bmc → inst:ror-010b9wj87, inst:ror-05sjwtp51"
+      ]
+    },
+    "topics": {
+      "chips": 168,
+      "multiSessionChips": 3,
+      "scheduledPaperCoveragePct": 100,
+      "examples": [
+        "Accessibility and Care",
+        "Accessible Interaction Techniques",
+        "AI, Cognition & Bias",
+        "AI for Health",
+        "AI for Visual Generation"
+      ]
+    },
+    "posters": {
+      "types": [
+        "Late-Breaking Work"
+      ],
+      "items": 327,
+      "scheduled": 327,
+      "scheduledPct": 100,
+      "slotTiming": {
+        "block": 327
+      }
+    },
+    "demos": {
+      "types": [
+        "Interactivity"
+      ],
+      "items": 55,
+      "scheduled": 55,
+      "scheduledPct": 100,
+      "slotTiming": {
+        "block": 165
+      }
+    },
+    "timeZoneSanity": {
+      "sessionsWithStart": 326,
+      "localStart07to22Pct": 100
+    },
+    "deterministic": true
+  },
+  "chi2024": {
+    "revision": 1,
+    "publicationVersion": 111,
+    "timeZone": "Pacific/Honolulu",
+    "papers": {
+      "total": 1057,
+      "scheduledWithRoom": 1057,
+      "scheduledPct": 100,
+      "unscheduled": 0,
+      "unscheduledIn": []
+    },
+    "talkTiming": {
+      "paperSessions": 219,
+      "talks": 203,
+      "block": 16,
+      "sessionLengthMin": {
+        "80": 204,
+        "500": 15
+      },
+      "sessionSizes": {
+        "3": 5,
+        "4": 43,
+        "5": 158,
+        "7": 3,
+        "8": 2,
+        "9": 4,
+        "11": 1,
+        "12": 1,
+        "13": 1,
+        "14": 1
+      },
+      "talkDurationMin": {
+        "15": 963,
+        "20": 1
+      }
+    },
+    "video": {
+      "papersWithVideo": 1057,
+      "pct": 100,
+      "scheduledWithVideoPct": 100
+    },
+    "nextAppearance": {
+      "authors": 6530,
+      "withTimedAppearance": 6525,
+      "pct": 99.9,
+      "withTwoOrMore": 2833,
+      "twoOrMorePct": 43.4,
+      "example": {
+        "person": "chi2024:140226",
+        "now": 1715454000000,
+        "next": {
+          "role": "author",
+          "sessionKey": "chi2024:156112",
+          "contentKey": "chi2024:147789",
+          "roomKey": "chi2024:11460",
+          "start": 1715738400000,
+          "end": 1715739300000
+        }
+      }
+    },
+    "institutions": {
+      "distinct": 1223,
+      "withRor": 728,
+      "authorAffiliationsWithRorPct": 84.1,
+      "top50WithRor": 48,
+      "top50WithoutRor": [
+        "Google",
+        "Microsoft Research"
+      ],
+      "searchQueries": 55,
+      "searchTop1": 54,
+      "searchTop1Pct": 98.2,
+      "searchTop5Pct": 100,
+      "searchMisses": [
+        "HKUST → inst:ror-050h0vm43"
+      ],
+      "ambiguousAliases": 41,
+      "ambiguousExamples": [
+        "aau → inst:ror-04m5j1k67, inst:ror-05q9m0937",
+        "arc → inst:ror-04knbh022, inst:ror-02acart68",
+        "asu → inst:ror-03efmqc40, inst:ror-00cb9w016",
+        "bsu → inst:ror-02e3zdp86, inst:ror-00k6tx165",
+        "bu → inst:ror-008rmbt77, inst:ror-05qwgg493, inst:ror-05wwcw481"
+      ]
+    },
+    "topics": {
+      "chips": 179,
+      "multiSessionChips": 32,
+      "scheduledPaperCoveragePct": 87.7,
+      "examples": [
+        "Accessibility and Aging",
+        "AI and Interaction Design",
+        "AI and UI Design",
+        "AI for Researchers",
+        "AI for Researchers and Educators"
+      ]
+    },
+    "posters": {
+      "types": [
+        "Late-Breaking Work"
+      ],
+      "items": 389,
+      "scheduled": 389,
+      "scheduledPct": 100,
+      "slotTiming": {
+        "block": 776
+      }
+    },
+    "demos": {
+      "types": [
+        "Interactivity"
+      ],
+      "items": 37,
+      "scheduled": 37,
+      "scheduledPct": 100,
+      "slotTiming": {
+        "block": 148
+      }
+    },
+    "timeZoneSanity": {
+      "sessionsWithStart": 526,
+      "localStart07to22Pct": 100
+    },
+    "deterministic": true
+  },
+  "chi2025": {
+    "revision": 1,
+    "publicationVersion": 224,
+    "timeZone": "Asia/Tokyo",
+    "papers": {
+      "total": 1249,
+      "scheduledWithRoom": 1249,
+      "scheduledPct": 100,
+      "unscheduled": 0,
+      "unscheduledIn": []
+    },
+    "talkTiming": {
+      "paperSessions": 172,
+      "talks": 172,
+      "block": 0,
+      "sessionLengthMin": {
+        "90": 172
+      },
+      "sessionSizes": {
+        "5": 8,
+        "6": 38,
+        "7": 126
+      },
+      "talkDurationMin": {
+        "12": 1150
+      }
+    },
+    "video": {
+      "papersWithVideo": 1187,
+      "pct": 95,
+      "scheduledWithVideoPct": 95
+    },
+    "nextAppearance": {
+      "authors": 7967,
+      "withTimedAppearance": 7967,
+      "pct": 100,
+      "withTwoOrMore": 3521,
+      "twoOrMorePct": 44.2,
+      "example": {
+        "person": "chi2025:182651",
+        "now": 1745625600000,
+        "next": {
+          "role": "author",
+          "sessionKey": "chi2025:195142",
+          "contentKey": "chi2025:188581",
+          "roomKey": "chi2025:11906",
+          "start": 1745979000000,
+          "end": 1745979720000
+        }
+      }
+    },
+    "institutions": {
+      "distinct": 1459,
+      "withRor": 857,
+      "authorAffiliationsWithRorPct": 84.6,
+      "top50WithRor": 47,
+      "top50WithoutRor": [
+        "Google",
+        "Microsoft Research",
+        "University of Maryland"
+      ],
+      "searchQueries": 55,
+      "searchTop1": 55,
+      "searchTop1Pct": 100,
+      "searchTop5Pct": 100,
+      "searchMisses": [],
+      "ambiguousAliases": 39,
+      "ambiguousExamples": [
+        "bsu → inst:ror-02e3zdp86, inst:ror-0567w8j84",
+        "bu → inst:ror-008rmbt77, inst:ror-05wwcw481, inst:ror-05qwgg493",
+        "cu → inst:ror-05bnh6r87, inst:ror-00hj8s172, inst:ror-00jc20583",
+        "hkust → inst:ror-00q4vv597, inst:ror-050h0vm43, inst:hkust",
+        "hri → inst:ror-028cc2127, inst:ror-059qgvg50"
+      ]
+    },
+    "topics": {
+      "chips": 218,
+      "multiSessionChips": 2,
+      "scheduledPaperCoveragePct": 100,
+      "examples": [
+        "3D Design and Fabrication",
+        "Accessibility",
+        "Advances in Programming and Software Development",
+        "Agent Design",
+        "AI-Assisted Creativity"
+      ]
+    },
+    "posters": {
+      "types": [
+        "Late-Breaking Work"
+      ],
+      "items": 619,
+      "scheduled": 619,
+      "scheduledPct": 100,
+      "slotTiming": {
+        "block": 1131
+      }
+    },
+    "demos": {
+      "types": [
+        "Interactivity"
+      ],
+      "items": 70,
+      "scheduled": 70,
+      "scheduledPct": 100,
+      "slotTiming": {
+        "block": 350
+      }
+    },
+    "timeZoneSanity": {
+      "sessionsWithStart": 551,
+      "localStart07to22Pct": 100
+    },
+    "deterministic": true
+  },
+  "chi2026": {
+    "revision": 1,
+    "publicationVersion": 86,
+    "timeZone": "Europe/Madrid",
+    "papers": {
+      "total": 1702,
+      "scheduledWithRoom": 1591,
+      "scheduledPct": 93.5,
+      "unscheduled": 111,
+      "unscheduledIn": [
+        "Video Presentations (Papers)"
+      ]
+    },
+    "talkTiming": {
+      "paperSessions": 232,
+      "talks": 232,
+      "block": 0,
+      "sessionLengthMin": {
+        "90": 232
+      },
+      "sessionSizes": {
+        "5": 1,
+        "6": 31,
+        "7": 200
+      },
+      "talkDurationMin": {
+        "12": 1591
+      }
+    },
+    "video": {
+      "papersWithVideo": 270,
+      "pct": 15.9,
+      "scheduledWithVideoPct": 10.1
+    },
+    "nextAppearance": {
+      "authors": 9725,
+      "withTimedAppearance": 8952,
+      "pct": 92.1,
+      "withTwoOrMore": 4158,
+      "twoOrMorePct": 42.8,
+      "example": {
+        "person": "chi2026:214026",
+        "now": 1776061800000,
+        "next": {
+          "role": "author",
+          "sessionKey": "chi2026:215041",
+          "contentKey": "chi2026:214863",
+          "roomKey": "chi2026:12324",
+          "start": 1776341700000,
+          "end": 1776347100000
+        }
+      }
+    },
+    "institutions": {
+      "distinct": 1752,
+      "withRor": 988,
+      "authorAffiliationsWithRorPct": 85.2,
+      "top50WithRor": 48,
+      "top50WithoutRor": [
+        "Google",
+        "Microsoft Research"
+      ],
+      "searchQueries": 55,
+      "searchTop1": 54,
+      "searchTop1Pct": 98.2,
+      "searchTop5Pct": 100,
+      "searchMisses": [
+        "HKUST → inst:ror-050h0vm43"
+      ],
+      "ambiguousAliases": 50,
+      "ambiguousExamples": [
+        "aau → inst:ror-04m5j1k67, inst:ror-05q9m0937",
+        "ait → inst:ror-04knbh022, inst:ror-0403qcr87",
+        "au → inst:ror-01aj84f44, inst:ror-028g18b61",
+        "bu → inst:ror-05qwgg493, inst:ror-008rmbt77, inst:ror-05wwcw481",
+        "cbnu → inst:ror-02wnxgj78, inst:ror-05q92br09"
+      ]
+    },
+    "topics": {
+      "chips": 241,
+      "multiSessionChips": 2,
+      "scheduledPaperCoveragePct": 100,
+      "examples": [
+        "Accessibility in Everyday Life",
+        "Affective Agents & Reflective Data",
+        "Aging and Later Life",
+        "AI and Interactive Tools for the Arts",
+        "AI-Assisted Clinical Diagnosis and Reasoning"
+      ]
+    },
+    "posters": {
+      "types": [
+        "Posters"
+      ],
+      "items": 807,
+      "scheduled": 667,
+      "scheduledPct": 82.7,
+      "slotTiming": {
+        "block": 1298
+      }
+    },
+    "demos": {
+      "types": [
+        "Interactive Demos"
+      ],
+      "items": 67,
+      "scheduled": 67,
+      "scheduledPct": 100,
+      "slotTiming": {
+        "block": 193
+      }
+    },
+    "timeZoneSanity": {
+      "sessionsWithStart": 457,
+      "localStart07to22Pct": 100
+    },
+    "deterministic": true
+  },
+  "sandbox": {
+    "revision": 2,
+    "publicationVersion": 224,
+    "timeZone": "Asia/Tokyo",
+    "papers": {
+      "total": 1263,
+      "scheduledWithRoom": 1261,
+      "scheduledPct": 99.8,
+      "unscheduled": 0,
+      "unscheduledIn": []
+    },
+    "talkTiming": {
+      "paperSessions": 172,
+      "talks": 172,
+      "block": 0,
+      "sessionLengthMin": {
+        "90": 172
+      },
+      "sessionSizes": {
+        "5": 8,
+        "6": 38,
+        "7": 126
+      },
+      "talkDurationMin": {
+        "12": 1150
+      }
+    },
+    "video": {
+      "papersWithVideo": 1187,
+      "pct": 94,
+      "scheduledWithVideoPct": 94
+    },
+    "nextAppearance": {
+      "authors": 8014,
+      "withTimedAppearance": 8014,
+      "pct": 100,
+      "withTwoOrMore": 3521,
+      "twoOrMorePct": 43.9,
+      "example": {
+        "person": "sandbox:182651",
+        "now": 1745625600000,
+        "next": {
+          "role": "author",
+          "sessionKey": "sandbox:195142",
+          "contentKey": "sandbox:188581",
+          "roomKey": "sandbox:11906",
+          "start": 1745979000000,
+          "end": 1745979720000
+        }
+      }
+    },
+    "institutions": {
+      "distinct": 1466,
+      "withRor": 857,
+      "authorAffiliationsWithRorPct": 84.2,
+      "top50WithRor": 47,
+      "top50WithoutRor": [
+        "Google",
+        "Microsoft Research",
+        "University of Maryland"
+      ],
+      "searchQueries": 55,
+      "searchTop1": 55,
+      "searchTop1Pct": 100,
+      "searchTop5Pct": 100,
+      "searchMisses": [],
+      "ambiguousAliases": 39,
+      "ambiguousExamples": [
+        "bsu → inst:ror-02e3zdp86, inst:ror-0567w8j84",
+        "bu → inst:ror-008rmbt77, inst:ror-05wwcw481, inst:ror-05qwgg493",
+        "cu → inst:ror-05bnh6r87, inst:ror-00hj8s172, inst:ror-00jc20583",
+        "hkust → inst:ror-00q4vv597, inst:ror-050h0vm43, inst:hkust",
+        "hri → inst:ror-028cc2127, inst:ror-059qgvg50"
+      ]
+    },
+    "topics": {
+      "chips": 218,
+      "multiSessionChips": 2,
+      "scheduledPaperCoveragePct": 98.9,
+      "examples": [
+        "3D Design and Fabrication",
+        "Accessibility",
+        "Advances in Programming and Software Development",
+        "Agent Design",
+        "AI-Assisted Creativity"
+      ]
+    },
+    "posters": {
+      "types": [
+        "Late-Breaking Work"
+      ],
+      "items": 619,
+      "scheduled": 619,
+      "scheduledPct": 100,
+      "slotTiming": {
+        "block": 1131
+      }
+    },
+    "demos": {
+      "types": [
+        "Interactivity"
+      ],
+      "items": 70,
+      "scheduled": 70,
+      "scheduledPct": 100,
+      "slotTiming": {
+        "block": 350
+      }
+    },
+    "timeZoneSanity": {
+      "sessionsWithStart": 565,
+      "localStart07to22Pct": 99.8
+    },
+    "deterministic": true
+  }
+}

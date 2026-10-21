@@ -1,0 +1,280 @@
+{
+ "_note": "How people might type an institution, and the ROR organization they mean. Used by data/scripts/report.mjs. Add real queries from user testing here.",
+ "queries": [
+  {
+   "query": "THU",
+   "ror": "https://ror.org/03cve4549",
+   "why": "common abbreviation of Tsinghua University"
+  },
+  {
+   "query": "CMU",
+   "ror": "https://ror.org/05x2bcf33",
+   "why": "common abbreviation of Carnegie Mellon University"
+  },
+  {
+   "query": "UW",
+   "ror": "https://ror.org/00cvxb145",
+   "why": "common abbreviation of University of Washington"
+  },
+  {
+   "query": "KAIST",
+   "ror": "https://ror.org/05apxxy63",
+   "why": "common abbreviation of KAIST"
+  },
+  {
+   "query": "UMich",
+   "ror": "https://ror.org/00jmfr291",
+   "why": "common abbreviation of University of Michigan"
+  },
+  {
+   "query": "ZJU",
+   "ror": "https://ror.org/00a2xv884",
+   "why": "common abbreviation of Zhejiang University"
+  },
+  {
+   "query": "Georgia Tech",
+   "ror": "https://ror.org/01zkghx44",
+   "why": "common abbreviation of Georgia Institute of Technology"
+  },
+  {
+   "query": "GT",
+   "ror": "https://ror.org/01zkghx44",
+   "why": "common abbreviation of Georgia Institute of Technology"
+  },
+  {
+   "query": "HKUST(GZ)",
+   "ror": "https://ror.org/050h0vm43",
+   "why": "common abbreviation of The Hong Kong University of Science and Technology (Guangzhou)"
+  },
+  {
+   "query": "HKUST-GZ",
+   "ror": "https://ror.org/050h0vm43",
+   "why": "common abbreviation of The Hong Kong University of Science and Technology (Guangzhou)"
+  },
+  {
+   "query": "UofT",
+   "ror": "https://ror.org/03dbr7087",
+   "why": "common abbreviation of University of Toronto"
+  },
+  {
+   "query": "SNU",
+   "ror": "https://ror.org/04h9pn542",
+   "why": "common abbreviation of Seoul National University"
+  },
+  {
+   "query": "NUS",
+   "ror": "https://ror.org/01tgyzw49",
+   "why": "common abbreviation of National University of Singapore"
+  },
+  {
+   "query": "UTokyo",
+   "ror": "https://ror.org/057zh3y96",
+   "why": "common abbreviation of The University of Tokyo"
+  },
+  {
+   "query": "HKUST",
+   "ror": "https://ror.org/00q4vv597",
+   "why": "common abbreviation of The Hong Kong University of Science and Technology"
+  },
+  {
+   "query": "MIT",
+   "ror": "https://ror.org/042nb2s44",
+   "why": "common abbreviation of Massachusetts Institute of Technology"
+  },
+  {
+   "query": "UChicago",
+   "ror": "https://ror.org/024mw5h28",
+   "why": "common abbreviation of University of Chicago"
+  },
+  {
+   "query": "UIUC",
+   "ror": "https://ror.org/047426m28",
+   "why": "common abbreviation of University of Illinois Urbana-Champaign"
+  },
+  {
+   "query": "UCL",
+   "ror": "https://ror.org/02jx3x895",
+   "why": "common abbreviation of University College London"
+  },
+  {
+   "query": "LMU",
+   "ror": "https://ror.org/05591te55",
+   "why": "common abbreviation of LMU Munich"
+  },
+  {
+   "query": "VT",
+   "ror": "https://ror.org/02smfhw86",
+   "why": "common abbreviation of Virginia Tech"
+  },
+  {
+   "query": "SKKU",
+   "ror": "https://ror.org/04q78tk20",
+   "why": "common abbreviation of Sungkyunkwan University"
+  },
+  {
+   "query": "SUSTech",
+   "ror": "https://ror.org/049tv2d57",
+   "why": "common abbreviation of Southern University of Science and Technology"
+  },
+  {
+   "query": "TU Delft",
+   "ror": "https://ror.org/02e2c7k09",
+   "why": "common abbreviation of Delft University of Technology"
+  },
+  {
+   "query": "UCSC",
+   "ror": "https://ror.org/03s65by71",
+   "why": "common abbreviation of University of California, Santa Cruz"
+  },
+  {
+   "query": "PolyU",
+   "ror": "https://ror.org/0030zas98",
+   "why": "common abbreviation of The Hong Kong Polytechnic University"
+  },
+  {
+   "query": "UCI",
+   "ror": "https://ror.org/04gyf1771",
+   "why": "common abbreviation of University of California, Irvine"
+  },
+  {
+   "query": "TU/e",
+   "ror": "https://ror.org/02c2kyt77",
+   "why": "common abbreviation of Eindhoven University of Technology"
+  },
+  {
+   "query": "UBC",
+   "ror": "https://ror.org/03rmrcq20",
+   "why": "common abbreviation of University of British Columbia"
+  },
+  {
+   "query": "SFU",
+   "ror": "https://ror.org/0213rcc28",
+   "why": "common abbreviation of Simon Fraser University"
+  },
+  {
+   "query": "USYD",
+   "ror": "https://ror.org/0384j8v12",
+   "why": "common abbreviation of The University of Sydney"
+  },
+  {
+   "query": "CityU",
+   "ror": "https://ror.org/03q8dnn23",
+   "why": "common abbreviation of City University of Hong Kong"
+  },
+  {
+   "query": "UW-Madison",
+   "ror": "https://ror.org/01y2jtd41",
+   "why": "common abbreviation of University of Wisconsin-Madison"
+  },
+  {
+   "query": "GIST",
+   "ror": "https://ror.org/024kbgz78",
+   "why": "common abbreviation of Gwangju Institute of Science and Technology"
+  },
+  {
+   "query": "KTH",
+   "ror": "https://ror.org/026vcq606",
+   "why": "common abbreviation of KTH Royal Institute of Technology"
+  },
+  {
+   "query": "UZH",
+   "ror": "https://ror.org/02crff812",
+   "why": "common abbreviation of University of Zurich"
+  },
+  {
+   "query": "카이스트",
+   "ror": "https://ror.org/05apxxy63",
+   "why": "nickname (ko)"
+  },
+  {
+   "query": "한국과학기술원",
+   "ror": "https://ror.org/05apxxy63",
+   "why": "official name (ko)"
+  },
+  {
+   "query": "서울대학교",
+   "ror": "https://ror.org/04h9pn542",
+   "why": "official name (ko)"
+  },
+  {
+   "query": "서울대",
+   "ror": "https://ror.org/04h9pn542",
+   "why": "short name (ko)"
+  },
+  {
+   "query": "연세대학교",
+   "ror": "https://ror.org/01wjejq96",
+   "why": "official name (ko)"
+  },
+  {
+   "query": "성균관대학교",
+   "ror": "https://ror.org/04q78tk20",
+   "why": "official name (ko)"
+  },
+  {
+   "query": "포항공대",
+   "ror": "https://ror.org/04xysgw12",
+   "why": "nickname (ko)"
+  },
+  {
+   "query": "清华大学",
+   "ror": "https://ror.org/03cve4549",
+   "why": "official name (zh)"
+  },
+  {
+   "query": "東京大学",
+   "ror": "https://ror.org/057zh3y96",
+   "why": "official name (ja)"
+  },
+  {
+   "query": "Carnegie Mellon Unviersity",
+   "ror": "https://ror.org/05x2bcf33",
+   "why": "typo seen in feed"
+  },
+  {
+   "query": "Univ. of Washington",
+   "ror": "https://ror.org/00cvxb145",
+   "why": "abbreviated word"
+  },
+  {
+   "query": "UC Irvine",
+   "ror": "https://ror.org/04gyf1771",
+   "why": "short form"
+  },
+  {
+   "query": "Penn State",
+   "ror": "https://ror.org/04p491231",
+   "why": "nickname"
+  },
+  {
+   "query": "U of T",
+   "ror": "https://ror.org/03dbr7087",
+   "why": "nickname"
+  },
+  {
+   "query": "Georgia Tech",
+   "ror": "https://ror.org/01zkghx44",
+   "why": "nickname"
+  },
+  {
+   "query": "Stanford",
+   "ror": "https://ror.org/00f54p054",
+   "why": "short form"
+  },
+  {
+   "query": "Cornell",
+   "ror": "https://ror.org/05bnh6r87",
+   "why": "short form"
+  },
+  {
+   "query": "ETH",
+   "ror": "https://ror.org/05a28rw58",
+   "why": "short form"
+  },
+  {
+   "query": "Todai",
+   "ror": "https://ror.org/057zh3y96",
+   "why": "nickname"
+  }
+ ]
+}
