@@ -8,9 +8,10 @@ ARC 기능에 필요한 정보가 공식 피드에 모두 있다.
 ## 방법
 - `npm run data:fetch`: 5개 피드의 version.json(`?t=`)을 조회하고, 리비전 파일만 `data/raw/<edition>/rev-NNN.json`에 저장. 이미 있으면 다시 받지 않음. latest.json은 받지 않음 (리비전 파일과 내용이 같고, 리비전 파일은 바뀌지 않으므로)
 - `npm run data:validate`: 공식 `/data/schema/v1.json`(draft 2020-12)으로 검사. ajv 사용
+- `npm run data:ror`: 기관 이름을 ROR(CC0)로 조회해 `data/curated/ror-*.json`에 캐시 (새 이름만 조회)
 - `npm run data:build`: `data/build/<edition>/`에 meta·papers·sessions·rooms·people·topics·aliases 생성
 - `node data/scripts/report.mjs`: 아래 숫자 전부 측정. 원본 결과는 [V0-data.results.json](V0-data.results.json)
-- `npm test`: 시간 변환, 발표 순서, 별칭, 결정성 테스트 6개
+- `npm test`: 시간 변환, 발표 순서, 기관 연결·검색, 결정성 테스트 6개
 
 | 피드 | 리비전 | publicationInfo.version |
 |---|---|---|
@@ -47,9 +48,9 @@ ARC 기능에 필요한 정보가 공식 피드에 모두 있다.
 | 영상 있는 논문 | **15.9%** | 95.0% | 100% | 98.1% |
 | 저자 중 시간 있는 등장 1회 이상 | **92.1%** | 100% | 99.9% | 99.8% |
 | 저자 중 등장 2회 이상 (다음 등장이 의미 있음) | 42.8% | 44.2% | 43.4% | 26.3% |
-| 상위 50 기관 중 흔한 약어 있는 곳 | 32 | 30 | 25 | 22 |
-| 약어 자동 생성(첫 글자) 적중 | **46.9%** | 43.3% | 48.0% | 40.9% |
-| 수동 약어표로 정확히 1곳 연결 | 100% | 100% | 100% | 100% |
+| 저자 소속 중 ROR 공식 기관에 연결 | **85.2%** | 84.6% | 84.1% | 81.3% |
+| 상위 50 기관 중 ROR 연결 | 48 | 47 | 48 | 45 |
+| 기관 검색어 55개 → 1순위가 맞음 | **98.2%** | 100% | 98.2% | 98.1% |
 | 주제 칩 (세션 이름 기준) | 241개 | 218 | 179 | 168 |
 | 시간 있는 논문 중 칩 있음 | 100% | 100% | 87.7% | 100% |
 | 포스터 시간 있음 | 82.7% (블록만) | 100% (블록) | 100% (블록) | 100% (블록) |
@@ -60,7 +61,11 @@ ARC 기능에 필요한 정보가 공식 피드에 모두 있다.
 - **실제 발표 순서와 맞는지는 피드로 확인할 수 없음** (contentIds 순서가 발표 순서라는 가정)
 - **영상 15.9%**: chi2026은 학회 직후에 고정된 데이터라 영상이 일부만 있음. 2027 실서비스 중에는 영상이 거의 없을 가능성이 높음 → V2의 "현장 가치" 가중치는 대부분 1.0
 - **다음 등장**: `people[].appearances`(저자 발표 + 좌장, 시각순)에서 `start ≥ 지금`인 첫 항목. 계산 가능
-- **기관**: chi2026 기관 이름 2,131개 (오타·표기 차이 포함, 예: "Carnegie Mellon Unviersity"). 자동 약어는 겹침이 많음 (UW → Washington·Waterloo·Warwick…, 총 241개 별칭이 여러 기관을 가리킴). 그래서 수동 약어표 `data/curated/institution-abbr.json`이 우선하고, 자동 약어는 보조로만 씀. "MIT"처럼 약어로 적힌 기관은 정식 이름으로 합침
+- **기관** ([결정 002](../decisions/002-institutions-via-ror.md)): 피드 표기는 사람마다 달라서 (chi2026 2,131개, 오타 포함) ROR 공식 기관으로 연결함. 같은 ROR ID인 표기는 한 기관(`inst:ror-<id>`, ROR 공식 이름)으로 합쳐 1,752개가 됨. 검색은 약어·별칭·현지어 이름("서울대학교", "清华大学")·앞부분만 친 단어("univ of wash")를 모두 받고, 결과는 항상 기관 키
+  - 처음 시도한 첫 글자 자동 약어는 상위 50곳 중 46.9%만 맞았고 241개가 여러 기관과 겹쳐서 버림
+  - ROR이 엉뚱하게 연결한 27개 (예: Purdue University → Hue University of Education)는 이름에 겹치는 단어가 없으면 버리는 검사로 걸러냄
+  - 검색어 목록 `tests/data/institution-queries.json` 55개 (약어, 한·중·일 이름, 별명, 오타). 수동 별칭 8곳 추가 전 81.8% → 추가 후 98.2%. **이 수동 별칭은 시험 목록을 보고 넣은 것이라 점수가 과대평가됨** → 실제 사용자 검색어로 다시 재야 함
+  - 남은 실패: "HKUST" → HKUST(광저우)가 1순위 (본교는 5위 안). 회사(Google, Microsoft Research)는 ROR에서 나라별 지사로만 있어서 연결 안 함
 - **주제 칩**: 세션 이름 끝의 "I", "II", "A" 등을 떼고 묶음. chi2026은 이름이 거의 다 달라서 241개 중 2개만 여러 세션을 묶음 → 칩이 너무 많음. 화면용으로는 더 큰 묶음이 필요 (V1 개념과 연결)
 - **포스터·데모**: 개별 시각은 없고 세션 블록(90분)만 있음. chi2026 포스터 807개 중 140개는 원격 영상(시간 없음)
 
@@ -76,6 +81,6 @@ ARC 기능에 필요한 정보가 공식 피드에 모두 있다.
 ## 다음 행동
 - V2: `papers[].slots`, `sessions[].timing`(talks/block/none), `scheduled` 사용. 시각은 이미 UTC 순간이므로 `Date.now()`와 바로 비교
 - V2 계약: 내부 키 `edition:id`, 기관 `inst:<slug>`, 주제 `topic:<slug>`를 그대로 쓸 것
-- 사람: `data/curated/institution-abbr.json` 약어 검토 (상위 50 중 빠진 2곳: University of Melbourne, Pennsylvania State University)
+- 사람: `data/curated/institutions.json` 검토, 실제로 쓸 법한 기관 검색어를 `tests/data/institution-queries.json`에 추가
 - app@chi2027.acm.org 문의: ① 시각이 현지 벽시계 값인지 확인 ② 발표별 시각/순서 제공 여부 ③ 스키마 확정 일정
 - V1: 주제 칩 241개는 너무 잘게 나뉨 → 추천 개념으로 묶기

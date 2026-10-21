@@ -11,7 +11,8 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 명령 (Node 20, `arc/`에서):
   - `npm run data:fetch [edition...]` : version.json 조회 → 새 리비전만 data/raw에 저장
   - `npm run data:validate` : 공식 스키마 검사 (스키마는 초안이라 chi2025 외 실패가 정상, V0 문서 참고)
-  - `npm run data:build [edition...]` : data/build 생성 (data/raw 필요)
+  - `npm run data:ror` : data/raw의 새 기관 이름만 ROR로 조회해 data/curated/ror-*.json에 캐시 (새 리비전 받은 뒤)
+  - `npm run data:build [edition...]` : data/build 생성 (data/raw 필요, 네트워크 안 씀)
   - `node data/scripts/report.mjs` : V0 측정값 JSON 출력
   - `npm test` : 전체 테스트 / 하나만: `node --test --test-name-pattern="talk slots" tests/`
 - git은 반드시 `arc/` 안에서 실행. 상위 `chi2027-arc/`는 자체 레포가 아니라 홈 디렉토리(`/Users/dongchankim`) 레포로 잡힘
@@ -43,6 +44,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
   - 화면에 출처 표기: "Programme data © ACM CHI 2027, licensed under CC BY-NC-SA 4.0." (연도는 사용 중인 edition)
   - data/ 아래 파생 데이터는 CC BY-NC-SA 4.0, 앱 코드는 MIT
 - 문의: app@chi2027.acm.org (평면도 등)
+- 예외: 기관 이름 정리만 ROR(CC0)을 보조로 사용 (docs/decisions/002). 빌드 시점에만 조회·캐시, 앱 실행 중 호출 금지
 
 ## 원칙 (절대 어기지 말 것)
 - 개인 데이터는 기기에만 저장 (DeviceState 하나로 통일). 계정·서버 저장 없음
@@ -54,7 +56,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 ## 구조
 - data/raw/<edition>/rev-<NNN>.json : 받은 원본 (수정 금지)
 - data/build/<edition>/ : 정규화 결과 (단일 데이터 원천, 앱·추천·지니 모두 이것만 읽음). meta·papers·sessions·rooms·people·topics·aliases. 키: `edition:id`, 기관 `inst:<slug>`, 주제 `topic:<slug>`
-- data/curated/ : 사람이 관리하는 입력 (기관 약어표). data/scripts/ : fetch·validate·build·report
+- data/curated/ : 빌드 입력 (institutions.json은 사람이 관리, ror-*.json은 ROR 캐시). data/scripts/ : fetch·validate·ror·build·report
 - data/venue/<edition>.json : 시간대, 방·층, 랜드마크, 이동 시간 (해마다 교체)
 - contracts/ : 기능 간 계약 JSON 스키마 (바꾸면 schema_version 올리고 CHANGELOG 기록)
 - app/ : Vite + React + TS + Tailwind, 토큰은 app/src/tokens.css

@@ -52,36 +52,31 @@
       }
     },
     "institutions": {
-      "distinct": 1341,
-      "top50WithCommonAbbr": 22,
-      "autoAcronymHits": 9,
-      "autoAcronymPct": 40.9,
-      "curatedResolvesUniquely": 22,
-      "curatedPct": 100,
-      "top50NotReviewed": [
-        "University of Bath",
-        "University of Melbourne",
-        "Pennsylvania State University",
-        "National Yang Ming Chiao Tung University",
-        "Rochester Institute of Technology",
-        "Aalborg University",
-        "Lancaster University",
-        "University of Siegen",
-        "Hasso Plattner Institute",
+      "distinct": 1130,
+      "withRor": 658,
+      "authorAffiliationsWithRorPct": 81.3,
+      "top50WithRor": 45,
+      "top50WithoutRor": [
+        "Microsoft Research",
+        "Google",
+        "University of Maryland",
         "Adobe Research",
-        "RWTH Aachen University",
-        "University of Colorado Boulder",
-        "Microsoft",
-        "University of Nottingham",
-        "Columbia University"
+        "Microsoft"
       ],
-      "ambiguousAliases": 170,
+      "searchQueries": 53,
+      "searchTop1": 52,
+      "searchTop1Pct": 98.1,
+      "searchTop5Pct": 98.1,
+      "searchMisses": [
+        "Carnegie Mellon Unviersity → 없음"
+      ],
+      "ambiguousAliases": 40,
       "ambiguousExamples": [
-        "ai → inst:adobe-inc, inst:apple-inc, inst:aces-inc, inst:allen-institute",
-        "ar → inst:adobe-research, inst:autodesk-research",
-        "asu → inst:arizona-state-university, inst:ain-shams-university, inst:albany-state-university",
-        "au → inst:aarhus-university, inst:aalborg-university, inst:aalto-university, inst:aarhus-univerrsity, inst:abertay-university, inst:ashesi-university, inst:auburn-university",
-        "bmc → inst:boston-medical-center, inst:bryn-mawr-college"
+        "aau → inst:ror-04m5j1k67, inst:ror-038b8e254",
+        "ait → inst:ror-04knbh022, inst:ror-0403qcr87",
+        "asu → inst:ror-03efmqc40, inst:ror-00cb9w016, inst:ror-01vme4277",
+        "au → inst:ror-01aj84f44, inst:ror-02v80fc35",
+        "bmc → inst:ror-010b9wj87, inst:ror-05sjwtp51"
       ]
     },
     "topics": {
@@ -185,35 +180,28 @@
       }
     },
     "institutions": {
-      "distinct": 1444,
-      "top50WithCommonAbbr": 25,
-      "autoAcronymHits": 12,
-      "autoAcronymPct": 48,
-      "curatedResolvesUniquely": 25,
-      "curatedPct": 100,
-      "top50NotReviewed": [
-        "Pennsylvania State University",
-        "University of Melbourne",
-        "Google Research",
-        "University of Bath",
-        "Cornell Tech",
-        "University of California, San Diego",
-        "Harvard University",
-        "University of Copenhagen",
-        "Rochester Institute of Technology",
-        "University of Illinois at Urbana-Champaign",
-        "University of Colorado Boulder",
-        "University of Siegen",
-        "University of Nottingham",
-        "Indiana University"
+      "distinct": 1223,
+      "withRor": 728,
+      "authorAffiliationsWithRorPct": 84.1,
+      "top50WithRor": 48,
+      "top50WithoutRor": [
+        "Google",
+        "Microsoft Research"
       ],
-      "ambiguousAliases": 167,
+      "searchQueries": 55,
+      "searchTop1": 54,
+      "searchTop1Pct": 98.2,
+      "searchTop5Pct": 100,
+      "searchMisses": [
+        "HKUST → inst:ror-050h0vm43"
+      ],
+      "ambiguousAliases": 41,
       "ambiguousExamples": [
-        "ai → inst:apple-inc, inst:arch-inc, inst:adobe-inc",
-        "ait → inst:assachusetts-institute-of-technology, inst:austrian-institute-of-technology",
-        "anu → inst:australian-national-university, inst:anu",
-        "ar → inst:adobe-research, inst:autodesk-research, inst:atto-research",
-        "as → inst:adobe-systems, inst:amwell-science, inst:aldi-sued"
+        "aau → inst:ror-04m5j1k67, inst:ror-05q9m0937",
+        "arc → inst:ror-04knbh022, inst:ror-02acart68",
+        "asu → inst:ror-03efmqc40, inst:ror-00cb9w016",
+        "bsu → inst:ror-02e3zdp86, inst:ror-00k6tx165",
+        "bu → inst:ror-008rmbt77, inst:ror-05qwgg493, inst:ror-05wwcw481"
       ]
     },
     "topics": {
@@ -308,27 +296,27 @@
       }
     },
     "institutions": {
-      "distinct": 1761,
-      "top50WithCommonAbbr": 30,
-      "autoAcronymHits": 13,
-      "autoAcronymPct": 43.3,
-      "curatedResolvesUniquely": 30,
-      "curatedPct": 100,
-      "top50NotReviewed": [
-        "The University of Melbourne",
-        "Pennsylvania State University",
-        "Cornell Tech",
-        "University of Nottingham",
-        "University of Colorado Boulder",
-        "University of California, San Diego"
+      "distinct": 1459,
+      "withRor": 857,
+      "authorAffiliationsWithRorPct": 84.6,
+      "top50WithRor": 47,
+      "top50WithoutRor": [
+        "Google",
+        "Microsoft Research",
+        "University of Maryland"
       ],
-      "ambiguousAliases": 204,
+      "searchQueries": 55,
+      "searchTop1": 55,
+      "searchTop1Pct": 100,
+      "searchTop5Pct": 100,
+      "searchMisses": [],
+      "ambiguousAliases": 39,
       "ambiguousExamples": [
-        "aa → inst:amazon-a9, inst:applied-arts",
-        "abiua → inst:auckland-bioengineering-institute-university-of-auckland, inst:auckland-bioengineering-institute-the-university-of-auckland",
-        "ag → inst:alibaba-group, inst:ant-group",
-        "ai → inst:apple-inc, inst:aces-inc, inst:allen-institute, inst:arch-inc, inst:aviz-inria",
-        "al → inst:accenture-labs, inst:algorithm-labs"
+        "bsu → inst:ror-02e3zdp86, inst:ror-0567w8j84",
+        "bu → inst:ror-008rmbt77, inst:ror-05wwcw481, inst:ror-05qwgg493",
+        "cu → inst:ror-05bnh6r87, inst:ror-00hj8s172, inst:ror-00jc20583",
+        "hkust → inst:ror-00q4vv597, inst:ror-050h0vm43, inst:hkust",
+        "hri → inst:ror-028cc2127, inst:ror-059qgvg50"
       ]
     },
     "topics": {
@@ -425,23 +413,28 @@
       }
     },
     "institutions": {
-      "distinct": 2131,
-      "top50WithCommonAbbr": 32,
-      "autoAcronymHits": 15,
-      "autoAcronymPct": 46.9,
-      "curatedResolvesUniquely": 32,
-      "curatedPct": 100,
-      "top50NotReviewed": [
-        "University of Melbourne",
-        "Pennsylvania State University"
+      "distinct": 1752,
+      "withRor": 988,
+      "authorAffiliationsWithRorPct": 85.2,
+      "top50WithRor": 48,
+      "top50WithoutRor": [
+        "Google",
+        "Microsoft Research"
       ],
-      "ambiguousAliases": 241,
+      "searchQueries": 55,
+      "searchTop1": 54,
+      "searchTop1Pct": 98.2,
+      "searchTop5Pct": 100,
+      "searchMisses": [
+        "HKUST → inst:ror-050h0vm43"
+      ],
+      "ambiguousAliases": 50,
       "ambiguousExamples": [
-        "aad → inst:academy-of-arts-design, inst:academy-of-art-design",
-        "aadtu → inst:academy-of-art-design-tsinghua-university, inst:academy-of-arts-design-tsinghua-university",
-        "aait → inst:ait-austrian-institute-of-technology, inst:ait-austrian-institute-of-technnology",
-        "ac → inst:aisin-corporation, inst:alibaba-cloud",
-        "ag → inst:alibaba-group, inst:ant-group"
+        "aau → inst:ror-04m5j1k67, inst:ror-05q9m0937",
+        "ait → inst:ror-04knbh022, inst:ror-0403qcr87",
+        "au → inst:ror-01aj84f44, inst:ror-028g18b61",
+        "bu → inst:ror-05qwgg493, inst:ror-008rmbt77, inst:ror-05wwcw481",
+        "cbnu → inst:ror-02wnxgj78, inst:ror-05q92br09"
       ]
     },
     "topics": {
@@ -536,27 +529,27 @@
       }
     },
     "institutions": {
-      "distinct": 1768,
-      "top50WithCommonAbbr": 30,
-      "autoAcronymHits": 13,
-      "autoAcronymPct": 43.3,
-      "curatedResolvesUniquely": 30,
-      "curatedPct": 100,
-      "top50NotReviewed": [
-        "The University of Melbourne",
-        "Pennsylvania State University",
-        "Cornell Tech",
-        "University of Nottingham",
-        "University of Colorado Boulder",
-        "University of California, San Diego"
+      "distinct": 1466,
+      "withRor": 857,
+      "authorAffiliationsWithRorPct": 84.2,
+      "top50WithRor": 47,
+      "top50WithoutRor": [
+        "Google",
+        "Microsoft Research",
+        "University of Maryland"
       ],
-      "ambiguousAliases": 204,
+      "searchQueries": 55,
+      "searchTop1": 55,
+      "searchTop1Pct": 100,
+      "searchTop5Pct": 100,
+      "searchMisses": [],
+      "ambiguousAliases": 39,
       "ambiguousExamples": [
-        "aa → inst:amazon-a9, inst:applied-arts",
-        "abiua → inst:auckland-bioengineering-institute-university-of-auckland, inst:auckland-bioengineering-institute-the-university-of-auckland",
-        "ag → inst:alibaba-group, inst:ant-group",
-        "ai → inst:apple-inc, inst:aces-inc, inst:allen-institute, inst:arch-inc, inst:aviz-inria",
-        "al → inst:accenture-labs, inst:algorithm-labs"
+        "bsu → inst:ror-02e3zdp86, inst:ror-0567w8j84",
+        "bu → inst:ror-008rmbt77, inst:ror-05wwcw481, inst:ror-05qwgg493",
+        "cu → inst:ror-05bnh6r87, inst:ror-00hj8s172, inst:ror-00jc20583",
+        "hkust → inst:ror-00q4vv597, inst:ror-050h0vm43, inst:hkust",
+        "hri → inst:ror-028cc2127, inst:ror-059qgvg50"
       ]
     },
     "topics": {

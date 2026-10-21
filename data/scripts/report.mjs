@@ -2,6 +2,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { buildEdition, loadEdition, normalizeName } from './build.mjs';
+import { searchInstitutions } from './search.mjs';
 
 const BUILD = new URL('../build/', import.meta.url);
 const load = async (e, f) => JSON.parse(await readFile(new URL(`${e}/${f}.json`, BUILD)));
@@ -13,7 +14,8 @@ export function nextAppearance(person, now) {
 
 const localHour = (ms, tz) => Number(new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', hourCycle: 'h23' }).format(ms));
 
-const curatedNames = new Set(Object.keys(JSON.parse(await readFile(new URL('../curated/institution-abbr.json', import.meta.url))).abbreviations).map(normalizeName));
+// How people might search for an institution -> the ROR organization they mean.
+const queries = JSON.parse(await readFile(new URL('../../tests/data/institution-queries.json', import.meta.url))).queries;
 const editions = (await readdir(BUILD, { withFileTypes: true })).filter(d => d.isDirectory()).map(d => d.name).sort();
 const out = {};
 for (const e of editions) {
@@ -40,13 +42,14 @@ for (const e of editions) {
   const first = sessions.filter(s => s.start != null).map(s => s.start).sort((a, b) => a - b)[0];
   const sample = timed[0];
 
-  const top50 = aliases.institutions.slice(0, 50);
-  const withTruth = top50.filter(i => i.abbreviations.curated.length);
-  const autoHit = withTruth.filter(i => i.abbreviations.auto.some(a => i.abbreviations.curated.some(c => normalizeName(c) === normalizeName(a))));
-  const resolves = withTruth.filter(i => i.abbreviations.curated.every(c => {
-    const hit = aliases.lookup[normalizeName(c)];
-    return hit && hit.length === 1 && hit[0] === i.key;
-  }));
+  const insts = aliases.institutions;
+  const top50 = insts.slice(0, 50);
+  const totalAuthors = insts.reduce((a, i) => a + i.authorCount, 0);
+  const rorAuthors = insts.filter(i => i.rorId).reduce((a, i) => a + i.authorCount, 0);
+  const keyOfRor = new Map(insts.filter(i => i.rorId).map(i => [i.rorId, i.key]));
+  const askable = queries.filter(q => keyOfRor.has(q.ror));
+  const answered = askable.filter(q => searchInstitutions(aliases, q.query, 1)[0] === keyOfRor.get(q.ror));
+  const top5 = askable.filter(q => searchInstitutions(aliases, q.query, 5).includes(keyOfRor.get(q.ror)));
   const ambiguous = Object.entries(aliases.lookup).filter(([, v]) => v.length > 1);
 
   const topicCovered = new Set(topics.flatMap(t => t.contentKeys));
@@ -77,10 +80,11 @@ for (const e of editions) {
       example: sample ? { person: sample.key, now: first, next: nextAppearance(sample, first) } : null,
     },
     institutions: {
-      distinct: aliases.institutions.length, top50WithCommonAbbr: withTruth.length,
-      autoAcronymHits: autoHit.length, autoAcronymPct: pct(autoHit.length, withTruth.length),
-      curatedResolvesUniquely: resolves.length, curatedPct: pct(resolves.length, withTruth.length),
-      top50NotReviewed: top50.filter(i => !curatedNames.has(normalizeName(i.name))).map(i => i.name),
+      distinct: insts.length, withRor: insts.filter(i => i.rorId).length,
+      authorAffiliationsWithRorPct: pct(rorAuthors, totalAuthors),
+      top50WithRor: top50.filter(i => i.rorId).length, top50WithoutRor: top50.filter(i => !i.rorId).map(i => i.name),
+      searchQueries: askable.length, searchTop1: answered.length, searchTop1Pct: pct(answered.length, askable.length), searchTop5Pct: pct(top5.length, askable.length),
+      searchMisses: askable.filter(q => !answered.includes(q)).map(q => `${q.query} → ${searchInstitutions(aliases, q.query, 1)[0] ?? '없음'}`),
       ambiguousAliases: ambiguous.length, ambiguousExamples: ambiguous.slice(0, 5).map(([k, v]) => `${k} → ${v.join(', ')}`),
     },
     topics: {
