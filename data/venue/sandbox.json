@@ -1,0 +1,5 @@
+{
+  "edition": "sandbox",
+  "timeZone": "Asia/Tokyo",
+  "note": "Synthetic feed; uses the feed conference.timeZoneName."
+}
