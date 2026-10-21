@@ -16,6 +16,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
   - `node data/scripts/report.mjs` : V0 측정값 JSON 출력
   - `npm run contracts:check` : 계약 스키마와 examples 검사
   - `node tests/planner/bench.mjs` : 플래너 하루 계산 시간 (data/build 필요)
+  - `node tests/planner/try.mjs "키워드" [--day YYYY-MM-DD] [--wheelchair]` : 사람이 루트를 눈으로 확인 (관련도는 임시 키워드 점수)
   - `npm test` : 전체 테스트 / 하나만: `node --test --test-name-pattern="talk slots" tests/`
 - git은 반드시 `arc/` 안에서 실행. 상위 `chi2027-arc/`는 자체 레포가 아니라 홈 디렉토리(`/Users/dongchankim`) 레포로 잡힘
 
