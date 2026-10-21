@@ -48,7 +48,7 @@ ARC의 기능들(추천·플래너·지니·자막·앱)이 주고받는 데이�
 - 쉬는 시간·점심 비우기, 하루 시작·끝 시각 지정
 - 포스터·데모는 90분 세션 전체를 차지하는 것으로 계산됨 (잠깐 들르는 것으로 볼지)
 
-## Wonjune에게 보낼 것 (계약 확정 후)
+## Wonjune에게 보낼 것 (계약 확정 후. 지금 공유할 내용은 [recsys/README.md](../recsys/README.md))
 1. `RecommendRequest.schema.json`, `RecommendResponse.schema.json`과 예시 파일
 2. 데이터 받기: `npm ci && npm run data:fetch && npm run data:build` → `data/build/chi2026/papers.json` (필드 설명: docs/stages/00-data.md ⑤)
 3. 출력 검사: 모델 출력을 `contracts/examples/RecommendResponse.<이름>.json`으로 저장 → `npm run contracts:check`

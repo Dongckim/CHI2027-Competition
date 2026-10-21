@@ -1,31 +1,26 @@
-// Print a day route for a few keywords, to eyeball the planner.
-// Usage: node tests/planner/try.mjs "screen reader accessibility" [--day 2026-04-14] [--wheelchair] [--edition chi2026] [--top 50]
+// Print day routes for a candidate list, to eyeball the planner. The planner does not recommend:
+// candidates come from the recommender (recsys/) or are picked by hand.
+// Usage: node tests/planner/try.mjs <candidates.json> [--day 2026-04-14] [--wheelchair] [--edition chi2026]
+// candidates.json: [{ "paperKey": "chi2026:223509", "relevance": 0.9 }, ...]  (relevance 0..1)
 import { readFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import { indexData, localDay, planDay } from '../../app/src/planner/plan.js';
 
 const { values: opt, positionals } = parseArgs({
   allowPositionals: true,
-  options: { day: { type: 'string' }, wheelchair: { type: 'boolean', default: false }, edition: { type: 'string', default: 'chi2026' }, top: { type: 'string', default: '50' } },
+  options: { day: { type: 'string' }, wheelchair: { type: 'boolean', default: false }, edition: { type: 'string', default: 'chi2026' } },
 });
-const query = positionals.join(' ').toLowerCase();
-if (!query) { console.error('Usage: node tests/planner/try.mjs "keywords" [--day YYYY-MM-DD] [--wheelchair] [--edition chi2026] [--top 50]'); process.exit(1); }
+if (positionals.length !== 1) { console.error('Usage: node tests/planner/try.mjs <candidates.json> [--day YYYY-MM-DD] [--wheelchair] [--edition chi2026]'); process.exit(1); }
+const candidates = JSON.parse(readFileSync(positionals[0]));
+const bad = Array.isArray(candidates) ? candidates.filter(c => typeof c?.paperKey !== 'string' || !(c.relevance >= 0 && c.relevance <= 1)) : [candidates];
+if (bad.length) { console.error(`each item needs paperKey (string) and relevance (0..1): ${JSON.stringify(bad.slice(0, 3))}`); process.exit(1); }
 
 const load = f => JSON.parse(readFileSync(new URL(`../../data/build/${opt.edition}/${f}.json`, import.meta.url)));
 const data = { meta: load('meta'), papers: load('papers'), sessions: load('sessions'), rooms: load('rooms') };
 const index = indexData(data);
 const tz = data.meta.timeZone;
 
-// shortcut: keyword counting stands in for the recommender until V1 (#2).
-const words = query.split(/\s+/).filter(w => w.length > 2);
-const scored = data.papers.map(p => {
-  const title = p.title.toLowerCase();
-  const abs = (p.abstract || '').toLowerCase();
-  return { paperKey: p.key, raw: words.reduce((s, w) => s + (title.includes(w) ? 3 : 0) + (abs.includes(w) ? 1 : 0), 0) };
-}).filter(x => x.raw > 0).sort((a, b) => b.raw - a.raw || (a.paperKey < b.paperKey ? -1 : 1)).slice(0, Number(opt.top));
-const max = scored[0]?.raw || 1;
-const candidates = scored.map(x => ({ paperKey: x.paperKey, relevance: x.raw / max }));
-console.log(`"${query}": ${candidates.length} candidate papers (keyword match, top ${opt.top})\n`);
+console.log(`${positionals[0]}: ${candidates.length} candidates`);
 
 const time = ms => new Date(ms).toLocaleTimeString('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit' });
 const room = k => index.rooms.get(k)?.name ?? '?';
