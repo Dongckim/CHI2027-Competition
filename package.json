@@ -1,0 +1,17 @@
+{
+  "name": "arc",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "data:fetch": "node data/scripts/fetch.mjs",
+    "data:validate": "node data/scripts/validate.mjs",
+    "data:ror": "node data/scripts/ror.mjs",
+    "data:build": "node data/scripts/build.mjs",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "_note": "Hand-maintained additions to ROR. ror: feed name -> ROR id (or {country: ROR id}) for names ROR's affiliation matcher refuses. aliases: ROR id or feed name -> extra search names ROR lacks. Needs human review.",
+  "ror": {
+    "KAIST": "https://ror.org/05apxxy63",
+    "MIT": "https://ror.org/042nb2s44",
+    "Northeastern University": {
+      "United States": "https://ror.org/04t5xt781",
+      "Canada": "https://ror.org/04t5xt781",
+      "China": "https://ror.org/03awzbc87"
+    },
+    "Northwestern University": "https://ror.org/000e0be47",
+    "Purdue University": "https://ror.org/02dqehb95"
+  },
+  "aliases": {
+    "https://ror.org/03dbr7087": [
+      "UofT",
+      "U of T"
+    ],
+    "https://ror.org/02smfhw86": [
+      "VT"
+    ],
+    "https://ror.org/03q8dnn23": [
+      "CityU"
+    ],
+    "https://ror.org/05apxxy63": [
+      "카이스트"
+    ],
+    "https://ror.org/04xysgw12": [
+      "POSTECH",
+      "포항공대",
+      "포스텍"
+    ],
+    "https://ror.org/00f54p054": [
+      "Stanford"
+    ],
+    "https://ror.org/05bnh6r87": [
+      "Cornell"
+    ],
+    "https://ror.org/05a28rw58": [
+      "ETH"
+    ]
+  }
+}
