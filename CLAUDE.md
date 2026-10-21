@@ -7,7 +7,13 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 제출 마감 2026-12-04. 학회 2027-05-10~14, Pittsburgh (David L. Lawrence Convention Center).
 
 ## 현재 상태
-- 빈 뼈대: 커밋 없음, 모든 폴더 비어 있음. 빌드·린트·테스트 명령은 도구 정해지면 여기에 추가
+- V0(데이터) 완료. app/·functions/·recsys/·contracts/는 아직 비어 있음
+- 명령 (Node 20, `arc/`에서):
+  - `npm run data:fetch [edition...]` : version.json 조회 → 새 리비전만 data/raw에 저장
+  - `npm run data:validate` : 공식 스키마 검사 (스키마는 초안이라 chi2025 외 실패가 정상, V0 문서 참고)
+  - `npm run data:build [edition...]` : data/build 생성 (data/raw 필요)
+  - `node data/scripts/report.mjs` : V0 측정값 JSON 출력
+  - `npm test` : 전체 테스트 / 하나만: `node --test --test-name-pattern="talk slots" tests/`
 - git은 반드시 `arc/` 안에서 실행. 상위 `chi2027-arc/`는 자체 레포가 아니라 홈 디렉토리(`/Users/dongchankim`) 레포로 잡힘
 
 ## 현재 단계: 기능 검증 (화면 만들지 않음)
@@ -27,7 +33,8 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
   - version.json 조회는 30초에 1번 이하 (권장 1분에 1번)
   - latest.json 반복 다운로드 금지, revisions 파일은 변하지 않으므로 영구 캐시
   - 호스팅이 모든 파일을 10분 캐시함 → latest.json은 최대 10분 늦을 수 있음
-- 시간: epoch ms (시간대 없음). 화면 표시 시간대는 data/venue/<edition>.json의 IANA 시간대로 변환
+- 시간: 피드 epoch ms는 현지 벽시계 시각을 UTC처럼 적은 값 (docs/decisions/001). data/build의 시각은 빌드가 실제 UTC 순간으로 바꾼 값 → Date.now()와 바로 비교, 화면은 data/venue/<edition>.json의 IANA 시간대로 표시
+- 발표별 시각은 피드에 없음: 세션 시작 + 콘텐츠 종류 duration × 순서(contentIds)로 계산. 길이는 해마다 다름 (12분 상수 금지)
   - chi2026 = Europe/Madrid, chi2027 = America/New_York
 - ID: 정수, 같은 해(edition) 안에서만 고정 → 내부 키는 항상 edition과 함께 다룸 (예: chi2026:222795)
 - 데이터 버전: publicationInfo.version (version.json의 리비전과 함께 기록)
@@ -46,7 +53,8 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 
 ## 구조
 - data/raw/<edition>/rev-<NNN>.json : 받은 원본 (수정 금지)
-- data/build/<edition>/ : 정규화 결과 (단일 데이터 원천, 앱·추천·지니 모두 이것만 읽음)
+- data/build/<edition>/ : 정규화 결과 (단일 데이터 원천, 앱·추천·지니 모두 이것만 읽음). meta·papers·sessions·rooms·people·topics·aliases. 키: `edition:id`, 기관 `inst:<slug>`, 주제 `topic:<slug>`
+- data/curated/ : 사람이 관리하는 입력 (기관 약어표). data/scripts/ : fetch·validate·build·report
 - data/venue/<edition>.json : 시간대, 방·층, 랜드마크, 이동 시간 (해마다 교체)
 - contracts/ : 기능 간 계약 JSON 스키마 (바꾸면 schema_version 올리고 CHANGELOG 기록)
 - app/ : Vite + React + TS + Tailwind, 토큰은 app/src/tokens.css
