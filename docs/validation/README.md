@@ -12,7 +12,7 @@
 | V3 모바일 웹 플랫폼 | [#4](https://github.com/Dongckim/CHI2027-Competition/issues/4) | [V3-mobile.md](V3-mobile.md) | 대기 |
 | V4 Soniox 실시간 자막 | [#5](https://github.com/Dongckim/CHI2027-Competition/issues/5) | [V4-captions.md](V4-captions.md) | 대기 |
 | V5 지니 | [#6](https://github.com/Dongckim/CHI2027-Competition/issues/6) | [V5-genie.md](V5-genie.md) | 대기 |
-| V6 이동 시간·길 안내 | [#7](https://github.com/Dongckim/CHI2027-Competition/issues/7) | [V6-venue.md](V6-venue.md) | 대기 |
+| V6 이동 시간·길 안내 | [#7](https://github.com/Dongckim/CHI2027-Competition/issues/7) | [V6-venue.md](V6-venue.md) | 진행 중 |
 | V7 피드 갱신 | [#8](https://github.com/Dongckim/CHI2027-Competition/issues/8) | [V7-feed-update.md](V7-feed-update.md) | 대기 |
 | V8 보안·데이터 보호 | [#9](https://github.com/Dongckim/CHI2027-Competition/issues/9) | [V8-security.md](V8-security.md) | 대기 |
 

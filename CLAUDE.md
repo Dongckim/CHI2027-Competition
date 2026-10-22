@@ -14,6 +14,8 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
   - `npm run data:ror` : data/raw의 새 기관 이름만 ROR로 조회해 data/curated/ror-*.json에 캐시 (새 리비전 받은 뒤)
   - `npm run data:build [edition...]` : data/build 생성 (data/raw 필요, 네트워크 안 씀)
   - `node data/scripts/report.mjs` : V0 측정값 JSON 출력
+  - `npm run data:venue -- <CCIB 평면도 PDF>` : data/venue/ccib.json 다시 생성 (python3 + pdfplumber, PDF는 커밋 안 함)
+  - `node tests/venue/try.mjs 111 211 [--step-free]` : 방 사이 거리·시간 (app/src/venue/route.js)
   - `npm test` : 전체 테스트 / 하나만: `node --test --test-name-pattern="talk slots" tests/`
 - git은 반드시 `arc/` 안에서 실행. 상위 `chi2027-arc/`는 자체 레포가 아니라 홈 디렉토리(`/Users/dongchankim`) 레포로 잡힘
 
@@ -45,6 +47,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
   - data/ 아래 파생 데이터는 CC BY-NC-SA 4.0, 앱 코드는 MIT
 - 문의: app@chi2027.acm.org (평면도 등)
 - 예외: 기관 이름 정리만 ROR(CC0)을 보조로 사용 (docs/decisions/002). 빌드 시점에만 조회·캐시, 앱 실행 중 호출 금지
+- 예외: 학회장 거리·층은 CCIB 공식 평면도 PDF에서 뽑은 data/venue/ccib.json (docs/decisions/003). 거리는 저장 시 이미 미터, 앱에서 변환 금지
 
 ## 원칙 (절대 어기지 말 것)
 - 개인 데이터는 기기에만 저장 (DeviceState 하나로 통일). 계정·서버 저장 없음
@@ -57,7 +60,8 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - data/raw/<edition>/rev-<NNN>.json : 받은 원본 (수정 금지)
 - data/build/<edition>/ : 정규화 결과 (단일 데이터 원천, 앱·추천·지니 모두 이것만 읽음). meta·papers·sessions·rooms·people·topics·aliases. 키: `edition:id`, 기관 `inst:<slug>`, 주제 `topic:<slug>`
 - data/curated/ : 빌드 입력 (institutions.json은 사람이 관리, ror-*.json은 ROR 캐시). data/scripts/ : fetch·validate·ror·build·report
-- data/venue/<edition>.json : 시간대, 방·층, 랜드마크, 이동 시간 (해마다 교체)
+- data/venue/<edition>.json : 시간대, 사용하는 학회장(`venue`), 피드 방 키 → 학회장 구역 ID(`rooms`) (해마다 교체)
+- data/venue/<venue>.json : 학회장 구역 표(치수·수용 인원)와 걷는 길 그래프(미터). 예: ccib.json
 - contracts/ : 기능 간 계약 JSON 스키마 (바꾸면 schema_version 올리고 CHANGELOG 기록)
 - app/ : Vite + React + TS + Tailwind, 토큰은 app/src/tokens.css
 - functions/ : 서버 함수 (Soniox 임시 키, 추천 API, 지니 API)
