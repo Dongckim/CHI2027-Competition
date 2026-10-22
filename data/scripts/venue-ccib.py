@@ -29,17 +29,17 @@ STACKED = ['P0', 'M1', 'P1', 'M2', 'P2']
 REFERENCE = 'P1'  # every level is mapped into P1's page frame
 
 # Hand input, in each level's own PDF points (x right, y down), read off the rendered plans.
-CORRIDORS = {  # centre lines of the foyers
-    'P0': [[(108, 357), (470, 357), (511, 397)]],  # Foyer 0, then out to access A (walkway to the Auditorium)
-    'M1': [[(105, 345), (462, 345)]],
-    'P1': [[(100, 347), (462, 347)], [(403, 160), (403, 347)]],  # Foyer 1, Foyer 2
-    'M2': [[(120, 338), (440, 338)]],  # Foyer M2 (1.9 m wide)
-    'P2': [[(120, 347), (440, 347)]],  # Foyer A + Foyer B
+CORRIDORS = {  # centre lines of the foyers, named as on the plan
+    'P0': {'Foyer 0': [(108, 357), (470, 357), (511, 397)]},  # then out to access A (walkway to the Auditorium)
+    'M1': {'Foyer M1': [(105, 345), (462, 345)]},
+    'P1': {'Foyer 1': [(100, 347), (462, 347)], 'Foyer 2': [(403, 160), (403, 347)]},
+    'M2': {'Foyer M2': [(120, 338), (440, 338)]},  # 1.9 m wide
+    'P2': {'Foyer A': [(120, 347), (345, 347)], 'Foyer B': [(345, 347), (440, 347)]},  # B starts over rooms 211/212
 }
 HAND_DOORS = {  # areas whose doors the plan does not mark
     'P0': {'Areas 1+2+3': [(166.5, 333.1), (244.7, 333.1), (301.0, 333.1)],  # south wall, one per area
            'Entrance Hall': [(299.0, 412.0)],  # open hall: its middle
-           'access A': [(511.0, 397.0)]},
+           'Access A': [(511.0, 397.0)]},
     'M1': {'VIP Room': [(439.0, 378.0)]},  # top wall of the VIP room
 }
 HAND_RECTS = {  # rooms the plan does not fill in blue: outline read off the plan (checked against the table size)
@@ -247,6 +247,7 @@ def main(pdf_path):
             metres = math.dist((nodes[a]['x'], nodes[a]['y']), (nodes[b]['x'], nodes[b]['y']))
         edges.append({'a': a, 'b': b, 'kind': kind, 'm': round(metres, 1), **extra})
 
+    corridors = []
     pois = {lv: [] for lv in STACKED}  # (node id, point in reference frame) to hang off the corridors
     for lv in STACKED:
         page = pages[lv]
@@ -298,7 +299,8 @@ def main(pdf_path):
     # corridors: hang every point of interest off its nearest corridor, then chain the stops along each line
     for lv in STACKED:
         ref = to_ref[lv]
-        lines_ = [[ref(p) for p in line] for line in CORRIDORS[lv]]
+        line_names = list(CORRIDORS[lv])
+        lines_ = [[ref(p) for p in line] for line in CORRIDORS[lv].values()]
         stops = []  # (line, segment, t, point, node id or None)
         for li, line in enumerate(lines_):
             for si in range(len(line) - 1):
@@ -316,11 +318,13 @@ def main(pdf_path):
             _, li, si = best
             q, t = project(p, lines_[li][si], lines_[li][si + 1])
             stops.append((li, si, t, q, nid))
+        for name, line in zip(line_names, lines_):
+            corridors.append({'level': lv, 'name': name, 'points': [[round(v * mpp, 2) for v in p] for p in line]})
         corridor_at = {}
         for li, si, t, q, nid in sorted(stops, key=lambda s: (s[0], s[1], s[2])):
             key = (round(q[0], 1), round(q[1], 1))
             if key not in corridor_at:
-                corridor_at[key] = node(f'{lv}/corridor{len(corridor_at) + 1}', lv, 'corridor', q)
+                corridor_at[key] = node(f'{lv}/corridor{len(corridor_at) + 1}', lv, 'corridor', q, name=line_names[li])
             cid = corridor_at[key]
             if nid:
                 edge(nid, cid)
@@ -357,7 +361,7 @@ def main(pdf_path):
             a['rect'] = [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
 
     # Auditorium: a separate building, so only distances, no shared coordinates
-    nodes['AUD/foyer'] = {'level': 'AUD', 'kind': 'corridor', 'x': None, 'y': None}
+    nodes['AUD/foyer'] = {'level': 'AUD', 'kind': 'corridor', 'x': None, 'y': None, 'name': 'Connecting Walkway'}
     nodes['AUD-auditorium/door'] = {'level': 'AUD', 'kind': 'door', 'x': None, 'y': None, 'estimate': True}
     edge('P0-access-a/door', 'AUD/foyer', 'walk', AUDITORIUM['walkway'])
     edge('AUD/foyer', 'AUD-auditorium/door', 'walk', AUDITORIUM['foyerToStalls'], estimate=True)
@@ -377,6 +381,7 @@ def main(pdf_path):
         },
         'levels': [{'id': lv['id'], 'name': lv['name']} for lv in LEVELS],
         'areas': dict(sorted(areas.items())),
+        'corridors': corridors,
         'nodes': nodes,
         'edges': edges,
     }

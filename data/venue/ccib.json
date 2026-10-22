@@ -583,7 +583,7 @@
   },
   "P0-access-a": {
    "level": "P0",
-   "name": "access A",
+   "name": "Access A",
    "doors": [
     "P0-access-a/door"
    ]
@@ -2796,7 +2796,118 @@
    }
   }
  },
+ "corridors": [
+  {
+   "level": "P0",
+   "name": "Foyer 0",
+   "points": [
+    [
+     40.74,
+     145.15
+    ],
+    [
+     181.81,
+     145.15
+    ],
+    [
+     197.79,
+     160.74
+    ]
+   ]
+  },
+  {
+   "level": "M1",
+   "name": "Foyer M1",
+   "points": [
+    [
+     43.03,
+     143.55
+    ],
+    [
+     192.26,
+     143.55
+    ]
+   ]
+  },
+  {
+   "level": "P1",
+   "name": "Foyer 1",
+   "points": [
+    [
+     41.63,
+     144.45
+    ],
+    [
+     192.32,
+     144.45
+    ]
+   ]
+  },
+  {
+   "level": "P1",
+   "name": "Foyer 2",
+   "points": [
+    [
+     167.76,
+     66.61
+    ],
+    [
+     167.76,
+     144.45
+    ]
+   ]
+  },
+  {
+   "level": "M2",
+   "name": "Foyer M2",
+   "points": [
+    [
+     49.26,
+     143.29
+    ],
+    [
+     183.33,
+     143.29
+    ]
+   ]
+  },
+  {
+   "level": "P2",
+   "name": "Foyer A",
+   "points": [
+    [
+     48.66,
+     146.95
+    ],
+    [
+     143.49,
+     146.95
+    ]
+   ]
+  },
+  {
+   "level": "P2",
+   "name": "Foyer B",
+   "points": [
+    [
+     143.49,
+     146.95
+    ],
+    [
+     183.53,
+     146.95
+    ]
+   ]
+  }
+ ],
  "nodes": {
+  "P0-access-a/door": {
+   "level": "P0",
+   "kind": "door",
+   "x": 197.79,
+   "y": 160.74,
+   "estimate": true
+  },
   "P0-areas-1+2+3/door1": {
    "level": "P0",
    "kind": "door",
@@ -2823,13 +2934,6 @@
    "kind": "door",
    "x": 115.17,
    "y": 166.58,
-   "estimate": true
-  },
-  "P0-access-a/door": {
-   "level": "P0",
-   "kind": "door",
-   "x": 197.79,
-   "y": 160.74,
    "estimate": true
   },
   "P0/elevator1": {
@@ -3287,535 +3391,631 @@
    "level": "P0",
    "kind": "corridor",
    "x": 40.74,
-   "y": 145.15
+   "y": 145.15,
+   "name": "Foyer 0"
   },
   "P0/corridor2": {
    "level": "P0",
    "kind": "corridor",
    "x": 63.53,
-   "y": 145.15
+   "y": 145.15,
+   "name": "Foyer 0"
   },
   "P0/corridor3": {
    "level": "P0",
    "kind": "corridor",
    "x": 82.73,
-   "y": 145.15
+   "y": 145.15,
+   "name": "Foyer 0"
   },
   "P0/corridor4": {
    "level": "P0",
    "kind": "corridor",
    "x": 87.19,
-   "y": 145.15
+   "y": 145.15,
+   "name": "Foyer 0"
   },
   "P0/corridor5": {
    "level": "P0",
    "kind": "corridor",
    "x": 94.01,
-   "y": 145.15
+   "y": 145.15,
+   "name": "Foyer 0"
   },
   "P0/corridor6": {
    "level": "P0",
    "kind": "corridor",
    "x": 112.74,
-   "y": 145.15
+   "y": 145.15,
+   "name": "Foyer 0"
   },
   "P0/corridor7": {
    "level": "P0",
    "kind": "corridor",
    "x": 115.17,
-   "y": 145.15
+   "y": 145.15,
+   "name": "Foyer 0"
   },
   "P0/corridor8": {
    "level": "P0",
    "kind": "corridor",
    "x": 115.95,
-   "y": 145.15
+   "y": 145.15,
+   "name": "Foyer 0"
   },
   "P0/corridor9": {
    "level": "P0",
    "kind": "corridor",
    "x": 117.46,
-   "y": 145.15
+   "y": 145.15,
+   "name": "Foyer 0"
   },
   "P0/corridor10": {
    "level": "P0",
    "kind": "corridor",
    "x": 142.7,
-   "y": 145.15
+   "y": 145.15,
+   "name": "Foyer 0"
   },
   "P0/corridor11": {
    "level": "P0",
    "kind": "corridor",
    "x": 158.59,
-   "y": 145.15
+   "y": 145.15,
+   "name": "Foyer 0"
   },
   "P0/corridor12": {
    "level": "P0",
    "kind": "corridor",
    "x": 181.81,
-   "y": 145.15
+   "y": 145.15,
+   "name": "Foyer 0"
   },
   "P0/corridor13": {
    "level": "P0",
    "kind": "corridor",
    "x": 188.51,
-   "y": 151.68
+   "y": 151.68,
+   "name": "Foyer 0"
   },
   "P0/corridor14": {
    "level": "P0",
    "kind": "corridor",
    "x": 190.36,
-   "y": 153.49
+   "y": 153.49,
+   "name": "Foyer 0"
   },
   "P0/corridor15": {
    "level": "P0",
    "kind": "corridor",
    "x": 197.79,
-   "y": 160.74
+   "y": 160.74,
+   "name": "Foyer 0"
   },
   "M1/corridor1": {
    "level": "M1",
    "kind": "corridor",
    "x": 43.03,
-   "y": 143.55
+   "y": 143.55,
+   "name": "Foyer M1"
   },
   "M1/corridor2": {
    "level": "M1",
    "kind": "corridor",
    "x": 62.64,
-   "y": 143.55
+   "y": 143.55,
+   "name": "Foyer M1"
   },
   "M1/corridor3": {
    "level": "M1",
    "kind": "corridor",
    "x": 82.74,
-   "y": 143.55
+   "y": 143.55,
+   "name": "Foyer M1"
   },
   "M1/corridor4": {
    "level": "M1",
    "kind": "corridor",
    "x": 92.94,
-   "y": 143.55
+   "y": 143.55,
+   "name": "Foyer M1"
   },
   "M1/corridor5": {
    "level": "M1",
    "kind": "corridor",
    "x": 112.71,
-   "y": 143.55
+   "y": 143.55,
+   "name": "Foyer M1"
   },
   "M1/corridor6": {
    "level": "M1",
    "kind": "corridor",
    "x": 158.61,
-   "y": 143.55
+   "y": 143.55,
+   "name": "Foyer M1"
   },
   "M1/corridor7": {
    "level": "M1",
    "kind": "corridor",
    "x": 171.63,
-   "y": 143.55
+   "y": 143.55,
+   "name": "Foyer M1"
   },
   "M1/corridor8": {
    "level": "M1",
    "kind": "corridor",
    "x": 182.65,
-   "y": 143.55
+   "y": 143.55,
+   "name": "Foyer M1"
   },
   "M1/corridor9": {
    "level": "M1",
    "kind": "corridor",
    "x": 192.26,
-   "y": 143.55
+   "y": 143.55,
+   "name": "Foyer M1"
   },
   "P1/corridor1": {
    "level": "P1",
    "kind": "corridor",
    "x": 41.63,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor2": {
    "level": "P1",
    "kind": "corridor",
    "x": 62.67,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor3": {
    "level": "P1",
    "kind": "corridor",
    "x": 62.98,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor4": {
    "level": "P1",
    "kind": "corridor",
    "x": 77.96,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor5": {
    "level": "P1",
    "kind": "corridor",
    "x": 82.52,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor6": {
    "level": "P1",
    "kind": "corridor",
    "x": 92.84,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor7": {
    "level": "P1",
    "kind": "corridor",
    "x": 92.92,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor8": {
    "level": "P1",
    "kind": "corridor",
    "x": 107.9,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor9": {
    "level": "P1",
    "kind": "corridor",
    "x": 113.08,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor10": {
    "level": "P1",
    "kind": "corridor",
    "x": 122.89,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor11": {
    "level": "P1",
    "kind": "corridor",
    "x": 152.81,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor12": {
    "level": "P1",
    "kind": "corridor",
    "x": 158.32,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor13": {
    "level": "P1",
    "kind": "corridor",
    "x": 158.46,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor14": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor15": {
    "level": "P1",
    "kind": "corridor",
    "x": 182.86,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor16": {
    "level": "P1",
    "kind": "corridor",
    "x": 192.32,
-   "y": 144.45
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor17": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 66.61
+   "y": 66.61,
+   "name": "Foyer 2"
   },
   "P1/corridor18": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 70.31
+   "y": 70.31,
+   "name": "Foyer 2"
   },
   "P1/corridor19": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 77.94
+   "y": 77.94,
+   "name": "Foyer 2"
   },
   "P1/corridor20": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 77.95
+   "y": 77.95,
+   "name": "Foyer 2"
   },
   "P1/corridor21": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 85.56
+   "y": 85.56,
+   "name": "Foyer 2"
   },
   "P1/corridor22": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 93.13
+   "y": 93.13,
+   "name": "Foyer 2"
   },
   "P1/corridor23": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 93.16
+   "y": 93.16,
+   "name": "Foyer 2"
   },
   "P1/corridor24": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 100.74
+   "y": 100.74,
+   "name": "Foyer 2"
   },
   "P1/corridor25": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 100.76
+   "y": 100.76,
+   "name": "Foyer 2"
   },
   "P1/corridor26": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 108.35
+   "y": 108.35,
+   "name": "Foyer 2"
   },
   "P1/corridor27": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 115.93
+   "y": 115.93,
+   "name": "Foyer 2"
   },
   "P1/corridor28": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 123.57
+   "y": 123.57,
+   "name": "Foyer 2"
   },
   "P1/corridor29": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 123.58
+   "y": 123.58,
+   "name": "Foyer 2"
   },
   "M2/corridor1": {
    "level": "M2",
    "kind": "corridor",
    "x": 49.26,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor2": {
    "level": "M2",
    "kind": "corridor",
    "x": 62.67,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor3": {
    "level": "M2",
    "kind": "corridor",
    "x": 71.71,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor4": {
    "level": "M2",
    "kind": "corridor",
    "x": 76.06,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor5": {
    "level": "M2",
    "kind": "corridor",
    "x": 80.14,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor6": {
    "level": "M2",
    "kind": "corridor",
    "x": 82.61,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor7": {
    "level": "M2",
    "kind": "corridor",
    "x": 85.11,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor8": {
    "level": "M2",
    "kind": "corridor",
    "x": 92.67,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor9": {
    "level": "M2",
    "kind": "corridor",
    "x": 101.98,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor10": {
    "level": "M2",
    "kind": "corridor",
    "x": 106.15,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor11": {
    "level": "M2",
    "kind": "corridor",
    "x": 111.56,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor12": {
    "level": "M2",
    "kind": "corridor",
    "x": 112.93,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor13": {
    "level": "M2",
    "kind": "corridor",
    "x": 119.08,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor14": {
    "level": "M2",
    "kind": "corridor",
    "x": 126.72,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor15": {
    "level": "M2",
    "kind": "corridor",
    "x": 148.91,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor16": {
    "level": "M2",
    "kind": "corridor",
    "x": 156.68,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor17": {
    "level": "M2",
    "kind": "corridor",
    "x": 158.52,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor18": {
    "level": "M2",
    "kind": "corridor",
    "x": 171.83,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor19": {
    "level": "M2",
    "kind": "corridor",
    "x": 172.47,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "M2/corridor20": {
    "level": "M2",
    "kind": "corridor",
    "x": 183.33,
-   "y": 143.29
+   "y": 143.29,
+   "name": "Foyer M2"
   },
   "P2/corridor1": {
    "level": "P2",
    "kind": "corridor",
    "x": 48.66,
-   "y": 146.95
+   "y": 146.95,
+   "name": "Foyer A"
   },
   "P2/corridor2": {
    "level": "P2",
    "kind": "corridor",
    "x": 62.22,
-   "y": 146.95
+   "y": 146.95,
+   "name": "Foyer A"
   },
   "P2/corridor3": {
    "level": "P2",
    "kind": "corridor",
    "x": 62.36,
-   "y": 146.95
+   "y": 146.95,
+   "name": "Foyer A"
   },
   "P2/corridor4": {
    "level": "P2",
    "kind": "corridor",
    "x": 77.77,
-   "y": 146.95
+   "y": 146.95,
+   "name": "Foyer A"
   },
   "P2/corridor5": {
    "level": "P2",
    "kind": "corridor",
    "x": 82.6,
-   "y": 146.95
+   "y": 146.95,
+   "name": "Foyer A"
   },
   "P2/corridor6": {
    "level": "P2",
    "kind": "corridor",
    "x": 92.33,
-   "y": 146.95
+   "y": 146.95,
+   "name": "Foyer A"
   },
   "P2/corridor7": {
    "level": "P2",
    "kind": "corridor",
    "x": 92.71,
-   "y": 146.95
+   "y": 146.95,
+   "name": "Foyer A"
   },
   "P2/corridor8": {
    "level": "P2",
    "kind": "corridor",
    "x": 107.65,
-   "y": 146.95
+   "y": 146.95,
+   "name": "Foyer A"
   },
   "P2/corridor9": {
    "level": "P2",
    "kind": "corridor",
    "x": 112.94,
-   "y": 146.95
+   "y": 146.95,
+   "name": "Foyer A"
   },
   "P2/corridor10": {
    "level": "P2",
    "kind": "corridor",
    "x": 122.94,
-   "y": 146.95
+   "y": 146.95,
+   "name": "Foyer A"
   },
   "P2/corridor11": {
    "level": "P2",
    "kind": "corridor",
-   "x": 152.81,
-   "y": 146.95
+   "x": 143.49,
+   "y": 146.95,
+   "name": "Foyer A"
   },
   "P2/corridor12": {
    "level": "P2",
    "kind": "corridor",
-   "x": 158.51,
-   "y": 146.95
+   "x": 152.81,
+   "y": 146.95,
+   "name": "Foyer B"
   },
   "P2/corridor13": {
    "level": "P2",
    "kind": "corridor",
-   "x": 168.11,
-   "y": 146.95
+   "x": 158.51,
+   "y": 146.95,
+   "name": "Foyer B"
   },
   "P2/corridor14": {
    "level": "P2",
    "kind": "corridor",
-   "x": 172.17,
-   "y": 146.95
+   "x": 168.11,
+   "y": 146.95,
+   "name": "Foyer B"
   },
   "P2/corridor15": {
    "level": "P2",
    "kind": "corridor",
+   "x": 172.17,
+   "y": 146.95,
+   "name": "Foyer B"
+  },
+  "P2/corridor16": {
+   "level": "P2",
+   "kind": "corridor",
    "x": 183.53,
-   "y": 146.95
+   "y": 146.95,
+   "name": "Foyer B"
   },
   "AUD/foyer": {
    "level": "AUD",
    "kind": "corridor",
    "x": null,
-   "y": null
+   "y": null,
+   "name": "Connecting Walkway"
   },
   "AUD-auditorium/door": {
    "level": "AUD",
@@ -4698,25 +4898,25 @@
   },
   {
    "a": "P2-212/door",
-   "b": "P2/corridor11",
+   "b": "P2/corridor12",
    "kind": "walk",
    "m": 5.9
   },
   {
    "a": "P2/elevator3",
-   "b": "P2/corridor12",
+   "b": "P2/corridor13",
    "kind": "walk",
    "m": 3.8
   },
   {
    "a": "P2-211/door",
-   "b": "P2/corridor13",
+   "b": "P2/corridor14",
    "kind": "walk",
    "m": 5.9
   },
   {
    "a": "P2/escalator3",
-   "b": "P2/corridor14",
+   "b": "P2/corridor15",
    "kind": "walk",
    "m": 3.2
   },
@@ -4778,29 +4978,35 @@
    "a": "P2/corridor10",
    "b": "P2/corridor11",
    "kind": "walk",
-   "m": 29.9
+   "m": 20.6
   },
   {
    "a": "P2/corridor11",
    "b": "P2/corridor12",
    "kind": "walk",
-   "m": 5.7
+   "m": 9.3
   },
   {
    "a": "P2/corridor12",
    "b": "P2/corridor13",
    "kind": "walk",
-   "m": 9.6
+   "m": 5.7
   },
   {
    "a": "P2/corridor13",
    "b": "P2/corridor14",
    "kind": "walk",
-   "m": 4.1
+   "m": 9.6
   },
   {
    "a": "P2/corridor14",
    "b": "P2/corridor15",
+   "kind": "walk",
+   "m": 4.1
+  },
+  {
+   "a": "P2/corridor15",
+   "b": "P2/corridor16",
    "kind": "walk",
    "m": 11.4
   },
