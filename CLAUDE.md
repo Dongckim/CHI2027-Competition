@@ -7,7 +7,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 제출 마감 2026-12-04. 학회 2027-05-10~14, Pittsburgh (David L. Lawrence Convention Center).
 
 ## 현재 상태
-- V0(데이터) 완료. V6 길 안내 조건부(`app/src/venue/route.js`, 플래너에 연결). V4 자막 진행 중(`app/src/captions/`, `functions/soniox-key.mjs`, Soniox 키 대기)
+- V0(데이터) 완료. V6 길 안내 조건부(`app/src/venue/route.js`, 플래너에 연결). V4 자막 조건부(`app/src/captions/`, `functions/soniox-key.mjs`, 키는 `.env.local`)
 - V2 진행 중: 플래너 `app/src/planner/plan.js`(내부 입력), contracts/는 틀만 있고 필드는 사용자가 Figma 기준으로 설계 중 → 임의로 계약 필드를 만들지 말 것. recsys/는 비어 있음
 - 명령 (Node 20, `arc/`에서):
   - `npm run data:fetch [edition...]` : version.json 조회 → 새 리비전만 data/raw에 저장
