@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Captions bench</title>
+<!-- Bench page (V4, #5): microphone → Soniox real-time → 3 lines of captions + translation, with the V4 measurements.
+     Not the app UI. Nothing is stored: captions live in memory and are wiped on Stop; only the numbers stay on screen. -->
+<style>
+  :root { --bg: #ffffff; --ink: #14161a; --muted: #5a606b; --line: #d7dbe2; --panel: #f3f5f8; --live: #7a808b; --bad: #b42318; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #121417; --ink: #eceef2; --muted: #a3a9b4; --line: #343941; --panel: #1b1e23; --live: #8d939e; --bad: #f97066; color-scheme: dark; } }
+  :root[data-theme="dark"] { --bg: #121417; --ink: #eceef2; --muted: #a3a9b4; --line: #343941; --panel: #1b1e23; --live: #8d939e; --bad: #f97066; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { font: 16px system-ui, sans-serif; margin: 0 auto; max-width: 440px; color: var(--ink); background: var(--bg);
+         padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1 { font-size: 18px; margin: 4px 0 12px; }
+  .controls { border: 1px dashed var(--line); background: var(--panel); border-radius: 10px; padding: 8px 12px; font-size: 14px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .controls label { display: flex; gap: 8px; align-items: center; }
+  select, button { font-size: 16px; min-height: 44px; }
+  select { flex: 1; min-width: 0; }
+  button { padding: 0 20px; border-radius: 22px; border: 1px solid var(--ink); background: var(--ink); color: var(--bg); }
+  button:disabled { opacity: .4; }
+  .lines { margin: 16px 0 4px; min-height: calc(3 * 1.4em); line-height: 1.4; white-space: pre; overflow: hidden; }
+  .lines.tr { color: var(--muted); margin-top: 0; }
+  #status { font-size: 14px; color: var(--muted); }
+  #status.bad { color: var(--bad); }
+  table { border-collapse: collapse; font-size: 14px; width: 100%; margin-top: 12px; }
+  td { border-top: 1px solid var(--line); padding: 6px 4px; }
+  td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+  .note { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<h1>Captions bench (V4)</h1>
+<div class="controls">
+  <label>Session <select id="session"></select></label>
+  <label>Translate to <select id="lang">
+    <option value="ko">Korean</option><option value="">No translation</option><option value="ja">Japanese</option>
+    <option value="zh">Chinese</option><option value="es">Spanish</option><option value="de">German</option>
+  </select></label>
+  <label><input type="checkbox" id="glossary" checked> Session glossary (titles, author names)</label>
+  <div><button id="start">Start</button> <button id="stop" disabled>Stop</button></div>
+</div>
+<div id="status">Pick a session and press Start. Play a talk through a speaker next to the phone.</div>
+<div class="lines" id="original" aria-live="polite"></div>
+<div class="lines tr" id="translation" aria-live="polite" lang="ko"></div>
+<table>
+  <tr><td>Delay to first text (median / 90%)</td><td id="m-live">–</td></tr>
+  <tr><td>Delay to confirmed text (median / 90%)</td><td id="m-final">–</td></tr>
+  <tr><td>Audio sent</td><td id="m-audio">–</td></tr>
+  <tr><td>Cost at $0.12/hour</td><td id="m-cost">–</td></tr>
+  <tr><td>Interruptions (screen off, app switch, drops)</td><td id="m-drops">0</td></tr>
+  <tr><td>Glossary size</td><td id="m-glossary">–</td></tr>
+</table>
+<p class="note">Delay = time on this phone since recording began − where the newest word ends in the audio. Price from soniox.com/pricing (2026-10-21).
+Programme data © ACM CHI 2026, licensed under CC BY-NC-SA 4.0.</p>
+
+<script type="module">
+import { createCaptions, sessionContext } from '../../app/src/captions/captions.js';
+
+const PRICE_PER_HOUR = 0.12;
+const $ = id => document.getElementById(id);
+const get = path => fetch(`../../data/${path}`).then(r => (r.ok ? r.json() : null));
+const [papers, sessions] = await Promise.all([get('build/chi2026/papers.json'), get('build/chi2026/sessions.json')]);
+if (!papers) { $('status').textContent = 'No data/build/chi2026. Run npm run data:fetch && npm run data:build.'; throw new Error('no data'); }
+const talks = sessions.filter(s => s.timing === 'talks' && s.contentKeys.length).sort((a, b) => a.start - b.start);
+const fmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', weekday: 'short', hour: '2-digit', minute: '2-digit' });
+for (const s of talks) $('session').add(new Option(`${fmt.format(s.start)} · ${s.name}`, s.key));
+
+const captions = createCaptions();
+let run = null; // { ws, recorder, stream, t0, wake, samples }
+
+function status(text, bad = false) { $('status').textContent = text; $('status').className = bad ? 'bad' : ''; }
+function render() {
+  const v = captions.view();
+  $('original').textContent = v.original.join('\n');
+  $('translation').textContent = v.translation.join('\n');
+}
+const pct = (xs, p) => { if (!xs.length) return null; const s = xs.slice().sort((a, b) => a - b); return s[Math.min(s.length - 1, Math.floor(p * s.length))]; };
+const sec = ms => (ms == null ? '–' : `${(ms / 1000).toFixed(1)} s`);
+function measure() {
+  if (!run) return;
+  const { live, final } = run.samples;
+  $('m-live').textContent = `${sec(pct(live, 0.5))} / ${sec(pct(live, 0.9))}`;
+  $('m-final').textContent = `${sec(pct(final, 0.5))} / ${sec(pct(final, 0.9))}`;
+  const audioS = run.t0 ? (performance.now() - run.t0) / 1000 : 0;
+  $('m-audio').textContent = `${Math.floor(audioS / 60)} min ${Math.round(audioS % 60)} s`;
+  $('m-cost').textContent = `$${((audioS / 3600) * PRICE_PER_HOUR).toFixed(4)} (1 h = $${PRICE_PER_HOUR.toFixed(2)})`;
+  $('m-drops').textContent = run.drops;
+}
+
+async function start() {
+  $('start').disabled = true;
+  try {
+    status('Getting a key…');
+    const keyRes = await fetch('/api/soniox-key', { method: 'POST' });
+    const key = await keyRes.json();
+    if (!keyRes.ok) throw new Error(key.error || `key ${keyRes.status}`);
+
+    const config = { model: 'stt-rt-v5', audio_format: 'auto', language_hints: ['en'], enable_endpoint_detection: true };
+    if ($('lang').value) config.translation = { type: 'one_way', target_language: $('lang').value };
+    if ($('glossary').checked) {
+      config.context = sessionContext({ papers, sessions }, $('session').value);
+      $('m-glossary').textContent = `${config.context.terms.length} terms, ${JSON.stringify(config.context).length} chars`;
+    } else $('m-glossary').textContent = 'off';
+    $('translation').lang = $('lang').value || 'en';
+
+    // talks come out of a speaker: keep the browser's voice processing from eating the far voice
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: true } });
+    run = { stream, samples: { live: [], final: [] }, drops: 0, t0: 0, wake: null };
+    run.wake = await navigator.wakeLock?.request('screen').catch(() => null);
+
+    // the key goes in the WebSocket protocols list (Soniox: the start-request api_key field is deprecated)
+    const ws = new WebSocket('wss://stt-rt.soniox.com/transcribe-websocket', ['soniox-api-key', key.apiKey]);
+    run.ws = ws;
+    ws.onopen = () => {
+      ws.send(JSON.stringify(config));
+      const recorder = new MediaRecorder(stream);
+      run.recorder = recorder;
+      recorder.onstart = () => { run.t0 = performance.now(); };
+      recorder.ondataavailable = e => { if (e.data.size && ws.readyState === WebSocket.OPEN) ws.send(e.data); };
+      recorder.start(120);
+      $('stop').disabled = false;
+      status(`Listening (${recorder.mimeType || 'audio'}). Key valid ${key.sessionMaxSeconds / 3600} h per session.`);
+    };
+    ws.onmessage = e => {
+      const res = JSON.parse(e.data);
+      if (res.error_code != null) { status(`Soniox ${res.error_code}: ${res.error_message}`, true); stop(); return; }
+      if (run?.t0) {
+        const now = performance.now() - run.t0;
+        const spoken = (res.tokens || []).filter(t => t.end_ms != null);
+        const lastLive = spoken.filter(t => !t.is_final).at(-1), lastFinal = spoken.filter(t => t.is_final).at(-1);
+        if (lastLive) run.samples.live.push(now - lastLive.end_ms);
+        if (lastFinal) run.samples.final.push(now - lastFinal.end_ms);
+      }
+      captions.update(res);
+      render();
+      measure();
+      if (res.finished) stop();
+    };
+    ws.onclose = e => { if (run) { run.drops++; measure(); status(`Connection closed (${e.code}${e.reason ? `: ${e.reason}` : ''}). Press Start for a new session.`, e.code !== 1000); stop(); } };
+  } catch (err) {
+    status(String(err.message || err), true);
+    stop();
+  }
+}
+
+function stop() {
+  if (!run) { $('start').disabled = false; return; }
+  const r = run;
+  run = null;
+  if (r.recorder?.state === 'recording') r.recorder.stop();
+  r.stream?.getTracks().forEach(t => t.stop());
+  if (r.ws?.readyState === WebSocket.OPEN) r.ws.send(''); // end of audio; Soniox closes after the last tokens
+  r.wake?.release().catch(() => {});
+  captions.clear(); // nothing said in the room outlives the session
+  render();
+  $('start').disabled = false;
+  $('stop').disabled = true;
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (!run) return;
+  if (document.hidden) { run.drops++; measure(); }
+  else if (run.wake?.released) navigator.wakeLock?.request('screen').then(w => { if (run) run.wake = w; }).catch(() => {});
+});
+$('start').onclick = start;
+$('stop').onclick = () => { if (run) status('Stopped. Captions wiped; the numbers below stay until the next Start.'); stop(); };
+setInterval(measure, 1000);
+</script>
+</body>
+</html>
