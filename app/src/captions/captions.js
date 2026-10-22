@@ -1,8 +1,8 @@
 // Live captions from Soniox real-time tokens. Runs on the phone: pure, no I/O.
 // Only what fits on screen is kept: the last few lines of the original and of the translation (CLAUDE.md: 3 lines, deleted on stop).
 
-export const LINES = 3;
-export const WIDTH = 42; // characters per line at 16px on a 390px screen, roughly
+export const LINES = 3; // the page shows the last 3 lines; it wraps the text itself (any script, any width)
+export const KEEP_CHARS = 1000; // per stream, enough for 3 lines on any screen; everything older is dropped
 
 // Soniox context (glossary) for one session, from public programme data only: session name, talk titles, author names.
 // data: { papers, sessions } from data/build/<edition>/. Returns the `context` object of the Soniox start request.
@@ -34,52 +34,47 @@ export function sessionContext({ papers, sessions }, sessionKey) {
   return context;
 }
 
-// Break text into lines of at most `width` characters at spaces; a longer word is cut.
-export function wrap(text, width = WIDTH) {
-  const lines = [];
-  let line = '';
-  for (let word of text.split(/\s+/).filter(Boolean)) {
-    while (word.length > width) { if (line) { lines.push(line); line = ''; } lines.push(word.slice(0, width)); word = word.slice(width); }
-    if (!word) continue;
-    if (line && line.length + 1 + word.length > width) { lines.push(line); line = word; } else line = line ? `${line} ${word}` : word;
-  }
-  if (line) lines.push(line);
-  return lines;
-}
+// One caption stream (an original or a translation). Soniox sends <end> when someone stops talking (endpoint detection);
+// the next utterance then starts a new paragraph, but only in the streams that got text since the last break.
+const stream = () => ({ final: '', live: '', open: false });
+const isControl = t => /^<\w+>$/.test(t.text);
+const paragraphs = (s, n) => (s.final + s.live).split('\n').map(p => p.trim()).filter(Boolean).slice(-n);
+function append(s, text, keep) { s.final = (s.final + text).slice(-keep); s.open = true; }
+function endParagraph(s) { if (s.open) { s.final += '\n'; s.open = false; } }
 
-export function createCaptions({ lines = LINES, width = WIDTH } = {}) {
-  const keep = lines * width * 2; // enough tail to re-wrap the last lines; everything older is dropped
-  const fresh = () => ({ final: '', live: '' });
-  let original = fresh(), translation = fresh();
+export function createCaptions({ keep = KEEP_CHARS } = {}) {
+  let original = stream(), translation = stream();
   let speaker = null; // last confirmed speaker, with diarization on
   return {
     // res: one Soniox response. Final tokens are appended; non-final ones replace the previous non-final text.
-    // With speaker diarization, a change of speaker in the original starts with a label ("S2: ").
+    // With speaker diarization, a change of speaker starts a new paragraph with a label ("S2: ").
     update(res) {
       const live = { original: '', translation: '' };
       let liveSpeaker = speaker;
       for (const t of res.tokens || []) {
-        if (!t.text || /^<\w+>$/.test(t.text)) continue; // control tokens such as <end>
+        if (!t.text) continue;
+        if (isControl(t)) { if (t.text === '<end>' && t.is_final) { endParagraph(original); endParagraph(translation); } continue; }
         const side = t.translation_status === 'translation' ? 'translation' : 'original';
         const target = side === 'translation' ? translation : original;
         let text = t.text;
         if (side === 'original' && t.speaker != null) {
           const current = t.is_final ? speaker : liveSpeaker;
-          if (current !== t.speaker) text = `${current == null ? '' : ' '}S${t.speaker}: ${text.trimStart()}`;
+          if (current !== t.speaker) {
+            if (t.is_final) endParagraph(original);
+            text = `${t.is_final ? '' : '\n'}S${t.speaker}: ${text.trimStart()}`;
+          }
           if (t.is_final) speaker = t.speaker;
           liveSpeaker = t.speaker;
         }
-        if (t.is_final) target.final = (target.final + text).slice(-keep);
+        if (t.is_final) append(target, text, keep);
         else live[side] += text;
       }
       original.live = live.original;
       translation.live = live.translation;
     },
-    view() {
-      const show = s => wrap(s.final + s.live, width).slice(-lines);
-      return { original: show(original), translation: show(translation) };
-    },
-    clear() { original = fresh(); translation = fresh(); speaker = null; },
+    // the last paragraphs of each stream; one paragraph can fill all 3 lines, so no more than 3 are needed
+    view() { return { original: paragraphs(original, LINES), translation: paragraphs(translation, LINES) }; },
+    clear() { original = stream(); translation = stream(); speaker = null; },
   };
 }
 
@@ -87,27 +82,27 @@ export function createCaptions({ lines = LINES, width = WIDTH } = {}) {
 // Soniox marks every token with its language: originals carry the language spoken, translations the language translated into.
 // So each person's half of the screen needs no speaker detection: `theirs` = translations into my language,
 // `mine` = what I said, as heard (so I can tell I was understood).
-export function createConversation(a, b, { lines = LINES, width = WIDTH } = {}) {
+export function createConversation(a, b, { keep = KEEP_CHARS } = {}) {
   if (!a || !b || a === b) throw new Error('two different languages');
-  const keep = lines * width * 2;
-  const fresh = () => ({ mine: { final: '', live: '' }, theirs: { final: '', live: '' } });
+  const fresh = () => ({ mine: stream(), theirs: stream() });
   let side = { [a]: fresh(), [b]: fresh() };
+  const all = () => [a, b].flatMap(l => [side[l].mine, side[l].theirs]);
   return {
     update(res) {
       const live = { [a]: { mine: '', theirs: '' }, [b]: { mine: '', theirs: '' } };
       for (const t of res.tokens || []) {
-        if (!t.text || !side[t.language]) continue; // control tokens (<end>) have no language; a third language is dropped
+        if (!t.text) continue;
+        if (isControl(t)) { if (t.text === '<end>' && t.is_final) all().forEach(endParagraph); continue; }
+        if (!side[t.language]) continue; // a third language is dropped
         const part = t.translation_status === 'translation' ? 'theirs' : 'mine';
-        const s = side[t.language][part];
-        if (t.is_final) s.final = (s.final + t.text).slice(-keep);
+        if (t.is_final) append(side[t.language][part], t.text, keep);
         else live[t.language][part] += t.text;
       }
       for (const l of [a, b]) for (const part of ['mine', 'theirs']) side[l][part].live = live[l][part];
     },
-    // lines of `language`'s half: what the other person said (most of the space) and the last line of my own words
+    // `language`'s half: the other person's last paragraphs (the page shows the last 3 lines) and my last one
     view(language) {
-      const show = (s, n) => wrap(s.final + s.live, width).slice(-n);
-      return { theirs: show(side[language].theirs, lines), mine: show(side[language].mine, 1) };
+      return { theirs: paragraphs(side[language].theirs, LINES), mine: paragraphs(side[language].mine, 1) };
     },
     clear() { side = { [a]: fresh(), [b]: fresh() }; },
   };

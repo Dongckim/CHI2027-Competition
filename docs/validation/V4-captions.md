@@ -13,7 +13,8 @@
   - 요청 내용 로그 없음. 기기 정보는 Soniox에 보내지 않음 (`client_reference_id` 안 씀)
 - `app/src/captions/captions.js`
   - `sessionContext(data, sessionKey)`: 세션의 공개 프로그램 데이터로 Soniox `context` 생성. 저자 이름·제목의 약어/합성어(VR, LLM, GuideMe)를 `terms`, 이름은 번역에서도 그대로(`translation_terms`), 제목 목록은 `text`. 10,000자 제한 안으로 자름
-  - `createCaptions()`: 확정 토큰은 이어 붙이고 미확정은 바꿔 끼움. 원문·번역 각각 **마지막 3줄만** 화면에, 그 이전 텍스트는 버림. 종료 시 `clear()`
+  - `createCaptions()`: 확정 토큰은 이어 붙이고 미확정은 바꿔 끼움. 원문·번역 각각 **마지막 3줄만** 화면에(줄바꿈은 브라우저가, 한국어는 단어 단위), 스트림당 1,000자 넘는 옛 텍스트는 버림. 종료 시 `clear()`
+  - 문단: 말이 멈추면 Soniox가 `<end>`를 보냄(endpoint detection) → 다음 발화는 새 줄에서 시작. 발화자 분리를 켜면 사람이 바뀔 때도 새 줄 + `S2:`. 실제 응답(en↔ko 합성 음성 3발화)으로 확인: 발화마다 한 문단
 - `tests/captions/bench.html` (`.env.local`에 `SONIOX_API_KEY=...` 저장 후 `npm run bench` → http://localhost:5173/tests/captions/bench.html)
   - 세션 선택(용어집), 번역 언어(기본 한국어), 용어집 켜기/끄기(O/X 비교용)
   - 마이크 → `MediaRecorder` 120ms 조각 → Soniox `stt-rt-v5`, `audio_format: auto`. 스피커 소리를 받으므로 에코 제거·잡음 제거는 끔
