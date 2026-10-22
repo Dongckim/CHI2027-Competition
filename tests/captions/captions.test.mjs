@@ -22,6 +22,19 @@ test('captions: final appends, non-final replaces, translation apart, control to
   assert.deepEqual(c.view(), { original: ['Hello everyone.'], translation: ['안녕하세요'] });
 });
 
+test('captions: a change of speaker starts with a label', () => {
+  const c = createCaptions({ lines: 3, width: 60 });
+  c.update({ tokens: [tok('Thanks', true, { speaker: '1' }), tok(' for', true, { speaker: '1' })] });
+  assert.deepEqual(c.view().original, ['S1: Thanks for']);
+  c.update({ tokens: [tok(' Question', false, { speaker: '2' })] });
+  assert.deepEqual(c.view().original, ['S1: Thanks for S2: Question']);
+  c.update({ tokens: [tok(' Question', true, { speaker: '2' }), tok(' here', true, { speaker: '2' }), tok(' Sure', false, { speaker: '1' })] });
+  assert.deepEqual(c.view().original, ['S1: Thanks for S2: Question here S1: Sure']);
+  c.clear();
+  c.update({ tokens: [tok('Hi', true, { speaker: '2' })] });
+  assert.deepEqual(c.view().original, ['S2: Hi']);
+});
+
 test('captions: only the last 3 lines are shown and the old text is not kept', () => {
   const c = createCaptions({ lines: 3, width: 10 });
   for (let i = 0; i < 200; i++) c.update({ tokens: [tok(` w${i}`, true)] });

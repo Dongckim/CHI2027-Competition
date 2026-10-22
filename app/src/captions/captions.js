@@ -51,16 +51,26 @@ export function createCaptions({ lines = LINES, width = WIDTH } = {}) {
   const keep = lines * width * 2; // enough tail to re-wrap the last lines; everything older is dropped
   const fresh = () => ({ final: '', live: '' });
   let original = fresh(), translation = fresh();
+  let speaker = null; // last confirmed speaker, with diarization on
   return {
     // res: one Soniox response. Final tokens are appended; non-final ones replace the previous non-final text.
+    // With speaker diarization, a change of speaker in the original starts with a label ("S2: ").
     update(res) {
       const live = { original: '', translation: '' };
+      let liveSpeaker = speaker;
       for (const t of res.tokens || []) {
         if (!t.text || /^<\w+>$/.test(t.text)) continue; // control tokens such as <end>
         const side = t.translation_status === 'translation' ? 'translation' : 'original';
         const target = side === 'translation' ? translation : original;
-        if (t.is_final) target.final = (target.final + t.text).slice(-keep);
-        else live[side] += t.text;
+        let text = t.text;
+        if (side === 'original' && t.speaker != null) {
+          const current = t.is_final ? speaker : liveSpeaker;
+          if (current !== t.speaker) text = `${current == null ? '' : ' '}S${t.speaker}: ${text.trimStart()}`;
+          if (t.is_final) speaker = t.speaker;
+          liveSpeaker = t.speaker;
+        }
+        if (t.is_final) target.final = (target.final + text).slice(-keep);
+        else live[side] += text;
       }
       original.live = live.original;
       translation.live = live.translation;
@@ -69,6 +79,6 @@ export function createCaptions({ lines = LINES, width = WIDTH } = {}) {
       const show = s => wrap(s.final + s.live, width).slice(-lines);
       return { original: show(original), translation: show(translation) };
     },
-    clear() { original = fresh(); translation = fresh(); },
+    clear() { original = fresh(); translation = fresh(); speaker = null; },
   };
 }
