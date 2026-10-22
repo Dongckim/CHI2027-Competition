@@ -10,6 +10,7 @@
     "data:build": "node data/scripts/build.mjs",
     "data:venue": "python3 data/scripts/venue-ccib.py",
     "bench": "node tests/venue/serve.mjs",
+    "contracts:check": "node contracts/check.mjs",
     "test": "node --test"
   },
   "devDependencies": {
