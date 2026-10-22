@@ -132,7 +132,7 @@ async function start() {
       if (res.error_code != null) { status(`Soniox ${res.error_code}: ${res.error_message}`, true); stop(); return; }
       if (run?.t0) {
         const now = performance.now() - run.t0;
-        const spoken = (res.tokens || []).filter(t => t.end_ms != null);
+        const spoken = (res.tokens || []).filter(t => t.end_ms != null && !/^<\w+>$/.test(t.text)); // <end> is not a word
         const lastLive = spoken.filter(t => !t.is_final).at(-1), lastFinal = spoken.filter(t => t.is_final).at(-1);
         if (lastLive) run.samples.live.push(now - lastLive.end_ms);
         if (lastFinal) run.samples.final.push(now - lastFinal.end_ms);
