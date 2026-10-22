@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Venue bench</title>
+<!-- No-design bench page (V6, #7): checks that route.js + data/venue work in a browser. Not the app UI. -->
+<style>
+  body { font: 16px system-ui, sans-serif; margin: 16px; max-width: 760px; overflow-wrap: anywhere; }
+  details { max-width: 100%; }
+  label { display: block; margin: 8px 0; }
+  select { font-size: 16px; min-height: 44px; max-width: 100%; }
+  input[type=checkbox] { width: 24px; height: 24px; vertical-align: middle; }
+  #time { font-size: 32px; font-weight: bold; margin: 4px 0; }
+  svg { width: 100%; height: auto; border: 1px solid #999; display: block; margin-bottom: 4px; }
+  pre { font-size: 12px; overflow-x: auto; max-width: calc(100vw - 48px); background: #f4f4f4; padding: 8px; }
+  .muted { color: #555; font-size: 14px; }
+</style>
+</head>
+<body>
+<h1>Getting there (bench)</h1>
+<label>From <select id="from"></select></label>
+<label>To <select id="to"></select></label>
+<label><input type="checkbox" id="stepFree"> Step-free route (via elevator)</label>
+
+<p id="rooms"></p>
+<p id="time" aria-live="polite"></p>
+<p id="levels"></p>
+<ol id="via"></ol>
+<div id="maps"></div>
+<p class="muted" id="note"></p>
+<p class="muted" id="buildNote"></p>
+<details><summary>route() output</summary><pre id="json"></pre></details>
+
+<script type="module">
+import { route } from '../../app/src/venue/route.js';
+
+const get = path => fetch(`../../data/${path}`).then(r => (r.ok ? r.json() : null));
+const edition = await get('venue/chi2026.json');
+const venue = await get(`venue/${edition.venue}.json`);
+const feedRooms = await get('build/chi2026/rooms.json'); // optional: needs npm run data:build
+const names = new Map((feedRooms || []).map(r => [r.key, r.name]));
+
+// one option per feed room, labelled with the feed's room name
+const options = Object.entries(edition.rooms)
+  .map(([key, area]) => ({ key, area, label: names.get(key) || `${area} (${key})` }))
+  .sort((a, b) => a.label.localeCompare(b.label, 'en', { numeric: true }));
+for (const sel of [from, to]) sel.innerHTML = options.map(o => `<option value="${o.key}">${o.label}</option>`).join('');
+from.value = options.find(o => o.area === 'P1-111').key;
+to.value = options.find(o => o.area === 'P2-211').key;
+if (!feedRooms) buildNote.textContent = 'Room names need npm run data:build; showing area ids.';
+
+function drawLevel(level, r) {
+  const N = venue.nodes;
+  const placed = Object.values(N).filter(n => n.level === level && n.x != null);
+  const box = { x0: Math.min(...placed.map(n => n.x)) - 6, y0: Math.min(...placed.map(n => n.y)) - 6,
+                x1: Math.max(...placed.map(n => n.x)) + 6, y1: Math.max(...placed.map(n => n.y)) + 8 };
+  const onPath = new Set(r.path.slice(1).map((n, i) => `${r.path[i]}|${n}`));
+  const lines = venue.edges.filter(e => N[e.a].level === level && N[e.b].level === level && N[e.a].x != null)
+    .map(e => {
+      const hit = onPath.has(`${e.a}|${e.b}`) || onPath.has(`${e.b}|${e.a}`);
+      return `<line x1="${N[e.a].x}" y1="${N[e.a].y}" x2="${N[e.b].x}" y2="${N[e.b].y}" stroke="${hit ? '#000' : '#bbb'}" stroke-width="${hit ? 1.6 : 0.6}" ${hit ? 'stroke-dasharray="3 2"' : ''}/>`;
+    }).join('');
+  const doors = Object.entries(venue.areas).filter(([, a]) => a.doors?.length === 1 && N[a.doors[0]].level === level && N[a.doors[0]].x != null)
+    .map(([, a]) => { const n = N[a.doors[0]]; return `<circle cx="${n.x}" cy="${n.y}" r="0.8" fill="#666"/><text x="${n.x}" y="${n.y + 4}" font-size="2.6" text-anchor="middle" fill="#666">${a.name}</text>`; }).join('');
+  const marks = doors + Object.entries(N).filter(([, n]) => n.level === level && n.x != null && (n.kind === 'elevator' || n.kind === 'escalator'))
+    .map(([, n]) => `<rect x="${n.x - 1.5}" y="${n.y - 1.5}" width="3" height="3" fill="${n.kind === 'elevator' ? '#06c' : '#c60'}"/>`).join('');
+  const pin = (id, text) => N[id].level === level && N[id].x != null
+    ? `<circle cx="${N[id].x}" cy="${N[id].y}" r="4" fill="#fff" stroke="#000"/><text x="${N[id].x}" y="${N[id].y + 2}" font-size="5" text-anchor="middle">${text}</text>` : '';
+  return `<p><b>Level ${level}</b> <span class="muted">(blue = elevator, orange = escalator; plan from CCIB floor plans, pins only)</span></p>
+    <svg viewBox="${box.x0} ${box.y0} ${box.x1 - box.x0} ${box.y1 - box.y0}" role="img" aria-label="Level ${level} route">${lines}${marks}${pin(r.path[0], 'A')}${pin(r.path.at(-1), 'B')}</svg>`;
+}
+
+function show() {
+  const a = edition.rooms[from.value], b = edition.rooms[to.value];
+  const r = route(venue, a, b, { stepFree: stepFree.checked });
+  rooms.textContent = `${from.selectedOptions[0].text} → ${to.selectedOptions[0].text}`;
+  json.textContent = JSON.stringify(r, null, 2);
+  if (!r) { time.textContent = 'No route'; levels.textContent = via.innerHTML = maps.innerHTML = ''; return; }
+  const [lo, hi] = r.minutes;
+  time.textContent = `about ${lo === hi ? lo : `${lo}–${hi}`} min`;
+  levels.textContent = `${r.metres} m · Level ${r.levels.join(' → ')}`;
+  via.innerHTML = r.via.map(v => `<li>${v.kind === 'elevator' ? 'Elevator' : 'Escalator'} ${v.from} → ${v.to}</li>`).join('');
+  maps.innerHTML = r.levels.map(l => (l === 'AUD' ? '<p><b>Auditorium</b>: via the connecting walkway from P0 access A (no plan coordinates)</p>' : drawLevel(l, r))).join('');
+  const guessed = r.path.filter(n => venue.nodes[n].estimate);
+  note.textContent = guessed.length ? `Estimated, not measured on the plan: ${guessed.join(', ')}` : '';
+}
+for (const el of [from, to, stepFree]) el.addEventListener('change', show);
+show();
+</script>
+</body>
+</html>
