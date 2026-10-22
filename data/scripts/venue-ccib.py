@@ -42,6 +42,10 @@ HAND_DOORS = {  # areas whose doors the plan does not mark
            'access A': [(511.0, 397.0)]},
     'M1': {'VIP Room': [(439.0, 378.0)]},  # top wall of the VIP room
 }
+HAND_RECTS = {  # rooms the plan does not fill in blue: outline read off the plan (checked against the table size)
+    'P0': {'Entrance Hall': (148, 376, 456, 450)},  # 119.1 x 28.9 m
+    'M1': {'VIP Room': (421.6, 377.6, 456, 432)},  # 23.0 x 14.7 m
+}
 DOOR_LABELS = {'P1': r'^1[1-3]\d$', 'P2': r'^(211|212|Banquet)$'}  # marked doors go to the nearest of these labels
 AUDITORIUM = {  # page 10 is another drawing at another scale; only the walkway length is in the table
     'walkway': 116.8,  # Connecting Walkway length (m), table on page 10
@@ -148,6 +152,47 @@ def blue_rects(page):
     return out
 
 
+def room_labels(page):
+    """Room names drawn on the plan, with their centres (level-specific label styles)."""
+    words = [w for w in page.extract_words() if w['top'] < 450]
+    out = []
+    for i, w in enumerate(words):
+        t = w['text'] if not w['text'][0].isdigit() or not w['text'].endswith('M') else w['text'][::-1]  # rotated M2 labels
+        name = None
+        if re.fullmatch(r'1[1-3]\d|21[12]|M2\d\d', t):
+            name = t
+        elif t == 'Banquet':
+            name = 'Banquet Hall'
+        elif t == 'Area' and i + 1 < len(words) and words[i + 1]['text'].isdigit():
+            name = f'Area {words[i + 1]["text"]}'
+        if name:
+            out.append(((w['x0'] + w['x1']) / 2, (w['top'] + w['bottom']) / 2, name))
+    return out
+
+
+def room_rects(page, areas, level):
+    """Blue room rectangles; a rectangle holding several rooms (113-117, 118-125, ...) is split by the table widths."""
+    rects = [r for r in blue_rects(page) if not (r[2] - r[0] < 13 and r[3] - r[1] < 6)]
+    labels = room_labels(page)
+    out = {}
+    for r in rects:
+        inside = [l for l in labels if r[0] <= l[0] <= r[2] and r[1] <= l[1] <= r[3]]
+        if len(inside) == 1:
+            out[inside[0][2]] = r
+        elif inside:
+            along_x = max(l[0] for l in inside) - min(l[0] for l in inside) > max(l[1] for l in inside) - min(l[1] for l in inside)
+            inside.sort(key=lambda l: l[0] if along_x else l[1])
+            widths = [areas.get(area_id(level, l[2]), {}).get('width') for l in inside]
+            known = [w for w in widths if w]
+            widths = [w or sum(known) / len(known) for w in widths]  # 124 is missing from the PDF table: use its neighbours
+            start, size = (r[0], r[2] - r[0]) if along_x else (r[1], r[3] - r[1])
+            for l, w in zip(inside, widths):
+                end = start + size * w / sum(widths)
+                out[l[2]] = (start, r[1], end, r[3]) if along_x else (r[0], start, r[2], end)
+                start = end
+    return out
+
+
 def project(p, a, b):
     ax, ay = a
     vx, vy = b[0] - ax, b[1] - ay
@@ -238,6 +283,13 @@ def main(pdf_path):
                 ids.append(nid)
                 pois[lv].append((nid, ref(p)))
             areas.setdefault(aid, {'level': lv, 'name': name})['doors'] = ids
+        outlines = room_rects(page, areas, lv)
+        for name, r in {**outlines, **HAND_RECTS.get(lv, {})}.items():
+            (x0, y0), (x1, y1) = ref(r[:2]), ref(r[2:])
+            a = areas.setdefault(area_id(lv, name), {'level': lv, 'name': name})
+            a['rect'] = [round(v * mpp, 2) for v in (x0, y0, x1, y1)]
+            if name in HAND_RECTS.get(lv, {}):
+                a['rectEstimate'] = True
         for i, p in enumerate(elev[lv]):
             pois[lv].append((node(f'{lv}/elevator{i + 1}', lv, 'elevator', ref(p)), ref(p)))
         for i, p in enumerate(sorted(icons(page, 'escalator'))):
@@ -294,9 +346,15 @@ def main(pdf_path):
 
     # combined rooms (e.g. "M211+M212", which a programme can book as one room) use the doors of their parts
     for aid, a in areas.items():
-        parts = [f'{a["level"]}-{slug(p)}' for p in a['name'].split('+')]
-        if '+' in a['name'] and 'doors' not in a and all('doors' in areas.get(p, {}) for p in parts):
+        if '+' not in a['name']:
+            continue
+        names = a['name'][len('Areas '):].split('+') if a['name'].startswith('Areas ') else a['name'].split('+')
+        parts = [area_id(a['level'], ('Area ' if a['name'].startswith('Areas ') else '') + p) for p in names]
+        if 'doors' not in a and all('doors' in areas.get(p, {}) for p in parts):
             a['doors'] = [d for p in parts for d in areas[p]['doors']]
+        if 'rect' not in a and all('rect' in areas.get(p, {}) for p in parts):
+            rs = [areas[p]['rect'] for p in parts]
+            a['rect'] = [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
 
     # Auditorium: a separate building, so only distances, no shared coordinates
     nodes['AUD/foyer'] = {'level': 'AUD', 'kind': 'corridor', 'x': None, 'y': None}

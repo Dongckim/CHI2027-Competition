@@ -10,11 +10,13 @@
 - `npm run data:venue -- <pdf>` (`data/scripts/venue-ccib.py`, pdfplumber) → `data/venue/ccib.json`
   - 표: 구역 108개의 면적·가로·세로·높이·배치별 수용 인원
   - 도면: 방 사각형·문 표시·엘리베이터·에스컬레이터 아이콘의 벡터 좌표 → 미터 (축척은 방 크기를 표와 맞춰 계산)
+  - 방 테두리(`rect`, 미터): 파란 방 사각형, 여러 방이 한 사각형이면 표의 폭으로 나눔. 표 치수와 2m 안 (P2 211+212가 1.6m로 최대)
   - 그래프: 문·복도·엘리베이터·에스컬레이터 지점 170개, 연결 188개. 거리는 이미 미터
 - `data/venue/chi2026.json`의 `rooms`: 피드 방 43개 → 구역 ID
 - `app/src/venue/route.js`: 문에서 문까지 최단 경로. 결과 = 거리(m), 시간 범위(분), 지나는 층, 엘리베이터/에스컬레이터
   - 시간 범위: 빠른 쪽 1.3 m/s, 느린 쪽 0.9 m/s(혼잡·휠체어) + 에스컬레이터 층당 20–40초, 엘리베이터 대기 30–120초 + 층당 10초
   - 계단 없는 경로: 에스컬레이터 제외
+- 브라우저 확인: `npm run bench` → http://localhost:5173/tests/venue/bench.html (Figma 09 배치를 흉내 낸 확인용 페이지, `?from=P1-113&to=P1-133&stepFree=1`)
 - 확인: `node tests/venue/try.mjs 111 211 [--step-free] [--json]`, 테스트 `tests/venue/route.test.mjs`
 
 ## 통과 기준
