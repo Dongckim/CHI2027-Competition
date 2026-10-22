@@ -39,6 +39,7 @@
     <option value="zh">Chinese</option><option value="es">Spanish</option><option value="de">German</option>
   </select></label>
   <label><input type="checkbox" id="glossary" checked> Session glossary (titles, author names)</label>
+  <label><input type="checkbox" id="speakers"> Speaker labels (panels, Q&amp;A)</label>
   <div><button id="start">Start</button> <button id="stop" disabled>Stop</button></div>
 </div>
 <div id="status">Pick a session and press Start. Play a talk through a speaker next to the phone.</div>
@@ -98,6 +99,7 @@ async function start() {
     if (!keyRes.ok) throw new Error(key.error || `key ${keyRes.status}`);
 
     const config = { model: 'stt-rt-v5', audio_format: 'auto', language_hints: ['en'], enable_endpoint_detection: true };
+    if ($('speakers').checked) config.enable_speaker_diarization = true;
     if ($('lang').value) config.translation = { type: 'one_way', target_language: $('lang').value };
     if ($('glossary').checked) {
       config.context = sessionContext({ papers, sessions }, $('session').value);
