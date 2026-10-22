@@ -8,6 +8,7 @@
     "data:validate": "node data/scripts/validate.mjs",
     "data:ror": "node data/scripts/ror.mjs",
     "data:build": "node data/scripts/build.mjs",
+    "data:venue": "python3 data/scripts/venue-ccib.py",
     "test": "node --test"
   },
   "devDependencies": {
