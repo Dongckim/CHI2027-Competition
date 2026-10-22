@@ -24,6 +24,16 @@ test('door spacing matches the room widths in the tables', () => {
   near(Math.abs(door('M2-m220').x - door('M2-m221').x), 4.3, 1, 'M220 to M221');
 });
 
+test('room outlines on the plan match the table sizes', () => {
+  for (const [id, a] of Object.entries(venue.areas)) {
+    if (!a.rect || !a.length) continue;
+    const sides = [a.rect[2] - a.rect[0], a.rect[3] - a.rect[1]].sort((x, y) => x - y);
+    const table = [a.length, a.width].sort((x, y) => x - y);
+    sides.forEach((s, i) => assert.ok(Math.abs(s - table[i]) <= 2, `${id}: ${sides.map(v => v.toFixed(1))} vs ${table}`));
+  }
+  for (const area of new Set(Object.values(chi2026.rooms))) if (area !== 'AUD-auditorium') assert.ok(venue.areas[area].rect, area);
+});
+
 test('every chi2026 room has an area with doors', () => {
   for (const [room, area] of Object.entries(chi2026.rooms)) assert.ok(venue.areas[area]?.doors?.length, `${room} -> ${area}`);
 });
