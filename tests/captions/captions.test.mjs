@@ -1,19 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { CONTEXT_MAX_CHARS, createCaptions, createConversation, sessionContext, wrap } from '../../app/src/captions/captions.js';
+import { CONTEXT_MAX_CHARS, KEEP_CHARS, createCaptions, createConversation, sessionContext } from '../../app/src/captions/captions.js';
 import sonioxKey, { PER_DEVICE_PER_HOUR, resetLimits } from '../../functions/soniox-key.mjs';
 
 const tok = (text, is_final, extra = {}) => ({ text, is_final, ...extra });
 
-test('wrap: at spaces, long words cut', () => {
-  assert.deepEqual(wrap('aa bb cc', 5), ['aa bb', 'cc']);
-  assert.deepEqual(wrap('abcdefgh', 3), ['abc', 'def', 'gh']);
-  assert.deepEqual(wrap('  ', 5), []);
-});
-
 test('captions: final appends, non-final replaces, translation apart, control tokens dropped', () => {
-  const c = createCaptions({ lines: 3, width: 20 });
+  const c = createCaptions();
   c.update({ tokens: [tok('Hello', true), tok(' every', false)] });
   assert.deepEqual(c.view().original, ['Hello every']);
   c.update({ tokens: [tok(' everyone', false)] });
@@ -22,41 +16,56 @@ test('captions: final appends, non-final replaces, translation apart, control to
   assert.deepEqual(c.view(), { original: ['Hello everyone.'], translation: ['안녕하세요'] });
 });
 
-test('captions: a change of speaker starts with a label', () => {
-  const c = createCaptions({ lines: 3, width: 60 });
+test('captions: a change of speaker starts a new paragraph with a label', () => {
+  const c = createCaptions();
   c.update({ tokens: [tok('Thanks', true, { speaker: '1' }), tok(' for', true, { speaker: '1' })] });
   assert.deepEqual(c.view().original, ['S1: Thanks for']);
   c.update({ tokens: [tok(' Question', false, { speaker: '2' })] });
-  assert.deepEqual(c.view().original, ['S1: Thanks for S2: Question']);
+  assert.deepEqual(c.view().original, ['S1: Thanks for', 'S2: Question']);
   c.update({ tokens: [tok(' Question', true, { speaker: '2' }), tok(' here', true, { speaker: '2' }), tok(' Sure', false, { speaker: '1' })] });
-  assert.deepEqual(c.view().original, ['S1: Thanks for S2: Question here S1: Sure']);
+  assert.deepEqual(c.view().original, ['S1: Thanks for', 'S2: Question here', 'S1: Sure']);
   c.clear();
   c.update({ tokens: [tok('Hi', true, { speaker: '2' })] });
   assert.deepEqual(c.view().original, ['S2: Hi']);
 });
 
-test('conversation: each half gets the other person in its own language and its own words', () => {
+test('captions: a pause (<end>) starts a new paragraph in the original and the translation', () => {
+  const c = createCaptions();
+  const tr = (text, is_final = true) => tok(text, is_final, { translation_status: 'translation' });
+  c.update({ tokens: [tok('Thank you.', true), tr('감사합니다.'), tok('<end>', true)] });
+  c.update({ tokens: [tok(' Next', false)] });
+  assert.deepEqual(c.view().original, ['Thank you.', 'Next']);
+  c.update({ tokens: [tok(' Next slide.', true), tok('<end>', true), tok('<end>', true)] }); // a second <end> adds no empty paragraph
+  c.update({ tokens: [tr(' 다음 슬라이드.'), tok(' So', true)] });
+  assert.deepEqual(c.view(), { original: ['Thank you.', 'Next slide.', 'So'], translation: ['감사합니다.', '다음 슬라이드.'] });
+});
+
+test('conversation: each half gets the other person in its own language and its own words, in paragraphs', () => {
   // token shapes as Soniox sent them for two-way en/ko (probe, 2026-10-22)
   const o = (text, language, is_final = true) => ({ text, language, is_final, translation_status: 'original', speaker: '1' });
   const tr = (text, language, source_language, is_final = true) => ({ text, language, source_language, is_final, translation_status: 'translation' });
-  const c = createConversation('en', 'ko', { lines: 3, width: 40 });
-  c.update({ tokens: [o('Hi, nice to meet you.', 'en'), tr('안녕하세요, 만나서 반가워요.', 'ko', 'en'), { text: '<end>', is_final: true, translation_status: 'none' }] });
+  const end = { text: '<end>', is_final: true, translation_status: 'none' };
+  const c = createConversation('en', 'ko');
+  c.update({ tokens: [o('Hi, nice to meet you.', 'en'), tr('안녕하세요, 만나서 반가워요.', 'ko', 'en'), end] });
   c.update({ tokens: [o(' 반갑습니다.', 'ko'), tr(' Nice to', 'en', 'ko', false)] });
   assert.deepEqual(c.view('en'), { theirs: ['Nice to'], mine: ['Hi, nice to meet you.'] });
   assert.deepEqual(c.view('ko'), { theirs: ['안녕하세요, 만나서 반가워요.'], mine: ['반갑습니다.'] });
-  c.update({ tokens: [tr(' Nice to meet you.', 'en', 'ko'), o(' Bonjour', 'fr')] });
-  assert.deepEqual(c.view('en').theirs, ['Nice to meet you.']);
+  c.update({ tokens: [tr(' Nice to meet you.', 'en', 'ko'), o(' Bonjour', 'fr'), end] });
+  c.update({ tokens: [o(' 어디서 오셨어요?', 'ko'), tr(' Where are you from?', 'en', 'ko')] });
+  assert.deepEqual(c.view('en'), { theirs: ['Nice to meet you.', 'Where are you from?'], mine: ['Hi, nice to meet you.'] });
+  assert.deepEqual(c.view('ko').mine, ['어디서 오셨어요?']);
   c.clear();
   assert.deepEqual(c.view('ko'), { theirs: [], mine: [] });
   assert.throws(() => createConversation('en', 'en'));
 });
 
-test('captions: only the last 3 lines are shown and the old text is not kept', () => {
-  const c = createCaptions({ lines: 3, width: 10 });
-  for (let i = 0; i < 200; i++) c.update({ tokens: [tok(` w${i}`, true)] });
-  const v = c.view().original;
-  assert.equal(v.length, 3);
-  assert.ok(v.at(-1).endsWith('w199'));
+test('captions: only the last paragraphs are handed out and old text is not kept', () => {
+  const c = createCaptions();
+  for (let i = 0; i < 2000; i++) c.update({ tokens: [tok(` w${i}`, true)] });
+  const [p] = c.view().original;
+  assert.ok(p.length <= KEEP_CHARS && p.endsWith('w1999'));
+  for (let i = 0; i < 5; i++) c.update({ tokens: [tok(` s${i}.`, true), tok('<end>', true)] });
+  assert.deepEqual(c.view().original, ['s2.', 's3.', 's4.']);
   c.clear();
   assert.deepEqual(c.view(), { original: [], translation: [] });
 });
