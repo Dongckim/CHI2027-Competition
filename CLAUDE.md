@@ -20,7 +20,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
   - `npm run contracts:check` : 계약 스키마와 examples 검사
   - `node tests/planner/bench.mjs` : 플래너 하루 계산 시간 (data/build 필요)
   - `node tests/planner/try.mjs <후보.json> [--day YYYY-MM-DD] [--wheelchair]` : 후보 목록으로 루트를 눈으로 확인 (예: tests/planner/examples/accessibility.json). 추천은 recsys/ 몫, 플래너·도구에 추천 로직 넣지 말 것
-  - `npm run bench` : 확인 페이지 서버 (tests/serve.mjs, functions/를 /api/로 연결). 길 안내 /tests/venue/bench.html, 자막 /tests/captions/bench.html (`.env.local`에 `SONIOX_API_KEY=...`, git 무시)
+  - `npm run bench` : 확인 페이지 서버 (tests/serve.mjs, functions/를 /api/로 연결). 길 안내 /tests/venue/bench.html, 자막 /tests/captions/bench.html, 대면 대화 /tests/captions/conversation.html (`.env.local`에 `SONIOX_API_KEY=...`, git 무시)
   - `npm test` : 전체 테스트 / 하나만: `node --test --test-name-pattern="talk slots" tests/`
 - git은 반드시 `arc/` 안에서 실행. 상위 `chi2027-arc/`는 자체 레포가 아니라 홈 디렉토리(`/Users/dongchankim`) 레포로 잡힘
 

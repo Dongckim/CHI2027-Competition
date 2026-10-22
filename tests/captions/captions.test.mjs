@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { CONTEXT_MAX_CHARS, createCaptions, sessionContext, wrap } from '../../app/src/captions/captions.js';
+import { CONTEXT_MAX_CHARS, createCaptions, createConversation, sessionContext, wrap } from '../../app/src/captions/captions.js';
 import sonioxKey, { PER_DEVICE_PER_HOUR, resetLimits } from '../../functions/soniox-key.mjs';
 
 const tok = (text, is_final, extra = {}) => ({ text, is_final, ...extra });
@@ -33,6 +33,22 @@ test('captions: a change of speaker starts with a label', () => {
   c.clear();
   c.update({ tokens: [tok('Hi', true, { speaker: '2' })] });
   assert.deepEqual(c.view().original, ['S2: Hi']);
+});
+
+test('conversation: each half gets the other person in its own language and its own words', () => {
+  // token shapes as Soniox sent them for two-way en/ko (probe, 2026-10-22)
+  const o = (text, language, is_final = true) => ({ text, language, is_final, translation_status: 'original', speaker: '1' });
+  const tr = (text, language, source_language, is_final = true) => ({ text, language, source_language, is_final, translation_status: 'translation' });
+  const c = createConversation('en', 'ko', { lines: 3, width: 40 });
+  c.update({ tokens: [o('Hi, nice to meet you.', 'en'), tr('안녕하세요, 만나서 반가워요.', 'ko', 'en'), { text: '<end>', is_final: true, translation_status: 'none' }] });
+  c.update({ tokens: [o(' 반갑습니다.', 'ko'), tr(' Nice to', 'en', 'ko', false)] });
+  assert.deepEqual(c.view('en'), { theirs: ['Nice to'], mine: ['Hi, nice to meet you.'] });
+  assert.deepEqual(c.view('ko'), { theirs: ['안녕하세요, 만나서 반가워요.'], mine: ['반갑습니다.'] });
+  c.update({ tokens: [tr(' Nice to meet you.', 'en', 'ko'), o(' Bonjour', 'fr')] });
+  assert.deepEqual(c.view('en').theirs, ['Nice to meet you.']);
+  c.clear();
+  assert.deepEqual(c.view('ko'), { theirs: [], mine: [] });
+  assert.throws(() => createConversation('en', 'en'));
 });
 
 test('captions: only the last 3 lines are shown and the old text is not kept', () => {

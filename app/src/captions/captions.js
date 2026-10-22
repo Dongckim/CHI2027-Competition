@@ -82,3 +82,33 @@ export function createCaptions({ lines = LINES, width = WIDTH } = {}) {
     clear() { original = fresh(); translation = fresh(); speaker = null; },
   };
 }
+
+// Face to face: two people across a table, each speaking their own language (Soniox two-way translation).
+// Soniox marks every token with its language: originals carry the language spoken, translations the language translated into.
+// So each person's half of the screen needs no speaker detection: `theirs` = translations into my language,
+// `mine` = what I said, as heard (so I can tell I was understood).
+export function createConversation(a, b, { lines = LINES, width = WIDTH } = {}) {
+  if (!a || !b || a === b) throw new Error('two different languages');
+  const keep = lines * width * 2;
+  const fresh = () => ({ mine: { final: '', live: '' }, theirs: { final: '', live: '' } });
+  let side = { [a]: fresh(), [b]: fresh() };
+  return {
+    update(res) {
+      const live = { [a]: { mine: '', theirs: '' }, [b]: { mine: '', theirs: '' } };
+      for (const t of res.tokens || []) {
+        if (!t.text || !side[t.language]) continue; // control tokens (<end>) have no language; a third language is dropped
+        const part = t.translation_status === 'translation' ? 'theirs' : 'mine';
+        const s = side[t.language][part];
+        if (t.is_final) s.final = (s.final + t.text).slice(-keep);
+        else live[t.language][part] += t.text;
+      }
+      for (const l of [a, b]) for (const part of ['mine', 'theirs']) side[l][part].live = live[l][part];
+    },
+    // lines of `language`'s half: what the other person said (most of the space) and the last line of my own words
+    view(language) {
+      const show = (s, n) => wrap(s.final + s.live, width).slice(-n);
+      return { theirs: show(side[language].theirs, lines), mine: show(side[language].mine, 1) };
+    },
+    clear() { side = { [a]: fresh(), [b]: fresh() }; },
+  };
+}
