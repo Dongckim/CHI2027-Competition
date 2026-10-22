@@ -38,15 +38,15 @@ test('every chi2026 room has an area with doors', () => {
   for (const [room, area] of Object.entries(chi2026.rooms)) assert.ok(venue.areas[area]?.doors?.length, `${room} -> ${area}`);
 });
 
-test('every pair of chi2026 rooms has a route; step-free never takes an escalator', () => {
+test('every pair of chi2026 rooms has a route; wheelchair never takes an escalator, walking prefers them', () => {
   const areas = [...new Set(Object.values(chi2026.rooms))];
   for (const a of areas) {
     for (const b of areas) {
-      for (const stepFree of [false, true]) {
-        const r = route(venue, a, b, { stepFree });
+      for (const wheelchair of [false, true]) {
+        const r = route(venue, a, b, { wheelchair });
         assert.ok(r, `${a} -> ${b}`);
         assert.ok(r.minutes[0] <= r.minutes[1]);
-        if (stepFree) assert.ok(r.via.every(v => v.kind !== 'escalator'), `${a} -> ${b}`);
+        if (wheelchair) assert.ok(r.via.every(v => v.kind !== 'escalator'), `${a} -> ${b}`);
       }
       assert.deepEqual(route(venue, a, b).minutes, route(venue, b, a).minutes, `${a} <-> ${b}`);
     }
@@ -55,15 +55,18 @@ test('every pair of chi2026 rooms has a route; step-free never takes an escalato
 
 test('same room: no walk; other level: says how', () => {
   assert.equal(route(venue, 'P1-111', 'P1-111').metres, 0);
-  const r = route(venue, 'P1-111', 'P2-211', { stepFree: true });
+  const r = route(venue, 'P1-111', 'P2-211', { wheelchair: true });
   assert.deepEqual(r.via, [{ kind: 'elevator', from: 'P1', to: 'P2' }]);
   assert.deepEqual([r.levels[0], r.levels.at(-1)], ['P1', 'P2']);
 });
 
-test('stops name the landmarks in order', async () => {
+test('stops: landmarks you can see, turns, and how you change level', async () => {
   const { stopsText } = await import('../../app/src/venue/route.js');
-  assert.equal(stopsText(route(venue, 'P1-113', 'P1-133').stops), '113 → Foyer 1 → Foyer 2 → 133');
-  assert.equal(stopsText(route(venue, 'P1-117', 'P2-211', { stepFree: true }).stops), '117 → Foyer 1 → Elevator P1→P2 → Foyer B → 211');
+  assert.equal(stopsText(route(venue, 'P1-113', 'P1-133').stops), '113 → 112 → Foyer 2 → 133');
+  assert.equal(stopsText(route(venue, 'P1-111', 'P2-211').stops), '111 → Escalator P1→P2 → 211');
+  assert.equal(stopsText(route(venue, 'P1-111', 'P2-211', { wheelchair: true }).stops), '111 → Elevator P1→P2 → 211');
+  // walking between levels uses escalators wherever they connect
+  assert.deepEqual(route(venue, 'P1-117', 'P2-211').via.map(v => v.kind), ['escalator']);
 });
 
 test('unknown area is an error, not a silent zero', () => {

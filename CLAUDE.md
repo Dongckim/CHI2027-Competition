@@ -15,7 +15,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
   - `npm run data:build [edition...]` : data/build 생성 (data/raw 필요, 네트워크 안 씀)
   - `node data/scripts/report.mjs` : V0 측정값 JSON 출력
   - `npm run data:venue -- <CCIB 평면도 PDF>` : data/venue/ccib.json 다시 생성 (python3 + pdfplumber, PDF는 커밋 안 함)
-  - `node tests/venue/try.mjs 111 211 [--step-free]` : 방 사이 거리·시간 (app/src/venue/route.js)
+  - `node tests/venue/try.mjs 111 211 [--wheelchair]` : 방 사이 거리·시간 (app/src/venue/route.js)
   - `npm test` : 전체 테스트 / 하나만: `node --test --test-name-pattern="talk slots" tests/`
 - git은 반드시 `arc/` 안에서 실행. 상위 `chi2027-arc/`는 자체 레포가 아니라 홈 디렉토리(`/Users/dongchankim`) 레포로 잡힘
 
