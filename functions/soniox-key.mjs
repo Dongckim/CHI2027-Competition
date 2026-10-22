@@ -31,7 +31,11 @@ export default async function sonioxKey(request, env, now = Date.now()) {
     headers: { authorization: `Bearer ${env.SONIOX_API_KEY}`, 'content-type': 'application/json' },
     body: JSON.stringify({ usage_type: 'transcribe_websocket', expires_in_seconds: KEY_TTL_S, single_use: true, max_session_duration_seconds: SESSION_MAX_S }),
   });
-  if (!res.ok) return json(502, { error: `soniox ${res.status}` });
+  if (!res.ok) {
+    // Soniox's own reason (e.g. the key lacks the temporary-key permission); it never contains the key
+    const reason = await res.json().then(e => e.message || e.error_type, () => '');
+    return json(502, { error: `soniox ${res.status}${reason ? `: ${reason}` : ''}` });
+  }
   const { api_key, expires_at } = await res.json();
   hits.set(device, [...recent, now]);
   day.count++;
