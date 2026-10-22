@@ -60,6 +60,12 @@ test('same room: no walk; other level: says how', () => {
   assert.deepEqual([r.levels[0], r.levels.at(-1)], ['P1', 'P2']);
 });
 
+test('stops name the landmarks in order', async () => {
+  const { stopsText } = await import('../../app/src/venue/route.js');
+  assert.equal(stopsText(route(venue, 'P1-113', 'P1-133').stops), '113 → Foyer 1 → Foyer 2 → 133');
+  assert.equal(stopsText(route(venue, 'P1-117', 'P2-211', { stepFree: true }).stops), '117 → Foyer 1 → Elevator P1→P2 → Foyer B → 211');
+});
+
 test('unknown area is an error, not a silent zero', () => {
   assert.throws(() => route(venue, 'P1-999', 'P1-111'), /unknown/);
 });

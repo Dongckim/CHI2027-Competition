@@ -3,7 +3,7 @@
 // A room is an area id (P1-111), a feed room key (chi2026:12303), a feed room name ("P1 - Room 111") or a short name (111, M215, "VIP Room").
 import { readFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
-import { route } from '../../app/src/venue/route.js';
+import { route, stopsText } from '../../app/src/venue/route.js';
 
 const { values: opt, positionals } = parseArgs({
   allowPositionals: true,
@@ -34,8 +34,6 @@ if (opt.json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
 if (!r) { console.log('no route'); process.exit(1); }
 console.log(`${r.from} → ${r.to}${r.stepFree ? ' (step-free)' : ''}`);
 console.log(`about ${r.minutes[0] === r.minutes[1] ? r.minutes[0] : r.minutes.join('–')} min · ${r.metres} m · Level ${r.levels.join(' → ')}`);
-for (const v of r.via) console.log(`  ${v.kind} ${v.from} → ${v.to}`);
-const stops = r.path.filter(n => venue.nodes[n].kind !== 'corridor');
-console.log(`  path: ${stops.join(' → ')}`);
+console.log(`  ${stopsText(r.stops)}`);
 const guessed = r.path.filter(n => venue.nodes[n].estimate);
 if (guessed.length) console.log(`  estimate (not measured on the plan): ${guessed.join(', ')}`);

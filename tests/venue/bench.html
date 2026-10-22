@@ -23,7 +23,7 @@
   .toggle { display: flex; justify-content: space-between; align-items: center; min-height: 48px;
             border: 1px solid var(--line); border-radius: 10px; padding: 0 12px; }
   .toggle input { width: 24px; height: 24px; }
-  ol { padding-left: 20px; font-size: 14px; }
+  .stops { font-size: 15px; line-height: 1.6; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; margin: 12px 0; }
   .muted { color: var(--muted); font-size: 13px; }
   pre { font-size: 12px; overflow-x: auto; background: #f4f4f4; padding: 8px; }
 </style>
@@ -41,13 +41,13 @@
 <p id="levels"></p>
 <div id="maps"></div>
 <label class="toggle">Step-free route (via elevator) <input type="checkbox" id="stepFree"></label>
-<ol id="via"></ol>
+<p id="via" class="stops"></p>
 <p class="muted" id="note"></p>
 <p class="muted" id="buildNote"></p>
 <details><summary>route() output</summary><pre id="json"></pre></details>
 
 <script type="module">
-import { route } from '../../app/src/venue/route.js';
+import { route, stopsText } from '../../app/src/venue/route.js';
 
 const get = path => fetch(`../../data/${path}`).then(r => (r.ok ? r.json() : null));
 const edition = await get('venue/chi2026.json');
@@ -75,20 +75,25 @@ const outlines = Object.entries(venue.areas).filter(([, a]) => a.rect && !a.name
 
 function drawLevel(level, r) {
   const onLevel = r.path.filter(n => N[n].level === level && N[n].x != null);
-  // frame: the route on this level plus the start/end rooms, with room around it
-  const pts = onLevel.map(n => [N[n].x, N[n].y]);
-  // keep the Elevator/Escalator label (drawn above its node, ~20 m wide) inside the frame
-  for (const n of onLevel) if (N[n].kind === 'elevator' || N[n].kind === 'escalator') pts.push([N[n].x - 12, N[n].y - 10], [N[n].x + 12, N[n].y]);
-  for (const id of [r.from, r.to]) {
-    const a = venue.areas[id];
-    if (a.level === level && a.rect) pts.push([a.rect[0], a.rect[1]], [a.rect[2], a.rect[3]]);
-  }
-  let [x0, y0, x1, y1] = [Math.min(...pts.map(p => p[0])), Math.min(...pts.map(p => p[1])), Math.max(...pts.map(p => p[0])), Math.max(...pts.map(p => p[1]))];
-  const grow = (lo, hi, min) => { const pad = Math.max(10, (min - (hi - lo)) / 2); return [lo - pad, hi + pad]; };
-  [x0, x1] = grow(x0, x1, 70);
-  [y0, y1] = grow(y0, y1, 45);
+  // frame: the whole level (rooms, foyers, lifts), so the route is seen in context
+  const pts = [];
+  for (const [, a] of outlines) if (a.level === level) pts.push([a.rect[0], a.rect[1]], [a.rect[2], a.rect[3]]);
+  for (const c of venue.corridors) if (c.level === level) pts.push(...c.points);
+  for (const n of Object.values(N)) if (n.level === level && n.x != null) pts.push([n.x, n.y]);
+  const pad = 8;
+  const [x0, y0] = [Math.min(...pts.map(p => p[0])) - pad, Math.min(...pts.map(p => p[1])) - pad];
+  const [x1, y1] = [Math.max(...pts.map(p => p[0])) + pad, Math.max(...pts.map(p => p[1])) + pad];
   const W = x1 - x0;
-  const fs = W / 26, sw = W / 160;
+  const fs = W / 34, sw = W / 260;
+  const foyers = venue.corridors.filter(c => c.level === level).map(c => {
+    const [[ax, ay], [bx, by]] = [c.points[0], c.points.at(-1)];
+    const vertical = Math.abs(bx - ax) < Math.abs(by - ay);
+    const [lx, ly] = [(ax + bx) / 2, (ay + by) / 2];
+    return `<polyline points="${c.points.map(p => p.join(',')).join(' ')}" fill="none" stroke="#f3e8d4" stroke-width="${fs * 1.6}" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="${lx}" y="${ly + fs * 0.3}" font-size="${fs * 0.75}" text-anchor="middle" fill="#9a8668" font-style="italic"${vertical ? ` transform="rotate(-90 ${lx} ${ly})"` : ''}>${esc(c.name)}</text>`;
+  }).join('');
+  const lifts = Object.values(N).filter(n => n.level === level && n.x != null && (n.kind === 'elevator' || n.kind === 'escalator'))
+    .map(n => `<rect x="${n.x - fs * 0.35}" y="${n.y - fs * 0.35}" width="${fs * 0.7}" height="${fs * 0.7}" rx="${fs * 0.15}" fill="${n.kind === 'elevator' ? '#3b6fd8' : '#d0782a'}" opacity="0.7"/>`).join('');
 
   // a booked combination (M215+M216, Areas 1+2+3) highlights its parts
   const parts = id => {
@@ -103,7 +108,7 @@ function drawLevel(level, r) {
     const mine = ends.has(id);
     const label = a.name.length > 6 ? a.name.replace(' Room', '').replace(' Hall', '') : a.name;
     return `<rect x="${ax0}" y="${ay0}" width="${ax1 - ax0}" height="${ay1 - ay0}" fill="#f6ecdb" stroke="${mine ? '#111' : '#cbb89a'}" stroke-width="${mine ? sw * 1.5 : sw}"/>
-      <text x="${(ax0 + ax1) / 2}" y="${(ay0 + ay1) / 2 + fs * 0.35}" font-size="${Math.min(fs, (ax1 - ax0) / 3)}" text-anchor="middle" fill="${mine ? '#111' : '#7a6a52'}" ${mine ? 'font-weight="700"' : ''}>${esc(label)}</text>`;
+      <text x="${(ax0 + ax1) / 2}" y="${(ay0 + ay1) / 2 + fs * 0.35}" font-size="${Math.min(fs * 0.9, (ax1 - ax0) / 2.6, (ay1 - ay0) * 0.6)}" text-anchor="middle" fill="${mine ? '#111' : '#7a6a52'}" ${mine ? 'font-weight="700"' : ''}>${esc(label)}</text>`;
   }).join('');
   const line = onLevel.length > 1 ? `<polyline points="${onLevel.map(n => `${N[n].x},${N[n].y}`).join(' ')}" fill="none" stroke="#111" stroke-width="${sw * 2.2}" stroke-dasharray="${sw * 5} ${sw * 3}" stroke-linejoin="round"/>` : '';
   // where the route changes level on this floor
@@ -111,18 +116,20 @@ function drawLevel(level, r) {
   const liftLabel = lift ? (() => {
     const t = N[lift].kind === 'elevator' ? 'Elevator' : 'Escalator';
     const w = fs * 0.62 * t.length + fs;
-    // above the node, unless a pin sits there: then below it
-    const nearPin = [r.path[0], r.path.at(-1)].some(p => N[p].level === level && Math.hypot(N[p].x - N[lift].x, N[p].y - N[lift].y) < fs * 3);
-    const top = nearPin ? N[lift].y + fs * 0.7 : N[lift].y - fs * 2.2;
-    return `<rect x="${N[lift].x - w / 2}" y="${top}" width="${w}" height="${fs * 1.5}" rx="${fs * 0.4}" fill="#fff8e8" stroke="#cbb89a" stroke-width="${sw / 2}"/>
-      <text x="${N[lift].x}" y="${top + fs * 1.1}" font-size="${fs * 0.9}" text-anchor="middle" font-weight="600">${t}</text>`;
+    // above the node, unless a nearby pin is above it: then below
+    const pinAbove = [r.path[0], r.path.at(-1)].some(p => N[p].level === level && N[p].y < N[lift].y && Math.hypot(N[p].x - N[lift].x, N[p].y - N[lift].y) < fs * 4);
+    const top = pinAbove ? N[lift].y + fs * 0.7 : N[lift].y - fs * 2.2;
+    // keep the label inside the frame
+    const cx = Math.min(Math.max(N[lift].x, x0 + w / 2 + 1), x1 - w / 2 - 1);
+    return `<rect x="${cx - w / 2}" y="${top}" width="${w}" height="${fs * 1.5}" rx="${fs * 0.4}" fill="#fff8e8" stroke="#cbb89a" stroke-width="${sw / 2}"/>
+      <text x="${cx}" y="${top + fs * 1.1}" font-size="${fs * 0.9}" text-anchor="middle" font-weight="600">${t}</text>`;
   })() : '';
   const pin = (id, text, dark) => N[id].level === level && N[id].x != null
     ? `<circle cx="${N[id].x}" cy="${N[id].y}" r="${fs * 0.95}" fill="${dark ? '#111' : '#fff'}" stroke="#111" stroke-width="${sw * 1.5}"/>
        <text x="${N[id].x}" y="${N[id].y + fs * 0.35}" font-size="${fs}" text-anchor="middle" font-weight="700" fill="${dark ? '#fff' : '#111'}">${text}</text>` : '';
   return `<div class="level">Level ${level}</div>
     <svg viewBox="${x0} ${y0} ${W} ${y1 - y0}" role="img" aria-label="Level ${level}: route on the floor plan">
-      <rect x="${x0}" y="${y0}" width="${W}" height="${y1 - y0}" fill="#e9dcc6"/>${rooms}${line}${liftLabel}${pin(r.path[0], 'A')}${pin(r.path.at(-1), 'B', true)}</svg>`;
+      <rect x="${x0}" y="${y0}" width="${W}" height="${y1 - y0}" fill="#e9dcc6"/>${foyers}${rooms}${lifts}${line}${liftLabel}${pin(r.path[0], 'A')}${pin(r.path.at(-1), 'B', true)}</svg>`;
 }
 
 function show() {
@@ -130,17 +137,17 @@ function show() {
   const r = route(venue, a, b, { stepFree: stepFree.checked });
   rooms.textContent = `${from.selectedOptions[0].text} → ${to.selectedOptions[0].text}`;
   json.textContent = JSON.stringify(r, null, 2);
-  if (!r) { time.textContent = 'No route'; levels.textContent = via.innerHTML = maps.innerHTML = ''; return; }
+  if (!r) { time.textContent = 'No route'; levels.textContent = via.textContent = maps.innerHTML = ''; return; }
   const [lo, hi] = r.minutes;
   time.textContent = `about ${lo === hi ? lo : `${lo}–${hi}`} min`;
   levels.textContent = `${r.metres} m · ${r.levels.length > 1 ? `Level ${r.levels[0]} → Level ${r.levels.at(-1)}` : `Level ${r.levels[0]}`}`;
-  via.innerHTML = r.via.map(v => `<li>${v.kind === 'elevator' ? 'Elevator' : 'Escalator'} ${v.from} → ${v.to}</li>`).join('');
+  via.textContent = stopsText(r.stops);
   // a level the route only rides through (no walking there) gets a line, not a map
   const walked = l => r.path.some(n => N[n].level === l && N[n].kind !== 'elevator' && N[n].kind !== 'escalator');
   maps.innerHTML = `<div class="map">${r.levels
     .map(l => (l === 'AUD' ? '<p class="level">Auditorium: via the connecting walkway from P0 access A (no plan)</p>'
       : walked(l) ? drawLevel(l, r) : `<p class="level">Level ${l}: ride through</p>`))
-    .join('')}<p class="caption">Floor plan from CCIB floor plans · pins only</p></div>`;
+    .join('')}<p class="caption">Floor plan from CCIB floor plans · blue = elevator, orange = escalator</p></div>`;
   const guessed = r.path.filter(n => N[n].estimate);
   note.textContent = guessed.length ? `Estimated, not measured on the plan: ${guessed.join(', ')}` : '';
 }
