@@ -2984,6 +2984,18 @@
    "x": 172.77,
    "y": 171.51
   },
+  "P0/wc1": {
+   "level": "P0",
+   "kind": "wc",
+   "x": 94.5,
+   "y": 150.05
+  },
+  "P0/wc2": {
+   "level": "P0",
+   "kind": "wc",
+   "x": 162.53,
+   "y": 150.01
+  },
   "M1-vip-room/door": {
    "level": "M1",
    "kind": "door",
@@ -3026,6 +3038,12 @@
    "kind": "escalator",
    "x": 171.63,
    "y": 145.0
+  },
+  "M1/wc1": {
+   "level": "M1",
+   "kind": "wc",
+   "x": 183.95,
+   "y": 155.55
   },
   "P1-111/door": {
    "level": "P1",
@@ -3201,6 +3219,30 @@
    "x": 158.32,
    "y": 148.23
   },
+  "P1/wc1": {
+   "level": "P1",
+   "kind": "wc",
+   "x": 47.82,
+   "y": 142.47
+  },
+  "P1/wc2": {
+   "level": "P1",
+   "kind": "wc",
+   "x": 164.09,
+   "y": 131.67
+  },
+  "P1/wc3": {
+   "level": "P1",
+   "kind": "wc",
+   "x": 171.59,
+   "y": 62.33
+  },
+  "P1/wc4": {
+   "level": "P1",
+   "kind": "wc",
+   "x": 171.59,
+   "y": 131.5
+  },
   "M2-m211/door": {
    "level": "M2",
    "kind": "door",
@@ -3309,6 +3351,18 @@
    "x": 172.47,
    "y": 143.14
   },
+  "M2/wc1": {
+   "level": "M2",
+   "kind": "wc",
+   "x": 52.17,
+   "y": 145.26
+  },
+  "M2/wc2": {
+   "level": "M2",
+   "kind": "wc",
+   "x": 180.75,
+   "y": 145.26
+  },
   "P2-211/door": {
    "level": "P2",
    "kind": "door",
@@ -3387,6 +3441,12 @@
    "x": 172.17,
    "y": 143.79
   },
+  "P2/wc1": {
+   "level": "P2",
+   "kind": "wc",
+   "x": 178.05,
+   "y": 144.78
+  },
   "P0/corridor1": {
    "level": "P0",
    "kind": "corridor",
@@ -3399,98 +3459,157 @@
    "kind": "corridor",
    "x": 63.53,
    "y": 145.15,
-   "name": "Foyer 0"
+   "name": "Foyer 0",
+   "near": [
+    "P0-areas-1+2+3/door1"
+   ]
   },
   "P0/corridor3": {
    "level": "P0",
    "kind": "corridor",
    "x": 82.73,
    "y": 145.15,
-   "name": "Foyer 0"
+   "name": "Foyer 0",
+   "near": [
+    "P0/elevator1"
+   ]
   },
   "P0/corridor4": {
    "level": "P0",
    "kind": "corridor",
    "x": 87.19,
    "y": 145.15,
-   "name": "Foyer 0"
+   "name": "Foyer 0",
+   "near": [
+    "P0/escalator1"
+   ]
   },
   "P0/corridor5": {
    "level": "P0",
    "kind": "corridor",
    "x": 94.01,
    "y": 145.15,
-   "name": "Foyer 0"
+   "name": "Foyer 0",
+   "near": [
+    "P0-areas-1+2+3/door2"
+   ]
   },
   "P0/corridor6": {
    "level": "P0",
    "kind": "corridor",
-   "x": 112.74,
+   "x": 94.5,
    "y": 145.15,
-   "name": "Foyer 0"
+   "name": "Foyer 0",
+   "near": [
+    "P0/wc1"
+   ]
   },
   "P0/corridor7": {
    "level": "P0",
    "kind": "corridor",
-   "x": 115.17,
+   "x": 112.74,
    "y": 145.15,
-   "name": "Foyer 0"
+   "name": "Foyer 0",
+   "near": [
+    "P0/elevator2"
+   ]
   },
   "P0/corridor8": {
    "level": "P0",
    "kind": "corridor",
-   "x": 115.95,
+   "x": 115.17,
    "y": 145.15,
-   "name": "Foyer 0"
+   "name": "Foyer 0",
+   "near": [
+    "P0-entrance-hall/door"
+   ]
   },
   "P0/corridor9": {
    "level": "P0",
    "kind": "corridor",
-   "x": 117.46,
+   "x": 115.95,
    "y": 145.15,
-   "name": "Foyer 0"
+   "name": "Foyer 0",
+   "near": [
+    "P0-areas-1+2+3/door3"
+   ]
   },
   "P0/corridor10": {
    "level": "P0",
    "kind": "corridor",
-   "x": 142.7,
+   "x": 117.46,
    "y": 145.15,
-   "name": "Foyer 0"
+   "name": "Foyer 0",
+   "near": [
+    "P0/escalator2"
+   ]
   },
   "P0/corridor11": {
    "level": "P0",
    "kind": "corridor",
-   "x": 158.59,
+   "x": 142.7,
    "y": 145.15,
-   "name": "Foyer 0"
+   "name": "Foyer 0",
+   "near": [
+    "P0/escalator3"
+   ]
   },
   "P0/corridor12": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 158.59,
+   "y": 145.15,
+   "name": "Foyer 0",
+   "near": [
+    "P0/elevator3"
+   ]
+  },
+  "P0/corridor13": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 162.53,
+   "y": 145.15,
+   "name": "Foyer 0",
+   "near": [
+    "P0/wc2"
+   ]
+  },
+  "P0/corridor14": {
    "level": "P0",
    "kind": "corridor",
    "x": 181.81,
    "y": 145.15,
    "name": "Foyer 0"
   },
-  "P0/corridor13": {
+  "P0/corridor15": {
    "level": "P0",
    "kind": "corridor",
    "x": 188.51,
    "y": 151.68,
-   "name": "Foyer 0"
+   "name": "Foyer 0",
+   "near": [
+    "P0/escalator4"
+   ]
   },
-  "P0/corridor14": {
+  "P0/corridor16": {
    "level": "P0",
    "kind": "corridor",
    "x": 190.36,
    "y": 153.49,
-   "name": "Foyer 0"
+   "name": "Foyer 0",
+   "near": [
+    "P0/escalator5"
+   ]
   },
-  "P0/corridor15": {
+  "P0/corridor17": {
    "level": "P0",
    "kind": "corridor",
    "x": 197.79,
    "y": 160.74,
-   "name": "Foyer 0"
+   "name": "Foyer 0",
+   "near": [
+    "P0-access-a/door"
+   ]
   },
   "M1/corridor1": {
    "level": "M1",
@@ -3504,51 +3623,82 @@
    "kind": "corridor",
    "x": 62.64,
    "y": 143.55,
-   "name": "Foyer M1"
+   "name": "Foyer M1",
+   "near": [
+    "M1/escalator1"
+   ]
   },
   "M1/corridor3": {
    "level": "M1",
    "kind": "corridor",
    "x": 82.74,
    "y": 143.55,
-   "name": "Foyer M1"
+   "name": "Foyer M1",
+   "near": [
+    "M1/elevator1"
+   ]
   },
   "M1/corridor4": {
    "level": "M1",
    "kind": "corridor",
    "x": 92.94,
    "y": 143.55,
-   "name": "Foyer M1"
+   "name": "Foyer M1",
+   "near": [
+    "M1/escalator2"
+   ]
   },
   "M1/corridor5": {
    "level": "M1",
    "kind": "corridor",
    "x": 112.71,
    "y": 143.55,
-   "name": "Foyer M1"
+   "name": "Foyer M1",
+   "near": [
+    "M1/elevator2"
+   ]
   },
   "M1/corridor6": {
    "level": "M1",
    "kind": "corridor",
    "x": 158.61,
    "y": 143.55,
-   "name": "Foyer M1"
+   "name": "Foyer M1",
+   "near": [
+    "M1/elevator3"
+   ]
   },
   "M1/corridor7": {
    "level": "M1",
    "kind": "corridor",
    "x": 171.63,
    "y": 143.55,
-   "name": "Foyer M1"
+   "name": "Foyer M1",
+   "near": [
+    "M1/escalator3"
+   ]
   },
   "M1/corridor8": {
    "level": "M1",
    "kind": "corridor",
    "x": 182.65,
    "y": 143.55,
-   "name": "Foyer M1"
+   "name": "Foyer M1",
+   "near": [
+    "M1-vip-room/door"
+   ]
   },
   "M1/corridor9": {
+   "level": "M1",
+   "kind": "corridor",
+   "x": 183.95,
+   "y": 143.55,
+   "name": "Foyer M1",
+   "near": [
+    "M1/wc1"
+   ]
+  },
+  "M1/corridor10": {
    "level": "M1",
    "kind": "corridor",
    "x": 192.26,
@@ -3565,198 +3715,310 @@
   "P1/corridor2": {
    "level": "P1",
    "kind": "corridor",
-   "x": 62.67,
+   "x": 47.82,
    "y": 144.45,
-   "name": "Foyer 1"
+   "name": "Foyer 1",
+   "near": [
+    "P1/wc1"
+   ]
   },
   "P1/corridor3": {
    "level": "P1",
    "kind": "corridor",
-   "x": 62.98,
+   "x": 62.67,
    "y": 144.45,
-   "name": "Foyer 1"
+   "name": "Foyer 1",
+   "near": [
+    "P1/escalator1"
+   ]
   },
   "P1/corridor4": {
    "level": "P1",
    "kind": "corridor",
-   "x": 77.96,
+   "x": 62.98,
    "y": 144.45,
-   "name": "Foyer 1"
+   "name": "Foyer 1",
+   "near": [
+    "P1-117/door"
+   ]
   },
   "P1/corridor5": {
    "level": "P1",
    "kind": "corridor",
-   "x": 82.52,
+   "x": 77.96,
    "y": 144.45,
-   "name": "Foyer 1"
+   "name": "Foyer 1",
+   "near": [
+    "P1-116/door"
+   ]
   },
   "P1/corridor6": {
    "level": "P1",
    "kind": "corridor",
-   "x": 92.84,
+   "x": 82.52,
    "y": 144.45,
-   "name": "Foyer 1"
+   "name": "Foyer 1",
+   "near": [
+    "P1/elevator1"
+   ]
   },
   "P1/corridor7": {
    "level": "P1",
    "kind": "corridor",
-   "x": 92.92,
+   "x": 92.84,
    "y": 144.45,
-   "name": "Foyer 1"
+   "name": "Foyer 1",
+   "near": [
+    "P1/escalator2"
+   ]
   },
   "P1/corridor8": {
    "level": "P1",
    "kind": "corridor",
-   "x": 107.9,
+   "x": 92.92,
    "y": 144.45,
-   "name": "Foyer 1"
+   "name": "Foyer 1",
+   "near": [
+    "P1-115/door"
+   ]
   },
   "P1/corridor9": {
    "level": "P1",
    "kind": "corridor",
-   "x": 113.08,
+   "x": 107.9,
    "y": 144.45,
-   "name": "Foyer 1"
+   "name": "Foyer 1",
+   "near": [
+    "P1-114/door"
+   ]
   },
   "P1/corridor10": {
    "level": "P1",
    "kind": "corridor",
-   "x": 122.89,
+   "x": 113.08,
    "y": 144.45,
-   "name": "Foyer 1"
+   "name": "Foyer 1",
+   "near": [
+    "P1/elevator2"
+   ]
   },
   "P1/corridor11": {
    "level": "P1",
    "kind": "corridor",
-   "x": 152.81,
+   "x": 122.89,
    "y": 144.45,
-   "name": "Foyer 1"
+   "name": "Foyer 1",
+   "near": [
+    "P1-113/door"
+   ]
   },
   "P1/corridor12": {
    "level": "P1",
    "kind": "corridor",
-   "x": 158.32,
+   "x": 152.81,
    "y": 144.45,
-   "name": "Foyer 1"
+   "name": "Foyer 1",
+   "near": [
+    "P1-112/door"
+   ]
   },
   "P1/corridor13": {
    "level": "P1",
    "kind": "corridor",
-   "x": 158.46,
+   "x": 158.32,
    "y": 144.45,
-   "name": "Foyer 1"
+   "name": "Foyer 1",
+   "near": [
+    "P1/escalator3"
+   ]
   },
   "P1/corridor14": {
    "level": "P1",
    "kind": "corridor",
-   "x": 167.76,
+   "x": 158.46,
    "y": 144.45,
-   "name": "Foyer 1"
+   "name": "Foyer 1",
+   "near": [
+    "P1/elevator3"
+   ]
   },
   "P1/corridor15": {
    "level": "P1",
    "kind": "corridor",
-   "x": 182.86,
+   "x": 167.76,
    "y": 144.45,
    "name": "Foyer 1"
   },
   "P1/corridor16": {
    "level": "P1",
    "kind": "corridor",
-   "x": 192.32,
+   "x": 182.86,
    "y": 144.45,
-   "name": "Foyer 1"
+   "name": "Foyer 1",
+   "near": [
+    "P1-111/door"
+   ]
   },
   "P1/corridor17": {
    "level": "P1",
    "kind": "corridor",
-   "x": 167.76,
-   "y": 66.61,
-   "name": "Foyer 2"
+   "x": 192.32,
+   "y": 144.45,
+   "name": "Foyer 1"
   },
   "P1/corridor18": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 70.31,
-   "name": "Foyer 2"
+   "y": 66.61,
+   "name": "Foyer 2",
+   "near": [
+    "P1/wc3"
+   ]
   },
   "P1/corridor19": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 77.94,
-   "name": "Foyer 2"
+   "y": 70.31,
+   "name": "Foyer 2",
+   "near": [
+    "P1-127/door",
+    "P1-125/door"
+   ]
   },
   "P1/corridor20": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 77.95,
-   "name": "Foyer 2"
+   "y": 77.94,
+   "name": "Foyer 2",
+   "near": [
+    "P1-124/door"
+   ]
   },
   "P1/corridor21": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 85.56,
-   "name": "Foyer 2"
+   "y": 77.95,
+   "name": "Foyer 2",
+   "near": [
+    "P1-128/door"
+   ]
   },
   "P1/corridor22": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 93.13,
-   "name": "Foyer 2"
+   "y": 85.56,
+   "name": "Foyer 2",
+   "near": [
+    "P1-123/door",
+    "P1-129/door"
+   ]
   },
   "P1/corridor23": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 93.16,
-   "name": "Foyer 2"
+   "y": 93.13,
+   "name": "Foyer 2",
+   "near": [
+    "P1-122/door"
+   ]
   },
   "P1/corridor24": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 100.74,
-   "name": "Foyer 2"
+   "y": 93.16,
+   "name": "Foyer 2",
+   "near": [
+    "P1-130/door"
+   ]
   },
   "P1/corridor25": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 100.76,
-   "name": "Foyer 2"
+   "y": 100.74,
+   "name": "Foyer 2",
+   "near": [
+    "P1-121/door"
+   ]
   },
   "P1/corridor26": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 108.35,
-   "name": "Foyer 2"
+   "y": 100.76,
+   "name": "Foyer 2",
+   "near": [
+    "P1-131/door"
+   ]
   },
   "P1/corridor27": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 115.93,
-   "name": "Foyer 2"
+   "y": 108.35,
+   "name": "Foyer 2",
+   "near": [
+    "P1-120/door",
+    "P1-132/door"
+   ]
   },
   "P1/corridor28": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
-   "y": 123.57,
-   "name": "Foyer 2"
+   "y": 115.93,
+   "name": "Foyer 2",
+   "near": [
+    "P1-119/door",
+    "P1-133/door"
+   ]
   },
   "P1/corridor29": {
    "level": "P1",
    "kind": "corridor",
    "x": 167.76,
+   "y": 123.57,
+   "name": "Foyer 2",
+   "near": [
+    "P1-134/door"
+   ]
+  },
+  "P1/corridor30": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
    "y": 123.58,
-   "name": "Foyer 2"
+   "name": "Foyer 2",
+   "near": [
+    "P1-118/door"
+   ]
+  },
+  "P1/corridor31": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 131.5,
+   "name": "Foyer 2",
+   "near": [
+    "P1/wc4"
+   ]
+  },
+  "P1/corridor32": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 131.67,
+   "name": "Foyer 2",
+   "near": [
+    "P1/wc2"
+   ]
   },
   "M2/corridor1": {
    "level": "M2",
@@ -3768,130 +4030,204 @@
   "M2/corridor2": {
    "level": "M2",
    "kind": "corridor",
-   "x": 62.67,
+   "x": 52.17,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2/wc1"
+   ]
   },
   "M2/corridor3": {
    "level": "M2",
    "kind": "corridor",
-   "x": 71.71,
+   "x": 62.67,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2/escalator1"
+   ]
   },
   "M2/corridor4": {
    "level": "M2",
    "kind": "corridor",
-   "x": 76.06,
+   "x": 71.71,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2-m221/door"
+   ]
   },
   "M2/corridor5": {
    "level": "M2",
    "kind": "corridor",
-   "x": 80.14,
+   "x": 76.06,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2-m220/door"
+   ]
   },
   "M2/corridor6": {
    "level": "M2",
    "kind": "corridor",
-   "x": 82.61,
+   "x": 80.14,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2-m219/door"
+   ]
   },
   "M2/corridor7": {
    "level": "M2",
    "kind": "corridor",
-   "x": 85.11,
+   "x": 82.61,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2/elevator1"
+   ]
   },
   "M2/corridor8": {
    "level": "M2",
    "kind": "corridor",
-   "x": 92.67,
+   "x": 85.11,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2-m218/door"
+   ]
   },
   "M2/corridor9": {
    "level": "M2",
    "kind": "corridor",
-   "x": 101.98,
+   "x": 92.67,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2/escalator2"
+   ]
   },
   "M2/corridor10": {
    "level": "M2",
    "kind": "corridor",
-   "x": 106.15,
+   "x": 101.98,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2-m217/door"
+   ]
   },
   "M2/corridor11": {
    "level": "M2",
    "kind": "corridor",
-   "x": 111.56,
+   "x": 106.15,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2-m216/door"
+   ]
   },
   "M2/corridor12": {
    "level": "M2",
    "kind": "corridor",
-   "x": 112.93,
+   "x": 111.56,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2-m215/door"
+   ]
   },
   "M2/corridor13": {
    "level": "M2",
    "kind": "corridor",
-   "x": 119.08,
+   "x": 112.93,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2/elevator2"
+   ]
   },
   "M2/corridor14": {
    "level": "M2",
    "kind": "corridor",
-   "x": 126.72,
+   "x": 119.08,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2-m214/door"
+   ]
   },
   "M2/corridor15": {
    "level": "M2",
    "kind": "corridor",
-   "x": 148.91,
+   "x": 126.72,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2-m213/door"
+   ]
   },
   "M2/corridor16": {
    "level": "M2",
    "kind": "corridor",
-   "x": 156.68,
+   "x": 148.91,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2-m212/door"
+   ]
   },
   "M2/corridor17": {
    "level": "M2",
    "kind": "corridor",
-   "x": 158.52,
+   "x": 156.68,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2-m211/door"
+   ]
   },
   "M2/corridor18": {
    "level": "M2",
    "kind": "corridor",
-   "x": 171.83,
+   "x": 158.52,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2/elevator3"
+   ]
   },
   "M2/corridor19": {
    "level": "M2",
    "kind": "corridor",
-   "x": 172.47,
+   "x": 171.83,
    "y": 143.29,
-   "name": "Foyer M2"
+   "name": "Foyer M2",
+   "near": [
+    "M2/escalator3"
+   ]
   },
   "M2/corridor20": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 172.47,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2/escalator4"
+   ]
+  },
+  "M2/corridor21": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 180.75,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2/wc2"
+   ]
+  },
+  "M2/corridor22": {
    "level": "M2",
    "kind": "corridor",
    "x": 183.33,
@@ -3910,63 +4246,90 @@
    "kind": "corridor",
    "x": 62.22,
    "y": 146.95,
-   "name": "Foyer A"
+   "name": "Foyer A",
+   "near": [
+    "P2/escalator1"
+   ]
   },
   "P2/corridor3": {
    "level": "P2",
    "kind": "corridor",
    "x": 62.36,
    "y": 146.95,
-   "name": "Foyer A"
+   "name": "Foyer A",
+   "near": [
+    "P2-banquet-hall/door1"
+   ]
   },
   "P2/corridor4": {
    "level": "P2",
    "kind": "corridor",
    "x": 77.77,
    "y": 146.95,
-   "name": "Foyer A"
+   "name": "Foyer A",
+   "near": [
+    "P2-banquet-hall/door2"
+   ]
   },
   "P2/corridor5": {
    "level": "P2",
    "kind": "corridor",
    "x": 82.6,
    "y": 146.95,
-   "name": "Foyer A"
+   "name": "Foyer A",
+   "near": [
+    "P2/elevator1"
+   ]
   },
   "P2/corridor6": {
    "level": "P2",
    "kind": "corridor",
    "x": 92.33,
    "y": 146.95,
-   "name": "Foyer A"
+   "name": "Foyer A",
+   "near": [
+    "P2/escalator2"
+   ]
   },
   "P2/corridor7": {
    "level": "P2",
    "kind": "corridor",
    "x": 92.71,
    "y": 146.95,
-   "name": "Foyer A"
+   "name": "Foyer A",
+   "near": [
+    "P2-banquet-hall/door3"
+   ]
   },
   "P2/corridor8": {
    "level": "P2",
    "kind": "corridor",
    "x": 107.65,
    "y": 146.95,
-   "name": "Foyer A"
+   "name": "Foyer A",
+   "near": [
+    "P2-banquet-hall/door4"
+   ]
   },
   "P2/corridor9": {
    "level": "P2",
    "kind": "corridor",
    "x": 112.94,
    "y": 146.95,
-   "name": "Foyer A"
+   "name": "Foyer A",
+   "near": [
+    "P2/elevator2"
+   ]
   },
   "P2/corridor10": {
    "level": "P2",
    "kind": "corridor",
    "x": 122.94,
    "y": 146.95,
-   "name": "Foyer A"
+   "name": "Foyer A",
+   "near": [
+    "P2-banquet-hall/door5"
+   ]
   },
   "P2/corridor11": {
    "level": "P2",
@@ -3980,30 +4343,52 @@
    "kind": "corridor",
    "x": 152.81,
    "y": 146.95,
-   "name": "Foyer B"
+   "name": "Foyer B",
+   "near": [
+    "P2-212/door"
+   ]
   },
   "P2/corridor13": {
    "level": "P2",
    "kind": "corridor",
    "x": 158.51,
    "y": 146.95,
-   "name": "Foyer B"
+   "name": "Foyer B",
+   "near": [
+    "P2/elevator3"
+   ]
   },
   "P2/corridor14": {
    "level": "P2",
    "kind": "corridor",
    "x": 168.11,
    "y": 146.95,
-   "name": "Foyer B"
+   "name": "Foyer B",
+   "near": [
+    "P2-211/door"
+   ]
   },
   "P2/corridor15": {
    "level": "P2",
    "kind": "corridor",
    "x": 172.17,
    "y": 146.95,
-   "name": "Foyer B"
+   "name": "Foyer B",
+   "near": [
+    "P2/escalator3"
+   ]
   },
   "P2/corridor16": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 178.05,
+   "y": 146.95,
+   "name": "Foyer B",
+   "near": [
+    "P2/wc1"
+   ]
+  },
+  "P2/corridor17": {
    "level": "P2",
    "kind": "corridor",
    "x": 183.53,
@@ -4051,56 +4436,68 @@
    "m": 9.3
   },
   {
-   "a": "P0/elevator2",
+   "a": "P0/wc1",
    "b": "P0/corridor6",
+   "kind": "walk",
+   "m": 4.9
+  },
+  {
+   "a": "P0/elevator2",
+   "b": "P0/corridor7",
    "kind": "walk",
    "m": 1.8
   },
   {
    "a": "P0-entrance-hall/door",
-   "b": "P0/corridor7",
+   "b": "P0/corridor8",
    "kind": "walk",
    "m": 21.4
   },
   {
    "a": "P0-areas-1+2+3/door3",
-   "b": "P0/corridor8",
+   "b": "P0/corridor9",
    "kind": "walk",
    "m": 9.3
   },
   {
    "a": "P0/escalator2",
-   "b": "P0/corridor9",
-   "kind": "walk",
-   "m": 4.6
-  },
-  {
-   "a": "P0/escalator3",
    "b": "P0/corridor10",
    "kind": "walk",
    "m": 4.6
   },
   {
-   "a": "P0/elevator3",
+   "a": "P0/escalator3",
    "b": "P0/corridor11",
+   "kind": "walk",
+   "m": 4.6
+  },
+  {
+   "a": "P0/elevator3",
+   "b": "P0/corridor12",
    "kind": "walk",
    "m": 2.2
   },
   {
-   "a": "P0/escalator4",
+   "a": "P0/wc2",
    "b": "P0/corridor13",
+   "kind": "walk",
+   "m": 4.9
+  },
+  {
+   "a": "P0/escalator4",
+   "b": "P0/corridor15",
    "kind": "walk",
    "m": 22.5
   },
   {
    "a": "P0/escalator5",
-   "b": "P0/corridor14",
+   "b": "P0/corridor16",
    "kind": "walk",
    "m": 25.2
   },
   {
    "a": "P0-access-a/door",
-   "b": "P0/corridor15",
+   "b": "P0/corridor17",
    "kind": "walk",
    "m": 0.0
   },
@@ -4132,59 +4529,71 @@
    "a": "P0/corridor5",
    "b": "P0/corridor6",
    "kind": "walk",
-   "m": 18.7
+   "m": 0.5
   },
   {
    "a": "P0/corridor6",
    "b": "P0/corridor7",
    "kind": "walk",
-   "m": 2.4
+   "m": 18.2
   },
   {
    "a": "P0/corridor7",
    "b": "P0/corridor8",
    "kind": "walk",
-   "m": 0.8
+   "m": 2.4
   },
   {
    "a": "P0/corridor8",
    "b": "P0/corridor9",
    "kind": "walk",
-   "m": 1.5
+   "m": 0.8
   },
   {
    "a": "P0/corridor9",
    "b": "P0/corridor10",
    "kind": "walk",
-   "m": 25.2
+   "m": 1.5
   },
   {
    "a": "P0/corridor10",
    "b": "P0/corridor11",
    "kind": "walk",
-   "m": 15.9
+   "m": 25.2
   },
   {
    "a": "P0/corridor11",
    "b": "P0/corridor12",
    "kind": "walk",
-   "m": 23.2
+   "m": 15.9
   },
   {
    "a": "P0/corridor12",
    "b": "P0/corridor13",
    "kind": "walk",
-   "m": 9.4
+   "m": 3.9
   },
   {
    "a": "P0/corridor13",
    "b": "P0/corridor14",
    "kind": "walk",
-   "m": 2.6
+   "m": 19.3
   },
   {
    "a": "P0/corridor14",
    "b": "P0/corridor15",
+   "kind": "walk",
+   "m": 9.4
+  },
+  {
+   "a": "P0/corridor15",
+   "b": "P0/corridor16",
+   "kind": "walk",
+   "m": 2.6
+  },
+  {
+   "a": "P0/corridor16",
+   "b": "P0/corridor17",
    "kind": "walk",
    "m": 10.4
   },
@@ -4229,6 +4638,12 @@
    "b": "M1/corridor8",
    "kind": "walk",
    "m": 13.8
+  },
+  {
+   "a": "M1/wc1",
+   "b": "M1/corridor9",
+   "kind": "walk",
+   "m": 12.0
   },
   {
    "a": "M1/corridor1",
@@ -4276,295 +4691,325 @@
    "a": "M1/corridor8",
    "b": "M1/corridor9",
    "kind": "walk",
-   "m": 9.6
+   "m": 1.3
+  },
+  {
+   "a": "M1/corridor9",
+   "b": "M1/corridor10",
+   "kind": "walk",
+   "m": 8.3
+  },
+  {
+   "a": "P1/wc1",
+   "b": "P1/corridor2",
+   "kind": "walk",
+   "m": 2.0
   },
   {
    "a": "P1/escalator1",
-   "b": "P1/corridor2",
+   "b": "P1/corridor3",
    "kind": "walk",
    "m": 2.2
   },
   {
    "a": "P1-117/door",
-   "b": "P1/corridor3",
+   "b": "P1/corridor4",
    "kind": "walk",
    "m": 7.1
   },
   {
    "a": "P1-116/door",
-   "b": "P1/corridor4",
+   "b": "P1/corridor5",
    "kind": "walk",
    "m": 7.1
   },
   {
    "a": "P1/elevator1",
-   "b": "P1/corridor5",
+   "b": "P1/corridor6",
    "kind": "walk",
    "m": 1.5
   },
   {
    "a": "P1/escalator2",
-   "b": "P1/corridor6",
+   "b": "P1/corridor7",
    "kind": "walk",
    "m": 2.2
   },
   {
    "a": "P1-115/door",
-   "b": "P1/corridor7",
+   "b": "P1/corridor8",
    "kind": "walk",
    "m": 7.1
   },
   {
    "a": "P1-114/door",
-   "b": "P1/corridor8",
+   "b": "P1/corridor9",
    "kind": "walk",
    "m": 7.1
   },
   {
    "a": "P1/elevator2",
-   "b": "P1/corridor9",
+   "b": "P1/corridor10",
    "kind": "walk",
    "m": 1.1
   },
   {
    "a": "P1-113/door",
-   "b": "P1/corridor10",
+   "b": "P1/corridor11",
    "kind": "walk",
    "m": 7.1
   },
   {
    "a": "P1-112/door",
-   "b": "P1/corridor11",
+   "b": "P1/corridor12",
    "kind": "walk",
    "m": 7.1
   },
   {
    "a": "P1/escalator3",
-   "b": "P1/corridor12",
+   "b": "P1/corridor13",
    "kind": "walk",
    "m": 3.8
   },
   {
    "a": "P1/elevator3",
-   "b": "P1/corridor13",
+   "b": "P1/corridor14",
    "kind": "walk",
    "m": 1.1
   },
   {
    "a": "P1-111/door",
-   "b": "P1/corridor15",
+   "b": "P1/corridor16",
    "kind": "walk",
    "m": 7.1
   },
   {
-   "a": "P1-127/door",
+   "a": "P1/wc3",
    "b": "P1/corridor18",
+   "kind": "walk",
+   "m": 5.7
+  },
+  {
+   "a": "P1-127/door",
+   "b": "P1/corridor19",
    "kind": "walk",
    "m": 8.7
   },
   {
    "a": "P1-125/door",
-   "b": "P1/corridor18",
+   "b": "P1/corridor19",
    "kind": "walk",
    "m": 8.6
   },
   {
    "a": "P1-124/door",
-   "b": "P1/corridor19",
+   "b": "P1/corridor20",
    "kind": "walk",
    "m": 8.6
   },
   {
    "a": "P1-128/door",
-   "b": "P1/corridor20",
+   "b": "P1/corridor21",
    "kind": "walk",
    "m": 8.7
   },
   {
    "a": "P1-123/door",
-   "b": "P1/corridor21",
-   "kind": "walk",
-   "m": 8.6
-  },
-  {
-   "a": "P1-129/door",
-   "b": "P1/corridor21",
-   "kind": "walk",
-   "m": 8.7
-  },
-  {
-   "a": "P1-122/door",
    "b": "P1/corridor22",
    "kind": "walk",
    "m": 8.6
   },
   {
-   "a": "P1-130/door",
+   "a": "P1-129/door",
+   "b": "P1/corridor22",
+   "kind": "walk",
+   "m": 8.7
+  },
+  {
+   "a": "P1-122/door",
    "b": "P1/corridor23",
+   "kind": "walk",
+   "m": 8.6
+  },
+  {
+   "a": "P1-130/door",
+   "b": "P1/corridor24",
    "kind": "walk",
    "m": 8.7
   },
   {
    "a": "P1-121/door",
-   "b": "P1/corridor24",
+   "b": "P1/corridor25",
    "kind": "walk",
    "m": 8.6
   },
   {
    "a": "P1-131/door",
-   "b": "P1/corridor25",
+   "b": "P1/corridor26",
    "kind": "walk",
    "m": 8.7
   },
   {
    "a": "P1-120/door",
-   "b": "P1/corridor26",
+   "b": "P1/corridor27",
    "kind": "walk",
    "m": 8.6
   },
   {
    "a": "P1-132/door",
-   "b": "P1/corridor26",
+   "b": "P1/corridor27",
    "kind": "walk",
    "m": 8.7
   },
   {
    "a": "P1-119/door",
-   "b": "P1/corridor27",
+   "b": "P1/corridor28",
    "kind": "walk",
    "m": 8.6
   },
   {
    "a": "P1-133/door",
-   "b": "P1/corridor27",
-   "kind": "walk",
-   "m": 8.7
-  },
-  {
-   "a": "P1-134/door",
    "b": "P1/corridor28",
    "kind": "walk",
    "m": 8.7
   },
   {
-   "a": "P1-118/door",
+   "a": "P1-134/door",
    "b": "P1/corridor29",
    "kind": "walk",
+   "m": 8.7
+  },
+  {
+   "a": "P1-118/door",
+   "b": "P1/corridor30",
+   "kind": "walk",
    "m": 8.6
+  },
+  {
+   "a": "P1/wc4",
+   "b": "P1/corridor31",
+   "kind": "walk",
+   "m": 3.8
+  },
+  {
+   "a": "P1/wc2",
+   "b": "P1/corridor32",
+   "kind": "walk",
+   "m": 3.7
   },
   {
    "a": "P1/corridor1",
    "b": "P1/corridor2",
    "kind": "walk",
-   "m": 21.0
+   "m": 6.2
   },
   {
    "a": "P1/corridor2",
    "b": "P1/corridor3",
    "kind": "walk",
-   "m": 0.3
+   "m": 14.9
   },
   {
    "a": "P1/corridor3",
    "b": "P1/corridor4",
    "kind": "walk",
-   "m": 15.0
+   "m": 0.3
   },
   {
    "a": "P1/corridor4",
    "b": "P1/corridor5",
    "kind": "walk",
-   "m": 4.6
+   "m": 15.0
   },
   {
    "a": "P1/corridor5",
    "b": "P1/corridor6",
    "kind": "walk",
-   "m": 10.3
+   "m": 4.6
   },
   {
    "a": "P1/corridor6",
    "b": "P1/corridor7",
    "kind": "walk",
-   "m": 0.1
+   "m": 10.3
   },
   {
    "a": "P1/corridor7",
    "b": "P1/corridor8",
    "kind": "walk",
-   "m": 15.0
+   "m": 0.1
   },
   {
    "a": "P1/corridor8",
    "b": "P1/corridor9",
    "kind": "walk",
-   "m": 5.2
+   "m": 15.0
   },
   {
    "a": "P1/corridor9",
    "b": "P1/corridor10",
    "kind": "walk",
-   "m": 9.8
+   "m": 5.2
   },
   {
    "a": "P1/corridor10",
    "b": "P1/corridor11",
    "kind": "walk",
-   "m": 29.9
+   "m": 9.8
   },
   {
    "a": "P1/corridor11",
    "b": "P1/corridor12",
    "kind": "walk",
-   "m": 5.5
+   "m": 29.9
   },
   {
    "a": "P1/corridor12",
    "b": "P1/corridor13",
    "kind": "walk",
-   "m": 0.1
+   "m": 5.5
   },
   {
    "a": "P1/corridor13",
    "b": "P1/corridor14",
    "kind": "walk",
-   "m": 9.3
+   "m": 0.1
   },
   {
    "a": "P1/corridor14",
    "b": "P1/corridor15",
    "kind": "walk",
-   "m": 15.1
+   "m": 9.3
   },
   {
    "a": "P1/corridor15",
    "b": "P1/corridor16",
    "kind": "walk",
-   "m": 9.5
+   "m": 15.1
   },
   {
-   "a": "P1/corridor17",
-   "b": "P1/corridor18",
+   "a": "P1/corridor16",
+   "b": "P1/corridor17",
    "kind": "walk",
-   "m": 3.7
+   "m": 9.5
   },
   {
    "a": "P1/corridor18",
    "b": "P1/corridor19",
    "kind": "walk",
-   "m": 7.6
+   "m": 3.7
   },
   {
    "a": "P1/corridor19",
    "b": "P1/corridor20",
    "kind": "walk",
-   "m": 0.0
+   "m": 7.6
   },
   {
    "a": "P1/corridor20",
    "b": "P1/corridor21",
    "kind": "walk",
-   "m": 7.6
+   "m": 0.0
   },
   {
    "a": "P1/corridor21",
@@ -4576,25 +5021,25 @@
    "a": "P1/corridor22",
    "b": "P1/corridor23",
    "kind": "walk",
-   "m": 0.0
+   "m": 7.6
   },
   {
    "a": "P1/corridor23",
    "b": "P1/corridor24",
    "kind": "walk",
-   "m": 7.6
+   "m": 0.0
   },
   {
    "a": "P1/corridor24",
    "b": "P1/corridor25",
    "kind": "walk",
-   "m": 0.0
+   "m": 7.6
   },
   {
    "a": "P1/corridor25",
    "b": "P1/corridor26",
    "kind": "walk",
-   "m": 7.6
+   "m": 0.0
   },
   {
    "a": "P1/corridor26",
@@ -4612,151 +5057,181 @@
    "a": "P1/corridor28",
    "b": "P1/corridor29",
    "kind": "walk",
-   "m": 0.0
+   "m": 7.6
   },
   {
    "a": "P1/corridor29",
-   "b": "P1/corridor14",
+   "b": "P1/corridor30",
    "kind": "walk",
-   "m": 20.9
+   "m": 0.0
+  },
+  {
+   "a": "P1/corridor30",
+   "b": "P1/corridor31",
+   "kind": "walk",
+   "m": 7.9
+  },
+  {
+   "a": "P1/corridor31",
+   "b": "P1/corridor32",
+   "kind": "walk",
+   "m": 0.2
+  },
+  {
+   "a": "P1/corridor32",
+   "b": "P1/corridor15",
+   "kind": "walk",
+   "m": 12.8
+  },
+  {
+   "a": "M2/wc1",
+   "b": "M2/corridor2",
+   "kind": "walk",
+   "m": 2.0
   },
   {
    "a": "M2/escalator1",
-   "b": "M2/corridor2",
+   "b": "M2/corridor3",
    "kind": "walk",
    "m": 0.2
   },
   {
    "a": "M2-m221/door",
-   "b": "M2/corridor3",
+   "b": "M2/corridor4",
    "kind": "walk",
    "m": 2.0
   },
   {
    "a": "M2-m220/door",
-   "b": "M2/corridor4",
+   "b": "M2/corridor5",
    "kind": "walk",
    "m": 2.0
   },
   {
    "a": "M2-m219/door",
-   "b": "M2/corridor5",
+   "b": "M2/corridor6",
    "kind": "walk",
    "m": 2.0
   },
   {
    "a": "M2/elevator1",
-   "b": "M2/corridor6",
+   "b": "M2/corridor7",
    "kind": "walk",
    "m": 0.0
   },
   {
    "a": "M2-m218/door",
-   "b": "M2/corridor7",
+   "b": "M2/corridor8",
    "kind": "walk",
    "m": 2.0
   },
   {
    "a": "M2/escalator2",
-   "b": "M2/corridor8",
+   "b": "M2/corridor9",
    "kind": "walk",
    "m": 0.2
   },
   {
    "a": "M2-m217/door",
-   "b": "M2/corridor9",
-   "kind": "walk",
-   "m": 2.0
-  },
-  {
-   "a": "M2-m216/door",
    "b": "M2/corridor10",
    "kind": "walk",
    "m": 2.0
   },
   {
-   "a": "M2-m215/door",
+   "a": "M2-m216/door",
    "b": "M2/corridor11",
    "kind": "walk",
    "m": 2.0
   },
   {
-   "a": "M2/elevator2",
+   "a": "M2-m215/door",
    "b": "M2/corridor12",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2/elevator2",
+   "b": "M2/corridor13",
    "kind": "walk",
    "m": 0.2
   },
   {
    "a": "M2-m214/door",
-   "b": "M2/corridor13",
-   "kind": "walk",
-   "m": 2.0
-  },
-  {
-   "a": "M2-m213/door",
    "b": "M2/corridor14",
    "kind": "walk",
    "m": 2.0
   },
   {
-   "a": "M2-m212/door",
+   "a": "M2-m213/door",
    "b": "M2/corridor15",
    "kind": "walk",
    "m": 2.0
   },
   {
-   "a": "M2-m211/door",
+   "a": "M2-m212/door",
    "b": "M2/corridor16",
    "kind": "walk",
    "m": 2.0
   },
   {
-   "a": "M2/elevator3",
+   "a": "M2-m211/door",
    "b": "M2/corridor17",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2/elevator3",
+   "b": "M2/corridor18",
    "kind": "walk",
    "m": 0.1
   },
   {
    "a": "M2/escalator3",
-   "b": "M2/corridor18",
+   "b": "M2/corridor19",
    "kind": "walk",
    "m": 7.6
   },
   {
    "a": "M2/escalator4",
-   "b": "M2/corridor19",
+   "b": "M2/corridor20",
    "kind": "walk",
    "m": 0.2
+  },
+  {
+   "a": "M2/wc2",
+   "b": "M2/corridor21",
+   "kind": "walk",
+   "m": 2.0
   },
   {
    "a": "M2/corridor1",
    "b": "M2/corridor2",
    "kind": "walk",
-   "m": 13.4
+   "m": 2.9
   },
   {
    "a": "M2/corridor2",
    "b": "M2/corridor3",
    "kind": "walk",
-   "m": 9.0
+   "m": 10.5
   },
   {
    "a": "M2/corridor3",
    "b": "M2/corridor4",
    "kind": "walk",
-   "m": 4.4
+   "m": 9.0
   },
   {
    "a": "M2/corridor4",
    "b": "M2/corridor5",
    "kind": "walk",
-   "m": 4.1
+   "m": 4.4
   },
   {
    "a": "M2/corridor5",
    "b": "M2/corridor6",
    "kind": "walk",
-   "m": 2.5
+   "m": 4.1
   },
   {
    "a": "M2/corridor6",
@@ -4768,79 +5243,91 @@
    "a": "M2/corridor7",
    "b": "M2/corridor8",
    "kind": "walk",
-   "m": 7.6
+   "m": 2.5
   },
   {
    "a": "M2/corridor8",
    "b": "M2/corridor9",
    "kind": "walk",
-   "m": 9.3
+   "m": 7.6
   },
   {
    "a": "M2/corridor9",
    "b": "M2/corridor10",
    "kind": "walk",
-   "m": 4.2
+   "m": 9.3
   },
   {
    "a": "M2/corridor10",
    "b": "M2/corridor11",
    "kind": "walk",
-   "m": 5.4
+   "m": 4.2
   },
   {
    "a": "M2/corridor11",
    "b": "M2/corridor12",
    "kind": "walk",
-   "m": 1.4
+   "m": 5.4
   },
   {
    "a": "M2/corridor12",
    "b": "M2/corridor13",
    "kind": "walk",
-   "m": 6.1
+   "m": 1.4
   },
   {
    "a": "M2/corridor13",
    "b": "M2/corridor14",
    "kind": "walk",
-   "m": 7.6
+   "m": 6.1
   },
   {
    "a": "M2/corridor14",
    "b": "M2/corridor15",
    "kind": "walk",
-   "m": 22.2
+   "m": 7.6
   },
   {
    "a": "M2/corridor15",
    "b": "M2/corridor16",
    "kind": "walk",
-   "m": 7.8
+   "m": 22.2
   },
   {
    "a": "M2/corridor16",
    "b": "M2/corridor17",
    "kind": "walk",
-   "m": 1.8
+   "m": 7.8
   },
   {
    "a": "M2/corridor17",
    "b": "M2/corridor18",
    "kind": "walk",
-   "m": 13.3
+   "m": 1.8
   },
   {
    "a": "M2/corridor18",
    "b": "M2/corridor19",
    "kind": "walk",
-   "m": 0.6
+   "m": 13.3
   },
   {
    "a": "M2/corridor19",
    "b": "M2/corridor20",
    "kind": "walk",
-   "m": 10.9
+   "m": 0.6
+  },
+  {
+   "a": "M2/corridor20",
+   "b": "M2/corridor21",
+   "kind": "walk",
+   "m": 8.3
+  },
+  {
+   "a": "M2/corridor21",
+   "b": "M2/corridor22",
+   "kind": "walk",
+   "m": 2.6
   },
   {
    "a": "P2/escalator1",
@@ -4919,6 +5406,12 @@
    "b": "P2/corridor15",
    "kind": "walk",
    "m": 3.2
+  },
+  {
+   "a": "P2/wc1",
+   "b": "P2/corridor16",
+   "kind": "walk",
+   "m": 2.2
   },
   {
    "a": "P2/corridor1",
@@ -5008,7 +5501,13 @@
    "a": "P2/corridor15",
    "b": "P2/corridor16",
    "kind": "walk",
-   "m": 11.4
+   "m": 5.9
+  },
+  {
+   "a": "P2/corridor16",
+   "b": "P2/corridor17",
+   "kind": "walk",
+   "m": 5.5
   },
   {
    "a": "P0/elevator1",
@@ -5032,7 +5531,36 @@
    "a": "P0/escalator1",
    "b": "M1/escalator2",
    "kind": "escalator",
-   "m": 8.7
+   "m": 8.7,
+   "estimate": true
+  },
+  {
+   "a": "P0/escalator2",
+   "b": "M1/escalator2",
+   "kind": "escalator",
+   "m": 25.4,
+   "estimate": true
+  },
+  {
+   "a": "P0/escalator3",
+   "b": "M1/escalator3",
+   "kind": "escalator",
+   "m": 29.3,
+   "estimate": true
+  },
+  {
+   "a": "P0/escalator4",
+   "b": "M1/escalator3",
+   "kind": "escalator",
+   "m": 22.8,
+   "estimate": true
+  },
+  {
+   "a": "P0/escalator5",
+   "b": "M1/escalator3",
+   "kind": "escalator",
+   "m": 26.5,
+   "estimate": true
   },
   {
    "a": "M1/elevator1",
@@ -5056,19 +5584,22 @@
    "a": "M1/escalator1",
    "b": "P1/escalator1",
    "kind": "escalator",
-   "m": 0.8
+   "m": 0.8,
+   "estimate": true
   },
   {
    "a": "M1/escalator2",
    "b": "P1/escalator2",
    "kind": "escalator",
-   "m": 0.8
+   "m": 0.8,
+   "estimate": true
   },
   {
    "a": "M1/escalator3",
    "b": "P1/escalator3",
    "kind": "escalator",
-   "m": 13.7
+   "m": 13.7,
+   "estimate": true
   },
   {
    "a": "P1/elevator1",
@@ -5092,19 +5623,22 @@
    "a": "P1/escalator1",
    "b": "M2/escalator1",
    "kind": "escalator",
-   "m": 0.8
+   "m": 0.8,
+   "estimate": true
   },
   {
    "a": "P1/escalator2",
    "b": "M2/escalator2",
    "kind": "escalator",
-   "m": 0.8
+   "m": 0.8,
+   "estimate": true
   },
   {
    "a": "P1/escalator3",
    "b": "M2/escalator3",
    "kind": "escalator",
-   "m": 13.8
+   "m": 13.8,
+   "estimate": true
   },
   {
    "a": "M2/elevator1",
@@ -5128,25 +5662,29 @@
    "a": "M2/escalator1",
    "b": "P2/escalator1",
    "kind": "escalator",
-   "m": 0.9
+   "m": 0.9,
+   "estimate": true
   },
   {
    "a": "M2/escalator2",
    "b": "P2/escalator2",
    "kind": "escalator",
-   "m": 0.8
+   "m": 0.8,
+   "estimate": true
   },
   {
    "a": "M2/escalator3",
    "b": "P2/escalator3",
    "kind": "escalator",
-   "m": 7.1
+   "m": 7.1,
+   "estimate": true
   },
   {
    "a": "M2/escalator4",
    "b": "P2/escalator3",
    "kind": "escalator",
-   "m": 0.7
+   "m": 0.7,
+   "estimate": true
   },
   {
    "a": "P0-access-a/door",

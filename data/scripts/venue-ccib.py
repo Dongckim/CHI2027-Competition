@@ -53,7 +53,7 @@ AUDITORIUM = {  # page 10 is another drawing at another scale; only the walkway 
 }
 
 # icon images, identified by their size in points (the legend uses the same images)
-ICON = {'elevator': (7.15, 7.15), 'escalator': (7.33, 5.97)}
+ICON = {'elevator': (7.15, 7.15), 'escalator': (7.33, 5.97), 'wc': (8.4, 8.4)}
 COLUMNS = ['m2', 'sqft', 'length', 'width', 'height', 'theater', 'classroom', 'cabaret', 'boardroom', 'ushape',
            'banquet10', 'banquet11', 'buffet10', 'buffet11', 'cocktail', 'coffeeBreak']
 CAPACITY = COLUMNS[5:]
@@ -295,6 +295,8 @@ def main(pdf_path):
             pois[lv].append((node(f'{lv}/elevator{i + 1}', lv, 'elevator', ref(p)), ref(p)))
         for i, p in enumerate(sorted(icons(page, 'escalator'))):
             pois[lv].append((node(f'{lv}/escalator{i + 1}', lv, 'escalator', ref(p)), ref(p)))
+        for i, p in enumerate(sorted(icons(page, 'wc'))):  # landmarks for directions, not destinations
+            pois[lv].append((node(f'{lv}/wc{i + 1}', lv, 'wc', ref(p)), ref(p)))
 
     # corridors: hang every point of interest off its nearest corridor, then chain the stops along each line
     for lv in STACKED:
@@ -328,6 +330,7 @@ def main(pdf_path):
             cid = corridor_at[key]
             if nid:
                 edge(nid, cid)
+                nodes[cid].setdefault('near', []).append(nid)  # what you see from this point of the foyer
         for li, line in enumerate(lines_):
             on_line = sorted({(s[1], s[2], (round(s[3][0], 1), round(s[3][1], 1))) for s in stops if s[0] == li})
             ids = []
@@ -345,8 +348,8 @@ def main(pdf_path):
         for n in [n for n in nodes if n.startswith(f'{a}/escalator')]:
             pa = (nodes[n]['x'], nodes[n]['y'])
             m = min(ups, key=lambda u: math.dist(pa, (nodes[u]['x'], nodes[u]['y'])))
-            if math.dist(pa, (nodes[m]['x'], nodes[m]['y'])) < 20:
-                edge(n, m, 'escalator')
+            if math.dist(pa, (nodes[m]['x'], nodes[m]['y'])) < 30:  # an escalator run is ~10-20 m long; which icons pair up is not on the plan
+                edge(n, m, 'escalator', estimate=True)
 
     # combined rooms (e.g. "M211+M212", which a programme can book as one room) use the doors of their parts
     for aid, a in areas.items():
