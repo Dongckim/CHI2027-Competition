@@ -14,7 +14,7 @@
 - `app/src/captions/captions.js`
   - `sessionContext(data, sessionKey)`: 세션의 공개 프로그램 데이터로 Soniox `context` 생성. 저자 이름·제목의 약어/합성어(VR, LLM, GuideMe)를 `terms`, 이름은 번역에서도 그대로(`translation_terms`), 제목 목록은 `text`. 10,000자 제한 안으로 자름
   - `createCaptions()`: 확정 토큰은 이어 붙이고 미확정은 바꿔 끼움. 원문·번역 각각 **마지막 3줄만** 화면에, 그 이전 텍스트는 버림. 종료 시 `clear()`
-- `tests/captions/bench.html` (`SONIOX_API_KEY=... npm run bench` → http://localhost:5173/tests/captions/bench.html)
+- `tests/captions/bench.html` (`.env.local`에 `SONIOX_API_KEY=...` 저장 후 `npm run bench` → http://localhost:5173/tests/captions/bench.html)
   - 세션 선택(용어집), 번역 언어(기본 한국어), 용어집 켜기/끄기(O/X 비교용)
   - 마이크 → `MediaRecorder` 120ms 조각 → Soniox `stt-rt-v5`, `audio_format: auto`. 스피커 소리를 받으므로 에코 제거·잡음 제거는 끔
   - 키는 WebSocket protocols 목록으로 보냄 (시작 메시지의 `api_key`는 2027-01-15부터 거부됨)
@@ -56,7 +56,7 @@
 **진행 중.** 코드와 확인 페이지는 준비됨. Soniox 키가 없어 실제 연결은 아직 안 해 봄 (WebSocket 인증 방식도 키를 받은 뒤 확인)
 
 ## 다음 행동
-- 사람: Soniox 콘솔에서 API 키 발급 (권한: Temporary API keys + Speech-to-Text WebSocket), 지출 한도 설정. `SONIOX_API_KEY=... npm run bench`
+- 사람: Soniox 콘솔에서 API 키 발급 (권한: Temporary API keys + Speech-to-Text WebSocket), 지출 한도 설정. 키는 `.env.local`(git 무시)에 저장
 - 노트북(localhost)에서 먼저 측정. 휴대폰은 마이크에 HTTPS가 필요해서 V3(#4)의 HTTPS 확인 환경이 생긴 뒤
 - 하루 예산 금액 정하기 (통과 기준 3)
 - CaptionSession 계약 설계 시 넣을 것: 세션 키, 번역 언어, 용어집 사용 여부, 상태(연결 중·듣는 중·끊김·종료). 자막 텍스트는 계약에 넣지 않음 (저장 금지)
