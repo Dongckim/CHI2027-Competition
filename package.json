@@ -9,6 +9,7 @@
     "data:ror": "node data/scripts/ror.mjs",
     "data:build": "node data/scripts/build.mjs",
     "data:venue": "python3 data/scripts/venue-ccib.py",
+    "bench": "node tests/venue/serve.mjs",
     "test": "node --test"
   },
   "devDependencies": {
