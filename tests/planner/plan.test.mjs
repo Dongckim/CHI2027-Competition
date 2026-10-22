@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { defaultTravelMinutes, indexData, localDay, planDay } from '../../app/src/planner/plan.js';
+import { defaultTravelMinutes, indexData, localDay, planDay, venueTravelMinutes } from '../../app/src/planner/plan.js';
 
 // Madrid is UTC+2 in April: 09:00 local = 07:00Z.
 const at = hhmm => Date.parse(`2026-04-13T${hhmm}:00+02:00`);
@@ -94,18 +94,34 @@ test('travel guess', () => {
   assert.equal(defaultTravelMinutes(rooms[0], rooms[2], { wheelchair: true }), 14);
 });
 
+test('venue travel: floor plan minutes, same area 0, unmapped rooms fall back to the guess', () => {
+  const venueFile = f => JSON.parse(readFileSync(new URL(`../../data/venue/${f}.json`, import.meta.url)));
+  const t = venueTravelMinutes(venueFile('ccib'), venueFile('chi2026'));
+  const r = k => ({ key: `chi2026:${k}` });
+  assert.equal(t(r(12303), r(12304)), 1); // 111 -> 112, next door
+  assert.ok(t(r(12303), r(12330)) > t(r(12303), r(12304))); // 111 -> M211/212, one level up
+  assert.ok(t(r(12303), r(12330), { wheelchair: true }) > t(r(12303), r(12330))); // elevator wait
+  assert.equal(t(r(12326), { key: 'chi2026:12326' }), 0);
+  const p0 = Object.entries(venueFile('chi2026').rooms).filter(([, id]) => id === 'P0-areas-1+2+3').map(([k]) => ({ key: k }));
+  assert.equal(t(p0[0], p0[1]), 0); // two programme spaces in the same hall
+  assert.equal(t({ key: 'x', floor: 'A' }, { key: 'y', floor: 'B' }), 7);
+});
+
 for (const edition of ['chi2026', 'chi2025']) {
   const dir = new URL(`../../data/build/${edition}/`, import.meta.url);
   test(`${edition}: every day's route is walkable`, { skip: !existsSync(dir) && 'run npm run data:build first' }, () => {
     const load = f => JSON.parse(readFileSync(new URL(`${f}.json`, dir)));
     const data = { meta: load('meta'), papers: load('papers'), sessions: load('sessions'), rooms: load('rooms') };
     const index = indexData(data);
+    const venueFile = f => JSON.parse(readFileSync(new URL(`../../data/venue/${f}.json`, import.meta.url)));
+    const ed = venueFile(edition);
+    const travelMinutes = ed.venue ? venueTravelMinutes(venueFile(ed.venue), ed) : undefined;
     const scheduled = data.papers.filter(p => p.scheduled);
     const candidates = scheduled.map((p, i) => ({ paperKey: p.key, relevance: ((i * 7919) % 1000) / 1000 }));
     const days = [...new Set(scheduled.flatMap(p => p.slots.filter(s => s.start != null).map(s => localDay(s.start, data.meta.timeZone))))];
     assert.ok(days.length >= 4);
     for (const day of days) {
-      const r = planDay(index, candidates, { day });
+      const r = planDay(index, candidates, { day, travelMinutes });
       for (let i = 1; i < r.stops.length; i++) {
         const [a, b] = [r.stops[i - 1], r.stops[i]];
         assert.ok(a.end + b.travelFromPrevMin * 60000 <= b.start, `${day}: ${a.paperKey} -> ${b.paperKey}`);
