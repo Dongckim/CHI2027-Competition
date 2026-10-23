@@ -41,11 +41,11 @@ const fixture = () => ({
     { id: 21, typeId: 1, title: 'A', authors: [{ personId: 1, affiliations: [{ institution: 'Massachusetts Institute of Technology' }] }], addons: { v: { type: 'video', url: 'https://v' } } },
     { id: 22, typeId: 1, title: 'Remote', authors: [
       { personId: 2, affiliations: [{ institution: 'Northeastern University', country: 'United States' }] },
-      { personId: 3, affiliations: [{ institution: 'Northeastern University', country: 'China' }] },
+      { personId: 3, affiliations: [{ institution: 'Northeastern University', country: 'China' }, { institution: 'MIT', country: 'USA' }] },
       { personId: 4, affiliations: [{ institution: 'Massachusetts Tech', country: 'USA' }] },
     ] },
   ],
-  people: [{ id: 1, firstName: 'Ada', lastName: null }],
+  people: [{ id: 1, firstName: 'Ada', lastName: null }, { id: 3, firstName: 'Cy', lastName: 'Li' }],
 });
 const MIT = 'https://ror.org/042nb2s44';
 const NEU_US = 'https://ror.org/04t5xt781';
@@ -82,6 +82,12 @@ test('buildEdition: keys, talk order, remote items, aliases, people', () => {
   assert.equal(out.aliases.lookup['northeastern university'].length, 2);
   assert.deepEqual(remote.authors.map(a => a.country), ['United States', 'China', 'United States'], 'author country from the feed, USA folded');
   assert.equal(b.authors[0].country, null, 'no country in the feed stays null');
+  assert.deepEqual(remote.authors[1].affiliations, [
+    { institutionKey: 'inst:ror-03awzbc87', institution: 'Northeastern University', country: 'China' },
+    { institutionKey: 'inst:ror-042nb2s44', institution: 'MIT', country: 'United States' },
+  ], 'every affiliation, each with its own institution and country');
+  assert.equal(remote.authors[1].country, 'China', 'single fields stay the first affiliation');
+  assert.deepEqual(out.people.find(p => p.id === 3).institutionKeys, ['inst:ror-03awzbc87', 'inst:ror-042nb2s44'], 'people list every institution');
   assert.equal(out.people.find(p => p.id === 1).appearances.length, 2);
   assert.equal(out.people.find(p => p.id === 1).name, 'Ada');
   assert.deepEqual(out.topics.map(t => t.label), ['Accessibility']);
