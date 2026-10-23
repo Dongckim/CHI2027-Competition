@@ -12,6 +12,11 @@ const slug = s => normalizeName(s).replace(/ /g, '-');
 const byId = (a, b) => a.id - b.id;
 const personName = p => [p.firstName, p.middleInitial, p.lastName].filter(Boolean).join(' ').trim();
 
+// Author country is the feed's own value per affiliation, not the institution's (CMU Qatar, Microsoft Research Cambridge).
+// Only spellings of the same country are folded; Hong Kong / Macao / China stay as the authors wrote them.
+const COUNTRY_SPELLINGS = { USA: 'United States', UK: 'United Kingdom', 'South Korea': 'Korea, Republic of' };
+export const countryName = c => (c?.trim() ? COUNTRY_SPELLINGS[c.trim()] ?? c.trim() : null);
+
 // Feed epoch ms are venue wall-clock times written as if they were UTC (every edition's sessions start at
 // 09:00Z). Convert to the real instant so that comparing with Date.now() and formatting in the venue's
 // IANA zone both give the right answer.
@@ -169,7 +174,8 @@ export function buildEdition(feed, { edition, version, timeZone, institutions = 
       if (instKey) pushTo(institutionsOf, a.personId, instKey);
       for (const sl of slots) pushTo(appearances, a.personId, { role: 'author', sessionKey: sl.sessionKey, contentKey: key(c.id), roomKey: sl.roomKey, start: sl.start, end: sl.end });
       const p = people.get(a.personId);
-      return { personKey: key(a.personId), name: p ? personName(p) : null, institutionKey: instKey, institution: raw };
+      const country = countryName(aff?.country ?? a.affiliations?.find(f => f?.country?.trim())?.country);
+      return { personKey: key(a.personId), name: p ? personName(p) : null, institutionKey: instKey, institution: raw, country };
     });
     const video = Object.values(c.addons || {}).find(a => a?.type === 'video')?.url ?? null;
     return {
