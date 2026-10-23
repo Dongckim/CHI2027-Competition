@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Venue bench</title>
+<!-- Bench page (V6, #7): checks that route.js + data/venue work in a browser, laid out like the Figma
+     "09 Getting there" draft. Not the app UI: the final design is not out yet. -->
+<style>
+  /* One column like the Figma "09 Getting there" frame: header, time, map card, toggle, stops. */
+  :root {
+    --bg: #ffffff; --ink: #16130e; --muted: #5d5547; --line: #ddd5c6; --panel: #f7f3ec;
+    --map: #e9dcc6; --room: #f6ecdb; --wall: #c4b090; --room-ink: #75654c; --foyer: #f3e8d4; --foyer-ink: #8f7b5d;
+    --pill: #fff8e8; --pin: #16130e; --pin-ink: #ffffff; --elevator: #3b6fd8; --escalator: #c96f22; --wc: #2c8656;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #15130f; --ink: #f1ebe0; --muted: #b3a994; --line: #3a342a; --panel: #1f1c17;
+    --map: #2b261e; --room: #3a3328; --wall: #6d5f48; --room-ink: #cbbd9f; --foyer: #342e25; --foyer-ink: #a8977a;
+    --pill: #463d2f; --pin: #f1ebe0; --pin-ink: #15130f; --elevator: #7ea2f0; --escalator: #e59a55; --wc: #6cc596; color-scheme: dark;
+  } }
+  :root[data-theme="dark"] {
+    --bg: #15130f; --ink: #f1ebe0; --muted: #b3a994; --line: #3a342a; --panel: #1f1c17;
+    --map: #2b261e; --room: #3a3328; --wall: #6d5f48; --room-ink: #cbbd9f; --foyer: #342e25; --foyer-ink: #a8977a;
+    --pill: #463d2f; --pin: #f1ebe0; --pin-ink: #15130f; --elevator: #7ea2f0; --escalator: #e59a55; --wc: #6cc596; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { font: 16px system-ui, sans-serif; margin: 0 auto; max-width: 440px; color: var(--ink); background: var(--bg);
+         padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1 { font-size: 18px; margin: 4px 0 16px; }
+  .controls { border: 1px dashed var(--line); background: var(--panel); border-radius: 10px; padding: 8px 12px; margin-bottom: 16px; font-size: 14px; }
+  .controls label { display: flex; gap: 8px; align-items: center; margin: 4px 0; }
+  select { font-size: 16px; min-height: 44px; flex: 1; min-width: 0; }
+  #rooms, #levels { color: var(--muted); font-size: 14px; margin: 0; }
+  #time { font-size: 32px; font-weight: 800; margin: 2px 0; }
+  .map { background: var(--map); border-radius: 12px; padding: 8px; margin: 12px 0; }
+  .map svg { width: 100%; height: auto; display: block; }
+  .map .level { font-size: 12px; font-weight: 700; margin: 4px 4px 2px; }
+  .map .caption { font-size: 12px; color: var(--muted); margin: 4px; }
+  .m-bg { fill: var(--map); }
+  .m-room { fill: var(--room); stroke: var(--wall); }
+  .m-room.on { stroke: var(--ink); }
+  .m-room-t { fill: var(--room-ink); }
+  .m-room-t.on { fill: var(--ink); font-weight: 700; }
+  .m-foyer { fill: none; stroke: var(--foyer); }
+  .m-foyer-t { fill: var(--foyer-ink); font-style: italic; }
+  .m-elevator { fill: var(--elevator); opacity: .75; }
+  .m-escalator { fill: var(--escalator); opacity: .75; }
+  .m-wc { fill: var(--wc); font-weight: 700; }
+  .m-route { fill: none; stroke: var(--ink); }
+  .m-pill { fill: var(--pill); stroke: var(--wall); }
+  .m-pill-t { fill: var(--ink); font-weight: 600; }
+  .m-dot { fill: var(--pin); }
+  .m-dot-t { fill: var(--pin-ink); font-weight: 700; }
+  .m-pin { fill: var(--bg); stroke: var(--pin); }
+  .m-pin-t { fill: var(--ink); font-weight: 700; }
+  .m-pin.b { fill: var(--pin); }
+  .m-pin-t.b { fill: var(--pin-ink); }
+  .toggle { display: flex; justify-content: space-between; align-items: center; min-height: 48px;
+            border: 1px solid var(--line); border-radius: 10px; padding: 0 12px; }
+  .toggle input { width: 24px; height: 24px; }
+  .stop { white-space: nowrap; }
+  .stop b { display: inline-block; min-width: 20px; height: 20px; line-height: 20px; border-radius: 10px; background: var(--pin); color: var(--pin-ink); text-align: center; font-size: 12px; }
+  .arrow { color: var(--muted); }
+  .stops { font-size: 15px; line-height: 1.6; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; margin: 12px 0; }
+  .muted { color: var(--muted); font-size: 13px; }
+  details { max-width: 100%; }
+  pre { font-size: 12px; overflow-x: auto; background: var(--panel); padding: 8px; }
+  :focus-visible { outline: 2px solid var(--elevator); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="controls">
+  <b>Bench</b> (pick rooms)
+  <label>From <select id="from"></select></label>
+  <label>To <select id="to"></select></label>
+</div>
+
+<h1>Getting there</h1>
+<p id="rooms"></p>
+<p id="time" aria-live="polite"></p>
+<p id="levels"></p>
+<div id="maps"></div>
+<label class="toggle">Wheelchair (elevators only) <input type="checkbox" id="wheelchair"></label>
+<p id="via" class="stops"></p>
+<p class="muted" id="note"></p>
+<p class="muted" id="buildNote"></p>
+<details><summary>route() output</summary><pre id="json"></pre></details>
+<p class="muted">Room names: programme data © ACM CHI 2026, licensed under CC BY-NC-SA 4.0. Room sizes and positions: CCIB "Floorplans &amp; capacities" (2026). Walking times are estimates.</p>
+
+<script type="module">
+import { route } from '../../app/src/venue/route.js';
+
+const get = path => fetch(`../../data/${path}`).then(r => (r.ok ? r.json() : null));
+const edition = await get('venue/chi2026.json');
+const venue = await get(`venue/${edition.venue}.json`);
+const feedRooms = await get('build/chi2026/rooms.json'); // optional: needs npm run data:build
+const names = new Map((feedRooms || []).map(r => [r.key, r.name]));
+
+// one option per feed room, labelled with the feed's room name
+const options = Object.entries(edition.rooms)
+  .map(([key, area]) => ({ key, area, label: names.get(key) || `${area} (${key})` }))
+  .sort((a, b) => a.label.localeCompare(b.label, 'en', { numeric: true }));
+for (const sel of [from, to]) sel.innerHTML = options.map(o => `<option value="${o.key}">${o.label}</option>`).join('');
+// ?from=P1-113&to=P1-133&wheelchair=1 (area ids or feed room keys) to open a given route
+const q = new URLSearchParams(location.search);
+const pick = v => options.find(o => o.key === v || o.area === v)?.key;
+from.value = pick(q.get('from')) || pick('P1-111');
+to.value = pick(q.get('to')) || pick('P2-211');
+wheelchair.checked = q.get('wheelchair') === '1';
+if (!feedRooms) buildNote.textContent = 'Room names need npm run data:build; showing area ids.';
+
+const mark = (i, n) => (i === 0 ? 'A' : i === n - 1 ? 'B' : String(i));
+const stopName = st => (st.kind === 'elevator' || st.kind === 'escalator' ? `${st.kind === 'elevator' ? 'Elevator' : 'Escalator'} ${st.from}→${st.to}` : st.name);
+const esc = s => String(s).replace(/[&<>"]/g, c => `&#${c.charCodeAt(0)};`);
+const N = venue.nodes;
+// single rooms only (combinations like "113+114" overlap their parts)
+const outlines = Object.entries(venue.areas).filter(([, a]) => a.rect && !a.name.includes('+'));
+
+function drawLevel(level, r) {
+  const onLevel = r.path.filter(n => N[n].level === level && N[n].x != null);
+  // frame: the whole level (rooms, foyers, lifts), so the route is seen in context
+  const pts = [];
+  for (const [, a] of outlines) if (a.level === level) pts.push([a.rect[0], a.rect[1]], [a.rect[2], a.rect[3]]);
+  for (const c of venue.corridors) if (c.level === level) pts.push(...c.points);
+  for (const n of Object.values(N)) if (n.level === level && n.x != null) pts.push([n.x, n.y]);
+  const pad = 8;
+  const [x0, y0] = [Math.min(...pts.map(p => p[0])) - pad, Math.min(...pts.map(p => p[1])) - pad];
+  const [x1, y1] = [Math.max(...pts.map(p => p[0])) + pad, Math.max(...pts.map(p => p[1])) + pad];
+  const W = x1 - x0;
+  const fs = W / 34, sw = W / 260;
+  const foyers = venue.corridors.filter(c => c.level === level).map(c => {
+    const [[ax, ay], [bx, by]] = [c.points[0], c.points.at(-1)];
+    const vertical = Math.abs(bx - ax) < Math.abs(by - ay);
+    const [lx, ly] = [(ax + bx) / 2, (ay + by) / 2];
+    return `<polyline points="${c.points.map(p => p.join(',')).join(' ')}" class="m-foyer" stroke-width="${fs * 1.6}" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="${lx}" y="${ly + fs * 0.3}" font-size="${fs * 0.75}" text-anchor="middle" class="m-foyer-t"${vertical ? ` transform="rotate(-90 ${lx} ${ly})"` : ''}>${esc(c.name)}</text>`;
+  }).join('');
+  const wcs = Object.values(N).filter(n => n.level === level && n.kind === 'wc')
+    .map(n => `<text x="${n.x}" y="${n.y + fs * 0.25}" font-size="${fs * 0.6}" text-anchor="middle" class="m-wc">WC</text>`).join('');
+  const numbered = r.stops.map((st, i) => [st, i]).filter(([st, i]) => i > 0 && i < r.stops.length - 1 && N[st.node].level === level && N[st.node].x != null)
+    .map(([st, i]) => `<circle cx="${N[st.node].x}" cy="${N[st.node].y}" r="${fs * 0.6}" class="m-dot"/><text x="${N[st.node].x}" y="${N[st.node].y + fs * 0.27}" font-size="${fs * 0.75}" text-anchor="middle" class="m-dot-t">${i}</text>`).join('');
+  const lifts = Object.values(N).filter(n => n.level === level && n.x != null && (n.kind === 'elevator' || n.kind === 'escalator'))
+    .map(n => `<rect x="${n.x - fs * 0.35}" y="${n.y - fs * 0.35}" width="${fs * 0.7}" height="${fs * 0.7}" rx="${fs * 0.15}" class="m-${n.kind}"/>`).join('');
+
+  // a booked combination (M215+M216, Areas 1+2+3) highlights its parts
+  const parts = id => {
+    const a = venue.areas[id];
+    if (!a.name.includes('+')) return [id];
+    const [prefix, rest] = a.name.startsWith('Areas ') ? ['Area ', a.name.slice(6)] : ['', a.name];
+    return rest.split('+').map(p => `${a.level}-${(prefix + p).toLowerCase().replace(/ /g, '-')}`);
+  };
+  const ends = new Set([...parts(r.from), ...parts(r.to)]);
+  const rooms = outlines.filter(([, a]) => a.level === level).map(([id, a]) => {
+    const [ax0, ay0, ax1, ay1] = a.rect;
+    const mine = ends.has(id);
+    const label = a.name.length > 6 ? a.name.replace(' Room', '').replace(' Hall', '') : a.name;
+    return `<rect x="${ax0}" y="${ay0}" width="${ax1 - ax0}" height="${ay1 - ay0}" class="m-room${mine ? ' on' : ''}" stroke-width="${mine ? sw * 1.5 : sw}"/>
+      <text x="${(ax0 + ax1) / 2}" y="${(ay0 + ay1) / 2 + fs * 0.35}" font-size="${Math.min(fs * 0.9, (ax1 - ax0) / 2.6, (ay1 - ay0) * 0.6)}" text-anchor="middle" class="m-room-t${mine ? ' on' : ''}">${esc(label)}</text>`;
+  }).join('');
+  const line = onLevel.length > 1 ? `<polyline points="${onLevel.map(n => `${N[n].x},${N[n].y}`).join(' ')}" class="m-route" stroke-width="${sw * 2.2}" stroke-dasharray="${sw * 5} ${sw * 3}" stroke-linejoin="round"/>` : '';
+  // where the route changes level on this floor
+  const lift = onLevel.find(n => N[n].kind === 'elevator' || N[n].kind === 'escalator');
+  const liftLabel = lift ? (() => {
+    const t = N[lift].kind === 'elevator' ? 'Elevator' : 'Escalator';
+    const w = fs * 0.62 * t.length + fs;
+    // above the node, unless a nearby pin is above it: then below
+    const pinAbove = [r.path[0], r.path.at(-1)].some(p => N[p].level === level && N[p].y < N[lift].y && Math.hypot(N[p].x - N[lift].x, N[p].y - N[lift].y) < fs * 4);
+    const top = Math.max(y0 + 1, pinAbove ? N[lift].y + fs * 0.7 : N[lift].y - fs * 2.2);
+    // keep the label inside the frame
+    const cx = Math.min(Math.max(N[lift].x, x0 + w / 2 + 1), x1 - w / 2 - 1);
+    return `<rect x="${cx - w / 2}" y="${top}" width="${w}" height="${fs * 1.5}" rx="${fs * 0.4}" class="m-pill" stroke-width="${sw / 2}"/>
+      <text x="${cx}" y="${top + fs * 1.1}" font-size="${fs * 0.9}" text-anchor="middle" class="m-pill-t">${t}</text>`;
+  })() : '';
+  const pin = (id, text, dark) => N[id].level === level && N[id].x != null
+    ? `<circle cx="${N[id].x}" cy="${N[id].y}" r="${fs * 0.95}" class="m-pin${dark ? ' b' : ''}" stroke-width="${sw * 1.5}"/>
+       <text x="${N[id].x}" y="${N[id].y + fs * 0.35}" font-size="${fs}" text-anchor="middle" class="m-pin-t${dark ? ' b' : ''}">${text}</text>` : '';
+  return `<div class="level">Level ${level}</div>
+    <svg viewBox="${x0} ${y0} ${W} ${y1 - y0}" role="img" aria-label="Level ${level}: route on the floor plan">
+      <rect x="${x0}" y="${y0}" width="${W}" height="${y1 - y0}" class="m-bg"/>${foyers}${rooms}${lifts}${wcs}${line}${liftLabel}${numbered}${pin(r.path[0], 'A')}${pin(r.path.at(-1), 'B', true)}</svg>`;
+}
+
+function show() {
+  const a = edition.rooms[from.value], b = edition.rooms[to.value];
+  const r = route(venue, a, b, { wheelchair: wheelchair.checked });
+  rooms.textContent = `${from.selectedOptions[0].text} → ${to.selectedOptions[0].text}`;
+  json.textContent = JSON.stringify(r, null, 2);
+  if (!r) { time.textContent = 'No route'; levels.textContent = via.innerHTML = maps.innerHTML = ''; return; }
+  const [lo, hi] = r.minutes;
+  time.textContent = `about ${lo === hi ? lo : `${lo}–${hi}`} min`;
+  levels.textContent = `${r.metres} m · ${r.levels.length > 1 ? `Level ${r.levels[0]} → Level ${r.levels.at(-1)}` : `Level ${r.levels[0]}`}`;
+  via.innerHTML = r.stops.map((st, i) => `<span class="stop"><b>${mark(i, r.stops.length)}</b> ${esc(stopName(st))}</span>`).join('<span class="arrow"> → </span>');
+  // a level the route only rides through (no walking there) gets a line, not a map
+  const walked = l => r.path.some(n => N[n].level === l && N[n].kind !== 'elevator' && N[n].kind !== 'escalator');
+  maps.innerHTML = `<div class="map">${r.levels
+    .map(l => (l === 'AUD' ? '<p class="level">Auditorium: via the connecting walkway from P0 access A (no plan)</p>'
+      : walked(l) ? drawLevel(l, r) : `<p class="level">Level ${l}: ride through</p>`))
+    .join('')}<p class="caption">Schematic from the CCIB "Floorplans &amp; capacities" PDF · blue = elevator, orange = escalator, numbers = stops below</p></div>`;
+  const guessed = r.path.filter(n => N[n].estimate);
+  note.textContent = guessed.length ? `Estimated, not measured on the plan: ${guessed.join(', ')}` : '';
+}
+for (const el of [from, to, wheelchair]) el.addEventListener('change', show);
+show();
+</script>
+</body>
+</html>

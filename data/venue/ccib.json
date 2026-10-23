@@ -1,0 +1,5703 @@
+{
+ "venue": "ccib",
+ "name": "Centre de Convencions Internacional de Barcelona (CCIB)",
+ "source": {
+  "title": "Floorplans & capacities, CCIB | 2026",
+  "url": "https://ccib.es/wp-content/uploads/2024/04/1.-Floorplans-Capacities_CCIB.pdf",
+  "sha256": "b94b2ef37028f852a3dd757886a8abf0528eaf853e8d30dcdd1e1b31d76b4fcd",
+  "extractedBy": "data/scripts/venue-ccib.py"
+ },
+ "frame": {
+  "units": "metres",
+  "axes": "x to the right, y down, as drawn on the PDF plans (north is not marked). All stacked levels share one frame; AUD has no coordinates.",
+  "metresPerPoint": 0.41629,
+  "scaleCheck": "room sizes on the plan within 2.4% of the table",
+  "levelAlignment": "P0, M1, M2, P2 mapped onto P1 by the three elevator shafts, worst shaft off by 0.4 m"
+ },
+ "levels": [
+  {
+   "id": "P0",
+   "name": "Convention Centre P0"
+  },
+  {
+   "id": "M1",
+   "name": "Convention Centre M1 (mezzanine)"
+  },
+  {
+   "id": "P1",
+   "name": "Convention Centre P1"
+  },
+  {
+   "id": "M2",
+   "name": "Convention Centre M2 (mezzanine)"
+  },
+  {
+   "id": "P2",
+   "name": "Convention Centre P2"
+  },
+  {
+   "id": "AUD",
+   "name": "Auditorium (lower level)"
+  }
+ ],
+ "areas": {
+  "AUD-auditorium": {
+   "level": "AUD",
+   "name": "Auditorium",
+   "m2": 7632,
+   "capacity": {
+    "theater": 3084
+   },
+   "doors": [
+    "AUD-auditorium/door"
+   ]
+  },
+  "AUD-balcony-seating-area": {
+   "level": "AUD",
+   "name": "Balcony (Seating Area)",
+   "m2": 501,
+   "capacity": {
+    "theater": 743
+   }
+  },
+  "AUD-connecting-walkway": {
+   "level": "AUD",
+   "name": "Connecting Walkway",
+   "m2": 1820,
+   "length": 116.8,
+   "width": 15.6,
+   "height": [
+    2.4,
+    3.2
+   ],
+   "capacity": {
+    "cocktail": 1100,
+    "coffeeBreak": 1100
+   }
+  },
+  "AUD-foyer": {
+   "level": "AUD",
+   "name": "Foyer",
+   "m2": 1890,
+   "capacity": {
+    "cocktail": 1100,
+    "coffeeBreak": 1100
+   }
+  },
+  "AUD-stage-does-not-include-backstage": {
+   "level": "AUD",
+   "name": "Stage (does not include Backstage)",
+   "m2": 420,
+   "length": 30.0,
+   "width": 13.97,
+   "height": 14.2
+  },
+  "AUD-stalls-seating-area": {
+   "level": "AUD",
+   "name": "Stalls (Seating Area)",
+   "m2": 2072,
+   "capacity": {
+    "theater": 2341
+   }
+  },
+  "M1-foyer": {
+   "level": "M1",
+   "name": "Foyer",
+   "m2": 832,
+   "length": 138.8,
+   "width": 6.0,
+   "height": 2.55
+  },
+  "M1-vip-room": {
+   "level": "M1",
+   "name": "VIP Room",
+   "m2": 320,
+   "length": 23.0,
+   "width": 14.7,
+   "height": 2.6,
+   "capacity": {
+    "theater": 209,
+    "classroom": 104,
+    "cabaret": 72,
+    "boardroom": 48,
+    "ushape": 50
+   },
+   "doors": [
+    "M1-vip-room/door"
+   ],
+   "rect": [
+    175.37,
+    157.18,
+    189.75,
+    179.92
+   ],
+   "rectEstimate": true
+  },
+  "M2-foyer-m2": {
+   "level": "M2",
+   "name": "Foyer M2",
+   "group": "MEETING ROOMS",
+   "m2": 317,
+   "length": 133.5,
+   "width": 1.9,
+   "height": 2.6
+  },
+  "M2-m211": {
+   "level": "M2",
+   "name": "M211",
+   "group": "MEETING ROOMS",
+   "m2": 58,
+   "length": 8.0,
+   "width": 7.5,
+   "height": 2.63,
+   "capacity": {
+    "theater": 45,
+    "classroom": 16,
+    "cabaret": 12,
+    "boardroom": 20,
+    "ushape": 18,
+    "banquet10": 30,
+    "banquet11": 33,
+    "cocktail": 40,
+    "coffeeBreak": 40
+   },
+   "doors": [
+    "M2-m211/door"
+   ],
+   "rect": [
+    152.8,
+    145.32,
+    160.53,
+    153.03
+   ]
+  },
+  "M2-m211+m212": {
+   "level": "M2",
+   "name": "M211+M212",
+   "group": "COMBINATIONS",
+   "m2": 120,
+   "length": 8.0,
+   "width": 15.5,
+   "height": 2.63,
+   "capacity": {
+    "theater": 96,
+    "classroom": 44,
+    "cabaret": 36,
+    "boardroom": 40,
+    "ushape": 36,
+    "banquet10": 70,
+    "banquet11": 77,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "M2-m211/door",
+    "M2-m212/door"
+   ],
+   "rect": [
+    145.06,
+    145.32,
+    160.53,
+    153.03
+   ]
+  },
+  "M2-m212": {
+   "level": "M2",
+   "name": "M212",
+   "group": "MEETING ROOMS",
+   "m2": 58,
+   "length": 8.0,
+   "width": 7.5,
+   "height": 2.63,
+   "capacity": {
+    "theater": 45,
+    "classroom": 16,
+    "cabaret": 12,
+    "boardroom": 20,
+    "ushape": 18,
+    "banquet10": 30,
+    "banquet11": 33,
+    "cocktail": 40,
+    "coffeeBreak": 40
+   },
+   "doors": [
+    "M2-m212/door"
+   ],
+   "rect": [
+    145.06,
+    145.32,
+    152.8,
+    153.03
+   ]
+  },
+  "M2-m213": {
+   "level": "M2",
+   "name": "M213",
+   "group": "MEETING ROOMS",
+   "m2": 58,
+   "length": 8.0,
+   "width": 7.5,
+   "height": 2.63,
+   "capacity": {
+    "theater": 45,
+    "classroom": 16,
+    "cabaret": 12,
+    "boardroom": 20,
+    "ushape": 18,
+    "banquet10": 30,
+    "banquet11": 33,
+    "cocktail": 40,
+    "coffeeBreak": 40
+   },
+   "doors": [
+    "M2-m213/door"
+   ],
+   "rect": [
+    122.96,
+    145.32,
+    130.6,
+    153.03
+   ]
+  },
+  "M2-m213+m214": {
+   "level": "M2",
+   "name": "M213+M214",
+   "group": "COMBINATIONS",
+   "m2": 120,
+   "length": 8.0,
+   "width": 15.3,
+   "height": 2.63,
+   "capacity": {
+    "theater": 96,
+    "classroom": 42,
+    "cabaret": 36,
+    "boardroom": 40,
+    "ushape": 36,
+    "banquet10": 70,
+    "banquet11": 77,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "M2-m213/door",
+    "M2-m214/door"
+   ],
+   "rect": [
+    115.32,
+    145.32,
+    130.6,
+    153.03
+   ]
+  },
+  "M2-m214": {
+   "level": "M2",
+   "name": "M214",
+   "group": "MEETING ROOMS",
+   "m2": 58,
+   "length": 8.0,
+   "width": 7.5,
+   "height": 2.63,
+   "capacity": {
+    "theater": 45,
+    "classroom": 16,
+    "cabaret": 12,
+    "boardroom": 20,
+    "ushape": 18,
+    "banquet10": 30,
+    "banquet11": 33,
+    "cocktail": 40,
+    "coffeeBreak": 40
+   },
+   "doors": [
+    "M2-m214/door"
+   ],
+   "rect": [
+    115.32,
+    145.32,
+    122.96,
+    153.03
+   ]
+  },
+  "M2-m215": {
+   "level": "M2",
+   "name": "M215",
+   "group": "MEETING ROOMS",
+   "m2": 58,
+   "length": 8.0,
+   "width": 7.5,
+   "height": 2.63,
+   "capacity": {
+    "theater": 45,
+    "classroom": 16,
+    "cabaret": 12,
+    "boardroom": 20,
+    "ushape": 18,
+    "banquet10": 30,
+    "banquet11": 33,
+    "cocktail": 40,
+    "coffeeBreak": 40
+   },
+   "doors": [
+    "M2-m215/door"
+   ],
+   "rect": [
+    107.69,
+    145.32,
+    115.32,
+    153.03
+   ]
+  },
+  "M2-m215+m216": {
+   "level": "M2",
+   "name": "M215+M216",
+   "group": "COMBINATIONS",
+   "m2": 92,
+   "length": 8.0,
+   "width": 11.9,
+   "height": 2.63,
+   "capacity": {
+    "theater": 69,
+    "classroom": 30,
+    "cabaret": 24,
+    "boardroom": 32,
+    "ushape": 24,
+    "banquet10": 50,
+    "banquet11": 55,
+    "cocktail": 70,
+    "coffeeBreak": 70
+   },
+   "doors": [
+    "M2-m215/door",
+    "M2-m216/door"
+   ],
+   "rect": [
+    103.31,
+    145.32,
+    115.32,
+    153.03
+   ]
+  },
+  "M2-m216": {
+   "level": "M2",
+   "name": "M216",
+   "group": "MEETING ROOMS",
+   "m2": 34,
+   "length": 8.0,
+   "width": 4.3,
+   "height": 2.63,
+   "capacity": {
+    "theater": 20,
+    "classroom": 8,
+    "cabaret": 6,
+    "boardroom": 16,
+    "ushape": 8,
+    "banquet10": 20,
+    "banquet11": 22,
+    "cocktail": 30,
+    "coffeeBreak": 30
+   },
+   "doors": [
+    "M2-m216/door"
+   ],
+   "rect": [
+    103.31,
+    145.32,
+    107.69,
+    153.03
+   ]
+  },
+  "M2-m217": {
+   "level": "M2",
+   "name": "M217",
+   "group": "MEETING ROOMS",
+   "m2": 34,
+   "length": 8.0,
+   "width": 4.3,
+   "height": 2.63,
+   "capacity": {
+    "theater": 20,
+    "classroom": 8,
+    "cabaret": 6,
+    "boardroom": 16,
+    "ushape": 8,
+    "banquet10": 20,
+    "banquet11": 22,
+    "cocktail": 30,
+    "coffeeBreak": 30
+   },
+   "doors": [
+    "M2-m217/door"
+   ],
+   "rect": [
+    98.93,
+    145.32,
+    103.31,
+    153.03
+   ]
+  },
+  "M2-m218": {
+   "level": "M2",
+   "name": "M218",
+   "group": "MEETING ROOMS",
+   "m2": 34,
+   "length": 8.0,
+   "width": 4.3,
+   "height": 2.6,
+   "capacity": {
+    "theater": 20,
+    "classroom": 8,
+    "cabaret": 6,
+    "boardroom": 16,
+    "ushape": 8,
+    "banquet10": 20,
+    "banquet11": 22,
+    "cocktail": 30,
+    "coffeeBreak": 30
+   },
+   "doors": [
+    "M2-m218/door"
+   ],
+   "rect": [
+    82.24,
+    145.32,
+    86.68,
+    153.03
+   ]
+  },
+  "M2-m219": {
+   "level": "M2",
+   "name": "M219",
+   "group": "MEETING ROOMS",
+   "m2": 34,
+   "length": 8.0,
+   "width": 4.3,
+   "height": 2.6,
+   "capacity": {
+    "theater": 20,
+    "classroom": 8,
+    "cabaret": 6,
+    "boardroom": 16,
+    "ushape": 8,
+    "banquet10": 20,
+    "banquet11": 22,
+    "cocktail": 30,
+    "coffeeBreak": 30
+   },
+   "doors": [
+    "M2-m219/door"
+   ],
+   "rect": [
+    77.8,
+    145.32,
+    82.24,
+    153.03
+   ]
+  },
+  "M2-m219+m220": {
+   "level": "M2",
+   "name": "M219+M220",
+   "group": "COMBINATIONS",
+   "m2": 69,
+   "length": 8.0,
+   "width": 9.0,
+   "height": 2.6,
+   "capacity": {
+    "theater": 42,
+    "classroom": 24,
+    "cabaret": 12,
+    "boardroom": 24,
+    "ushape": 16,
+    "banquet10": 30,
+    "banquet11": 33,
+    "cocktail": 60,
+    "coffeeBreak": 60
+   },
+   "doors": [
+    "M2-m219/door",
+    "M2-m220/door"
+   ],
+   "rect": [
+    73.36,
+    145.32,
+    82.24,
+    153.03
+   ]
+  },
+  "M2-m220": {
+   "level": "M2",
+   "name": "M220",
+   "group": "MEETING ROOMS",
+   "m2": 34,
+   "length": 8.0,
+   "width": 4.3,
+   "height": 2.6,
+   "capacity": {
+    "theater": 20,
+    "classroom": 8,
+    "cabaret": 6,
+    "boardroom": 16,
+    "ushape": 8,
+    "banquet10": 20,
+    "banquet11": 22,
+    "cocktail": 30,
+    "coffeeBreak": 30
+   },
+   "doors": [
+    "M2-m220/door"
+   ],
+   "rect": [
+    73.36,
+    145.32,
+    77.8,
+    153.03
+   ]
+  },
+  "M2-m221": {
+   "level": "M2",
+   "name": "M221",
+   "group": "MEETING ROOMS",
+   "m2": 34,
+   "length": 8.0,
+   "width": 4.3,
+   "height": 2.6,
+   "capacity": {
+    "theater": 20,
+    "classroom": 8,
+    "cabaret": 6,
+    "boardroom": 16,
+    "ushape": 8,
+    "banquet10": 20,
+    "banquet11": 22,
+    "cocktail": 30,
+    "coffeeBreak": 30
+   },
+   "doors": [
+    "M2-m221/door"
+   ],
+   "rect": [
+    68.92,
+    145.32,
+    73.36,
+    153.03
+   ]
+  },
+  "P0-access-a": {
+   "level": "P0",
+   "name": "Access A",
+   "doors": [
+    "P0-access-a/door"
+   ]
+  },
+  "P0-area-1": {
+   "level": "P0",
+   "name": "Area 1",
+   "group": "MULTIPURPOSE ROOM",
+   "m2": 3476,
+   "length": 45.8,
+   "width": 75.9,
+   "height": 11.5,
+   "capacity": {
+    "theater": 3738,
+    "classroom": 1896,
+    "banquet10": 2060,
+    "banquet11": 2266,
+    "buffet10": 1690,
+    "buffet11": 1859,
+    "cocktail": 3000,
+    "coffeeBreak": 3000
+   },
+   "rect": [
+    40.79,
+    60.11,
+    86.33,
+    135.85
+   ]
+  },
+  "P0-area-2": {
+   "level": "P0",
+   "name": "Area 2",
+   "group": "MULTIPURPOSE ROOM",
+   "m2": 1130,
+   "length": 14.9,
+   "width": 75.9,
+   "height": 11.5,
+   "capacity": {
+    "theater": 1008,
+    "classroom": 484,
+    "banquet10": 530,
+    "banquet11": 583,
+    "buffet10": 380,
+    "buffet11": 418,
+    "cocktail": 800,
+    "coffeeBreak": 800
+   },
+   "rect": [
+    86.33,
+    60.11,
+    101.67,
+    135.85
+   ]
+  },
+  "P0-area-3": {
+   "level": "P0",
+   "name": "Area 3",
+   "group": "MULTIPURPOSE ROOM",
+   "m2": 2175,
+   "length": 28.7,
+   "width": 75.9,
+   "height": 11.5,
+   "capacity": {
+    "theater": 2256,
+    "classroom": 1012,
+    "banquet10": 1290,
+    "banquet11": 1419,
+    "buffet10": 950,
+    "buffet11": 1045,
+    "cocktail": 2000,
+    "coffeeBreak": 2000
+   },
+   "rect": [
+    101.67,
+    60.11,
+    130.17,
+    135.85
+   ]
+  },
+  "P0-area-4": {
+   "level": "P0",
+   "name": "Area 4",
+   "group": "MULTIPURPOSE ROOM",
+   "m2": 1130,
+   "length": 14.9,
+   "width": 75.9,
+   "height": 5.7,
+   "capacity": {
+    "theater": 988,
+    "classroom": 484,
+    "banquet10": 530,
+    "banquet11": 583,
+    "buffet10": 380,
+    "buffet11": 418,
+    "cocktail": 760,
+    "coffeeBreak": 760
+   },
+   "rect": [
+    130.17,
+    60.11,
+    145.08,
+    135.85
+   ]
+  },
+  "P0-area-5": {
+   "level": "P0",
+   "name": "Area 5",
+   "group": "MULTIPURPOSE ROOM",
+   "m2": 1133,
+   "length": 29.9,
+   "width": 37.9,
+   "height": 5.7,
+   "capacity": {
+    "theater": 600,
+    "classroom": 492,
+    "banquet10": 630,
+    "banquet11": 693,
+    "buffet10": 450,
+    "buffet11": 495,
+    "cocktail": 600,
+    "coffeeBreak": 600
+   },
+   "rect": [
+    145.08,
+    60.11,
+    175.04,
+    97.64
+   ]
+  },
+  "P0-area-6": {
+   "level": "P0",
+   "name": "Area 6",
+   "group": "MULTIPURPOSE ROOM",
+   "m2": 568,
+   "length": 15.0,
+   "width": 37.9,
+   "height": 5.7,
+   "capacity": {
+    "theater": 469,
+    "classroom": 224,
+    "banquet10": 250,
+    "banquet11": 275,
+    "buffet10": 180,
+    "buffet11": 198,
+    "cocktail": 350,
+    "coffeeBreak": 350
+   },
+   "rect": [
+    175.04,
+    60.11,
+    189.97,
+    97.64
+   ]
+  },
+  "P0-area-7": {
+   "level": "P0",
+   "name": "Area 7",
+   "group": "MULTIPURPOSE ROOM",
+   "m2": 1133,
+   "length": 29.9,
+   "width": 37.9,
+   "height": 5.7,
+   "capacity": {
+    "theater": 1038,
+    "classroom": 484,
+    "banquet10": 610,
+    "banquet11": 671,
+    "buffet10": 440,
+    "buffet11": 484,
+    "cocktail": 980,
+    "coffeeBreak": 980
+   },
+   "rect": [
+    145.08,
+    97.65,
+    175.04,
+    135.85
+   ]
+  },
+  "P0-area-8": {
+   "level": "P0",
+   "name": "Area 8",
+   "group": "MULTIPURPOSE ROOM",
+   "m2": 568,
+   "length": 15.0,
+   "width": 37.9,
+   "height": 5.7,
+   "capacity": {
+    "theater": 469,
+    "classroom": 224,
+    "banquet10": 250,
+    "banquet11": 275,
+    "buffet10": 180,
+    "buffet11": 198,
+    "cocktail": 350,
+    "coffeeBreak": 350
+   },
+   "rect": [
+    175.04,
+    97.65,
+    189.97,
+    135.85
+   ]
+  },
+  "P0-areas-1+2": {
+   "level": "P0",
+   "name": "Areas 1+2",
+   "group": "COMBINATIONS",
+   "m2": 4610,
+   "length": 60.8,
+   "width": 75.9,
+   "height": 11.5,
+   "capacity": {
+    "theater": 5000,
+    "classroom": 2570,
+    "banquet10": 2070,
+    "banquet11": 2277,
+    "buffet10": 1690,
+    "buffet11": 1859,
+    "cocktail": 3800,
+    "coffeeBreak": 3800
+   },
+   "rect": [
+    40.79,
+    60.11,
+    101.67,
+    135.85
+   ]
+  },
+  "P0-areas-1+2+3": {
+   "level": "P0",
+   "name": "Areas 1+2+3",
+   "group": "COMBINATIONS",
+   "m2": 6793,
+   "length": 89.6,
+   "width": 75.9,
+   "height": 11.5,
+   "capacity": {
+    "theater": 5000,
+    "classroom": 4108,
+    "banquet10": 3590,
+    "banquet11": 3949,
+    "buffet10": 2820,
+    "buffet11": 3102,
+    "cocktail": 5000,
+    "coffeeBreak": 5000
+   },
+   "doors": [
+    "P0-areas-1+2+3/door1",
+    "P0-areas-1+2+3/door2",
+    "P0-areas-1+2+3/door3"
+   ],
+   "rect": [
+    40.79,
+    60.11,
+    130.17,
+    135.85
+   ]
+  },
+  "P0-areas-1+2+3+4": {
+   "level": "P0",
+   "name": "Areas 1+2+3+4",
+   "group": "COMBINATIONS",
+   "m2": 7932,
+   "length": 104.6,
+   "width": 75.9,
+   "height": [
+    11.5,
+    5.7
+   ],
+   "capacity": {
+    "theater": 7000,
+    "classroom": 4852,
+    "banquet10": 4350,
+    "banquet11": 4785,
+    "buffet10": 3410,
+    "buffet11": 3751,
+    "cocktail": 6560,
+    "coffeeBreak": 6560
+   },
+   "rect": [
+    40.79,
+    60.11,
+    145.08,
+    135.85
+   ]
+  },
+  "P0-areas-1+2+3+4+5+6+7+8": {
+   "level": "P0",
+   "name": "Areas 1+2+3+4+5+6+7+8",
+   "group": "MULTIPURPOSE ROOM",
+   "m2": 11340,
+   "length": 149.7,
+   "width": 75.9,
+   "height": [
+    11.5,
+    5.7
+   ],
+   "capacity": {
+    "theater": 10000,
+    "classroom": 7016
+   },
+   "rect": [
+    40.79,
+    60.11,
+    189.97,
+    135.85
+   ]
+  },
+  "P0-areas-1+2+3+4+5+7": {
+   "level": "P0",
+   "name": "Areas 1+2+3+4+5+7",
+   "group": "COMBINATIONS",
+   "m2": 10209,
+   "length": 134.6,
+   "width": 75.9,
+   "height": [
+    11.5,
+    5.7
+   ],
+   "capacity": {
+    "theater": 8700,
+    "classroom": 6288,
+    "banquet10": 5840,
+    "banquet11": 6424,
+    "buffet10": 4520,
+    "buffet11": 4972,
+    "cocktail": 8520,
+    "coffeeBreak": 8520
+   },
+   "rect": [
+    40.79,
+    60.11,
+    175.04,
+    135.85
+   ]
+  },
+  "P0-areas-2+3": {
+   "level": "P0",
+   "name": "Areas 2+3",
+   "group": "COMBINATIONS",
+   "m2": 3312,
+   "length": 43.7,
+   "width": 75.9,
+   "height": 11.5,
+   "capacity": {
+    "theater": 2400,
+    "classroom": 1908,
+    "banquet10": 2090,
+    "banquet11": 2299,
+    "buffet10": 1520,
+    "buffet11": 1672,
+    "cocktail": 2400,
+    "coffeeBreak": 2400
+   },
+   "rect": [
+    86.33,
+    60.11,
+    130.17,
+    135.85
+   ]
+  },
+  "P0-areas-2+3+4": {
+   "level": "P0",
+   "name": "Areas 2+3+4",
+   "group": "COMBINATIONS",
+   "m2": 4452,
+   "length": 58.7,
+   "width": 75.9,
+   "height": 11.5,
+   "capacity": {
+    "theater": 4800,
+    "classroom": 2292,
+    "banquet10": 2850,
+    "banquet11": 3135,
+    "buffet10": 2280,
+    "buffet11": 2508,
+    "cocktail": 3560,
+    "coffeeBreak": 3560
+   },
+   "rect": [
+    86.33,
+    60.11,
+    145.08,
+    135.85
+   ]
+  },
+  "P0-areas-2+3+4+5+6+7+8": {
+   "level": "P0",
+   "name": "Areas 2+3+4+5+6+7+8",
+   "group": "COMBINATIONS",
+   "m2": 7850,
+   "length": 103.8,
+   "width": 75.9,
+   "height": [
+    11.5,
+    5.7
+   ],
+   "capacity": {
+    "theater": 7600,
+    "classroom": 4856
+   },
+   "rect": [
+    86.33,
+    60.11,
+    189.97,
+    135.85
+   ]
+  },
+  "P0-areas-2+3+4+5+7": {
+   "level": "P0",
+   "name": "Areas 2+3+4+5+7",
+   "group": "COMBINATIONS",
+   "m2": 6729,
+   "length": 88.7,
+   "width": 75.9,
+   "height": [
+    11.5,
+    5.7
+   ],
+   "capacity": {
+    "theater": 6300,
+    "classroom": 4032,
+    "banquet10": 4340,
+    "banquet11": 4774,
+    "buffet10": 3390,
+    "buffet11": 3729,
+    "cocktail": 5520,
+    "coffeeBreak": 5520
+   },
+   "rect": [
+    86.33,
+    60.11,
+    175.04,
+    135.85
+   ]
+  },
+  "P0-areas-3+4": {
+   "level": "P0",
+   "name": "Areas 3+4",
+   "group": "COMBINATIONS",
+   "m2": 3314,
+   "length": 43.7,
+   "width": 75.9,
+   "height": [
+    11.5,
+    5.7
+   ],
+   "capacity": {
+    "theater": 2600,
+    "classroom": 1908,
+    "banquet10": 2090,
+    "banquet11": 2299,
+    "buffet10": 1520,
+    "buffet11": 1672,
+    "cocktail": 2600,
+    "coffeeBreak": 2600
+   },
+   "rect": [
+    101.67,
+    60.11,
+    145.08,
+    135.85
+   ]
+  },
+  "P0-areas-3+4+5+6+7+8": {
+   "level": "P0",
+   "name": "Areas 3+4+5+6+7+8",
+   "group": "COMBINATIONS",
+   "m2": 6712,
+   "length": 88.8,
+   "width": 75.9,
+   "height": [
+    11.5,
+    5.7
+   ],
+   "capacity": {
+    "theater": 5700,
+    "classroom": 3924
+   },
+   "rect": [
+    101.67,
+    60.11,
+    189.97,
+    135.85
+   ]
+  },
+  "P0-areas-3+4+5+7": {
+   "level": "P0",
+   "name": "Areas 3+4+5+7",
+   "group": "COMBINATIONS",
+   "m2": 5591,
+   "length": 73.7,
+   "width": 75.9,
+   "height": [
+    11.5,
+    5.7
+   ],
+   "capacity": {
+    "theater": 5200,
+    "classroom": 3404,
+    "banquet10": 3580,
+    "banquet11": 3938,
+    "buffet10": 2820,
+    "buffet11": 3102,
+    "cocktail": 4720,
+    "coffeeBreak": 4720
+   },
+   "rect": [
+    101.67,
+    60.11,
+    175.04,
+    135.85
+   ]
+  },
+  "P0-areas-4+5+6+7+8": {
+   "level": "P0",
+   "name": "Areas 4+5+6+7+8",
+   "group": "COMBINATIONS",
+   "m2": 4530,
+   "length": 60.1,
+   "width": 75.9,
+   "height": 5.7,
+   "capacity": {
+    "theater": 5290,
+    "classroom": 2598,
+    "banquet10": 2820,
+    "banquet11": 3102,
+    "buffet10": 2270,
+    "buffet11": 2497,
+    "cocktail": 3420,
+    "coffeeBreak": 3420
+   },
+   "rect": [
+    130.17,
+    60.11,
+    189.97,
+    135.85
+   ]
+  },
+  "P0-areas-4+5+7": {
+   "level": "P0",
+   "name": "Areas 4+5+7",
+   "group": "COMBINATIONS",
+   "m2": 3408,
+   "length": 44.9,
+   "width": 75.9,
+   "height": 5.7,
+   "capacity": {
+    "theater": 3800,
+    "classroom": 1896,
+    "banquet10": 2060,
+    "banquet11": 2266,
+    "buffet10": 1700,
+    "buffet11": 1870,
+    "cocktail": 2720,
+    "coffeeBreak": 2720
+   },
+   "rect": [
+    130.17,
+    60.11,
+    175.04,
+    135.85
+   ]
+  },
+  "P0-areas-5+6": {
+   "level": "P0",
+   "name": "Areas 5+6",
+   "group": "COMBINATIONS",
+   "m2": 1693,
+   "length": 45.0,
+   "width": 37.9,
+   "height": 5.7,
+   "capacity": {
+    "theater": 1500,
+    "classroom": 828,
+    "banquet10": 990,
+    "banquet11": 1089,
+    "buffet10": 810,
+    "buffet11": 891,
+    "cocktail": 1330,
+    "coffeeBreak": 1330
+   },
+   "rect": [
+    145.08,
+    60.11,
+    189.97,
+    97.64
+   ]
+  },
+  "P0-areas-5+6+7+8": {
+   "level": "P0",
+   "name": "Areas 5+6+7+8",
+   "group": "COMBINATIONS",
+   "m2": 3390,
+   "length": 45.0,
+   "width": 75.9,
+   "height": 5.7,
+   "capacity": {
+    "theater": 3678,
+    "classroom": 1898,
+    "banquet10": 2070,
+    "banquet11": 2277,
+    "buffet10": 1690,
+    "buffet11": 1859,
+    "cocktail": 2660,
+    "coffeeBreak": 2660
+   },
+   "rect": [
+    145.08,
+    60.11,
+    189.97,
+    135.85
+   ]
+  },
+  "P0-areas-5+7": {
+   "level": "P0",
+   "name": "Areas 5+7",
+   "group": "COMBINATIONS",
+   "m2": 2269,
+   "length": 29.9,
+   "width": 75.9,
+   "height": 5.7,
+   "capacity": {
+    "theater": 2358,
+    "classroom": 1132,
+    "banquet10": 1310,
+    "banquet11": 1441,
+    "buffet10": 940,
+    "buffet11": 1034,
+    "cocktail": 1960,
+    "coffeeBreak": 1960
+   },
+   "rect": [
+    145.08,
+    60.11,
+    175.04,
+    135.85
+   ]
+  },
+  "P0-areas-7+8": {
+   "level": "P0",
+   "name": "Areas 7+8",
+   "group": "COMBINATIONS",
+   "m2": 1700,
+   "length": 45.0,
+   "width": 37.9,
+   "height": 5.7,
+   "capacity": {
+    "theater": 1588,
+    "classroom": 818,
+    "banquet10": 970,
+    "banquet11": 1067,
+    "buffet10": 790,
+    "buffet11": 869,
+    "cocktail": 1330,
+    "coffeeBreak": 1330
+   },
+   "rect": [
+    145.08,
+    97.65,
+    189.97,
+    135.85
+   ]
+  },
+  "P0-entrance-hall": {
+   "level": "P0",
+   "name": "Entrance Hall",
+   "m2": 3760,
+   "length": 119.1,
+   "width": 28.9,
+   "height": [
+    5.5,
+    3.31
+   ],
+   "doors": [
+    "P0-entrance-hall/door"
+   ],
+   "rect": [
+    56.32,
+    152.55,
+    176.35,
+    181.39
+   ],
+   "rectEstimate": true
+  },
+  "P1-111": {
+   "level": "P1",
+   "name": "111",
+   "group": "MEETING ROOMS",
+   "m2": 420,
+   "length": 28.0,
+   "width": 14.4,
+   "height": 5.7,
+   "capacity": {
+    "theater": 360,
+    "classroom": 180,
+    "cabaret": 138,
+    "ushape": 70,
+    "banquet10": 280,
+    "banquet11": 308,
+    "buffet10": 200,
+    "buffet11": 220,
+    "cocktail": 350,
+    "coffeeBreak": 350
+   },
+   "doors": [
+    "P1-111/door"
+   ],
+   "rect": [
+    175.63,
+    152.51,
+    190.23,
+    180.61
+   ]
+  },
+  "P1-111+112": {
+   "level": "P1",
+   "name": "111+112",
+   "group": "MAIN COMBINATIONS",
+   "m2": 1274,
+   "length": 28.0,
+   "width": 44.4,
+   "height": 5.7,
+   "capacity": {
+    "theater": 1000,
+    "classroom": 608,
+    "cabaret": 414,
+    "banquet10": 680,
+    "banquet11": 748,
+    "buffet10": 540,
+    "buffet11": 594,
+    "cocktail": 1000,
+    "coffeeBreak": 1000
+   },
+   "doors": [
+    "P1-111/door",
+    "P1-112/door"
+   ],
+   "rect": [
+    145.62,
+    152.51,
+    190.23,
+    180.61
+   ]
+  },
+  "P1-112": {
+   "level": "P1",
+   "name": "112",
+   "group": "MEETING ROOMS",
+   "m2": 844,
+   "length": 28.0,
+   "width": 29.6,
+   "height": 5.7,
+   "capacity": {
+    "theater": 700,
+    "classroom": 370,
+    "cabaret": 240,
+    "ushape": 90,
+    "banquet10": 550,
+    "banquet11": 605,
+    "buffet10": 400,
+    "buffet11": 440,
+    "cocktail": 700,
+    "coffeeBreak": 700
+   },
+   "doors": [
+    "P1-112/door"
+   ],
+   "rect": [
+    145.62,
+    152.51,
+    175.63,
+    180.61
+   ]
+  },
+  "P1-113": {
+   "level": "P1",
+   "name": "113",
+   "group": "MEETING ROOMS",
+   "m2": 430,
+   "length": 28.3,
+   "width": 14.4,
+   "height": 5.7,
+   "capacity": {
+    "theater": 367,
+    "classroom": 180,
+    "cabaret": 138,
+    "ushape": 70,
+    "banquet10": 280,
+    "banquet11": 308,
+    "buffet10": 200,
+    "buffet11": 220,
+    "cocktail": 350,
+    "coffeeBreak": 350
+   },
+   "doors": [
+    "P1-113/door"
+   ],
+   "rect": [
+    115.3,
+    152.51,
+    130.06,
+    180.61
+   ]
+  },
+  "P1-113+114": {
+   "level": "P1",
+   "name": "113+114",
+   "group": "OTHER COMBINATIONS",
+   "m2": 837,
+   "length": 28.0,
+   "width": 29.6,
+   "height": 5.7,
+   "capacity": {
+    "theater": 740,
+    "classroom": 372,
+    "cabaret": 240,
+    "banquet10": 550,
+    "banquet11": 605,
+    "buffet10": 400,
+    "buffet11": 440,
+    "cocktail": 800,
+    "coffeeBreak": 800
+   },
+   "doors": [
+    "P1-113/door",
+    "P1-114/door"
+   ],
+   "rect": [
+    100.54,
+    152.51,
+    130.06,
+    180.61
+   ]
+  },
+  "P1-113+114+115": {
+   "level": "P1",
+   "name": "113+114+115",
+   "group": "OTHER COMBINATIONS",
+   "m2": 1260,
+   "length": 28.0,
+   "width": 44.6,
+   "height": 5.7,
+   "capacity": {
+    "theater": 1101,
+    "classroom": 602,
+    "cabaret": 408,
+    "banquet10": 830,
+    "banquet11": 913,
+    "buffet10": 640,
+    "buffet11": 704,
+    "cocktail": 1100,
+    "coffeeBreak": 1100
+   },
+   "doors": [
+    "P1-113/door",
+    "P1-114/door",
+    "P1-115/door"
+   ],
+   "rect": [
+    85.78,
+    152.51,
+    130.06,
+    180.61
+   ]
+  },
+  "P1-113+114+115+116": {
+   "level": "P1",
+   "name": "113+114+115+116",
+   "group": "OTHER COMBINATIONS",
+   "m2": 1684,
+   "length": 28.0,
+   "width": 59.6,
+   "height": 5.7,
+   "capacity": {
+    "theater": 1468,
+    "classroom": 840,
+    "cabaret": 576,
+    "banquet10": 1110,
+    "banquet11": 1221,
+    "buffet10": 810,
+    "buffet11": 891,
+    "cocktail": 1470,
+    "coffeeBreak": 1470
+   },
+   "doors": [
+    "P1-113/door",
+    "P1-114/door",
+    "P1-115/door",
+    "P1-116/door"
+   ],
+   "rect": [
+    71.02,
+    152.51,
+    130.06,
+    180.61
+   ]
+  },
+  "P1-113+114+115+116+117": {
+   "level": "P1",
+   "name": "113+114+115+116+117",
+   "group": "MAIN COMBINATIONS",
+   "m2": 2584,
+   "length": 28.0,
+   "width": 89.4,
+   "height": 5.7,
+   "capacity": {
+    "theater": 2249,
+    "classroom": 1316
+   },
+   "doors": [
+    "P1-113/door",
+    "P1-114/door",
+    "P1-115/door",
+    "P1-116/door",
+    "P1-117/door"
+   ],
+   "rect": [
+    40.88,
+    152.51,
+    130.06,
+    180.61
+   ]
+  },
+  "P1-114": {
+   "level": "P1",
+   "name": "114",
+   "group": "MEETING ROOMS",
+   "m2": 420,
+   "length": 28.3,
+   "width": 14.4,
+   "height": 5.7,
+   "capacity": {
+    "theater": 367,
+    "classroom": 180,
+    "cabaret": 138,
+    "ushape": 70,
+    "banquet10": 260,
+    "banquet11": 286,
+    "buffet10": 200,
+    "buffet11": 220,
+    "cocktail": 350,
+    "coffeeBreak": 350
+   },
+   "doors": [
+    "P1-114/door"
+   ],
+   "rect": [
+    100.54,
+    152.51,
+    115.3,
+    180.61
+   ]
+  },
+  "P1-114+115": {
+   "level": "P1",
+   "name": "114+115",
+   "group": "OTHER COMBINATIONS",
+   "m2": 837,
+   "length": 28.0,
+   "width": 29.9,
+   "height": 5.7,
+   "capacity": {
+    "theater": 738,
+    "classroom": 372,
+    "cabaret": 282,
+    "banquet10": 540,
+    "banquet11": 594,
+    "buffet10": 390,
+    "buffet11": 429,
+    "cocktail": 800,
+    "coffeeBreak": 800
+   },
+   "doors": [
+    "P1-114/door",
+    "P1-115/door"
+   ],
+   "rect": [
+    85.78,
+    152.51,
+    115.3,
+    180.61
+   ]
+  },
+  "P1-114+115+116": {
+   "level": "P1",
+   "name": "114+115+116",
+   "group": "OTHER COMBINATIONS",
+   "m2": 1260,
+   "length": 28.0,
+   "width": 44.6,
+   "height": 5.7,
+   "capacity": {
+    "theater": 1101,
+    "classroom": 602,
+    "cabaret": 408,
+    "banquet10": 830,
+    "banquet11": 913,
+    "buffet10": 630,
+    "buffet11": 693,
+    "cocktail": 1100,
+    "coffeeBreak": 1100
+   },
+   "doors": [
+    "P1-114/door",
+    "P1-115/door",
+    "P1-116/door"
+   ],
+   "rect": [
+    71.02,
+    152.51,
+    115.3,
+    180.61
+   ]
+  },
+  "P1-114+115+116+117": {
+   "level": "P1",
+   "name": "114+115+116+117",
+   "group": "OTHER COMBINATIONS",
+   "m2": 2089,
+   "length": 28.0,
+   "width": 74.6,
+   "height": 5.7,
+   "capacity": {
+    "theater": 1882,
+    "classroom": 1078,
+    "cabaret": 744,
+    "banquet10": 1390,
+    "banquet11": 1529,
+    "buffet10": 1050,
+    "buffet11": 1155,
+    "cocktail": 1900,
+    "coffeeBreak": 1900
+   },
+   "doors": [
+    "P1-114/door",
+    "P1-115/door",
+    "P1-116/door",
+    "P1-117/door"
+   ],
+   "rect": [
+    40.88,
+    152.51,
+    115.3,
+    180.61
+   ]
+  },
+  "P1-115": {
+   "level": "P1",
+   "name": "115",
+   "group": "MEETING ROOMS",
+   "m2": 420,
+   "length": 28.3,
+   "width": 14.4,
+   "height": 5.7,
+   "capacity": {
+    "theater": 367,
+    "classroom": 180,
+    "cabaret": 138,
+    "ushape": 70,
+    "banquet10": 260,
+    "banquet11": 286,
+    "buffet10": 200,
+    "buffet11": 220,
+    "cocktail": 350,
+    "coffeeBreak": 350
+   },
+   "doors": [
+    "P1-115/door"
+   ],
+   "rect": [
+    85.78,
+    152.51,
+    100.54,
+    180.61
+   ]
+  },
+  "P1-115+116": {
+   "level": "P1",
+   "name": "115+116",
+   "group": "OTHER COMBINATIONS",
+   "m2": 837,
+   "length": 28.0,
+   "width": 29.9,
+   "height": 5.7,
+   "capacity": {
+    "theater": 740,
+    "classroom": 372,
+    "cabaret": 240,
+    "banquet10": 540,
+    "banquet11": 594,
+    "buffet10": 390,
+    "buffet11": 429,
+    "cocktail": 800,
+    "coffeeBreak": 800
+   },
+   "doors": [
+    "P1-115/door",
+    "P1-116/door"
+   ],
+   "rect": [
+    71.02,
+    152.51,
+    100.54,
+    180.61
+   ]
+  },
+  "P1-115+116+117": {
+   "level": "P1",
+   "name": "115+116+117",
+   "group": "OTHER COMBINATIONS",
+   "m2": 1669,
+   "length": 28.0,
+   "width": 59.6,
+   "height": 5.7,
+   "capacity": {
+    "theater": 1515,
+    "classroom": 840,
+    "cabaret": 576,
+    "banquet10": 1110,
+    "banquet11": 1221,
+    "buffet10": 810,
+    "buffet11": 891,
+    "cocktail": 1500,
+    "coffeeBreak": 1500
+   },
+   "doors": [
+    "P1-115/door",
+    "P1-116/door",
+    "P1-117/door"
+   ],
+   "rect": [
+    40.88,
+    152.51,
+    100.54,
+    180.61
+   ]
+  },
+  "P1-116": {
+   "level": "P1",
+   "name": "116",
+   "group": "MEETING ROOMS",
+   "m2": 420,
+   "length": 28.3,
+   "width": 14.4,
+   "height": 5.7,
+   "capacity": {
+    "theater": 367,
+    "classroom": 180,
+    "cabaret": 138,
+    "ushape": 70,
+    "banquet10": 260,
+    "banquet11": 286,
+    "buffet10": 200,
+    "buffet11": 220,
+    "cocktail": 350,
+    "coffeeBreak": 350
+   },
+   "doors": [
+    "P1-116/door"
+   ],
+   "rect": [
+    71.02,
+    152.51,
+    85.78,
+    180.61
+   ]
+  },
+  "P1-116+117": {
+   "level": "P1",
+   "name": "116+117",
+   "group": "OTHER COMBINATIONS",
+   "m2": 1249,
+   "length": 28.0,
+   "width": 44.6,
+   "height": 5.7,
+   "capacity": {
+    "theater": 1150,
+    "classroom": 602,
+    "cabaret": 408,
+    "banquet10": 830,
+    "banquet11": 913,
+    "buffet10": 640,
+    "buffet11": 704,
+    "cocktail": 1100,
+    "coffeeBreak": 1100
+   },
+   "doors": [
+    "P1-116/door",
+    "P1-117/door"
+   ],
+   "rect": [
+    40.88,
+    152.51,
+    85.78,
+    180.61
+   ]
+  },
+  "P1-117": {
+   "level": "P1",
+   "name": "117",
+   "group": "MEETING ROOMS",
+   "m2": 878,
+   "length": 28.3,
+   "width": 29.4,
+   "height": 5.7,
+   "capacity": {
+    "theater": 781,
+    "classroom": 364,
+    "cabaret": 240,
+    "ushape": 90,
+    "banquet10": 550,
+    "banquet11": 605,
+    "buffet10": 400,
+    "buffet11": 440,
+    "cocktail": 700,
+    "coffeeBreak": 700
+   },
+   "doors": [
+    "P1-117/door"
+   ],
+   "rect": [
+    40.88,
+    152.51,
+    71.02,
+    180.61
+   ]
+  },
+  "P1-118": {
+   "level": "P1",
+   "name": "118",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-118/door"
+   ],
+   "rect": [
+    145.59,
+    119.7,
+    158.36,
+    127.29
+   ]
+  },
+  "P1-118+119": {
+   "level": "P1",
+   "name": "118+119",
+   "group": "COMBINATIONS",
+   "m2": 193,
+   "length": 12.8,
+   "width": 15.1,
+   "height": 3.7,
+   "capacity": {
+    "theater": 160,
+    "classroom": 74,
+    "cabaret": 48,
+    "boardroom": 40,
+    "ushape": 36,
+    "banquet10": 120,
+    "banquet11": 132,
+    "buffet10": 80,
+    "buffet11": 88,
+    "cocktail": 160,
+    "coffeeBreak": 160
+   },
+   "doors": [
+    "P1-118/door",
+    "P1-119/door"
+   ],
+   "rect": [
+    145.59,
+    112.11,
+    158.36,
+    127.29
+   ]
+  },
+  "P1-119": {
+   "level": "P1",
+   "name": "119",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-119/door"
+   ],
+   "rect": [
+    145.59,
+    112.11,
+    158.36,
+    119.7
+   ]
+  },
+  "P1-120": {
+   "level": "P1",
+   "name": "120",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-120/door"
+   ],
+   "rect": [
+    145.59,
+    104.52,
+    158.36,
+    112.11
+   ]
+  },
+  "P1-120+121": {
+   "level": "P1",
+   "name": "120+121",
+   "group": "COMBINATIONS",
+   "m2": 193,
+   "length": 12.8,
+   "width": 15.1,
+   "height": 3.7,
+   "capacity": {
+    "theater": 160,
+    "classroom": 74,
+    "cabaret": 48,
+    "boardroom": 40,
+    "ushape": 36,
+    "banquet10": 120,
+    "banquet11": 132,
+    "buffet10": 80,
+    "buffet11": 88,
+    "cocktail": 160,
+    "coffeeBreak": 160
+   },
+   "doors": [
+    "P1-120/door",
+    "P1-121/door"
+   ],
+   "rect": [
+    145.59,
+    96.93,
+    158.36,
+    112.11
+   ]
+  },
+  "P1-121": {
+   "level": "P1",
+   "name": "121",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-121/door"
+   ],
+   "rect": [
+    145.59,
+    96.93,
+    158.36,
+    104.52
+   ]
+  },
+  "P1-122": {
+   "level": "P1",
+   "name": "122",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-122/door"
+   ],
+   "rect": [
+    145.59,
+    89.34,
+    158.36,
+    96.93
+   ]
+  },
+  "P1-122+123": {
+   "level": "P1",
+   "name": "122+123",
+   "group": "COMBINATIONS",
+   "m2": 193,
+   "length": 12.8,
+   "width": 15.1,
+   "height": 3.7,
+   "capacity": {
+    "theater": 160,
+    "classroom": 74,
+    "cabaret": 48,
+    "boardroom": 40,
+    "ushape": 36,
+    "banquet10": 120,
+    "banquet11": 132,
+    "buffet10": 80,
+    "buffet11": 88,
+    "cocktail": 160,
+    "coffeeBreak": 160
+   },
+   "doors": [
+    "P1-122/door",
+    "P1-123/door"
+   ],
+   "rect": [
+    145.59,
+    81.74,
+    158.36,
+    96.93
+   ]
+  },
+  "P1-123": {
+   "level": "P1",
+   "name": "123",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-123/door"
+   ],
+   "rect": [
+    145.59,
+    81.74,
+    158.36,
+    89.34
+   ]
+  },
+  "P1-124": {
+   "level": "P1",
+   "name": "124",
+   "doors": [
+    "P1-124/door"
+   ],
+   "rect": [
+    145.59,
+    74.15,
+    158.36,
+    81.74
+   ]
+  },
+  "P1-124+125": {
+   "level": "P1",
+   "name": "124+125",
+   "group": "COMBINATIONS",
+   "m2": 193,
+   "length": 12.8,
+   "width": 15.1,
+   "height": 3.7,
+   "capacity": {
+    "theater": 160,
+    "classroom": 74,
+    "cabaret": 48,
+    "boardroom": 40,
+    "ushape": 36,
+    "banquet10": 120,
+    "banquet11": 132,
+    "buffet10": 80,
+    "buffet11": 88,
+    "cocktail": 160,
+    "coffeeBreak": 160
+   },
+   "doors": [
+    "P1-124/door",
+    "P1-125/door"
+   ],
+   "rect": [
+    145.59,
+    66.56,
+    158.36,
+    81.74
+   ]
+  },
+  "P1-125": {
+   "level": "P1",
+   "name": "125",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-125/door"
+   ],
+   "rect": [
+    145.59,
+    66.56,
+    158.36,
+    74.15
+   ]
+  },
+  "P1-127": {
+   "level": "P1",
+   "name": "127",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-127/door"
+   ],
+   "rect": [
+    177.21,
+    66.58,
+    189.98,
+    74.17
+   ]
+  },
+  "P1-127+128": {
+   "level": "P1",
+   "name": "127+128",
+   "group": "COMBINATIONS",
+   "m2": 193,
+   "length": 12.8,
+   "width": 15.1,
+   "height": 3.7,
+   "capacity": {
+    "theater": 160,
+    "classroom": 74,
+    "cabaret": 48,
+    "boardroom": 40,
+    "ushape": 36,
+    "banquet10": 120,
+    "banquet11": 132,
+    "buffet10": 80,
+    "buffet11": 88,
+    "cocktail": 160,
+    "coffeeBreak": 160
+   },
+   "doors": [
+    "P1-127/door",
+    "P1-128/door"
+   ],
+   "rect": [
+    177.21,
+    66.58,
+    189.98,
+    81.76
+   ]
+  },
+  "P1-128": {
+   "level": "P1",
+   "name": "128",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-128/door"
+   ],
+   "rect": [
+    177.21,
+    74.17,
+    189.98,
+    81.76
+   ]
+  },
+  "P1-129": {
+   "level": "P1",
+   "name": "129",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-129/door"
+   ],
+   "rect": [
+    177.21,
+    81.76,
+    189.98,
+    89.36
+   ]
+  },
+  "P1-129+130": {
+   "level": "P1",
+   "name": "129+130",
+   "group": "COMBINATIONS",
+   "m2": 193,
+   "length": 12.8,
+   "width": 15.1,
+   "height": 3.7,
+   "capacity": {
+    "theater": 160,
+    "classroom": 74,
+    "cabaret": 48,
+    "boardroom": 40,
+    "ushape": 36,
+    "banquet10": 120,
+    "banquet11": 132,
+    "buffet10": 80,
+    "buffet11": 88,
+    "cocktail": 160,
+    "coffeeBreak": 160
+   },
+   "doors": [
+    "P1-129/door",
+    "P1-130/door"
+   ],
+   "rect": [
+    177.21,
+    81.76,
+    189.98,
+    96.95
+   ]
+  },
+  "P1-130": {
+   "level": "P1",
+   "name": "130",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-130/door"
+   ],
+   "rect": [
+    177.21,
+    89.36,
+    189.98,
+    96.95
+   ]
+  },
+  "P1-131": {
+   "level": "P1",
+   "name": "131",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-131/door"
+   ],
+   "rect": [
+    177.21,
+    96.95,
+    189.98,
+    104.54
+   ]
+  },
+  "P1-131+132": {
+   "level": "P1",
+   "name": "131+132",
+   "group": "COMBINATIONS",
+   "m2": 193,
+   "length": 12.8,
+   "width": 15.1,
+   "height": 3.7,
+   "capacity": {
+    "theater": 160,
+    "classroom": 74,
+    "cabaret": 48,
+    "boardroom": 40,
+    "ushape": 36,
+    "banquet10": 120,
+    "banquet11": 132,
+    "buffet10": 80,
+    "buffet11": 88,
+    "cocktail": 160,
+    "coffeeBreak": 160
+   },
+   "doors": [
+    "P1-131/door",
+    "P1-132/door"
+   ],
+   "rect": [
+    177.21,
+    96.95,
+    189.98,
+    112.13
+   ]
+  },
+  "P1-132": {
+   "level": "P1",
+   "name": "132",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-132/door"
+   ],
+   "rect": [
+    177.21,
+    104.54,
+    189.98,
+    112.13
+   ]
+  },
+  "P1-133": {
+   "level": "P1",
+   "name": "133",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-133/door"
+   ],
+   "rect": [
+    177.21,
+    112.13,
+    189.98,
+    119.72
+   ]
+  },
+  "P1-133+134": {
+   "level": "P1",
+   "name": "133+134",
+   "group": "COMBINATIONS",
+   "m2": 193,
+   "length": 12.8,
+   "width": 15.1,
+   "height": 3.7,
+   "capacity": {
+    "theater": 160,
+    "classroom": 74,
+    "cabaret": 48,
+    "boardroom": 40,
+    "ushape": 36,
+    "banquet10": 120,
+    "banquet11": 132,
+    "buffet10": 80,
+    "buffet11": 88,
+    "cocktail": 160,
+    "coffeeBreak": 160
+   },
+   "doors": [
+    "P1-133/door",
+    "P1-134/door"
+   ],
+   "rect": [
+    177.21,
+    112.13,
+    189.98,
+    127.31
+   ]
+  },
+  "P1-134": {
+   "level": "P1",
+   "name": "134",
+   "group": "BICOLOR ROOMS",
+   "m2": 96,
+   "length": 12.8,
+   "width": 7.5,
+   "height": 3.7,
+   "capacity": {
+    "theater": 85,
+    "classroom": 40,
+    "cabaret": 24,
+    "boardroom": 28,
+    "ushape": 20,
+    "banquet10": 60,
+    "banquet11": 66,
+    "buffet10": 40,
+    "buffet11": 44,
+    "cocktail": 80,
+    "coffeeBreak": 80
+   },
+   "doors": [
+    "P1-134/door"
+   ],
+   "rect": [
+    177.21,
+    119.72,
+    189.98,
+    127.31
+   ]
+  },
+  "P1-foyer-1": {
+   "level": "P1",
+   "name": "Foyer 1",
+   "group": "MEETING ROOMS",
+   "m2": 1295,
+   "length": 133.5,
+   "width": 9.7,
+   "height": [
+    6.5,
+    2.6
+   ],
+   "capacity": {
+    "cocktail": 1200,
+    "coffeeBreak": 1200
+   }
+  },
+  "P1-foyer-2": {
+   "level": "P1",
+   "name": "Foyer 2",
+   "group": "BICOLOR ROOMS",
+   "m2": 1008,
+   "length": 84.0,
+   "width": 12.0,
+   "height": 3.73,
+   "capacity": {
+    "cocktail": 600,
+    "coffeeBreak": 600
+   }
+  },
+  "P1-patio": {
+   "level": "P1",
+   "name": "Patio",
+   "group": "PATIO",
+   "m2": 978,
+   "length": 70.6,
+   "width": 14.1,
+   "capacity": {
+    "theater": 494,
+    "banquet10": 450,
+    "banquet11": 494,
+    "buffet10": 390,
+    "buffet11": 429,
+    "cocktail": 494,
+    "coffeeBreak": 494
+   }
+  },
+  "P1-terrace-111": {
+   "level": "P1",
+   "name": "Terrace (111)",
+   "group": "TERRACE",
+   "m2": 322,
+   "length": 29.0,
+   "width": 9.2,
+   "capacity": {
+    "cocktail": 250,
+    "coffeeBreak": 300
+   }
+  },
+  "P1-terrace-127-134": {
+   "level": "P1",
+   "name": "Terrace (127-134)",
+   "group": "TERRACE",
+   "m2": 883,
+   "length": 89.7,
+   "width": 9.2
+  },
+  "P1-terrace-single-bicolor-127-134": {
+   "level": "P1",
+   "name": "Terrace (Single Bicolor 127-134)",
+   "group": "TERRACE",
+   "m2": 50,
+   "length": 7.58,
+   "width": 9.2
+  },
+  "P2-211": {
+   "level": "P2",
+   "name": "211",
+   "group": "MEETING ROOMS",
+   "m2": 863,
+   "length": 28.2,
+   "width": 29.6,
+   "height": 5.7,
+   "capacity": {
+    "theater": 700,
+    "classroom": 372,
+    "cabaret": 240,
+    "ushape": 90,
+    "banquet10": 550,
+    "banquet11": 605,
+    "buffet10": 400,
+    "buffet11": 440,
+    "cocktail": 700,
+    "coffeeBreak": 700
+   },
+   "doors": [
+    "P2-211/door"
+   ],
+   "rect": [
+    160.16,
+    153.84,
+    191.13,
+    182.15
+   ]
+  },
+  "P2-211+212": {
+   "level": "P2",
+   "name": "211+212",
+   "group": "MEETING ROOMS",
+   "m2": 1284,
+   "length": 28.2,
+   "width": 44.4,
+   "height": 5.7,
+   "capacity": {
+    "theater": 1000,
+    "classroom": 608,
+    "cabaret": 414,
+    "banquet10": 680,
+    "banquet11": 748,
+    "buffet10": 650,
+    "buffet11": 715,
+    "cocktail": 1000,
+    "coffeeBreak": 1200
+   },
+   "doors": [
+    "P2-211/door",
+    "P2-212/door"
+   ],
+   "rect": [
+    145.09,
+    153.84,
+    191.13,
+    182.15
+   ]
+  },
+  "P2-212": {
+   "level": "P2",
+   "name": "212",
+   "group": "MEETING ROOMS",
+   "m2": 420,
+   "length": 28.2,
+   "width": 14.4,
+   "height": 5.7,
+   "capacity": {
+    "theater": 360,
+    "classroom": 180,
+    "cabaret": 138,
+    "ushape": 70,
+    "banquet10": 280,
+    "banquet11": 308,
+    "buffet10": 200,
+    "buffet11": 220,
+    "cocktail": 400,
+    "coffeeBreak": 400
+   },
+   "doors": [
+    "P2-212/door"
+   ],
+   "rect": [
+    145.09,
+    153.84,
+    160.16,
+    182.15
+   ]
+  },
+  "P2-banquet-hall": {
+   "level": "P2",
+   "name": "Banquet Hall",
+   "m2": 1665,
+   "length": 75.5,
+   "width": 22.0,
+   "height": [
+    9.25,
+    5.6
+   ],
+   "capacity": {
+    "theater": 1200,
+    "classroom": 762,
+    "cabaret": 636,
+    "banquet10": 1000,
+    "banquet11": 1100,
+    "buffet10": 800,
+    "buffet11": 880,
+    "cocktail": 1200,
+    "coffeeBreak": 1200
+   },
+   "doors": [
+    "P2-banquet-hall/door1",
+    "P2-banquet-hall/door2",
+    "P2-banquet-hall/door3",
+    "P2-banquet-hall/door4",
+    "P2-banquet-hall/door5"
+   ],
+   "rect": [
+    54.59,
+    153.83,
+    130.55,
+    175.98
+   ]
+  },
+  "P2-foyer-a": {
+   "level": "P2",
+   "name": "Foyer A",
+   "m2": 790,
+   "length": 73.9,
+   "width": 9.7,
+   "height": 2.61,
+   "capacity": {
+    "cocktail": 800,
+    "coffeeBreak": 800
+   }
+  },
+  "P2-foyer-a+b": {
+   "level": "P2",
+   "name": "Foyer A+B",
+   "group": "MEETING ROOMS",
+   "m2": 1144,
+   "length": 102.8,
+   "width": 9.7,
+   "height": 2.61,
+   "capacity": {
+    "cocktail": 1200,
+    "coffeeBreak": 1200
+   }
+  },
+  "P2-foyer-b": {
+   "level": "P2",
+   "name": "Foyer B",
+   "group": "MEETING ROOMS",
+   "m2": 354,
+   "length": 28.9,
+   "width": 9.7,
+   "height": 2.61,
+   "capacity": {
+    "cocktail": 300,
+    "coffeeBreak": 300
+   }
+  },
+  "P2-terrace-banquet-hall": {
+   "level": "P2",
+   "name": "Terrace Banquet Hall",
+   "m2": 447,
+   "length": 75.5,
+   "width": 6.0,
+   "capacity": {
+    "cocktail": 300,
+    "coffeeBreak": 300
+   }
+  }
+ },
+ "corridors": [
+  {
+   "level": "P0",
+   "name": "Foyer 0",
+   "points": [
+    [
+     40.74,
+     145.15
+    ],
+    [
+     181.81,
+     145.15
+    ],
+    [
+     197.79,
+     160.74
+    ]
+   ]
+  },
+  {
+   "level": "M1",
+   "name": "Foyer M1",
+   "points": [
+    [
+     43.03,
+     143.55
+    ],
+    [
+     192.26,
+     143.55
+    ]
+   ]
+  },
+  {
+   "level": "P1",
+   "name": "Foyer 1",
+   "points": [
+    [
+     41.63,
+     144.45
+    ],
+    [
+     192.32,
+     144.45
+    ]
+   ]
+  },
+  {
+   "level": "P1",
+   "name": "Foyer 2",
+   "points": [
+    [
+     167.76,
+     66.61
+    ],
+    [
+     167.76,
+     144.45
+    ]
+   ]
+  },
+  {
+   "level": "M2",
+   "name": "Foyer M2",
+   "points": [
+    [
+     49.26,
+     143.29
+    ],
+    [
+     183.33,
+     143.29
+    ]
+   ]
+  },
+  {
+   "level": "P2",
+   "name": "Foyer A",
+   "points": [
+    [
+     48.66,
+     146.95
+    ],
+    [
+     143.49,
+     146.95
+    ]
+   ]
+  },
+  {
+   "level": "P2",
+   "name": "Foyer B",
+   "points": [
+    [
+     143.49,
+     146.95
+    ],
+    [
+     183.53,
+     146.95
+    ]
+   ]
+  }
+ ],
+ "nodes": {
+  "P0-access-a/door": {
+   "level": "P0",
+   "kind": "door",
+   "x": 197.79,
+   "y": 160.74,
+   "estimate": true
+  },
+  "P0-areas-1+2+3/door1": {
+   "level": "P0",
+   "kind": "door",
+   "x": 63.53,
+   "y": 135.83,
+   "estimate": true
+  },
+  "P0-areas-1+2+3/door2": {
+   "level": "P0",
+   "kind": "door",
+   "x": 94.01,
+   "y": 135.83,
+   "estimate": true
+  },
+  "P0-areas-1+2+3/door3": {
+   "level": "P0",
+   "kind": "door",
+   "x": 115.95,
+   "y": 135.83,
+   "estimate": true
+  },
+  "P0-entrance-hall/door": {
+   "level": "P0",
+   "kind": "door",
+   "x": 115.17,
+   "y": 166.58,
+   "estimate": true
+  },
+  "P0/elevator1": {
+   "level": "P0",
+   "kind": "elevator",
+   "x": 82.73,
+   "y": 143.21
+  },
+  "P0/elevator2": {
+   "level": "P0",
+   "kind": "elevator",
+   "x": 112.74,
+   "y": 143.39
+  },
+  "P0/elevator3": {
+   "level": "P0",
+   "kind": "elevator",
+   "x": 158.59,
+   "y": 142.97
+  },
+  "P0/escalator1": {
+   "level": "P0",
+   "kind": "escalator",
+   "x": 87.19,
+   "y": 149.58
+  },
+  "P0/escalator2": {
+   "level": "P0",
+   "kind": "escalator",
+   "x": 117.46,
+   "y": 149.73
+  },
+  "P0/escalator3": {
+   "level": "P0",
+   "kind": "escalator",
+   "x": 142.7,
+   "y": 149.78
+  },
+  "P0/escalator4": {
+   "level": "P0",
+   "kind": "escalator",
+   "x": 172.77,
+   "y": 167.81
+  },
+  "P0/escalator5": {
+   "level": "P0",
+   "kind": "escalator",
+   "x": 172.77,
+   "y": 171.51
+  },
+  "P0/wc1": {
+   "level": "P0",
+   "kind": "wc",
+   "x": 94.5,
+   "y": 150.05
+  },
+  "P0/wc2": {
+   "level": "P0",
+   "kind": "wc",
+   "x": 162.53,
+   "y": 150.01
+  },
+  "M1-vip-room/door": {
+   "level": "M1",
+   "kind": "door",
+   "x": 182.65,
+   "y": 157.35,
+   "estimate": true
+  },
+  "M1/elevator1": {
+   "level": "M1",
+   "kind": "elevator",
+   "x": 82.74,
+   "y": 143.19
+  },
+  "M1/elevator2": {
+   "level": "M1",
+   "kind": "elevator",
+   "x": 112.71,
+   "y": 143.19
+  },
+  "M1/elevator3": {
+   "level": "M1",
+   "kind": "elevator",
+   "x": 158.61,
+   "y": 143.19
+  },
+  "M1/escalator1": {
+   "level": "M1",
+   "kind": "escalator",
+   "x": 62.64,
+   "y": 143.02
+  },
+  "M1/escalator2": {
+   "level": "M1",
+   "kind": "escalator",
+   "x": 92.94,
+   "y": 143.02
+  },
+  "M1/escalator3": {
+   "level": "M1",
+   "kind": "escalator",
+   "x": 171.63,
+   "y": 145.0
+  },
+  "M1/wc1": {
+   "level": "M1",
+   "kind": "wc",
+   "x": 183.95,
+   "y": 155.55
+  },
+  "P1-111/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 182.86,
+   "y": 151.51
+  },
+  "P1-112/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 152.81,
+   "y": 151.51
+  },
+  "P1-113/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 122.89,
+   "y": 151.51
+  },
+  "P1-114/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 107.9,
+   "y": 151.51
+  },
+  "P1-115/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 92.92,
+   "y": 151.51
+  },
+  "P1-116/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 77.96,
+   "y": 151.51
+  },
+  "P1-117/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 62.98,
+   "y": 151.51
+  },
+  "P1-118/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 159.14,
+   "y": 123.58
+  },
+  "P1-119/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 159.14,
+   "y": 115.93
+  },
+  "P1-120/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 159.14,
+   "y": 108.35
+  },
+  "P1-121/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 159.14,
+   "y": 100.74
+  },
+  "P1-122/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 159.14,
+   "y": 93.13
+  },
+  "P1-123/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 159.14,
+   "y": 85.56
+  },
+  "P1-124/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 159.14,
+   "y": 77.94
+  },
+  "P1-125/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 159.14,
+   "y": 70.32
+  },
+  "P1-127/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 176.44,
+   "y": 70.31
+  },
+  "P1-128/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 176.44,
+   "y": 77.95
+  },
+  "P1-129/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 176.44,
+   "y": 85.57
+  },
+  "P1-130/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 176.44,
+   "y": 93.16
+  },
+  "P1-131/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 176.44,
+   "y": 100.76
+  },
+  "P1-132/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 176.44,
+   "y": 108.37
+  },
+  "P1-133/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 176.44,
+   "y": 115.95
+  },
+  "P1-134/door": {
+   "level": "P1",
+   "kind": "door",
+   "x": 176.44,
+   "y": 123.57
+  },
+  "P1/elevator1": {
+   "level": "P1",
+   "kind": "elevator",
+   "x": 82.52,
+   "y": 142.97
+  },
+  "P1/elevator2": {
+   "level": "P1",
+   "kind": "elevator",
+   "x": 113.08,
+   "y": 143.3
+  },
+  "P1/elevator3": {
+   "level": "P1",
+   "kind": "elevator",
+   "x": 158.46,
+   "y": 143.3
+  },
+  "P1/escalator1": {
+   "level": "P1",
+   "kind": "escalator",
+   "x": 62.67,
+   "y": 142.25
+  },
+  "P1/escalator2": {
+   "level": "P1",
+   "kind": "escalator",
+   "x": 92.84,
+   "y": 142.25
+  },
+  "P1/escalator3": {
+   "level": "P1",
+   "kind": "escalator",
+   "x": 158.32,
+   "y": 148.23
+  },
+  "P1/wc1": {
+   "level": "P1",
+   "kind": "wc",
+   "x": 47.82,
+   "y": 142.47
+  },
+  "P1/wc2": {
+   "level": "P1",
+   "kind": "wc",
+   "x": 164.09,
+   "y": 131.67
+  },
+  "P1/wc3": {
+   "level": "P1",
+   "kind": "wc",
+   "x": 171.59,
+   "y": 62.33
+  },
+  "P1/wc4": {
+   "level": "P1",
+   "kind": "wc",
+   "x": 171.59,
+   "y": 131.5
+  },
+  "M2-m211/door": {
+   "level": "M2",
+   "kind": "door",
+   "x": 156.68,
+   "y": 145.3
+  },
+  "M2-m212/door": {
+   "level": "M2",
+   "kind": "door",
+   "x": 148.91,
+   "y": 145.3
+  },
+  "M2-m213/door": {
+   "level": "M2",
+   "kind": "door",
+   "x": 126.72,
+   "y": 145.3
+  },
+  "M2-m214/door": {
+   "level": "M2",
+   "kind": "door",
+   "x": 119.08,
+   "y": 145.3
+  },
+  "M2-m215/door": {
+   "level": "M2",
+   "kind": "door",
+   "x": 111.56,
+   "y": 145.3
+  },
+  "M2-m216/door": {
+   "level": "M2",
+   "kind": "door",
+   "x": 106.15,
+   "y": 145.3
+  },
+  "M2-m217/door": {
+   "level": "M2",
+   "kind": "door",
+   "x": 101.98,
+   "y": 145.3
+  },
+  "M2-m218/door": {
+   "level": "M2",
+   "kind": "door",
+   "x": 85.11,
+   "y": 145.3
+  },
+  "M2-m219/door": {
+   "level": "M2",
+   "kind": "door",
+   "x": 80.14,
+   "y": 145.3
+  },
+  "M2-m220/door": {
+   "level": "M2",
+   "kind": "door",
+   "x": 76.06,
+   "y": 145.3
+  },
+  "M2-m221/door": {
+   "level": "M2",
+   "kind": "door",
+   "x": 71.71,
+   "y": 145.3
+  },
+  "M2/elevator1": {
+   "level": "M2",
+   "kind": "elevator",
+   "x": 82.61,
+   "y": 143.31
+  },
+  "M2/elevator2": {
+   "level": "M2",
+   "kind": "elevator",
+   "x": 112.93,
+   "y": 143.08
+  },
+  "M2/elevator3": {
+   "level": "M2",
+   "kind": "elevator",
+   "x": 158.52,
+   "y": 143.17
+  },
+  "M2/escalator1": {
+   "level": "M2",
+   "kind": "escalator",
+   "x": 62.67,
+   "y": 143.05
+  },
+  "M2/escalator2": {
+   "level": "M2",
+   "kind": "escalator",
+   "x": 92.67,
+   "y": 143.05
+  },
+  "M2/escalator3": {
+   "level": "M2",
+   "kind": "escalator",
+   "x": 171.83,
+   "y": 150.88
+  },
+  "M2/escalator4": {
+   "level": "M2",
+   "kind": "escalator",
+   "x": 172.47,
+   "y": 143.14
+  },
+  "M2/wc1": {
+   "level": "M2",
+   "kind": "wc",
+   "x": 52.17,
+   "y": 145.26
+  },
+  "M2/wc2": {
+   "level": "M2",
+   "kind": "wc",
+   "x": 180.75,
+   "y": 145.26
+  },
+  "P2-211/door": {
+   "level": "P2",
+   "kind": "door",
+   "x": 168.11,
+   "y": 152.84
+  },
+  "P2-212/door": {
+   "level": "P2",
+   "kind": "door",
+   "x": 152.81,
+   "y": 152.84
+  },
+  "P2-banquet-hall/door1": {
+   "level": "P2",
+   "kind": "door",
+   "x": 62.36,
+   "y": 152.84
+  },
+  "P2-banquet-hall/door2": {
+   "level": "P2",
+   "kind": "door",
+   "x": 77.77,
+   "y": 152.84
+  },
+  "P2-banquet-hall/door3": {
+   "level": "P2",
+   "kind": "door",
+   "x": 92.71,
+   "y": 152.84
+  },
+  "P2-banquet-hall/door4": {
+   "level": "P2",
+   "kind": "door",
+   "x": 107.65,
+   "y": 152.84
+  },
+  "P2-banquet-hall/door5": {
+   "level": "P2",
+   "kind": "door",
+   "x": 122.94,
+   "y": 152.84
+  },
+  "P2/elevator1": {
+   "level": "P2",
+   "kind": "elevator",
+   "x": 82.6,
+   "y": 143.19
+  },
+  "P2/elevator2": {
+   "level": "P2",
+   "kind": "elevator",
+   "x": 112.94,
+   "y": 143.19
+  },
+  "P2/elevator3": {
+   "level": "P2",
+   "kind": "elevator",
+   "x": 158.51,
+   "y": 143.19
+  },
+  "P2/escalator1": {
+   "level": "P2",
+   "kind": "escalator",
+   "x": 62.22,
+   "y": 143.79
+  },
+  "P2/escalator2": {
+   "level": "P2",
+   "kind": "escalator",
+   "x": 92.33,
+   "y": 143.79
+  },
+  "P2/escalator3": {
+   "level": "P2",
+   "kind": "escalator",
+   "x": 172.17,
+   "y": 143.79
+  },
+  "P2/wc1": {
+   "level": "P2",
+   "kind": "wc",
+   "x": 178.05,
+   "y": 144.78
+  },
+  "P0/corridor1": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 40.74,
+   "y": 145.15,
+   "name": "Foyer 0"
+  },
+  "P0/corridor2": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 63.53,
+   "y": 145.15,
+   "name": "Foyer 0",
+   "near": [
+    "P0-areas-1+2+3/door1"
+   ]
+  },
+  "P0/corridor3": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 82.73,
+   "y": 145.15,
+   "name": "Foyer 0",
+   "near": [
+    "P0/elevator1"
+   ]
+  },
+  "P0/corridor4": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 87.19,
+   "y": 145.15,
+   "name": "Foyer 0",
+   "near": [
+    "P0/escalator1"
+   ]
+  },
+  "P0/corridor5": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 94.01,
+   "y": 145.15,
+   "name": "Foyer 0",
+   "near": [
+    "P0-areas-1+2+3/door2"
+   ]
+  },
+  "P0/corridor6": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 94.5,
+   "y": 145.15,
+   "name": "Foyer 0",
+   "near": [
+    "P0/wc1"
+   ]
+  },
+  "P0/corridor7": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 112.74,
+   "y": 145.15,
+   "name": "Foyer 0",
+   "near": [
+    "P0/elevator2"
+   ]
+  },
+  "P0/corridor8": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 115.17,
+   "y": 145.15,
+   "name": "Foyer 0",
+   "near": [
+    "P0-entrance-hall/door"
+   ]
+  },
+  "P0/corridor9": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 115.95,
+   "y": 145.15,
+   "name": "Foyer 0",
+   "near": [
+    "P0-areas-1+2+3/door3"
+   ]
+  },
+  "P0/corridor10": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 117.46,
+   "y": 145.15,
+   "name": "Foyer 0",
+   "near": [
+    "P0/escalator2"
+   ]
+  },
+  "P0/corridor11": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 142.7,
+   "y": 145.15,
+   "name": "Foyer 0",
+   "near": [
+    "P0/escalator3"
+   ]
+  },
+  "P0/corridor12": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 158.59,
+   "y": 145.15,
+   "name": "Foyer 0",
+   "near": [
+    "P0/elevator3"
+   ]
+  },
+  "P0/corridor13": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 162.53,
+   "y": 145.15,
+   "name": "Foyer 0",
+   "near": [
+    "P0/wc2"
+   ]
+  },
+  "P0/corridor14": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 181.81,
+   "y": 145.15,
+   "name": "Foyer 0"
+  },
+  "P0/corridor15": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 188.51,
+   "y": 151.68,
+   "name": "Foyer 0",
+   "near": [
+    "P0/escalator4"
+   ]
+  },
+  "P0/corridor16": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 190.36,
+   "y": 153.49,
+   "name": "Foyer 0",
+   "near": [
+    "P0/escalator5"
+   ]
+  },
+  "P0/corridor17": {
+   "level": "P0",
+   "kind": "corridor",
+   "x": 197.79,
+   "y": 160.74,
+   "name": "Foyer 0",
+   "near": [
+    "P0-access-a/door"
+   ]
+  },
+  "M1/corridor1": {
+   "level": "M1",
+   "kind": "corridor",
+   "x": 43.03,
+   "y": 143.55,
+   "name": "Foyer M1"
+  },
+  "M1/corridor2": {
+   "level": "M1",
+   "kind": "corridor",
+   "x": 62.64,
+   "y": 143.55,
+   "name": "Foyer M1",
+   "near": [
+    "M1/escalator1"
+   ]
+  },
+  "M1/corridor3": {
+   "level": "M1",
+   "kind": "corridor",
+   "x": 82.74,
+   "y": 143.55,
+   "name": "Foyer M1",
+   "near": [
+    "M1/elevator1"
+   ]
+  },
+  "M1/corridor4": {
+   "level": "M1",
+   "kind": "corridor",
+   "x": 92.94,
+   "y": 143.55,
+   "name": "Foyer M1",
+   "near": [
+    "M1/escalator2"
+   ]
+  },
+  "M1/corridor5": {
+   "level": "M1",
+   "kind": "corridor",
+   "x": 112.71,
+   "y": 143.55,
+   "name": "Foyer M1",
+   "near": [
+    "M1/elevator2"
+   ]
+  },
+  "M1/corridor6": {
+   "level": "M1",
+   "kind": "corridor",
+   "x": 158.61,
+   "y": 143.55,
+   "name": "Foyer M1",
+   "near": [
+    "M1/elevator3"
+   ]
+  },
+  "M1/corridor7": {
+   "level": "M1",
+   "kind": "corridor",
+   "x": 171.63,
+   "y": 143.55,
+   "name": "Foyer M1",
+   "near": [
+    "M1/escalator3"
+   ]
+  },
+  "M1/corridor8": {
+   "level": "M1",
+   "kind": "corridor",
+   "x": 182.65,
+   "y": 143.55,
+   "name": "Foyer M1",
+   "near": [
+    "M1-vip-room/door"
+   ]
+  },
+  "M1/corridor9": {
+   "level": "M1",
+   "kind": "corridor",
+   "x": 183.95,
+   "y": 143.55,
+   "name": "Foyer M1",
+   "near": [
+    "M1/wc1"
+   ]
+  },
+  "M1/corridor10": {
+   "level": "M1",
+   "kind": "corridor",
+   "x": 192.26,
+   "y": 143.55,
+   "name": "Foyer M1"
+  },
+  "P1/corridor1": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 41.63,
+   "y": 144.45,
+   "name": "Foyer 1"
+  },
+  "P1/corridor2": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 47.82,
+   "y": 144.45,
+   "name": "Foyer 1",
+   "near": [
+    "P1/wc1"
+   ]
+  },
+  "P1/corridor3": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 62.67,
+   "y": 144.45,
+   "name": "Foyer 1",
+   "near": [
+    "P1/escalator1"
+   ]
+  },
+  "P1/corridor4": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 62.98,
+   "y": 144.45,
+   "name": "Foyer 1",
+   "near": [
+    "P1-117/door"
+   ]
+  },
+  "P1/corridor5": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 77.96,
+   "y": 144.45,
+   "name": "Foyer 1",
+   "near": [
+    "P1-116/door"
+   ]
+  },
+  "P1/corridor6": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 82.52,
+   "y": 144.45,
+   "name": "Foyer 1",
+   "near": [
+    "P1/elevator1"
+   ]
+  },
+  "P1/corridor7": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 92.84,
+   "y": 144.45,
+   "name": "Foyer 1",
+   "near": [
+    "P1/escalator2"
+   ]
+  },
+  "P1/corridor8": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 92.92,
+   "y": 144.45,
+   "name": "Foyer 1",
+   "near": [
+    "P1-115/door"
+   ]
+  },
+  "P1/corridor9": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 107.9,
+   "y": 144.45,
+   "name": "Foyer 1",
+   "near": [
+    "P1-114/door"
+   ]
+  },
+  "P1/corridor10": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 113.08,
+   "y": 144.45,
+   "name": "Foyer 1",
+   "near": [
+    "P1/elevator2"
+   ]
+  },
+  "P1/corridor11": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 122.89,
+   "y": 144.45,
+   "name": "Foyer 1",
+   "near": [
+    "P1-113/door"
+   ]
+  },
+  "P1/corridor12": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 152.81,
+   "y": 144.45,
+   "name": "Foyer 1",
+   "near": [
+    "P1-112/door"
+   ]
+  },
+  "P1/corridor13": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 158.32,
+   "y": 144.45,
+   "name": "Foyer 1",
+   "near": [
+    "P1/escalator3"
+   ]
+  },
+  "P1/corridor14": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 158.46,
+   "y": 144.45,
+   "name": "Foyer 1",
+   "near": [
+    "P1/elevator3"
+   ]
+  },
+  "P1/corridor15": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 144.45,
+   "name": "Foyer 1"
+  },
+  "P1/corridor16": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 182.86,
+   "y": 144.45,
+   "name": "Foyer 1",
+   "near": [
+    "P1-111/door"
+   ]
+  },
+  "P1/corridor17": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 192.32,
+   "y": 144.45,
+   "name": "Foyer 1"
+  },
+  "P1/corridor18": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 66.61,
+   "name": "Foyer 2",
+   "near": [
+    "P1/wc3"
+   ]
+  },
+  "P1/corridor19": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 70.31,
+   "name": "Foyer 2",
+   "near": [
+    "P1-127/door",
+    "P1-125/door"
+   ]
+  },
+  "P1/corridor20": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 77.94,
+   "name": "Foyer 2",
+   "near": [
+    "P1-124/door"
+   ]
+  },
+  "P1/corridor21": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 77.95,
+   "name": "Foyer 2",
+   "near": [
+    "P1-128/door"
+   ]
+  },
+  "P1/corridor22": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 85.56,
+   "name": "Foyer 2",
+   "near": [
+    "P1-123/door",
+    "P1-129/door"
+   ]
+  },
+  "P1/corridor23": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 93.13,
+   "name": "Foyer 2",
+   "near": [
+    "P1-122/door"
+   ]
+  },
+  "P1/corridor24": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 93.16,
+   "name": "Foyer 2",
+   "near": [
+    "P1-130/door"
+   ]
+  },
+  "P1/corridor25": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 100.74,
+   "name": "Foyer 2",
+   "near": [
+    "P1-121/door"
+   ]
+  },
+  "P1/corridor26": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 100.76,
+   "name": "Foyer 2",
+   "near": [
+    "P1-131/door"
+   ]
+  },
+  "P1/corridor27": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 108.35,
+   "name": "Foyer 2",
+   "near": [
+    "P1-120/door",
+    "P1-132/door"
+   ]
+  },
+  "P1/corridor28": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 115.93,
+   "name": "Foyer 2",
+   "near": [
+    "P1-119/door",
+    "P1-133/door"
+   ]
+  },
+  "P1/corridor29": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 123.57,
+   "name": "Foyer 2",
+   "near": [
+    "P1-134/door"
+   ]
+  },
+  "P1/corridor30": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 123.58,
+   "name": "Foyer 2",
+   "near": [
+    "P1-118/door"
+   ]
+  },
+  "P1/corridor31": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 131.5,
+   "name": "Foyer 2",
+   "near": [
+    "P1/wc4"
+   ]
+  },
+  "P1/corridor32": {
+   "level": "P1",
+   "kind": "corridor",
+   "x": 167.76,
+   "y": 131.67,
+   "name": "Foyer 2",
+   "near": [
+    "P1/wc2"
+   ]
+  },
+  "M2/corridor1": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 49.26,
+   "y": 143.29,
+   "name": "Foyer M2"
+  },
+  "M2/corridor2": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 52.17,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2/wc1"
+   ]
+  },
+  "M2/corridor3": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 62.67,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2/escalator1"
+   ]
+  },
+  "M2/corridor4": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 71.71,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2-m221/door"
+   ]
+  },
+  "M2/corridor5": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 76.06,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2-m220/door"
+   ]
+  },
+  "M2/corridor6": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 80.14,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2-m219/door"
+   ]
+  },
+  "M2/corridor7": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 82.61,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2/elevator1"
+   ]
+  },
+  "M2/corridor8": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 85.11,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2-m218/door"
+   ]
+  },
+  "M2/corridor9": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 92.67,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2/escalator2"
+   ]
+  },
+  "M2/corridor10": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 101.98,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2-m217/door"
+   ]
+  },
+  "M2/corridor11": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 106.15,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2-m216/door"
+   ]
+  },
+  "M2/corridor12": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 111.56,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2-m215/door"
+   ]
+  },
+  "M2/corridor13": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 112.93,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2/elevator2"
+   ]
+  },
+  "M2/corridor14": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 119.08,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2-m214/door"
+   ]
+  },
+  "M2/corridor15": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 126.72,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2-m213/door"
+   ]
+  },
+  "M2/corridor16": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 148.91,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2-m212/door"
+   ]
+  },
+  "M2/corridor17": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 156.68,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2-m211/door"
+   ]
+  },
+  "M2/corridor18": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 158.52,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2/elevator3"
+   ]
+  },
+  "M2/corridor19": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 171.83,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2/escalator3"
+   ]
+  },
+  "M2/corridor20": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 172.47,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2/escalator4"
+   ]
+  },
+  "M2/corridor21": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 180.75,
+   "y": 143.29,
+   "name": "Foyer M2",
+   "near": [
+    "M2/wc2"
+   ]
+  },
+  "M2/corridor22": {
+   "level": "M2",
+   "kind": "corridor",
+   "x": 183.33,
+   "y": 143.29,
+   "name": "Foyer M2"
+  },
+  "P2/corridor1": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 48.66,
+   "y": 146.95,
+   "name": "Foyer A"
+  },
+  "P2/corridor2": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 62.22,
+   "y": 146.95,
+   "name": "Foyer A",
+   "near": [
+    "P2/escalator1"
+   ]
+  },
+  "P2/corridor3": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 62.36,
+   "y": 146.95,
+   "name": "Foyer A",
+   "near": [
+    "P2-banquet-hall/door1"
+   ]
+  },
+  "P2/corridor4": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 77.77,
+   "y": 146.95,
+   "name": "Foyer A",
+   "near": [
+    "P2-banquet-hall/door2"
+   ]
+  },
+  "P2/corridor5": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 82.6,
+   "y": 146.95,
+   "name": "Foyer A",
+   "near": [
+    "P2/elevator1"
+   ]
+  },
+  "P2/corridor6": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 92.33,
+   "y": 146.95,
+   "name": "Foyer A",
+   "near": [
+    "P2/escalator2"
+   ]
+  },
+  "P2/corridor7": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 92.71,
+   "y": 146.95,
+   "name": "Foyer A",
+   "near": [
+    "P2-banquet-hall/door3"
+   ]
+  },
+  "P2/corridor8": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 107.65,
+   "y": 146.95,
+   "name": "Foyer A",
+   "near": [
+    "P2-banquet-hall/door4"
+   ]
+  },
+  "P2/corridor9": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 112.94,
+   "y": 146.95,
+   "name": "Foyer A",
+   "near": [
+    "P2/elevator2"
+   ]
+  },
+  "P2/corridor10": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 122.94,
+   "y": 146.95,
+   "name": "Foyer A",
+   "near": [
+    "P2-banquet-hall/door5"
+   ]
+  },
+  "P2/corridor11": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 143.49,
+   "y": 146.95,
+   "name": "Foyer A"
+  },
+  "P2/corridor12": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 152.81,
+   "y": 146.95,
+   "name": "Foyer B",
+   "near": [
+    "P2-212/door"
+   ]
+  },
+  "P2/corridor13": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 158.51,
+   "y": 146.95,
+   "name": "Foyer B",
+   "near": [
+    "P2/elevator3"
+   ]
+  },
+  "P2/corridor14": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 168.11,
+   "y": 146.95,
+   "name": "Foyer B",
+   "near": [
+    "P2-211/door"
+   ]
+  },
+  "P2/corridor15": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 172.17,
+   "y": 146.95,
+   "name": "Foyer B",
+   "near": [
+    "P2/escalator3"
+   ]
+  },
+  "P2/corridor16": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 178.05,
+   "y": 146.95,
+   "name": "Foyer B",
+   "near": [
+    "P2/wc1"
+   ]
+  },
+  "P2/corridor17": {
+   "level": "P2",
+   "kind": "corridor",
+   "x": 183.53,
+   "y": 146.95,
+   "name": "Foyer B"
+  },
+  "AUD/foyer": {
+   "level": "AUD",
+   "kind": "corridor",
+   "x": null,
+   "y": null,
+   "name": "Connecting Walkway"
+  },
+  "AUD-auditorium/door": {
+   "level": "AUD",
+   "kind": "door",
+   "x": null,
+   "y": null,
+   "estimate": true
+  }
+ },
+ "edges": [
+  {
+   "a": "P0-areas-1+2+3/door1",
+   "b": "P0/corridor2",
+   "kind": "walk",
+   "m": 9.3
+  },
+  {
+   "a": "P0/elevator1",
+   "b": "P0/corridor3",
+   "kind": "walk",
+   "m": 1.9
+  },
+  {
+   "a": "P0/escalator1",
+   "b": "P0/corridor4",
+   "kind": "walk",
+   "m": 4.4
+  },
+  {
+   "a": "P0-areas-1+2+3/door2",
+   "b": "P0/corridor5",
+   "kind": "walk",
+   "m": 9.3
+  },
+  {
+   "a": "P0/wc1",
+   "b": "P0/corridor6",
+   "kind": "walk",
+   "m": 4.9
+  },
+  {
+   "a": "P0/elevator2",
+   "b": "P0/corridor7",
+   "kind": "walk",
+   "m": 1.8
+  },
+  {
+   "a": "P0-entrance-hall/door",
+   "b": "P0/corridor8",
+   "kind": "walk",
+   "m": 21.4
+  },
+  {
+   "a": "P0-areas-1+2+3/door3",
+   "b": "P0/corridor9",
+   "kind": "walk",
+   "m": 9.3
+  },
+  {
+   "a": "P0/escalator2",
+   "b": "P0/corridor10",
+   "kind": "walk",
+   "m": 4.6
+  },
+  {
+   "a": "P0/escalator3",
+   "b": "P0/corridor11",
+   "kind": "walk",
+   "m": 4.6
+  },
+  {
+   "a": "P0/elevator3",
+   "b": "P0/corridor12",
+   "kind": "walk",
+   "m": 2.2
+  },
+  {
+   "a": "P0/wc2",
+   "b": "P0/corridor13",
+   "kind": "walk",
+   "m": 4.9
+  },
+  {
+   "a": "P0/escalator4",
+   "b": "P0/corridor15",
+   "kind": "walk",
+   "m": 22.5
+  },
+  {
+   "a": "P0/escalator5",
+   "b": "P0/corridor16",
+   "kind": "walk",
+   "m": 25.2
+  },
+  {
+   "a": "P0-access-a/door",
+   "b": "P0/corridor17",
+   "kind": "walk",
+   "m": 0.0
+  },
+  {
+   "a": "P0/corridor1",
+   "b": "P0/corridor2",
+   "kind": "walk",
+   "m": 22.8
+  },
+  {
+   "a": "P0/corridor2",
+   "b": "P0/corridor3",
+   "kind": "walk",
+   "m": 19.2
+  },
+  {
+   "a": "P0/corridor3",
+   "b": "P0/corridor4",
+   "kind": "walk",
+   "m": 4.5
+  },
+  {
+   "a": "P0/corridor4",
+   "b": "P0/corridor5",
+   "kind": "walk",
+   "m": 6.8
+  },
+  {
+   "a": "P0/corridor5",
+   "b": "P0/corridor6",
+   "kind": "walk",
+   "m": 0.5
+  },
+  {
+   "a": "P0/corridor6",
+   "b": "P0/corridor7",
+   "kind": "walk",
+   "m": 18.2
+  },
+  {
+   "a": "P0/corridor7",
+   "b": "P0/corridor8",
+   "kind": "walk",
+   "m": 2.4
+  },
+  {
+   "a": "P0/corridor8",
+   "b": "P0/corridor9",
+   "kind": "walk",
+   "m": 0.8
+  },
+  {
+   "a": "P0/corridor9",
+   "b": "P0/corridor10",
+   "kind": "walk",
+   "m": 1.5
+  },
+  {
+   "a": "P0/corridor10",
+   "b": "P0/corridor11",
+   "kind": "walk",
+   "m": 25.2
+  },
+  {
+   "a": "P0/corridor11",
+   "b": "P0/corridor12",
+   "kind": "walk",
+   "m": 15.9
+  },
+  {
+   "a": "P0/corridor12",
+   "b": "P0/corridor13",
+   "kind": "walk",
+   "m": 3.9
+  },
+  {
+   "a": "P0/corridor13",
+   "b": "P0/corridor14",
+   "kind": "walk",
+   "m": 19.3
+  },
+  {
+   "a": "P0/corridor14",
+   "b": "P0/corridor15",
+   "kind": "walk",
+   "m": 9.4
+  },
+  {
+   "a": "P0/corridor15",
+   "b": "P0/corridor16",
+   "kind": "walk",
+   "m": 2.6
+  },
+  {
+   "a": "P0/corridor16",
+   "b": "P0/corridor17",
+   "kind": "walk",
+   "m": 10.4
+  },
+  {
+   "a": "M1/escalator1",
+   "b": "M1/corridor2",
+   "kind": "walk",
+   "m": 0.5
+  },
+  {
+   "a": "M1/elevator1",
+   "b": "M1/corridor3",
+   "kind": "walk",
+   "m": 0.4
+  },
+  {
+   "a": "M1/escalator2",
+   "b": "M1/corridor4",
+   "kind": "walk",
+   "m": 0.5
+  },
+  {
+   "a": "M1/elevator2",
+   "b": "M1/corridor5",
+   "kind": "walk",
+   "m": 0.4
+  },
+  {
+   "a": "M1/elevator3",
+   "b": "M1/corridor6",
+   "kind": "walk",
+   "m": 0.4
+  },
+  {
+   "a": "M1/escalator3",
+   "b": "M1/corridor7",
+   "kind": "walk",
+   "m": 1.4
+  },
+  {
+   "a": "M1-vip-room/door",
+   "b": "M1/corridor8",
+   "kind": "walk",
+   "m": 13.8
+  },
+  {
+   "a": "M1/wc1",
+   "b": "M1/corridor9",
+   "kind": "walk",
+   "m": 12.0
+  },
+  {
+   "a": "M1/corridor1",
+   "b": "M1/corridor2",
+   "kind": "walk",
+   "m": 19.6
+  },
+  {
+   "a": "M1/corridor2",
+   "b": "M1/corridor3",
+   "kind": "walk",
+   "m": 20.1
+  },
+  {
+   "a": "M1/corridor3",
+   "b": "M1/corridor4",
+   "kind": "walk",
+   "m": 10.2
+  },
+  {
+   "a": "M1/corridor4",
+   "b": "M1/corridor5",
+   "kind": "walk",
+   "m": 19.8
+  },
+  {
+   "a": "M1/corridor5",
+   "b": "M1/corridor6",
+   "kind": "walk",
+   "m": 45.9
+  },
+  {
+   "a": "M1/corridor6",
+   "b": "M1/corridor7",
+   "kind": "walk",
+   "m": 13.0
+  },
+  {
+   "a": "M1/corridor7",
+   "b": "M1/corridor8",
+   "kind": "walk",
+   "m": 11.0
+  },
+  {
+   "a": "M1/corridor8",
+   "b": "M1/corridor9",
+   "kind": "walk",
+   "m": 1.3
+  },
+  {
+   "a": "M1/corridor9",
+   "b": "M1/corridor10",
+   "kind": "walk",
+   "m": 8.3
+  },
+  {
+   "a": "P1/wc1",
+   "b": "P1/corridor2",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "P1/escalator1",
+   "b": "P1/corridor3",
+   "kind": "walk",
+   "m": 2.2
+  },
+  {
+   "a": "P1-117/door",
+   "b": "P1/corridor4",
+   "kind": "walk",
+   "m": 7.1
+  },
+  {
+   "a": "P1-116/door",
+   "b": "P1/corridor5",
+   "kind": "walk",
+   "m": 7.1
+  },
+  {
+   "a": "P1/elevator1",
+   "b": "P1/corridor6",
+   "kind": "walk",
+   "m": 1.5
+  },
+  {
+   "a": "P1/escalator2",
+   "b": "P1/corridor7",
+   "kind": "walk",
+   "m": 2.2
+  },
+  {
+   "a": "P1-115/door",
+   "b": "P1/corridor8",
+   "kind": "walk",
+   "m": 7.1
+  },
+  {
+   "a": "P1-114/door",
+   "b": "P1/corridor9",
+   "kind": "walk",
+   "m": 7.1
+  },
+  {
+   "a": "P1/elevator2",
+   "b": "P1/corridor10",
+   "kind": "walk",
+   "m": 1.1
+  },
+  {
+   "a": "P1-113/door",
+   "b": "P1/corridor11",
+   "kind": "walk",
+   "m": 7.1
+  },
+  {
+   "a": "P1-112/door",
+   "b": "P1/corridor12",
+   "kind": "walk",
+   "m": 7.1
+  },
+  {
+   "a": "P1/escalator3",
+   "b": "P1/corridor13",
+   "kind": "walk",
+   "m": 3.8
+  },
+  {
+   "a": "P1/elevator3",
+   "b": "P1/corridor14",
+   "kind": "walk",
+   "m": 1.1
+  },
+  {
+   "a": "P1-111/door",
+   "b": "P1/corridor16",
+   "kind": "walk",
+   "m": 7.1
+  },
+  {
+   "a": "P1/wc3",
+   "b": "P1/corridor18",
+   "kind": "walk",
+   "m": 5.7
+  },
+  {
+   "a": "P1-127/door",
+   "b": "P1/corridor19",
+   "kind": "walk",
+   "m": 8.7
+  },
+  {
+   "a": "P1-125/door",
+   "b": "P1/corridor19",
+   "kind": "walk",
+   "m": 8.6
+  },
+  {
+   "a": "P1-124/door",
+   "b": "P1/corridor20",
+   "kind": "walk",
+   "m": 8.6
+  },
+  {
+   "a": "P1-128/door",
+   "b": "P1/corridor21",
+   "kind": "walk",
+   "m": 8.7
+  },
+  {
+   "a": "P1-123/door",
+   "b": "P1/corridor22",
+   "kind": "walk",
+   "m": 8.6
+  },
+  {
+   "a": "P1-129/door",
+   "b": "P1/corridor22",
+   "kind": "walk",
+   "m": 8.7
+  },
+  {
+   "a": "P1-122/door",
+   "b": "P1/corridor23",
+   "kind": "walk",
+   "m": 8.6
+  },
+  {
+   "a": "P1-130/door",
+   "b": "P1/corridor24",
+   "kind": "walk",
+   "m": 8.7
+  },
+  {
+   "a": "P1-121/door",
+   "b": "P1/corridor25",
+   "kind": "walk",
+   "m": 8.6
+  },
+  {
+   "a": "P1-131/door",
+   "b": "P1/corridor26",
+   "kind": "walk",
+   "m": 8.7
+  },
+  {
+   "a": "P1-120/door",
+   "b": "P1/corridor27",
+   "kind": "walk",
+   "m": 8.6
+  },
+  {
+   "a": "P1-132/door",
+   "b": "P1/corridor27",
+   "kind": "walk",
+   "m": 8.7
+  },
+  {
+   "a": "P1-119/door",
+   "b": "P1/corridor28",
+   "kind": "walk",
+   "m": 8.6
+  },
+  {
+   "a": "P1-133/door",
+   "b": "P1/corridor28",
+   "kind": "walk",
+   "m": 8.7
+  },
+  {
+   "a": "P1-134/door",
+   "b": "P1/corridor29",
+   "kind": "walk",
+   "m": 8.7
+  },
+  {
+   "a": "P1-118/door",
+   "b": "P1/corridor30",
+   "kind": "walk",
+   "m": 8.6
+  },
+  {
+   "a": "P1/wc4",
+   "b": "P1/corridor31",
+   "kind": "walk",
+   "m": 3.8
+  },
+  {
+   "a": "P1/wc2",
+   "b": "P1/corridor32",
+   "kind": "walk",
+   "m": 3.7
+  },
+  {
+   "a": "P1/corridor1",
+   "b": "P1/corridor2",
+   "kind": "walk",
+   "m": 6.2
+  },
+  {
+   "a": "P1/corridor2",
+   "b": "P1/corridor3",
+   "kind": "walk",
+   "m": 14.9
+  },
+  {
+   "a": "P1/corridor3",
+   "b": "P1/corridor4",
+   "kind": "walk",
+   "m": 0.3
+  },
+  {
+   "a": "P1/corridor4",
+   "b": "P1/corridor5",
+   "kind": "walk",
+   "m": 15.0
+  },
+  {
+   "a": "P1/corridor5",
+   "b": "P1/corridor6",
+   "kind": "walk",
+   "m": 4.6
+  },
+  {
+   "a": "P1/corridor6",
+   "b": "P1/corridor7",
+   "kind": "walk",
+   "m": 10.3
+  },
+  {
+   "a": "P1/corridor7",
+   "b": "P1/corridor8",
+   "kind": "walk",
+   "m": 0.1
+  },
+  {
+   "a": "P1/corridor8",
+   "b": "P1/corridor9",
+   "kind": "walk",
+   "m": 15.0
+  },
+  {
+   "a": "P1/corridor9",
+   "b": "P1/corridor10",
+   "kind": "walk",
+   "m": 5.2
+  },
+  {
+   "a": "P1/corridor10",
+   "b": "P1/corridor11",
+   "kind": "walk",
+   "m": 9.8
+  },
+  {
+   "a": "P1/corridor11",
+   "b": "P1/corridor12",
+   "kind": "walk",
+   "m": 29.9
+  },
+  {
+   "a": "P1/corridor12",
+   "b": "P1/corridor13",
+   "kind": "walk",
+   "m": 5.5
+  },
+  {
+   "a": "P1/corridor13",
+   "b": "P1/corridor14",
+   "kind": "walk",
+   "m": 0.1
+  },
+  {
+   "a": "P1/corridor14",
+   "b": "P1/corridor15",
+   "kind": "walk",
+   "m": 9.3
+  },
+  {
+   "a": "P1/corridor15",
+   "b": "P1/corridor16",
+   "kind": "walk",
+   "m": 15.1
+  },
+  {
+   "a": "P1/corridor16",
+   "b": "P1/corridor17",
+   "kind": "walk",
+   "m": 9.5
+  },
+  {
+   "a": "P1/corridor18",
+   "b": "P1/corridor19",
+   "kind": "walk",
+   "m": 3.7
+  },
+  {
+   "a": "P1/corridor19",
+   "b": "P1/corridor20",
+   "kind": "walk",
+   "m": 7.6
+  },
+  {
+   "a": "P1/corridor20",
+   "b": "P1/corridor21",
+   "kind": "walk",
+   "m": 0.0
+  },
+  {
+   "a": "P1/corridor21",
+   "b": "P1/corridor22",
+   "kind": "walk",
+   "m": 7.6
+  },
+  {
+   "a": "P1/corridor22",
+   "b": "P1/corridor23",
+   "kind": "walk",
+   "m": 7.6
+  },
+  {
+   "a": "P1/corridor23",
+   "b": "P1/corridor24",
+   "kind": "walk",
+   "m": 0.0
+  },
+  {
+   "a": "P1/corridor24",
+   "b": "P1/corridor25",
+   "kind": "walk",
+   "m": 7.6
+  },
+  {
+   "a": "P1/corridor25",
+   "b": "P1/corridor26",
+   "kind": "walk",
+   "m": 0.0
+  },
+  {
+   "a": "P1/corridor26",
+   "b": "P1/corridor27",
+   "kind": "walk",
+   "m": 7.6
+  },
+  {
+   "a": "P1/corridor27",
+   "b": "P1/corridor28",
+   "kind": "walk",
+   "m": 7.6
+  },
+  {
+   "a": "P1/corridor28",
+   "b": "P1/corridor29",
+   "kind": "walk",
+   "m": 7.6
+  },
+  {
+   "a": "P1/corridor29",
+   "b": "P1/corridor30",
+   "kind": "walk",
+   "m": 0.0
+  },
+  {
+   "a": "P1/corridor30",
+   "b": "P1/corridor31",
+   "kind": "walk",
+   "m": 7.9
+  },
+  {
+   "a": "P1/corridor31",
+   "b": "P1/corridor32",
+   "kind": "walk",
+   "m": 0.2
+  },
+  {
+   "a": "P1/corridor32",
+   "b": "P1/corridor15",
+   "kind": "walk",
+   "m": 12.8
+  },
+  {
+   "a": "M2/wc1",
+   "b": "M2/corridor2",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2/escalator1",
+   "b": "M2/corridor3",
+   "kind": "walk",
+   "m": 0.2
+  },
+  {
+   "a": "M2-m221/door",
+   "b": "M2/corridor4",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2-m220/door",
+   "b": "M2/corridor5",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2-m219/door",
+   "b": "M2/corridor6",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2/elevator1",
+   "b": "M2/corridor7",
+   "kind": "walk",
+   "m": 0.0
+  },
+  {
+   "a": "M2-m218/door",
+   "b": "M2/corridor8",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2/escalator2",
+   "b": "M2/corridor9",
+   "kind": "walk",
+   "m": 0.2
+  },
+  {
+   "a": "M2-m217/door",
+   "b": "M2/corridor10",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2-m216/door",
+   "b": "M2/corridor11",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2-m215/door",
+   "b": "M2/corridor12",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2/elevator2",
+   "b": "M2/corridor13",
+   "kind": "walk",
+   "m": 0.2
+  },
+  {
+   "a": "M2-m214/door",
+   "b": "M2/corridor14",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2-m213/door",
+   "b": "M2/corridor15",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2-m212/door",
+   "b": "M2/corridor16",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2-m211/door",
+   "b": "M2/corridor17",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2/elevator3",
+   "b": "M2/corridor18",
+   "kind": "walk",
+   "m": 0.1
+  },
+  {
+   "a": "M2/escalator3",
+   "b": "M2/corridor19",
+   "kind": "walk",
+   "m": 7.6
+  },
+  {
+   "a": "M2/escalator4",
+   "b": "M2/corridor20",
+   "kind": "walk",
+   "m": 0.2
+  },
+  {
+   "a": "M2/wc2",
+   "b": "M2/corridor21",
+   "kind": "walk",
+   "m": 2.0
+  },
+  {
+   "a": "M2/corridor1",
+   "b": "M2/corridor2",
+   "kind": "walk",
+   "m": 2.9
+  },
+  {
+   "a": "M2/corridor2",
+   "b": "M2/corridor3",
+   "kind": "walk",
+   "m": 10.5
+  },
+  {
+   "a": "M2/corridor3",
+   "b": "M2/corridor4",
+   "kind": "walk",
+   "m": 9.0
+  },
+  {
+   "a": "M2/corridor4",
+   "b": "M2/corridor5",
+   "kind": "walk",
+   "m": 4.4
+  },
+  {
+   "a": "M2/corridor5",
+   "b": "M2/corridor6",
+   "kind": "walk",
+   "m": 4.1
+  },
+  {
+   "a": "M2/corridor6",
+   "b": "M2/corridor7",
+   "kind": "walk",
+   "m": 2.5
+  },
+  {
+   "a": "M2/corridor7",
+   "b": "M2/corridor8",
+   "kind": "walk",
+   "m": 2.5
+  },
+  {
+   "a": "M2/corridor8",
+   "b": "M2/corridor9",
+   "kind": "walk",
+   "m": 7.6
+  },
+  {
+   "a": "M2/corridor9",
+   "b": "M2/corridor10",
+   "kind": "walk",
+   "m": 9.3
+  },
+  {
+   "a": "M2/corridor10",
+   "b": "M2/corridor11",
+   "kind": "walk",
+   "m": 4.2
+  },
+  {
+   "a": "M2/corridor11",
+   "b": "M2/corridor12",
+   "kind": "walk",
+   "m": 5.4
+  },
+  {
+   "a": "M2/corridor12",
+   "b": "M2/corridor13",
+   "kind": "walk",
+   "m": 1.4
+  },
+  {
+   "a": "M2/corridor13",
+   "b": "M2/corridor14",
+   "kind": "walk",
+   "m": 6.1
+  },
+  {
+   "a": "M2/corridor14",
+   "b": "M2/corridor15",
+   "kind": "walk",
+   "m": 7.6
+  },
+  {
+   "a": "M2/corridor15",
+   "b": "M2/corridor16",
+   "kind": "walk",
+   "m": 22.2
+  },
+  {
+   "a": "M2/corridor16",
+   "b": "M2/corridor17",
+   "kind": "walk",
+   "m": 7.8
+  },
+  {
+   "a": "M2/corridor17",
+   "b": "M2/corridor18",
+   "kind": "walk",
+   "m": 1.8
+  },
+  {
+   "a": "M2/corridor18",
+   "b": "M2/corridor19",
+   "kind": "walk",
+   "m": 13.3
+  },
+  {
+   "a": "M2/corridor19",
+   "b": "M2/corridor20",
+   "kind": "walk",
+   "m": 0.6
+  },
+  {
+   "a": "M2/corridor20",
+   "b": "M2/corridor21",
+   "kind": "walk",
+   "m": 8.3
+  },
+  {
+   "a": "M2/corridor21",
+   "b": "M2/corridor22",
+   "kind": "walk",
+   "m": 2.6
+  },
+  {
+   "a": "P2/escalator1",
+   "b": "P2/corridor2",
+   "kind": "walk",
+   "m": 3.2
+  },
+  {
+   "a": "P2-banquet-hall/door1",
+   "b": "P2/corridor3",
+   "kind": "walk",
+   "m": 5.9
+  },
+  {
+   "a": "P2-banquet-hall/door2",
+   "b": "P2/corridor4",
+   "kind": "walk",
+   "m": 5.9
+  },
+  {
+   "a": "P2/elevator1",
+   "b": "P2/corridor5",
+   "kind": "walk",
+   "m": 3.8
+  },
+  {
+   "a": "P2/escalator2",
+   "b": "P2/corridor6",
+   "kind": "walk",
+   "m": 3.2
+  },
+  {
+   "a": "P2-banquet-hall/door3",
+   "b": "P2/corridor7",
+   "kind": "walk",
+   "m": 5.9
+  },
+  {
+   "a": "P2-banquet-hall/door4",
+   "b": "P2/corridor8",
+   "kind": "walk",
+   "m": 5.9
+  },
+  {
+   "a": "P2/elevator2",
+   "b": "P2/corridor9",
+   "kind": "walk",
+   "m": 3.8
+  },
+  {
+   "a": "P2-banquet-hall/door5",
+   "b": "P2/corridor10",
+   "kind": "walk",
+   "m": 5.9
+  },
+  {
+   "a": "P2-212/door",
+   "b": "P2/corridor12",
+   "kind": "walk",
+   "m": 5.9
+  },
+  {
+   "a": "P2/elevator3",
+   "b": "P2/corridor13",
+   "kind": "walk",
+   "m": 3.8
+  },
+  {
+   "a": "P2-211/door",
+   "b": "P2/corridor14",
+   "kind": "walk",
+   "m": 5.9
+  },
+  {
+   "a": "P2/escalator3",
+   "b": "P2/corridor15",
+   "kind": "walk",
+   "m": 3.2
+  },
+  {
+   "a": "P2/wc1",
+   "b": "P2/corridor16",
+   "kind": "walk",
+   "m": 2.2
+  },
+  {
+   "a": "P2/corridor1",
+   "b": "P2/corridor2",
+   "kind": "walk",
+   "m": 13.6
+  },
+  {
+   "a": "P2/corridor2",
+   "b": "P2/corridor3",
+   "kind": "walk",
+   "m": 0.1
+  },
+  {
+   "a": "P2/corridor3",
+   "b": "P2/corridor4",
+   "kind": "walk",
+   "m": 15.4
+  },
+  {
+   "a": "P2/corridor4",
+   "b": "P2/corridor5",
+   "kind": "walk",
+   "m": 4.8
+  },
+  {
+   "a": "P2/corridor5",
+   "b": "P2/corridor6",
+   "kind": "walk",
+   "m": 9.7
+  },
+  {
+   "a": "P2/corridor6",
+   "b": "P2/corridor7",
+   "kind": "walk",
+   "m": 0.4
+  },
+  {
+   "a": "P2/corridor7",
+   "b": "P2/corridor8",
+   "kind": "walk",
+   "m": 14.9
+  },
+  {
+   "a": "P2/corridor8",
+   "b": "P2/corridor9",
+   "kind": "walk",
+   "m": 5.3
+  },
+  {
+   "a": "P2/corridor9",
+   "b": "P2/corridor10",
+   "kind": "walk",
+   "m": 10.0
+  },
+  {
+   "a": "P2/corridor10",
+   "b": "P2/corridor11",
+   "kind": "walk",
+   "m": 20.6
+  },
+  {
+   "a": "P2/corridor11",
+   "b": "P2/corridor12",
+   "kind": "walk",
+   "m": 9.3
+  },
+  {
+   "a": "P2/corridor12",
+   "b": "P2/corridor13",
+   "kind": "walk",
+   "m": 5.7
+  },
+  {
+   "a": "P2/corridor13",
+   "b": "P2/corridor14",
+   "kind": "walk",
+   "m": 9.6
+  },
+  {
+   "a": "P2/corridor14",
+   "b": "P2/corridor15",
+   "kind": "walk",
+   "m": 4.1
+  },
+  {
+   "a": "P2/corridor15",
+   "b": "P2/corridor16",
+   "kind": "walk",
+   "m": 5.9
+  },
+  {
+   "a": "P2/corridor16",
+   "b": "P2/corridor17",
+   "kind": "walk",
+   "m": 5.5
+  },
+  {
+   "a": "P0/elevator1",
+   "b": "M1/elevator1",
+   "kind": "elevator",
+   "m": 0
+  },
+  {
+   "a": "P0/elevator2",
+   "b": "M1/elevator2",
+   "kind": "elevator",
+   "m": 0
+  },
+  {
+   "a": "P0/elevator3",
+   "b": "M1/elevator3",
+   "kind": "elevator",
+   "m": 0
+  },
+  {
+   "a": "P0/escalator1",
+   "b": "M1/escalator2",
+   "kind": "escalator",
+   "m": 8.7,
+   "estimate": true
+  },
+  {
+   "a": "P0/escalator2",
+   "b": "M1/escalator2",
+   "kind": "escalator",
+   "m": 25.4,
+   "estimate": true
+  },
+  {
+   "a": "P0/escalator3",
+   "b": "M1/escalator3",
+   "kind": "escalator",
+   "m": 29.3,
+   "estimate": true
+  },
+  {
+   "a": "P0/escalator4",
+   "b": "M1/escalator3",
+   "kind": "escalator",
+   "m": 22.8,
+   "estimate": true
+  },
+  {
+   "a": "P0/escalator5",
+   "b": "M1/escalator3",
+   "kind": "escalator",
+   "m": 26.5,
+   "estimate": true
+  },
+  {
+   "a": "M1/elevator1",
+   "b": "P1/elevator1",
+   "kind": "elevator",
+   "m": 0
+  },
+  {
+   "a": "M1/elevator2",
+   "b": "P1/elevator2",
+   "kind": "elevator",
+   "m": 0
+  },
+  {
+   "a": "M1/elevator3",
+   "b": "P1/elevator3",
+   "kind": "elevator",
+   "m": 0
+  },
+  {
+   "a": "M1/escalator1",
+   "b": "P1/escalator1",
+   "kind": "escalator",
+   "m": 0.8,
+   "estimate": true
+  },
+  {
+   "a": "M1/escalator2",
+   "b": "P1/escalator2",
+   "kind": "escalator",
+   "m": 0.8,
+   "estimate": true
+  },
+  {
+   "a": "M1/escalator3",
+   "b": "P1/escalator3",
+   "kind": "escalator",
+   "m": 13.7,
+   "estimate": true
+  },
+  {
+   "a": "P1/elevator1",
+   "b": "M2/elevator1",
+   "kind": "elevator",
+   "m": 0
+  },
+  {
+   "a": "P1/elevator2",
+   "b": "M2/elevator2",
+   "kind": "elevator",
+   "m": 0
+  },
+  {
+   "a": "P1/elevator3",
+   "b": "M2/elevator3",
+   "kind": "elevator",
+   "m": 0
+  },
+  {
+   "a": "P1/escalator1",
+   "b": "M2/escalator1",
+   "kind": "escalator",
+   "m": 0.8,
+   "estimate": true
+  },
+  {
+   "a": "P1/escalator2",
+   "b": "M2/escalator2",
+   "kind": "escalator",
+   "m": 0.8,
+   "estimate": true
+  },
+  {
+   "a": "P1/escalator3",
+   "b": "M2/escalator3",
+   "kind": "escalator",
+   "m": 13.8,
+   "estimate": true
+  },
+  {
+   "a": "M2/elevator1",
+   "b": "P2/elevator1",
+   "kind": "elevator",
+   "m": 0
+  },
+  {
+   "a": "M2/elevator2",
+   "b": "P2/elevator2",
+   "kind": "elevator",
+   "m": 0
+  },
+  {
+   "a": "M2/elevator3",
+   "b": "P2/elevator3",
+   "kind": "elevator",
+   "m": 0
+  },
+  {
+   "a": "M2/escalator1",
+   "b": "P2/escalator1",
+   "kind": "escalator",
+   "m": 0.9,
+   "estimate": true
+  },
+  {
+   "a": "M2/escalator2",
+   "b": "P2/escalator2",
+   "kind": "escalator",
+   "m": 0.8,
+   "estimate": true
+  },
+  {
+   "a": "M2/escalator3",
+   "b": "P2/escalator3",
+   "kind": "escalator",
+   "m": 7.1,
+   "estimate": true
+  },
+  {
+   "a": "M2/escalator4",
+   "b": "P2/escalator3",
+   "kind": "escalator",
+   "m": 0.7,
+   "estimate": true
+  },
+  {
+   "a": "P0-access-a/door",
+   "b": "AUD/foyer",
+   "kind": "walk",
+   "m": 116.8
+  },
+  {
+   "a": "AUD/foyer",
+   "b": "AUD-auditorium/door",
+   "kind": "walk",
+   "m": 25.0,
+   "estimate": true
+  }
+ ]
+}
