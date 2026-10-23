@@ -170,12 +170,17 @@ export function buildEdition(feed, { edition, version, timeZone, institutions = 
       const aff = a.affiliations?.find(f => f?.institution?.trim() && normalizeName(f.institution));
       const raw = aff?.institution.trim() ?? null;
       const instKey = raw ? inst.keyOf(raw, aff.country) : null;
+      // every affiliation as written (a US university + a Korean lab); the single fields above stay the first one
+      const affiliations = (a.affiliations || []).filter(f => f?.institution?.trim() || f?.country?.trim()).map(f => {
+        const name = f.institution?.trim() && normalizeName(f.institution) ? f.institution.trim() : null;
+        return { institutionKey: name ? inst.keyOf(name, f.country) : null, institution: name, country: countryName(f.country) };
+      });
       pushTo(authored, a.personId, key(c.id));
-      if (instKey) pushTo(institutionsOf, a.personId, instKey);
+      for (const f of affiliations) if (f.institutionKey) pushTo(institutionsOf, a.personId, f.institutionKey);
       for (const sl of slots) pushTo(appearances, a.personId, { role: 'author', sessionKey: sl.sessionKey, contentKey: key(c.id), roomKey: sl.roomKey, start: sl.start, end: sl.end });
       const p = people.get(a.personId);
       const country = countryName(aff?.country ?? a.affiliations?.find(f => f?.country?.trim())?.country);
-      return { personKey: key(a.personId), name: p ? personName(p) : null, institutionKey: instKey, institution: raw, country };
+      return { personKey: key(a.personId), name: p ? personName(p) : null, institutionKey: instKey, institution: raw, country, affiliations };
     });
     const video = Object.values(c.addons || {}).find(a => a?.type === 'video')?.url ?? null;
     return {

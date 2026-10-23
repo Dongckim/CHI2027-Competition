@@ -28,7 +28,7 @@ npm run data:build   # data/build/<edition>/ 생성, 약 1초
 ### 2. 쓸 만한 파일
 | 파일 | 내용 |
 |---|---|
-| `papers.json` | 발표 2,782개. `key`(`chi2026:223018`), `type`(Paper·Posters·…), `title`, `abstract`, `authors[]`(`name`, `institutionKey`, `institution`, `country`: 저자가 피드에 적은 나라), `doi`, `video`, `scheduled`(false = 원격 전용), `slots[]` |
+| `papers.json` | 발표 2,782개. `key`(`chi2026:223018`), `type`(Paper·Posters·…), `title`, `abstract`, `authors[]`(`name`, `institutionKey`·`institution`·`country`: 첫 소속, `affiliations[]`: 모든 소속의 `institutionKey`·`institution`·`country`), `doi`, `video`, `scheduled`(false = 원격 전용), `slots[]` |
 | `sessions.json` | 세션 이름(사람이 붙인 주제), 소속 발표 키 |
 | `topics.json` | 세션 이름 기반 주제 241개 (너무 잘게 나뉨, 개념 체계 참고용) |
 | `aliases.json` | 기관 (ROR 공식 기관으로 정리됨) |
@@ -61,7 +61,7 @@ node tests/planner/try.mjs my-output.json --day 2026-04-14
 
 - 서버에는 **연구 문장만** 보냅니다. 기관·나라는 함께 보내지 않습니다 (문장 + 기관 + 나라 조합은 사실상 특정인)
 - 모델을 기기에서 돌릴 수 있으면 연구 문장도 안 보내도 됨 → "실행 위치" 결정과 같이 논의
-- 기기 안 조정은 data/build에 이미 있는 저자 기관(`authors[].institutionKey`)과 저자 나라(`authors[].country`)로 계산 가능
+- 기기 안 조정은 data/build에 이미 있는 저자 기관(`authors[].institutionKey`)과 저자 나라(`authors[].affiliations[].country`, 모든 소속)로 계산 가능
 - 나라는 기관에서 추론하지 않음: 같은 기관이 여러 나라에 있음 (CMU 카타르, Microsoft Research 케임브리지 등, chi2026 38곳). 표기는 USA·UK·South Korea만 맞추고 Hong Kong·Macao·China는 저자가 쓴 그대로. 홍콩·마카오는 검색 필터에서 묶어 처리
 
 ## 만나볼 사람 추천
