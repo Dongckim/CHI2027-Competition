@@ -7,7 +7,8 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 제출 마감 2026-12-04. 학회 2027-05-10~14, Pittsburgh (David L. Lawrence Convention Center).
 
 ## 현재 상태
-- V0(데이터) 완료. V2 진행 중: 플래너 `app/src/planner/plan.js`(내부 입력), contracts/는 틀만 있고 필드는 사용자가 Figma 기준으로 설계 중 → 임의로 계약 필드를 만들지 말 것. app/ 나머지·functions/·recsys/는 비어 있음
+- V0(데이터) 완료. V6 길 안내 조건부(`app/src/venue/route.js`, 플래너에 연결). V4 자막 조건부(`app/src/captions/`, `functions/soniox-key.mjs`, 키는 `.env.local`)
+- V2 진행 중: 플래너 `app/src/planner/plan.js`(내부 입력), contracts/는 틀만 있고 필드는 사용자가 Figma 기준으로 설계 중 → 임의로 계약 필드를 만들지 말 것. recsys/는 비어 있음
 - 명령 (Node 20, `arc/`에서):
   - `npm run data:fetch [edition...]` : version.json 조회 → 새 리비전만 data/raw에 저장
   - `npm run data:validate` : 공식 스키마 검사 (스키마는 초안이라 chi2025 외 실패가 정상, V0 문서 참고)
@@ -19,6 +20,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
   - `npm run contracts:check` : 계약 스키마와 examples 검사
   - `node tests/planner/bench.mjs` : 플래너 하루 계산 시간 (data/build 필요)
   - `node tests/planner/try.mjs <후보.json> [--day YYYY-MM-DD] [--wheelchair]` : 후보 목록으로 루트를 눈으로 확인 (예: tests/planner/examples/accessibility.json). 추천은 recsys/ 몫, 플래너·도구에 추천 로직 넣지 말 것
+  - `npm run bench` : 확인 페이지 서버 (tests/serve.mjs, functions/를 /api/로 연결). 길 안내 /tests/venue/bench.html, 자막 /tests/captions/bench.html, 대면 대화 /tests/captions/conversation.html (`.env.local`에 `SONIOX_API_KEY=...`, git 무시)
   - `npm test` : 전체 테스트 / 하나만: `node --test --test-name-pattern="talk slots" tests/`
 - git은 반드시 `arc/` 안에서 실행. 상위 `chi2027-arc/`는 자체 레포가 아니라 홈 디렉토리(`/Users/dongchankim`) 레포로 잡힘
 

@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Conversation bench</title>
+<!-- Bench page (V4, #5): face-to-face mode. The phone lies flat between two people; the top half is turned to face
+     the person across. Each picks their language and reads the other in it (Soniox two-way translation).
+     Not the app UI. Nothing is stored: text lives in memory and is wiped on Stop. -->
+<style>
+  :root { --bg: #ffffff; --ink: #14161a; --muted: #6a707b; --line: #d7dbe2; --panel: #f3f5f8; --bad: #b42318; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #121417; --ink: #eceef2; --muted: #9aa0ab; --line: #343941; --panel: #1b1e23; --bad: #f97066; color-scheme: dark; } }
+  :root[data-theme="dark"] { --bg: #121417; --ink: #eceef2; --muted: #9aa0ab; --line: #343941; --panel: #1b1e23; --bad: #f97066; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { font: 16px system-ui, sans-serif; color: var(--ink); background: var(--bg); display: flex; flex-direction: column; height: 100dvh; max-width: 520px; margin: 0 auto; }
+  .half { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px;
+          padding-block: max(16px, env(safe-area-inset-top, 0px)) 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  /* reading from each person's seat: the other's words, my words, then the picker at my edge of the phone */
+  .half { flex-direction: column-reverse; }
+  .half.top { transform: rotate(180deg); padding-block: 12px max(16px, env(safe-area-inset-top, 0px)); }
+  .half.bottom { padding-block: 12px max(16px, env(safe-area-inset-bottom, 0px)); }
+  select { font-size: 16px; min-height: 44px; width: 100%; }
+  /* the browser wraps (any script, any width); only the last lines show, older text is clipped off the top */
+  .theirs, .mine { white-space: pre-line; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
+  .half:lang(ko) .theirs, .half:lang(ko) .mine { word-break: keep-all; overflow-wrap: anywhere; } /* Korean breaks between words */
+  .theirs { font-size: 24px; line-height: 1.35; height: calc(3 * 1.35em); }
+  .mine { font-size: 15px; line-height: 1.4; height: calc(1.4em + 7px); color: var(--muted); border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+  .say { font-size: 13px; color: var(--muted); }
+  .middle { display: flex; align-items: center; gap: 12px; justify-content: center; padding: 8px 16px; background: var(--panel); border-block: 1px solid var(--line); }
+  button { font-size: 16px; min-height: 44px; padding: 0 24px; border-radius: 22px; border: 1px solid var(--ink); background: var(--ink); color: var(--bg); }
+  #status { font-size: 13px; color: var(--muted); flex: 1; min-width: 0; }
+  #status.bad { color: var(--bad); }
+</style>
+</head>
+<body>
+<section class="half top" id="top">
+  <select id="lang-top" aria-label="Language"></select>
+  <div class="say" id="say-top"></div>
+  <div class="mine" id="mine-top"><div></div></div>
+  <div class="theirs" id="theirs-top" aria-live="polite"><div></div></div>
+</section>
+<div class="middle">
+  <button id="go">Start</button>
+  <div id="status">Lay the phone flat between you. Each person picks a language on their side.</div>
+</div>
+<section class="half bottom" id="bottom">
+  <select id="lang-bottom" aria-label="Language"></select>
+  <div class="say" id="say-bottom"></div>
+  <div class="mine" id="mine-bottom"><div></div></div>
+  <div class="theirs" id="theirs-bottom" aria-live="polite"><div></div></div>
+</section>
+
+<script type="module">
+import { createConversation } from '../../app/src/captions/captions.js';
+
+const $ = id => document.getElementById(id);
+const { languages } = await fetch('../../app/src/captions/soniox-languages.json').then(r => r.json());
+const codes = languages.map(l => l.code);
+// each language in its own words ("한국어 · Korean"), so a person can find theirs without reading English
+const native = code => { try { return new Intl.DisplayNames([code], { type: 'language' }).of(code); } catch { return ''; } };
+const label = l => { const n = native(l.code); return n && n.toLowerCase() !== l.name.toLowerCase() ? `${n} · ${l.name}` : l.name; };
+const sorted = languages.slice().sort((x, y) => x.name.localeCompare(y.name));
+for (const where of ['top', 'bottom']) for (const l of sorted) $(`lang-${where}`).add(new Option(label(l), l.code));
+// the phone's owner sits at the bottom
+const own = navigator.language?.split('-')[0];
+$('lang-bottom').value = codes.includes(own) ? own : 'ko';
+$('lang-top').value = $('lang-bottom').value === 'en' ? 'ko' : 'en';
+
+// the hint under each picker, in that person's language when the browser can say it
+const hint = { ko: '상대가 말한 내용이 여기에 내 언어로 나옵니다', en: 'What the other person says appears here in your language' };
+function sides() {
+  for (const where of ['top', 'bottom']) {
+    const l = $(`lang-${where}`).value;
+    $(where).lang = l;
+    $(`say-${where}`).textContent = hint[l] || hint.en;
+  }
+}
+sides();
+$('lang-top').onchange = $('lang-bottom').onchange = sides;
+
+let run = null; // { ws, recorder, stream, wake, conv }
+
+function status(text, bad = false) { $('status').textContent = text; $('status').className = bad ? 'bad' : ''; }
+function render() {
+  for (const where of ['top', 'bottom']) {
+    const v = run ? run.conv.view($(`lang-${where}`).value) : { theirs: [], mine: [] };
+    $(`theirs-${where}`).firstChild.textContent = v.theirs.join('\n');
+    $(`mine-${where}`).firstChild.textContent = v.mine.join(' ');
+  }
+}
+
+async function start() {
+  const a = $('lang-bottom').value, b = $('lang-top').value;
+  if (a === b) { status('Pick two different languages.', true); return; }
+  $('go').disabled = true;
+  try {
+    status('Getting a key…');
+    const keyRes = await fetch('/api/soniox-key', { method: 'POST' });
+    const key = await keyRes.json();
+    if (!keyRes.ok) throw new Error(key.error || `key ${keyRes.status}`);
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    run = { stream, conv: createConversation(a, b), wake: await navigator.wakeLock?.request('screen').catch(() => null) };
+    const ws = new WebSocket('wss://stt-rt.soniox.com/transcribe-websocket', ['soniox-api-key', key.apiKey]);
+    run.ws = ws;
+    ws.onopen = () => {
+      ws.send(JSON.stringify({
+        model: 'stt-rt-v5', audio_format: 'auto', language_hints: [a, b], enable_language_identification: true, enable_endpoint_detection: true,
+        translation: { type: 'two_way', language_a: a, language_b: b },
+      }));
+      run.recorder = new MediaRecorder(stream);
+      run.recorder.ondataavailable = e => { if (e.data.size && ws.readyState === WebSocket.OPEN) ws.send(e.data); };
+      run.recorder.start(120);
+      $('lang-top').disabled = $('lang-bottom').disabled = true;
+      $('go').textContent = 'Stop';
+      $('go').disabled = false;
+      status('Listening. Take turns speaking.');
+    };
+    ws.onmessage = e => {
+      const res = JSON.parse(e.data);
+      if (res.error_code != null) { status(`Soniox ${res.error_code}: ${res.error_message}`, true); stop(); return; }
+      run?.conv.update(res);
+      render();
+      if (res.finished) stop();
+    };
+    ws.onclose = e => { if (run) { status(`Connection closed (${e.code}). Press Start again.`, e.code !== 1000); stop(); } };
+  } catch (err) {
+    status(String(err.message || err), true);
+    stop();
+  }
+}
+
+function stop() {
+  const r = run;
+  run = null; // the conversation goes with it: nothing said here is kept
+  if (r) {
+    if (r.recorder?.state === 'recording') r.recorder.stop();
+    r.stream?.getTracks().forEach(t => t.stop());
+    if (r.ws?.readyState === WebSocket.OPEN) r.ws.send('');
+    r.wake?.release().catch(() => {});
+  }
+  render();
+  $('lang-top').disabled = $('lang-bottom').disabled = false;
+  $('go').textContent = 'Start';
+  $('go').disabled = false;
+}
+
+$('go').onclick = () => { if (run) { stop(); status('Stopped. The conversation was wiped.'); } else start(); };
+document.addEventListener('visibilitychange', () => {
+  if (run && !document.hidden && run.wake?.released) navigator.wakeLock?.request('screen').then(w => { if (run) run.wake = w; }).catch(() => {});
+});
+</script>
+</body>
+</html>
