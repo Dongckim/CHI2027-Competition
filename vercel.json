@@ -1,4 +1,5 @@
 {
   "redirects": [{ "source": "/", "destination": "/tests/" }],
-  "headers": [{ "source": "/(.*)", "headers": [{ "key": "cache-control", "value": "no-store" }] }]
+  "headers": [{ "source": "/(.*)", "headers": [{ "key": "cache-control", "value": "no-store" }] }],
+  "functions": { "api/push.mjs": { "maxDuration": 90 } }
 }

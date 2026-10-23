@@ -15,7 +15,7 @@
 
 ## ② 통과 기준 결과
 - 어려운 사례 10/10 → 통과
-- 성능 (M2): 추천 50개 0.2ms · 200개 1.1ms · 전체 2,531개 87ms → 조건부 (휴대폰 실측 전, 전체를 넣으면 휴대폰에서 약 210ms 예상)
+- 성능: M2 추천 200개 1.1ms · 전체 87ms, iPhone Safari(V3) 추천 200개 0.6ms · 전체 33.4ms → 통과 (기준 100ms)
 - chi2026 5일 · chi2025 6일 모두 루트 생성 → 통과
 - 계약 6종 0/6 → 미완
 - 판정: 진행 중 (플래너 조건부 통과, 계약 대기)
@@ -28,7 +28,7 @@
 
 ## ④ 남은 문제
 - 계약 6종 (RecommendRequest·RecommendResponse·Route·DeviceState·GenieTool·CaptionSession)
-- 휴대폰 실측 (V3)
+- Android 실측 (V3)
 - 못 하는 것: 꼭 갈 발표 고정·제외, 쉬는 시간, 포스터를 잠깐 들르는 것으로 보기 (contracts/README.md)
 
 ## ⑤ 다음 단계가 알아야 할 것
