@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="color-scheme" content="light dark">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-title" content="ARC">
+<title>Mobile bench</title>
+<!-- Bench page (V3, #4): what the phone browser can do (storage, banners, mic, wake lock, viewport, keyboard, planner speed).
+     Not the app UI. The only thing kept is a bench timestamp in IndexedDB (7-day storage test) and the O/X answers in localStorage.
+     shortcut: results are a flat table, not a contracts/ shape; move to DeviceState once that contract exists. -->
+<style>
+  :root { --bg: #ffffff; --ink: #14161a; --muted: #6a707b; --line: #d7dbe2; --panel: #f3f5f8; --bad: #b42318; --ok: #1d7a46; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #121417; --ink: #eceef2; --muted: #9aa0ab; --line: #343941; --panel: #1b1e23; --bad: #f97066; --ok: #7fd6a3; color-scheme: dark; } }
+  :root[data-theme="dark"] { --bg: #121417; --ink: #eceef2; --muted: #9aa0ab; --line: #343941; --panel: #1b1e23; --bad: #f97066; --ok: #7fd6a3; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { font: 16px/1.5 system-ui, sans-serif; color: var(--ink); background: var(--bg); margin: 0 auto; max-width: 560px;
+         padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(96px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+  h1 { font-size: 22px; margin: 0 0 4px; } h2 { font-size: 17px; margin: 28px 0 8px; }
+  p { margin: 4px 0; } .muted { color: var(--muted); font-size: 14px; }
+  button { font-size: 16px; min-height: 44px; padding: 0 16px; border-radius: 22px; border: 1px solid var(--ink); background: var(--ink); color: var(--bg); margin: 4px 4px 4px 0; }
+  button.ghost { background: none; color: var(--ink); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  td { border-top: 1px solid var(--line); padding: 6px 4px; vertical-align: top; overflow-wrap: anywhere; }
+  td:first-child { width: 42%; color: var(--muted); }
+  .manual td:last-child { white-space: nowrap; }
+  .manual button { min-height: 36px; padding: 0 12px; margin: 0 2px; }
+  .manual button[aria-pressed="true"] { outline: 3px solid var(--ok); }
+  #banner { position: fixed; left: 0; right: 0; top: 0; padding: max(12px, env(safe-area-inset-top, 0px)) 16px 12px; background: var(--ok); color: var(--bg); font-weight: 600; }
+  #kbd { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 8px; background: var(--panel); border-top: 1px solid var(--line);
+         padding: 8px max(16px, env(safe-area-inset-right, 0px)) max(8px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+  #kbd input { flex: 1; min-width: 0; font-size: 16px; min-height: 44px; padding: 0 12px; }
+  #log { font: 12px/1.4 ui-monospace, monospace; white-space: pre-wrap; background: var(--panel); padding: 8px; max-height: 240px; overflow: auto; }
+  textarea { width: 100%; height: 160px; font: 12px ui-monospace, monospace; }
+  .probe { position: absolute; visibility: hidden; top: 0; left: 0; width: 1px; }
+</style>
+</head>
+<body>
+<div id="banner" hidden role="status"></div>
+<h1>Mobile bench (V3)</h1>
+<p class="muted">위에서부터 버튼을 눌러 보고, 자동으로 안 재지는 것은 O/X를 눌러 주세요. 끝나면 맨 아래 "결과 복사".</p>
+
+<h2>1. 기기·화면</h2>
+<table id="t-env"></table>
+<button class="ghost" id="remeasure">다시 재기 (회전·툴바 바뀐 뒤)</button>
+
+<h2>2. 저장 (IndexedDB, 7일 테스트)</h2>
+<table id="t-store"></table>
+<button id="persist">저장 유지 요청 (persist)</button>
+
+<h2>3. 예약 배너</h2>
+<p class="muted">30초 배너를 누르고 화면을 켠 채 기다리기 → 2분 배너를 누르고 화면을 끄거나 다른 앱으로 갔다가 3분 뒤 돌아오기.</p>
+<button id="b30">30초 뒤 배너</button><button id="b120">2분 뒤 배너</button>
+<table id="t-banner"></table>
+
+<h2>4. 마이크</h2>
+<button id="mic">마이크 권한 → 1초 녹음 (저장 안 함)</button>
+<table id="t-mic"></table>
+
+<h2>5. 화면 꺼짐 방지 (Wake Lock)</h2>
+<p class="muted">켠 뒤 2분 동안 손대지 않기 → 화면이 안 꺼지면 O. 앱 전환 뒤 돌아와서 상태 확인.</p>
+<button id="wake">Wake Lock 켜기</button>
+<table id="t-wake"></table>
+
+<h2>6. 알림</h2>
+<p class="muted">iPhone은 홈 화면에 추가해서 연 앱에서만 권한을 물을 수 있습니다 (공유 → 홈 화면에 추가).</p>
+<button id="notify">알림 권한 요청</button>
+<p class="muted">푸시: 권한을 받은 뒤 버튼을 누르고 바로 홈 화면으로 나가거나 화면을 끄기. 알림이 오면 눌러서 돌아오기.</p>
+<button id="push10">10초 뒤 푸시</button><button id="push60">60초 뒤 푸시</button>
+<table id="t-notify"></table>
+
+<h2>7. 키보드</h2>
+<p class="muted">맨 아래 입력창을 누르고 1초 기다리기. 입력창이 키보드 위에 보이면 O.</p>
+<table id="t-kbd"></table>
+
+<h2>8. 플래너 속도 (V2)</h2>
+<button id="plan">chi2026 하루 루트 계산 (데이터 6MB 받음)</button>
+<table id="t-plan"></table>
+
+<h2>9. 직접 확인 (O/X)</h2>
+<p class="muted">자막·대면 대화는 <a href="../captions/bench.html">자막</a> · <a href="../captions/conversation.html">대면 대화</a>에서 하고 돌아와서 표시. 메모는 길게 누르기 대신 아래 메모 칸에.</p>
+<table id="t-manual" class="manual"></table>
+<p><label for="memo">메모</label></p>
+<textarea id="memo" placeholder="거부 후 다시 허용한 방법, 이상했던 점 등"></textarea>
+
+<h2>기록</h2>
+<div id="log"></div>
+
+<h2>결과</h2>
+<button id="copy">결과 복사</button><button class="ghost" id="reset">O/X 지우기</button>
+<p class="muted" id="copied"></p>
+<textarea id="out" hidden readonly></textarea>
+
+<div id="kbd"><input id="kbd-input" type="text" placeholder="키보드 테스트" aria-label="키보드 테스트"></div>
+<div class="probe" id="p-vh" style="height:100vh"></div><div class="probe" id="p-dvh" style="height:100dvh"></div>
+<div class="probe" id="p-svh" style="height:100svh"></div><div class="probe" id="p-lvh" style="height:100lvh"></div>
+<div class="probe" id="p-safe" style="padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)"></div>
+<div class="probe" id="p-body" style="font:-apple-system-body"></div>
+
+<script type="module">
+const $ = id => document.getElementById(id);
+const results = {}; // section -> { label: value }, all of it goes into the copy
+const t0 = Date.now();
+const clock = (ms = Date.now()) => new Date(ms).toTimeString().slice(0, 8);
+function log(text) { $('log').textContent += `${clock()} ${text}\n`; }
+function put(section, label, value) {
+  (results[section] ??= {})[label] = value;
+  const table = $(`t-${section}`);
+  let row = [...table.rows].find(r => r.cells[0].textContent === label);
+  if (!row) { row = table.insertRow(); row.insertCell().textContent = label; row.insertCell(); }
+  row.cells[1].textContent = value;
+}
+const yn = v => (v ? '있음' : '없음');
+const standalone = () => !!(navigator.standalone || matchMedia('(display-mode: standalone)').matches);
+
+// 1. device and viewport
+function measure() {
+  const h = id => `${$(id).offsetHeight}px`;
+  const safe = getComputedStyle($('p-safe'));
+  put('env', '브라우저', navigator.userAgent);
+  put('env', '홈 화면 앱으로 열림', standalone() ? '예' : '아니오 (브라우저)');
+  put('env', '화면 (CSS px) · 배율', `${screen.width}×${screen.height} · ${devicePixelRatio}x`);
+  put('env', '창 innerWidth×innerHeight', `${innerWidth}×${innerHeight}`);
+  put('env', 'visualViewport', window.visualViewport ? `${Math.round(visualViewport.width)}×${Math.round(visualViewport.height)}` : '없음');
+  put('env', '100vh / dvh / svh / lvh', [h('p-vh'), h('p-dvh'), h('p-svh'), h('p-lvh')].join(' / '));
+  put('env', 'safe area 위/오른/아래/왼', [safe.paddingTop, safe.paddingRight, safe.paddingBottom, safe.paddingLeft].join(' / '));
+  put('env', '방향', screen.orientation?.type ?? (matchMedia('(orientation: portrait)').matches ? 'portrait' : 'landscape'));
+  put('env', '다크 모드', matchMedia('(prefers-color-scheme: dark)').matches ? '다크' : '라이트');
+  put('env', '시스템 글자 크기 (-apple-system-body)', getComputedStyle($('p-body')).fontSize);
+  put('env', '동작 줄이기', matchMedia('(prefers-reduced-motion: reduce)').matches ? '켬' : '끔');
+  put('env', '진동 (navigator.vibrate)', yn(navigator.vibrate));
+  put('env', '방향 고정 (orientation.lock)', yn(screen.orientation?.lock));
+}
+measure();
+$('remeasure').onclick = () => { measure(); log('다시 잼'); };
+screen.orientation?.addEventListener('change', () => { log(`방향 ${screen.orientation.type}`); measure(); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => { log(`다크 모드 ${e.matches ? '켬' : '끔'}`); measure(); });
+
+// 2. storage: first visit time in IndexedDB, so a visit 7 days later shows whether it survived
+// not awaited at the top: a stuck IndexedDB must not stop the rest of the page
+const dbReady = new Promise(res => {
+  setTimeout(() => res(null), 3000);
+  try {
+    const r = indexedDB.open('arc-bench', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => res(r.result);
+    r.onerror = r.onblocked = () => res(null);
+  } catch { res(null); }
+});
+let db = null;
+const idb = (mode, fn) => new Promise((res, rej) => { const q = fn(db.transaction('kv', mode).objectStore('kv')); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+async function storage() {
+  db = await dbReady;
+  if (!db) { put('store', 'IndexedDB', '열 수 없음 (3초 안에 안 열림)'); return; }
+  let first = await idb('readonly', s => s.get('first'));
+  if (!first) { first = { at: Date.now(), standalone: standalone() }; await idb('readwrite', s => s.put(first, 'first')); }
+  await idb('readwrite', s => s.put(Date.now(), 'last'));
+  const days = (Date.now() - first.at) / 86400000;
+  put('store', 'IndexedDB 저장·읽기', '됨');
+  put('store', '처음 저장', `${new Date(first.at).toLocaleString()} (${first.standalone ? '홈 화면 앱' : '브라우저'})`);
+  put('store', '처음 저장 후', `${days.toFixed(2)}일`);
+  put('store', 'persisted()', String(await navigator.storage?.persisted?.() ?? '없음'));
+  const est = await navigator.storage?.estimate?.();
+  put('store', '쓸 수 있는 용량', est ? `${Math.round(est.quota / 1e6)} MB (사용 ${Math.round(est.usage / 1e3)} KB)` : '없음');
+}
+storage().catch(err => put('store', 'IndexedDB', `실패: ${err?.name} ${err?.message}`));
+$('persist').onclick = async () => { put('store', 'persist() 요청 결과', String(await navigator.storage?.persist?.() ?? '없음')); storage(); };
+
+// 3. banners: due times live in localStorage too, so a page the phone reloaded in the background still shows them late
+const DUE = 'arc-bench-due';
+const dues = () => { try { return JSON.parse(localStorage.getItem(DUE)) || []; } catch { return []; } };
+const saveDues = d => { try { localStorage.setItem(DUE, JSON.stringify(d)); } catch {} };
+function schedule(sec) { saveDues([...dues(), { id: Date.now(), sec, due: Date.now() + sec * 1000, loadedAt: t0 }]); log(`${sec}초 배너 예약`); }
+function check(how) {
+  const now = Date.now(), left = [];
+  for (const d of dues()) {
+    if (d.due > now) { left.push(d); continue; }
+    const late = ((now - d.due) / 1000).toFixed(1);
+    const reloaded = d.loadedAt !== t0;
+    // iOS runs the interval before visibilitychange on return, so lateness, not the caller, says it waited in the background
+    const via = reloaded ? '페이지가 다시 로드된 뒤' : late > 3 ? '백그라운드에서 돌아온 뒤' : how;
+    put('banner', `${d.sec}초 배너`, `지연 ${late}초 · ${via}`);
+    $('banner').textContent = `예약 배너 (${d.sec}초) · ${late}초 늦음 · ${via}`;
+    $('banner').hidden = false;
+    setTimeout(() => ($('banner').hidden = true), 6000);
+    log(`${d.sec}초 배너 표시, ${late}초 늦음, ${via}`);
+  }
+  saveDues(left);
+}
+$('b30').onclick = () => schedule(30);
+$('b120').onclick = () => schedule(120);
+setInterval(() => check('화면 켜진 채 타이머'), 1000);
+check('페이지 열 때');
+
+// visibility, back-forward cache, wake lock release: logged for sections 3 and 5
+let hiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { hiddenAt = Date.now(); log('백그라운드로'); return; }
+  log(`돌아옴 (${((Date.now() - hiddenAt) / 1000).toFixed(0)}초 뒤)`);
+  check('백그라운드에서 돌아올 때');
+  if (wake) put('wake', '돌아온 뒤 상태', wake.released ? '풀림 (다시 켜야 함)' : '유지');
+});
+addEventListener('pageshow', e => { if (e.persisted) log('뒤로가기 캐시에서 복원'); });
+
+// 4. microphone
+$('mic').onclick = async () => {
+  put('mic', '권한 상태 (전)', await navigator.permissions?.query({ name: 'microphone' }).then(p => p.state, () => '조회 안 됨') ?? '조회 안 됨');
+  try {
+    const t = performance.now();
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    put('mic', '권한', `허용 (${Math.round(performance.now() - t)}ms)`);
+    put('mic', '지원 형식', ['audio/webm', 'audio/mp4', 'audio/ogg'].filter(m => MediaRecorder.isTypeSupported?.(m)).join(', ') || '없음');
+    const rec = new MediaRecorder(stream);
+    let bytes = 0;
+    rec.ondataavailable = e => (bytes += e.data.size); // counted, then dropped
+    rec.onstop = () => { stream.getTracks().forEach(tr => tr.stop()); put('mic', '1초 녹음', `${rec.mimeType || '형식 미표시'} · ${bytes} bytes (버림)`); };
+    rec.start(120);
+    setTimeout(() => rec.stop(), 1000);
+  } catch (err) {
+    put('mic', '권한', `실패: ${err.name} ${err.message}`);
+  }
+};
+
+// 5. wake lock
+let wake = null;
+put('wake', '지원', yn(navigator.wakeLock));
+$('wake').onclick = async () => {
+  try {
+    wake = await navigator.wakeLock.request('screen');
+    put('wake', '상태', `켬 ${clock()}`);
+    wake.addEventListener('release', () => { put('wake', '상태', `풀림 ${clock()}`); log('Wake Lock 풀림'); });
+  } catch (err) { put('wake', '상태', `실패: ${err.name} ${err.message}`); }
+};
+
+// 6. notifications
+const notifyState = () => put('notify', '권한', 'Notification' in window ? Notification.permission : '없음 (iPhone은 홈 화면 앱에서만)');
+put('notify', '서비스 워커', yn(navigator.serviceWorker));
+put('notify', 'Push', yn(window.PushManager));
+notifyState();
+$('notify').onclick = async () => {
+  if (!('Notification' in window)) { notifyState(); return; }
+  await Notification.requestPermission().catch(() => {});
+  notifyState();
+};
+
+// web push: the subscription stays on this phone and goes to /api/push only inside the request
+let pushSentAt = 0;
+async function sendPush(sec) {
+  try {
+    if (window.Notification?.permission !== 'granted') { put('notify', '푸시', '먼저 알림 권한 요청'); return; }
+    const reg = await navigator.serviceWorker.register('sw.js');
+    await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      const { publicKey } = await fetch('/api/push').then(r => r.json());
+      sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: Uint8Array.from(atob(publicKey.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)) });
+    }
+    put('notify', '푸시 서비스', new URL(sub.endpoint).hostname);
+    pushSentAt = Date.now() + sec * 1000;
+    put('notify', '푸시', `${sec}초 뒤 보냄 예정 (${clock(pushSentAt)}). 지금 나가기`);
+    log(`${sec}초 뒤 푸시 요청`);
+    const res = await fetch('/api/push', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ subscription: sub, delaySeconds: sec }), keepalive: true });
+    const out = await res.json();
+    put('notify', '서버 결과', res.ok ? `푸시 서비스가 받음 (${out.pushStatus}) ${clock()}` : `실패 ${res.status}: ${out.error ?? out.pushStatus}`);
+    log(`푸시 서버 응답 ${res.status}`);
+  } catch (err) { put('notify', '푸시', `실패: ${err.name} ${err.message}`); }
+}
+$('push10').onclick = () => sendPush(10);
+$('push60').onclick = () => sendPush(60);
+// the service worker writes when the push arrived; show it when the person comes back
+async function pushArrival() {
+  const at = db && await idb('readonly', st => st.get('pushAt')).catch(() => null);
+  if (at && pushSentAt && at >= pushSentAt - 5000) put('notify', '알림 도착', `${clock(at)} (보낸 시각 대비 ${((at - pushSentAt) / 1000).toFixed(1)}초)`);
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) pushArrival(); });
+
+// 7. keyboard: is the fixed input still above the keyboard?
+$('kbd-input').onfocus = () => setTimeout(() => {
+  const vv = window.visualViewport, box = $('kbd').getBoundingClientRect();
+  const visibleBottom = vv ? vv.offsetTop + vv.height : innerHeight;
+  put('kbd', '창 높이 / 보이는 높이', `${innerHeight} / ${vv ? Math.round(vv.height) : '?'}px`);
+  put('kbd', '입력창 아래 끝 / 보이는 아래 끝', `${Math.round(box.bottom)} / ${Math.round(visibleBottom)}px`);
+  put('kbd', '입력창이 키보드 위에 보임 (자동)', box.bottom <= visibleBottom + 1 ? '예' : '아니오 (가려짐)');
+}, 1000);
+
+// 8. planner speed on the phone (same runs as tests/planner/bench.mjs)
+$('plan').onclick = async () => {
+  $('plan').disabled = true;
+  put('plan', '상태', '데이터 받는 중…');
+  try {
+    const { indexData, localDay, planDay, venueTravelMinutes } = await import('../../app/src/planner/plan.js');
+    const get = p => fetch(`../../data/${p}`).then(r => { if (!r.ok) throw new Error(`${p} ${r.status}`); return r.json(); });
+    const t = performance.now();
+    const [meta, papers, sessions, rooms, ed] = await Promise.all(['meta', 'papers', 'sessions', 'rooms'].map(f => get(`build/chi2026/${f}.json`)).concat(get('venue/chi2026.json')));
+    const venue = await get(`venue/${ed.venue}.json`);
+    put('plan', '데이터 받기', `${Math.round(performance.now() - t)}ms`);
+    const index = indexData({ meta, papers, sessions, rooms });
+    const travelMinutes = venueTravelMinutes(venue, ed);
+    const scheduled = papers.filter(p => p.scheduled);
+    const all = scheduled.map((p, i) => ({ paperKey: p.key, relevance: ((i * 7919) % 1000) / 1000 }));
+    const ranked = all.slice().sort((a, b) => b.relevance - a.relevance || (a.paperKey < b.paperKey ? -1 : 1));
+    const days = [...new Set(scheduled.flatMap(p => p.slots.filter(s => s.start != null).map(s => localDay(s.start, meta.timeZone))))].sort();
+    const time = cands => {
+      let max = 0;
+      for (const day of days) {
+        planDay(index, cands, { day, travelMinutes });
+        const s = performance.now();
+        for (let k = 0; k < 5; k++) planDay(index, cands, { day, travelMinutes });
+        max = Math.max(max, (performance.now() - s) / 5);
+      }
+      return `${max.toFixed(1)}ms (하루 최대, ${days.length}일)`;
+    };
+    put('plan', '추천 50개', time(ranked.slice(0, 50)));
+    put('plan', '추천 200개 (기준 100ms)', time(ranked.slice(0, 200)));
+    put('plan', `전체 ${scheduled.length}개`, time(all));
+    put('plan', '상태', '끝');
+  } catch (err) { put('plan', '상태', `실패: ${err.message}`); }
+  $('plan').disabled = false;
+};
+
+// 9. manual O/X, remembered on this phone so a reload does not lose them
+const MANUAL = 'arc-bench-manual';
+const checks = [
+  '자막: 마이크 허용 후 자막 나옴', '자막: 번역 나옴', '자막: 화면 껐다 켠 뒤 계속됨', '자막: 다른 앱 갔다 와도 계속됨',
+  '대면 대화: 두 언어가 나뉨', '대면 대화: 위쪽 화면이 뒤집혀 잘 읽힘', '대면 대화: 눕혔을 때 가로로 안 돌아감', '대면 대화: 한국어 단어 단위 줄바꿈',
+  '언어 목록이 잘 열림', '권한 거부 후 설정에서 다시 허용 가능', 'Wake Lock: 2분 동안 화면 안 꺼짐', '30초 배너 제때 뜸', '2분 배너가 돌아온 뒤 뜸',
+  '맨 위에서 당기면 새로고침됨', 'Safari 글자 크기 키워도 안 깨짐 (가가 메뉴)', '다크 모드 바꾸면 페이지도 바뀜', '홈 화면에 추가 후 앱처럼 열림',
+];
+let manual = {};
+try { manual = JSON.parse(localStorage.getItem(MANUAL)) || {}; } catch {}
+try { $('memo').value = localStorage.getItem(`${MANUAL}-memo`) || ''; } catch {}
+$('memo').oninput = () => { try { localStorage.setItem(`${MANUAL}-memo`, $('memo').value); } catch {} };
+function drawManual() {
+  $('t-manual').replaceChildren();
+  for (const c of checks) {
+    const row = $('t-manual').insertRow();
+    row.insertCell().textContent = c;
+    const cell = row.insertCell();
+    for (const v of ['O', 'X', '-']) {
+      const b = document.createElement('button');
+      b.className = 'ghost'; b.textContent = v; b.setAttribute('aria-pressed', String(manual[c] === v));
+      b.setAttribute('aria-label', `${c}: ${v}`);
+      b.onclick = () => { manual[c] = v; try { localStorage.setItem(MANUAL, JSON.stringify(manual)); } catch {} drawManual(); };
+      cell.append(b);
+    }
+  }
+}
+drawManual();
+$('reset').onclick = () => { manual = {}; try { localStorage.removeItem(MANUAL); } catch {} drawManual(); };
+
+// copy: a markdown table to paste back into docs/validation/V3-mobile.md
+$('copy').onclick = () => {
+  measure();
+  const lines = [`# V3 mobile bench ${new Date().toISOString()}`];
+  for (const [section, rows] of Object.entries(results)) { lines.push(`\n## ${section}`, '| 항목 | 값 |', '|---|---|'); for (const [k, v] of Object.entries(rows)) lines.push(`| ${k} | ${String(v).replaceAll('|', '/')} |`); }
+  lines.push('\n## manual', '| 항목 | O/X |', '|---|---|', ...checks.map(c => `| ${c} | ${manual[c] ?? ''} |`));
+  lines.push('\n## memo', $('memo').value || '-', '\n## log', '```', $('log').textContent.trim(), '```');
+  const text = lines.join('\n');
+  $('out').value = text;
+  navigator.clipboard.writeText(text).then(() => ($('copied').textContent = '복사됨. 대화창에 붙여 주세요.'), () => {
+    $('out').hidden = false; $('out').select(); $('copied').textContent = '자동 복사가 안 돼서 아래 칸을 길게 눌러 전체 복사해 주세요.';
+  });
+};
+log('페이지 열림');
+</script>
+</body>
+</html>
