@@ -3,3 +3,5 @@ data/raw/
 # Rebuilt from data/raw with npm run data:build (deterministic). See docs/stages/00-data.md.
 data/build/
 .DS_Store
+# Local secrets (SONIOX_API_KEY=...). Never commit.
+.env.local
