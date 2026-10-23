@@ -8,6 +8,7 @@
     "data:validate": "node data/scripts/validate.mjs",
     "data:ror": "node data/scripts/ror.mjs",
     "data:build": "node data/scripts/build.mjs",
+    "contracts:check": "node contracts/check.mjs",
     "test": "node --test"
   },
   "devDependencies": {
