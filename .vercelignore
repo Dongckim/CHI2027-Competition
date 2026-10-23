@@ -1,0 +1,12 @@
+# Vercel CLI uploads from this folder (data/build is gitignored but the bench pages need chi2026).
+# shortcut: other editions are listed by name because Vercel ignored a `!data/build/chi2026/` negation; add new ones here.
+.env*
+data/raw/
+data/build/chi2023/
+data/build/chi2024/
+data/build/chi2025/
+data/build/sandbox/
+data/build/chi2026/people.json
+data/build/chi2026/aliases.json
+recsys/
+docs/
