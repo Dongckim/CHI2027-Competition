@@ -5,3 +5,5 @@ data/build/
 .DS_Store
 # Local secrets (SONIOX_API_KEY=...). Never commit.
 .env.local
+.vercel
+.env*
