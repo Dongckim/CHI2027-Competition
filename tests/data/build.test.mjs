@@ -42,7 +42,7 @@ const fixture = () => ({
     { id: 22, typeId: 1, title: 'Remote', authors: [
       { personId: 2, affiliations: [{ institution: 'Northeastern University', country: 'United States' }] },
       { personId: 3, affiliations: [{ institution: 'Northeastern University', country: 'China' }] },
-      { personId: 4, affiliations: [{ institution: 'Massachusetts Tech' }] },
+      { personId: 4, affiliations: [{ institution: 'Massachusetts Tech', country: 'USA' }] },
     ] },
   ],
   people: [{ id: 1, firstName: 'Ada', lastName: null }],
@@ -80,6 +80,8 @@ test('buildEdition: keys, talk order, remote items, aliases, people', () => {
   assert.equal(b.authors[0].institutionKey, 'inst:ror-042nb2s44');
   assert.deepEqual(remote.authors.map(a => a.institutionKey), ['inst:ror-04t5xt781', 'inst:ror-03awzbc87', 'inst:ror-042nb2s44'], 'same name, different country');
   assert.equal(out.aliases.lookup['northeastern university'].length, 2);
+  assert.deepEqual(remote.authors.map(a => a.country), ['United States', 'China', 'United States'], 'author country from the feed, USA folded');
+  assert.equal(b.authors[0].country, null, 'no country in the feed stays null');
   assert.equal(out.people.find(p => p.id === 1).appearances.length, 2);
   assert.equal(out.people.find(p => p.id === 1).name, 'Ada');
   assert.deepEqual(out.topics.map(t => t.label), ['Accessibility']);
