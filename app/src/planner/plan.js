@@ -5,14 +5,30 @@
 // candidates: [{ paperKey, relevance }]  (relevance 0..1, e.g. from RecommendResponse)
 // options: { day: 'YYYY-MM-DD' (venue local), wheelchair, travelMinutes, travelCostPerMin }
 
+import { route } from '../venue/route.js';
+
 export const VALUE_WITH_VIDEO = 0.5; // a talk you can watch later is worth less in person
 export const TRAVEL_COST_PER_MIN = 0.01; // 5 minutes of walking ≈ 0.05 relevance
 
-// shortcut: floor-level guess until data/venue/<edition>.json has a room graph (V6, #7).
+// Floor-level guess, for editions without a venue graph and rooms the venue file does not map.
 export function defaultTravelMinutes(a, b, { wheelchair = false } = {}) {
   if (!a || !b || a.key === b.key) return 0;
   const walk = a.floor && a.floor === b.floor ? 4 : 7;
   return wheelchair ? Math.ceil(walk * 1.5) + 3 : walk;
+}
+
+// Travel minutes from the venue graph (V6): the slow end of the range, so every move the planner allows can be made.
+// venue: data/venue/<venue>.json, edition: data/venue/<edition>.json (its rooms map feed room keys to area ids).
+export function venueTravelMinutes(venue, edition) {
+  const memo = new Map(); // the planner asks for the same room pairs many times
+  return (a, b, options = {}) => {
+    if (!a || !b || a.key === b.key) return 0;
+    const from = edition.rooms?.[a.key], to = edition.rooms?.[b.key];
+    if (!from || !to) return defaultTravelMinutes(a, b, options);
+    const k = `${from}|${to}|${!!options.wheelchair}`;
+    if (!memo.has(k)) memo.set(k, from === to ? 0 : route(venue, from, to, options)?.minutes[1] ?? defaultTravelMinutes(a, b, options));
+    return memo.get(k);
+  };
 }
 
 const dayFormatters = new Map();
