@@ -7,3 +7,5 @@ data/build/
 .env.local
 .vercel
 .env*
+# Read-only reference prototypes (local only, see CLAUDE.md)
+reference/
