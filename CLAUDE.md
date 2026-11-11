@@ -74,7 +74,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 
 ## 디자인
 - 지금 Figma는 초안. 최종 디자인은 사용자가 따로 알려줄 때까지 아래 규칙은 적용하지 않음 (UI 작업 금지)
-- Figma: https://www.figma.com/design/UfKtv7eGMTOrCZEzszq9GS (페이지: 피드백 반영본)
+- Figma: https://www.figma.com/design/UfKtv7eGMTOrCZEzszq9GS?node-id=288-679 (페이지: v3 · 리뷰 반영 (11/09), 섹션 1~7 + components · v3)
 - 390×844 기준, 본문·입력창 16px, 터치 44px, 대비 4.5:1, safe area, dvh
 - Figma 코드 초안은 그대로 쓰지 말고 app/src/components 부품으로 바꿔 끼울 것
 - [대괄호] 자리는 contracts 데이터 필드로 연결
