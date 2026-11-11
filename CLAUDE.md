@@ -102,8 +102,11 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 접근성: 글씨 태그 12px / 보조 14px / 본문 16px 이상, 누르는 곳 44px, 회색 글씨 대비 4.5:1, 하단 고정 요소는 화면당 하나, safe area 34px.
 
 ## 참고 파일
-- prototypes/wayfinding/arc-wayfinding.html: 길 안내·시공간 큐브·방향 소리 프로토타입 (CHI 2026 CCIB P1)
-- prototypes/wayfinding/sign-scan-test.html: 표지판 인식 테스트
+- reference/wayfinding/arc-wayfinding.html: 길 안내·시공간 큐브·방향 소리 프로토타입 (CHI 2026 CCIB P1)
+- reference/wayfinding/sign-scan-test.html: 표지판 인식 테스트
+- reference/는 읽기 전용 참고 자료다. 수정하거나 커밋하지 않는다.
+- 코드를 그대로 복사해 붙이지 않는다. 구조, 데이터 모양, 계산 방식(경로, 왼쪽/오른쪽 판단, 시간 추정)을 참고해서 앱 구조에 맞게 새로 작성한다.
+- 앱과 프로토타입의 결과가 다르면(예: 안내 문장), 어느 쪽이 맞는지 나에게 물어본다.
 
 ## 진행 상황
 (단계마다 3줄씩 추가)
