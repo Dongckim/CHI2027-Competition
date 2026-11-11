@@ -88,3 +88,22 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 단계마다 브랜치 stage/NN-이름, 끝나면 docs/stages/NN-이름.md 정리
 - 중요한 결정은 docs/decisions/NNN-제목.md (이유 포함)
 - 정리 문서 형식: ① 만든 것 ② 통과 기준 결과(숫자) ③ 결정과 이유 ④ 남은 문제 ⑤ 다음 단계가 알아야 할 것 ⑥ 비용·토큰
+
+## Git 규칙
+- 커밋까지만 한다. git push, git remote, gh, GitHub API는 어떤 형태로도 쓰지 않는다. push와 PR은 사람이 한다.
+- 커밋 메시지에 Co-Authored-By나 도구 이름을 넣지 않는다.
+- 단계마다 stage/<단계>-<이름> 브랜치에서 작업한다.
+
+## 디자인 기준 (Figma v3)
+- 파일: UfKtv7eGMTOrCZEzszq9GS, 페이지 "v3 · 리뷰 반영 (11/09)"
+- 섹션 노드: 1 처음 열었을 때 288:680 / 2 오늘·하루 흐름 288:1174 / 3 바꾸기·예외 288:1903 / 4 발표장 288:2822 / 5 찾기·자세히 288:3007 / 6 이동·마무리 288:3335 / 7 보관·설정 288:3520 / 컴포넌트 289:450
+- 화면 기준 390×844. 각 프레임 아래 caption이 그 화면의 역할이다.
+- 원칙: 화면마다 질문 하나에만 답한다. 첫 화면에 지금 할 일이 보인다. 화면엔 쉬운 말만(route, plan, picks, bridge는 내부 용어). 기본값이 채워져 있고 뭘 눌러도 되돌릴 수 있다.
+- 접근성: 글씨 태그 12px / 보조 14px / 본문 16px 이상, 누르는 곳 44px, 회색 글씨 대비 4.5:1, 하단 고정 요소는 화면당 하나, safe area 34px.
+
+## 참고 파일
+- prototypes/wayfinding/arc-wayfinding.html: 길 안내·시공간 큐브·방향 소리 프로토타입 (CHI 2026 CCIB P1)
+- prototypes/wayfinding/sign-scan-test.html: 표지판 인식 테스트
+
+## 진행 상황
+(단계마다 3줄씩 추가)
