@@ -16,14 +16,38 @@
 - 배포: `vercel.json` → `npm run build:deploy` = `data:fetch chi2026` → `data:build chi2026` → `vite build` → `app/scripts/copy-static.mjs`(데이터·venue·bench 페이지를 `dist/`의 같은 경로로 복사)
   - `data/scripts/fetch.mjs`: 실패하면 `data:fetch failed: HTTP 404 from <URL>` / `cannot reach <URL> (ENOTFOUND)`처럼 원인을 찍고 exit 1
   - `/` → `/tests/` 리다이렉트 삭제. bench는 `/tests/`에 그대로
+- 앱용 데이터 (`data/scripts/app-data.mjs`, `data:build`가 함께 만듦): `data/build/app-data/<edition>/r<리비전>-<해시8>/`
+  - `schedule.json` (Today): paperKey·제목·type·feedType·slots(시작·끝·방·세션)·저자 personKey + 플래너가 쓰는 scheduled·video, 방·세션 이름, meta
+  - `abstracts/<날짜>.json` (06 상세): paperKey → 초록. 날짜 = 첫 시간 슬롯의 개최지 현지 날짜, 원격 전용은 `unscheduled.json` (`abstractDay()`)
+  - `people.json` (07 저자·검색): personKey → 이름, 소속 전체 (저자로 올라간 모든 소속, 좌장만 하는 31명은 기관 키로)
+  - `current.json` → 경로. 앱이 빌드 때 번들에 넣어서 배포와 데이터가 항상 맞음. 해시가 있어서 같은 리비전이라도 내용이 바뀌면 경로가 바뀜
+  - 앱 로더 `app/src/data/load.ts`: `loadSchedule` (Today), `loadAbstracts(day)`, `loadPeople` (화면을 열 때만)
+  - 원본 `data/build/<edition>/papers.json`은 그대로. contracts:check와 bench 페이지는 계속 원본을 씀
+- 캐시 (`vercel.json`, 겹치지 않는 경로만): `/assets/*`·`/app-data/*` = `public, max-age=31536000, immutable` · `/`·`/index.html` = `no-cache` · `/data/*` = `max-age=300`
 - 명령: `npm run dev`(폰에서도 열리게 `host: true`), `npm run build`, `npm run preview`, `npm run typecheck`
-- 테스트: `tests/app/rows.test.mjs` 2개, `tests/contracts/check.test.mjs` 1개 추가. `npm test`는 `tests/`만 실행 (`dist/`에 복사된 테스트 제외)
+- 테스트: `tests/app/rows.test.mjs` 2개, `tests/contracts/check.test.mjs` 1개, `tests/data/app-data.test.mjs` 3개 추가. `npm test`는 `tests/`만 실행 (`dist/`에 복사된 테스트 제외)
 
 ## ② 통과 기준 결과
 - 탭 3개 이동: 해시 링크, 새로고침·뒤로 가기 유지 (390×844 headless Chrome 화면 확인, 라이트·다크)
 - 가짜 추천 → 화요일 5개 중 4개 정차: 09:00 PAPER(NEXT 카드) / 11:15 PICK ONE(2편 겹침) / 12:03 PAPER / 14:15 TRY NEW(poster, adjacent). 겹친 wild 1편은 PICK ONE 안으로
-- `npm run contracts:check`: 4/4 PASS · `npm test`: 43/43 · `tsc`: 오류 0 · `npm run build:deploy`: 성공
-- 전송량: JS 239 kB (gzip 75 kB), CSS 12 kB (gzip 3.5 kB), woff2 4개 86 kB, papers.json 8.2 MB (gzip 1.8 MB)
+- `npm run contracts:check`: 4/4 PASS · `npm test`: 46/46 · `tsc`: 오류 0 · `npm run build:deploy`: 성공
+- 앱 데이터 분리 뒤 Today 화면: 라이트·다크 390×844 스크린샷이 분리 전과 픽셀 단위로 같음. 첫 화면 요청 = index.html, JS, CSS, woff2 4개, schedule.json, venue 2개 (papers.json·초록·people 없음)
+- 파일 크기 (chi2026 r1, gzip -9):
+
+| 파일 | 원본 | gzip | 언제 받음 |
+|---|---:|---:|---|
+| `app-data/…/schedule.json` | 1,276,931 | 219,198 | Today (첫 화면) |
+| `app-data/…/abstracts/2026-04-13.json` | 483,749 | 164,652 | 상세를 열 때, 그날 것만 |
+| `app-data/…/abstracts/2026-04-14.json` | 646,989 | 218,161 | 〃 |
+| `app-data/…/abstracts/2026-04-15.json` | 662,039 | 223,727 | 〃 |
+| `app-data/…/abstracts/2026-04-16.json` | 610,760 | 207,087 | 〃 |
+| `app-data/…/abstracts/2026-04-17.json` | 388,729 | 132,299 | 〃 |
+| `app-data/…/abstracts/unscheduled.json` | 280,281 | 96,578 | 〃 (원격 전용) |
+| `app-data/…/people.json` | 1,696,440 | 265,981 | 저자·검색을 열 때 |
+| (참고) 원본 `papers.json` | 8,180,694 | 1,822,078 | 앱은 안 받음 |
+| (참고) 원본 `people.json` | 4,151,941 | 454,257 | 앱은 안 받음 |
+
+- 첫 화면 전체 (gzip, woff2는 그대로): 전 2,021,924 B (코드·글꼴·venue 173,896 + papers·sessions·rooms·meta 1,848,028) → 후 **393,094 B** (173,896 + schedule 219,198). 원본 크기로는 8.8 MB → 1.7 MB
 - 판정: 통과 (폰 실기기 확인은 Vercel Git 연결 뒤)
 
 ## ③ 결정과 이유
@@ -34,12 +58,20 @@
 - countries는 data/build 값 그대로 나라 이름 (ISO 코드 아님)
 - 다크 값은 제안값. 대비 실측은 S8
 - 배포 데이터는 빌드 때 피드에서 받음: 리비전 파일은 바뀌지 않음, version.json 1회. 피드 서버가 죽으면 배포가 원인과 함께 멈춤
+- 앱 데이터 경로 = 리비전 + 내용 해시: 리비전만 넣으면 빌드 코드가 바뀌어도 경로가 같아서, 1년 캐시에 옛 파일이 남음
+- 경로는 런타임에 묻지 않고 번들에 넣음: index.html이 no-cache라 새 배포는 새 경로를 바로 씀. 런타임 조회 파일(max-age=300)을 두면 배포 직후 5분 동안 옛 경로를 가리켜 404가 날 수 있음
 
 ## ④ 남은 문제
-- papers.json 8.2 MB를 첫 화면에서 통째로 받음 (gzip 1.8 MB). 앱용 요약 파일이 필요 (제목·종류·slots만)
+- ~~papers.json 8.2 MB를 첫 화면에서 통째로 받음~~ → 이번에 처리함 (② 크기 표). 첫 화면 gzip 2.02 MB → 393 KB
+- ~~해시 붙은 assets에도 no-store~~ → 이번에 처리함 (① 캐시). bench 페이지(`/tests/`, `/app/src/`)는 이제 Vercel 기본값 (매번 다시 확인)
+- 계약 확인 요청 (원준):
+  - conceptId: 해가 바뀌어도 유지되는 slug 형식을 제안 (예시의 `topic:<slug>`는 chi2026 세션 이름에서 온 것이라 해마다 바뀜)
+  - 결과가 없을 때: `bridge: null`, `nearby: []` (지금 스키마는 bridge가 객체만 허용 → 확정되면 0.1.x로 null 허용)
+  - totalMatches: 200개로 자르기 전 관련 항목 수
+- 임베딩 파일: 추천 실행 위치(서버/기기, 원준 결정)가 정해지면 app-data에 추가
 - Directions·Skip·Edit·더보기·설정 버튼은 아직 아무 일도 안 함. 시계 없음 → 첫 정차를 항상 NEXT로 표시
-- 계약 0.1.0은 원준 확인 필요. bridge·nearby가 없을 때(빈 배열/객체) 의미, totalMatches 정의
-- `cache-control: no-store`가 해시 붙은 assets에도 걸림 (기존 설정 유지)
+- schedule.json 1.28 MB(gzip 219 KB)는 더 줄일 여지 있음 (키 이름 축약, 세션 목록 분리). 지금은 측정만
+- 캐시 헤더는 실제 Vercel 응답으로 확인 안 함 (배포 뒤 `curl -sI <주소>/assets/<파일>`로 확인)
 - 폰 실기기 확인 안 함
 
 ## ⑤ 다음 단계가 알아야 할 것

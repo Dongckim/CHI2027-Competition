@@ -65,7 +65,8 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 
 ## 구조
 - data/raw/<edition>/rev-<NNN>.json : 받은 원본 (수정 금지)
-- data/build/<edition>/ : 정규화 결과 (단일 데이터 원천, 앱·추천·지니 모두 이것만 읽음). meta·papers·sessions·rooms·people·topics·aliases. 키: `edition:id`, 기관 `inst:<slug>`, 주제 `topic:<slug>`
+- data/build/app-data/<edition>/r<리비전>-<해시>/ : 앱이 받는 조각 (schedule·abstracts/<날짜>·people). data:build가 data/build/<edition>/에서 만듦, 앱은 이것만 받음
+- data/build/<edition>/ : 정규화 결과 (단일 데이터 원천, 추천·지니·계약 검사는 이것을 읽음). meta·papers·sessions·rooms·people·topics·aliases. 키: `edition:id`, 기관 `inst:<slug>`, 주제 `topic:<slug>`
 - data/curated/ : 빌드 입력 (institutions.json은 사람이 관리, ror-*.json은 ROR 캐시). data/scripts/ : fetch·validate·ror·build·report
 - data/venue/<edition>.json : 시간대, 사용하는 학회장(`venue`), 피드 방 키 → 학회장 구역 ID(`rooms`) (해마다 교체)
 - data/venue/<venue>.json : 학회장 구역 표(치수·수용 인원)와 걷는 길 그래프(미터). 예: ccib.json
@@ -114,4 +115,4 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 (단계마다 3줄씩 추가)
 - S0 뼈대 (2026-11-11, stage/S0-skeleton): 3탭 해시 라우팅, Figma v3 토큰(+다크 제안), 공통 컴포넌트 9개, Today = 가짜 추천 → 플래너
 - 계약 RecommendRequest/Response 0.1.0 + contracts:check 규칙(인용 위치 등). Vercel 빌드가 피드를 받아 dist/ 생성, 실패 시 원인 출력
-- 남은 것: papers.json 8.2 MB 통째 로드, 버튼 동작·시계 없음, 계약 원준 확인, 폰 실기기 확인 (docs/stages/S0-skeleton.md)
+- 앱 데이터 분리(첫 화면 gzip 2.02 MB → 393 KB)·캐시 헤더. 남은 것: 버튼 동작·시계, 계약 원준 확인, 폰 실기기 확인 (docs/stages/S0-skeleton.md)
