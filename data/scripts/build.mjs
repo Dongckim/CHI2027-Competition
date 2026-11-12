@@ -21,17 +21,8 @@ export const countryName = c => (c?.trim() ? COUNTRY_SPELLINGS[c.trim()] ?? c.tr
 // Feed epoch ms are venue wall-clock times written as if they were UTC (every edition's sessions start at
 // 09:00Z). Convert to the real instant so that comparing with Date.now() and formatting in the venue's
 // IANA zone both give the right answer.
-const formatters = new Map();
-export function wallToInstant(ms, timeZone) {
-  if (!formatters.has(timeZone)) formatters.set(timeZone, new Intl.DateTimeFormat('en-US', {
-    timeZone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit',
-  }));
-  const offset = t => {
-    const p = Object.fromEntries(formatters.get(timeZone).formatToParts(t).map(x => [x.type, x.value]));
-    return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(t / 1000) * 1000;
-  };
-  return ms - offset(ms - offset(ms));
-}
+export { wallToInstant } from '../../app/src/time.js'; // shared with the app (demo clock)
+import { wallToInstant } from '../../app/src/time.js';
 
 // Talk start = session start + sum of earlier talks' durations, in contentIds order.
 // Only when every talk has a duration and they all fit in the session; otherwise the whole block.
