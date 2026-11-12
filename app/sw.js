@@ -17,15 +17,19 @@ self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('arc') && !KEEP.has(k)).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
+// ignoreVary: a host may answer `Vary: Origin` (vite preview does), and module scripts are requested with an Origin
+// header while the precache was not, so a plain match misses them offline. Names carry their content hash, so any
+// cached copy of the path is the right one.
+const MATCH = { ignoreVary: true };
 const cacheFirst = async (req, name) => {
-  const hit = await caches.match(req);
+  const hit = await caches.match(req, MATCH);
   if (hit) return hit;
   const res = await fetch(req);
   if (res.ok) (await caches.open(name)).put(req, res.clone());
   return res;
 };
 const staleWhileRevalidate = async req => {
-  const hit = await caches.match(req);
+  const hit = await caches.match(req, MATCH);
   const update = fetch(req).then(async res => { if (res.ok) (await caches.open(CACHE)).put(req, res.clone()); return res; }).catch(() => hit);
   return hit ?? update;
 };
@@ -36,7 +40,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   if (url.origin === self.location.origin) {
     if (req.mode === 'navigate') {
-      e.respondWith(fetch(req).catch(async () => (await caches.match('/index.html')) ?? (await caches.match('/')) ?? Response.error()));
+      e.respondWith(fetch(req).catch(async () => (await caches.match('/index.html', MATCH)) ?? (await caches.match('/', MATCH)) ?? Response.error()));
     } else if (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/app-data/')) {
       e.respondWith(cacheFirst(req, CACHE));
     } else if (url.pathname.startsWith('/data/venue/')) {
