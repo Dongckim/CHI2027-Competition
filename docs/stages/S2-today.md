@@ -112,6 +112,7 @@
   5. 출처 표기·샘플 날짜 줄이 12px → 14px (`text-small`). 12px은 태그만
   6. `#/toString/x`가 자리 화면으로 인정됨 (`in`) → `Object.hasOwn`
 - 확인: `npm test` 57/57 (`canBuild` 테스트 추가) · contracts 4/4 · tsc 0 · 빌드 성공. 헤드리스 Chrome: 빈 상태에서 `#/start/summary`·`#/building`·`#/start/days` → O-1, 샘플 하루에 톱니 없음, 샘플을 열 때 "is done"이 한 번도 안 나타남(MutationObserver로 첫 프레임부터 기록), `#/toString/x` → O-1, 시각별 카드 10개 그대로, 온보딩 → Build → Chrome 정상 종료 후 다시 열기 = Today (2회)
+- 폰 실기기 (2026-11-11, 미리보기 `arc-cl2xyx9n8…`, `fix/today-review` `426f87b`, 배포 JS가 로컬 빌드와 바이트 단위로 같음, 사용자 확인, 기종·브라우저는 기록 안 함): O-1·샘플 하루에 톱니 없음, 샘플을 열 때 "is done" 깜빡임 없이 FIRST STOP, 출처·날짜 줄 14px, 계획을 만든 뒤 Today에 톱니. 모두 정상
   - 테스트 스크립트가 Chrome을 강제 종료(SIGTERM)하면 마지막 localStorage 쓰기가 디스크에 안 남을 수 있었음 → 정상 종료로 바꿔 확인. 폰에서 OS가 Build 직후 브라우저를 강제로 끝내는 경우 같은 일이 생길 수 있음 (드묾, 남은 문제)
 - 고치지 않은 것 (리뷰에서 확인 못 함 / 결정 필요): 큰 글씨에서 온보딩 제목 26px 고정, 탭 두 개에서 나중 저장이 이김, 저장이 막힌 브라우저에서 첫 선택 전 O-1 문구, 온보딩·자리 화면의 출처 표기 여부, `Building.tsx`의 `builtAt`이 `Date.now()` 사용
 
