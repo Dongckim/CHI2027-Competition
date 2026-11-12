@@ -56,7 +56,8 @@ export function useExploreData() {
   const data = useMemo<Loaded | null>(() => {
     if (!files) return null;
     const schedule = programme?.schedule ?? files.base;
-    return { schedule, people: files.people, index: indexFor(schedule, files) };
+    const people = programme?.people ?? files.people; // a new revision's authors (new names, new people) when there is one
+    return { schedule, people, index: indexFor(schedule, { ...files, people }) };
   }, [files, programme]);
   return { data, error };
 }

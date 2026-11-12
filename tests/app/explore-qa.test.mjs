@@ -84,3 +84,26 @@ test('QA 10: People tab with only day/type filters says those filters are for ta
   assert.equal(peopleFilterOnly('', { ...NO_FILTERS, place: placeChoices(index, 'cmu')[0] }), false);
   assert.equal(peopleFilterOnly('', NO_FILTERS), false);
 });
+
+test('QA 14: a new revision gives the app the same paper and people shape as the build', async () => {
+  const { appPaper, appPeople, updatedPeople } = await import('../../data/scripts/app-shape.mjs');
+  const aff = (k, inst, c) => ({ institutionKey: k, institution: inst, country: c });
+  // A paper as buildEdition writes it (on the phone for a new revision): authors are objects, type is the feed's name.
+  const paper = { key: 'chi2026:9', title: 'New talk', type: 'Paper', scheduled: true, video: 'https://v', doi: null,
+    slots: [{ start: 1, end: 2, roomKey: 'chi2026:r', sessionKey: 'chi2026:s', order: 1 }],
+    authors: [{ personKey: 'chi2026:old', name: 'Old Name', affiliations: [aff('inst:cmu-slug', 'CMU', 'United States')] },
+      { personKey: 'chi2026:new', name: 'New Person', affiliations: [aff('inst:x', 'X Lab', 'Japan')] },
+      { personKey: 'chi2026:ghost', name: null, affiliations: [] }] };
+  assert.deepEqual(appPaper(paper), { paperKey: 'chi2026:9', title: 'New talk', type: 'paper', feedType: 'Paper', scheduled: true, video: true, doi: null,
+    slots: [{ start: 1, end: 2, roomKey: 'chi2026:r', sessionKey: 'chi2026:s' }], authors: ['chi2026:old', 'chi2026:new', 'chi2026:ghost'] });
+  const next = appPeople({ papers: [paper], people: [{ key: 'chi2026:old', name: 'Renamed', institutionKeys: [] }, { key: 'chi2026:new', name: 'New Person', institutionKeys: [] }], institutions: [] });
+  // The deploy's people.json: affiliations carry the official (ROR) institution keys the alias table uses.
+  const deploy = { 'chi2026:old': { name: 'Old Name', affiliations: [aff('inst:ror-05x2bcf33', 'Carnegie Mellon University', 'United States')] } };
+  const people = updatedPeople(deploy, next);
+  assert.equal(people['chi2026:old'].name, 'Renamed'); // the newer name
+  assert.deepEqual(people['chi2026:old'].affiliations, deploy['chi2026:old'].affiliations); // keys the "CMU" filter knows
+  assert.deepEqual(people['chi2026:new'], { name: 'New Person', affiliations: [aff('inst:x', 'X Lab', 'Japan')] }); // a new author appears
+  assert.equal(people['chi2026:ghost'], undefined); // not in the feed's people: no name to show
+  assert.deepEqual(updatedPeople(deploy, null), deploy);
+});
+
