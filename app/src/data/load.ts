@@ -55,3 +55,8 @@ export const loadAbstracts = onceBy<Record<string, string>>(day => get(`${base}a
 // Authors and search (07): personKey → { name, affiliations[] }.
 export const loadPeople = once<Record<string, { name: string; affiliations: { institutionKey: string; institution: string; country: string }[] }>>(
   () => get(`${base}people.json`));
+
+// Session topics (baseline recommender, Explore topic matches) and the institution alias table (Explore "CMU").
+export const loadTopics = once<{ key: string; label: string; contentKeys: string[] }[]>(() => get(`${base}topics.json`));
+export const loadInstitutions = once<{ institutions: { key: string; name: string; authorCount: number }[]; lookup: Record<string, string[]> }>(
+  () => get(`${base}institutions.json`));
