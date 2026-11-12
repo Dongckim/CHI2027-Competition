@@ -62,7 +62,8 @@
   - 처음 Explore를 열 때 데이터 받기 + 인덱스 만들기 331–393 ms (로컬 서버)
   - node: 인덱스 76–83 ms, 질의 중앙값 1.5–2 ms
   - 처음 측정은 "CMU" 106–107 ms → 고친 것 2개: 기관 별칭 표(4,536개)를 탭마다 훑던 것을 질의당 한 번으로, 첫 결과 목록이 그려질 때 돌던 플래너 계산을 Explore를 열 때로
-- `npm test` 81/81 · `contracts:check` 5/5 · `build:deploy` 성공 (QA 수정 뒤)
+- `npm test` 83/83 · `contracts:check` 5/5 · `build:deploy` 성공 (QA 수정, 하이라이트 밑줄, 새 revision 저자 뒤)
+- QA 수정 직후: `npm test` 81/81
 - QA 전: `npm test` 74/74 · `contracts:check` 5/5 · `build:deploy` 성공
 - 처음 S4: `npm test` 73/73 · `contracts:check` 5/5 · `tsc` 0 · `npm run build` 성공 · JS gzip 89.5 → 98.0 KB · 서비스 워커 12개 파일 (S3의 피드 정규화 조각 2.8 KB가 본 번들로 들어감: 검색이 `normalizeName`을 씀)
 - 05 No results → Clear filters → 필터 0, 04 Show 1 result → "Filters · 1"
@@ -102,14 +103,15 @@
 
 - DOI는 요청 범위(doi.org/…, http://dx.doi.org/…, 공백)에 ACM DL 주소(`https://dl.acm.org/doi/10.…`)를 더 받음. 안 받으면 chi2025 2,180개가 모두 숨겨짐. 숨기는 11개는 `https://dl.acm.org/doi/`뿐인 값
 - 13: 둘러보기의 플래너 입력은 샘플 응답 5개뿐이라 원래 가벼웠음. 쓰지 않는 계산을 없앤 정리
-- 하이라이트 대비: 글자 라이트 14.3:1, 다크 7.4:1. 하이라이트와 주변 배경의 차이는 라이트 1.2:1, 다크 2.2:1이라 색만으로 구별됨 (④)
+- 하이라이트 대비: 글자 라이트 14.3:1, 다크 7.4:1. 하이라이트와 주변 배경의 차이는 라이트 1.2:1, 다크 2.2:1이라 색만으로는 구별이 어려움 → 2 px 밑줄을 더함 (`<mark>`는 그대로, qa-check 16: 고치기 전 라이트·다크 `none` → 고친 뒤 `underline 2px`)
+- 추가로 찾아 고친 것: 폰이 받은 새 revision은 `buildEdition` 결과를 그대로 써서 저자가 객체, 종류가 `'Paper'` 원문이었음 → 4번 수정 뒤 Explore·06·07의 저자 링크·종류 필터가 깨질 수 있었음. `data/scripts/app-shape.mjs`(`appPaper`, `appPeople`)를 빌드와 폰이 같이 씀 (빌드 결과는 바이트 그대로)
+- 새 revision의 저자: `updatedPeople`가 새 이름·새 저자는 새 revision에서, 이미 있던 사람의 소속은 배포 때 것(ROR 키라서 "CMU" 필터가 계속 찾음). people 목록에 없어 이름이 없는 저자는 06 목록에서 빼고 "+n"에만 셈 (`app/src/explore/authors.js`), 검색 People 결과에서도 뺌. 테스트 QA 14·15 (고치기 전 실패 → 통과)
 - 문제없음 (확인): 잘못된 경로, 슬롯 없는 발표 251개, 소속 없는 사람 31명, 큰 글씨 가로 넘침 0, 페이지 오류 0
 
 ## ④ 남은 문제
 - **원준님께 (8번, 한글 줄임말)**: 검색창에서 "서울대"는 0건, "서울대학교"는 36건. 검색창은 별칭이 정확히 같거나 4글자 이상이 앞부분 일치일 때만 기관으로 봄 (`search.mjs` `findPlace`). 필터 화면의 후보 목록(`placeChoices`)은 "서울대"로도 서울대를 보여 줌. 검색창도 필터와 같은 별칭 표 규칙을 쓰게 할지 정해 주세요 (짧은 한글·중국어 줄임말의 잡음과 맞바꿈)
-- 하이라이트는 색으로만 구별됨 (배경과 1.2:1·2.2:1). 밑줄이나 굵기를 더할지 결정 필요
 - `abstractFileDay`(`app/src/explore/format.ts`)는 `app-data.mjs`의 `abstractDay`와 같은 일: 다음 단계에서 하나로
-- 새 revision에 새 저자가 생기면 Explore·07은 배포 때 `people.json`을 씀 (이름이 비어 보일 수 있음)
+- 새 revision에서 이미 있던 저자의 소속이 바뀌면 배포 때 소속이 보임 (기관 키를 맞추려고). 다음 배포에서 바뀜
 - 폰 실기기 확인 안 함 (헤드리스 Chrome CPU 4배로만)
 - 06 저자 줄의 "+n"은 버튼이라 Figma처럼 한 줄로 끝나지 않을 수 있음. 07의 "Prepare a question"과 06의 Question은 S6 자리 화면으로 감
 - 검색 상태(검색어·탭·필터)는 메모리에만 있어서 새로고침하면 사라짐. 돌아올 때 스크롤 위치도 맨 위

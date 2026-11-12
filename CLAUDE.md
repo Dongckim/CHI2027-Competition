@@ -153,4 +153,4 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 임시 추천기 baseline-0 (TF-IDF, 폰에서 실행, `app/src/data/recommend.ts`의 TODO(recsys)가 API 자리). 남은 것: 폰 확인(비행기 모드), Edit 버튼 (docs/stages/S3-changes.md)
 - S4 찾기·자세히 (2026-11-12, stage/S4-explore): 05 검색(Talks/People/Sessions, 프로그램 순서 "Not ranked for you"), 04 필터 전체 화면, No results, 06 발표, 07 저자, 어디서든 돋보기
 - "CMU" → Carnegie Mellon 발표 109개(모든 저자의 모든 소속). 06 하이라이트는 abstract.slice(start, end)가 맞는 인용만, 이모지 초록 테스트. 헤드리스 Chrome CPU 4배에서 검색 68–76 ms
-- 앱 데이터에 institutions.json(gzip 91 KB)·DOI(피드마다 다른 형식 정규화) 추가, Today 뒤 한가할 때 검색 파일·계획한 날 초록을 미리 받아 오프라인 동작. QA 13건 중 11건 고침. 남은 것: 폰 실기기, 한글 줄임말(원준님), 요약은 S7 (docs/stages/S4-explore.md)
+- 앱 데이터에 institutions.json(gzip 91 KB)·DOI(피드마다 다른 형식 정규화) 추가, Today 뒤 한가할 때 검색 파일·계획한 날 초록을 미리 받아 오프라인 동작. QA 13건 중 11건 고침, 새 revision도 빌드와 같은 앱 모양(app-shape.mjs)·저자 갱신. 남은 것: 폰 실기기, 한글 줄임말(원준님), 요약은 S7 (docs/stages/S4-explore.md)
