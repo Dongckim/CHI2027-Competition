@@ -141,7 +141,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 앱 데이터 분리(첫 화면 gzip 2.02 MB → 393 KB)·캐시 헤더, Vercel 미리보기·폰 실기기 확인 통과. 남은 것: 버튼 동작·시계, 계약 원준 확인 (docs/stages/S0-skeleton.md)
 - S1 온보딩 (2026-11-11, stage/S1-onboarding): O-1~O-5·수정 3화면·03-1, 계획을 localStorage에 저장, 다시 열면 Today 또는 멈춘 화면
 - Larger text는 앱 전체 글씨 한 단계 위, step-free·fewer room changes·How full은 Today 계산에 반영. 헤드리스 Chrome으로 끄고 다시 열기 통과
-- 남은 것: 폰 확인, breaks·요약 언어는 저장만, 설정 버튼, 추천은 아직 가짜 (docs/stages/S1-onboarding.md)
+- 폰 확인 통과. 남은 것: breaks·요약 언어는 저장만, 설정 버튼(S7), 추천은 아직 가짜 (docs/stages/S1-onboarding.md)
 - S2 오늘 (2026-11-11, stage/S2-today): 추천 → 플래너 → 날짜별 일정, 카드 FIRST STOP/NEXT/LEAVE NOW/NOW/DONE, 03-P 슬라이더로 데모 시계
 - 발표 순서·경과 시간은 데이터의 발표 시각으로 (12분 상수 아님). 시각별 카드 테스트 10개 시점, 헤드리스 Chrome에서 같은 결과
-- 남은 것: 폰 확인, 걷는 시간 가짜(S5), Skip·Edit 동작, 06/09/S6 자리만 (docs/stages/S2-today.md)
+- 폰 확인 통과(데모 슬라이더). 남은 것: 걷는 시간 가짜(S5), Skip·Edit 동작, 06/09/S6 자리만 (docs/stages/S2-today.md)
