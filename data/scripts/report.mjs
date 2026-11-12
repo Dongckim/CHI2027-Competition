@@ -16,7 +16,8 @@ const localHour = (ms, tz) => Number(new Intl.DateTimeFormat('en-GB', { timeZone
 
 // How people might search for an institution -> the ROR organization they mean.
 const queries = JSON.parse(await readFile(new URL('../../tests/data/institution-queries.json', import.meta.url))).queries;
-const editions = (await readdir(BUILD, { withFileTypes: true })).filter(d => d.isDirectory()).map(d => d.name).sort();
+// Editions only: data/build/app-data/ holds the app slices (data/scripts/app-data.mjs), not an edition.
+const editions = (await readdir(BUILD, { withFileTypes: true })).filter(d => d.isDirectory() && d.name !== 'app-data').map(d => d.name).sort();
 const out = {};
 for (const e of editions) {
   const [meta, papers, sessions, people, topics, aliases] = await Promise.all(['meta', 'papers', 'sessions', 'people', 'topics', 'aliases'].map(f => load(e, f)));
