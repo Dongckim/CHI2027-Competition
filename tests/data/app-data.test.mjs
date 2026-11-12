@@ -7,7 +7,7 @@ const aff = (k, c = 'Japan') => ({ institutionKey: k, institution: k.toUpperCase
 const fixture = () => ({
   meta: { edition: 'chi2026', revision: 3, publicationVersion: 9, timeZone: 'Europe/Madrid', attribution: 'x' },
   rooms: [{ key: 'chi2026:r', name: 'Room', floor: 'P1', capacity: 1 }],
-  sessions: [{ key: 'chi2026:s', name: 'S', start: 1, end: 2, contentKeys: [] }],
+  sessions: [{ key: 'chi2026:s', name: 'S', start: null, end: null, contentKeys: [] }],
   papers: [
     // 2026-04-13 23:30 UTC is 04-14 in Madrid; the earliest slot decides the file.
     { key: 'chi2026:1', title: 'A', type: 'Posters', scheduled: true, video: 'https://v', abstract: 'abs 1',
@@ -35,6 +35,7 @@ test('app data: schedule fields, abstracts by first slot day, people with all af
   assert.deepEqual(people['chi2026:p2'], { name: 'Chair', affiliations: [{ institutionKey: 'inst:c', institution: 'C Univ', country: 'Spain' }] });
   assert.match(path, /^r3-[0-9a-f]{8}\/$/);
   assert.equal(current.path, path);
+  assert.deepEqual(current.days, []); // fixture sessions have no real start times
 });
 
 test('app data path changes with the revision or the content, not otherwise', () => {
