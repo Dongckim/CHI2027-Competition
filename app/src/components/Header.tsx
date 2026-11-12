@@ -3,12 +3,16 @@ import { useDevice } from '../state/useDevice';
 
 // 44px header. Default: wordmark left, search and settings right. Onboarding: a back button, an optional title and a step count.
 // search: the magnifier that opens Explore from any screen (on by default with the wordmark; off on Explore itself).
-export function Header({ title, back, right, wordmark = !back, search = wordmark }: { title?: string; back?: () => void; right?: ReactNode; wordmark?: boolean; search?: boolean }) {
+// close: the back button is an X (a screen that is a step, like 04 Filters).
+export function Header({ title, back, right, wordmark = !back, search = wordmark, close = false }: { title?: string; back?: () => void; right?: ReactNode; wordmark?: boolean; search?: boolean; close?: boolean }) {
   return (
     <header className="flex min-h-touch items-center gap-1 px-gutter">
       {back && (
-        <button type="button" aria-label="Back" onClick={back} className="-ml-3 grid size-touch place-items-center text-text">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="m12.5 4-6 6 6 6" /></svg>
+        <button type="button" aria-label={close ? 'Close' : 'Back'} onClick={back} className="-ml-3 grid size-touch place-items-center text-text">
+          {/* Figma v3 icons (24px, stroke 1.7), drawn in currentColor so they follow light and dark */}
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d={close ? 'M18 6L12 12M12 12L6 18M12 12L6 6M12 12L18 18' : 'M15 18L9 12L15 6'} />
+          </svg>
         </button>
       )}
       {wordmark && <span className="text-card-title font-semibold">ARC</span>}

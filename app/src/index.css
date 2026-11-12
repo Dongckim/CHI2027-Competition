@@ -26,6 +26,9 @@
   --text-body: var(--text-body);
   --text-header: var(--text-header);
   --text-card-title: var(--text-card-title);
+  --text-empty-title: var(--text-empty-title);
+  --text-page-title: var(--text-page-title);
+  --radius-bar: var(--radius-bar);
   --radius-tag: var(--radius-tag);
   --radius-button: var(--radius-button);
   --radius-row: var(--radius-row);
