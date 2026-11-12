@@ -122,11 +122,10 @@
 
 - Figma에 없지만 요청으로 넣어서 **남긴 것**: 06·07 헤더의 돋보기("어느 화면에서든"), "Not ranked for you" 줄, "CMU = … · Other CMUs", 결과 아래 "At Carnegie Mellon University" 이유, 06의 DOI 링크·Talk n of m·초록 하이라이트, 06 저자 44px 목록(그래서 "+n"이 다음 줄로 갈 수 있음), 07 "Public programme data only"(결정 004), 출처 문구
 - 아이콘은 Figma SVG를 파일로 넣지 않고 같은 모양을 코드에 그림 (Figma 파일은 색이 #1F1F1F로 고정이라 다크 모드에서 안 보임)
-- S4 밖의 공통 부품이라 **이번에 안 바꾼 차이** (확인 필요): 워드마크 "ARC"가 Figma는 IBM Plex Mono Medium 18px, 앱은 Sans SemiBold / 탭 바의 Today 아이콘 모양·위 테두리 색(#d0d0d0)·아이콘 22px / 계획이 없을 때 설정(톱니) 버튼 숨김(S0 결정)
+- 공통 부품도 Figma대로 (브랜치 `fix/figma-shared`): 워드마크 "ARC" IBM Plex Mono Medium 18px / 탭 바 아이콘 3개를 Figma 모양 22px로, 활성·비활성 모두 선 1.7 (색만 다름: #1f1f1f semibold / #6b6b6b medium), 위 테두리 #d0d0d0, 아이콘과 글자 사이 4px / 톱니도 Figma 22px 모양으로 **모든 워드마크 헤더에** (S0에서는 계획이 있을 때만). 계획이 없으면 톱니는 멈춘 온보딩 단계로 가서 온보딩을 건너뛰지 않음 (계획이 있으면 지금처럼 O-5 Your plan, S7에서 Settings)
 - 비교 스크린숏 방식: 헤드리스 Chrome 라이트 모드, 샘플 하루에서 06·07
 
 ## ④ 남은 문제
-- Figma와 다른 S4 밖 공통 부품 3가지 (워드마크 글꼴, 탭 바 아이콘·테두리, 톱니) — 위 "Figma 대조"
 - 06 "In your day"(비활성)는 Figma에 상태가 없음. 지금은 진한 버튼을 60%로 흐리게 (대비 낮음)
 - **원준님께 (8번, 한글 줄임말)**: 검색창에서 "서울대"는 0건, "서울대학교"는 36건. 검색창은 별칭이 정확히 같거나 4글자 이상이 앞부분 일치일 때만 기관으로 봄 (`search.mjs` `findPlace`). 필터 화면의 후보 목록(`placeChoices`)은 "서울대"로도 서울대를 보여 줌. 검색창도 필터와 같은 별칭 표 규칙을 쓰게 할지 정해 주세요 (짧은 한글·중국어 줄임말의 잡음과 맞바꿈)
 - `abstractFileDay`(`app/src/explore/format.ts`)는 `app-data.mjs`의 `abstractDay`와 같은 일: 다음 단계에서 하나로
