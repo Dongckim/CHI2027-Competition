@@ -18,7 +18,7 @@ export function buildAppData({ meta, papers, sessions, rooms, people, aliases })
   const schedule = {
     meta: { edition: meta.edition, revision: meta.revision, publicationVersion: meta.publicationVersion, timeZone: tz, attribution: meta.attribution },
     rooms: rooms.map(({ key, name, floor }) => ({ key, name, floor })),
-    sessions: sessions.map(({ key, name, start, end }) => ({ key, name, start, end })),
+    sessions: sessions.map(({ key, name, start, end, timing }) => ({ key, name, start, end, timing })), // timing: talks | block | none
     // scheduled and video are what the planner needs on top of the listed fields.
     papers: papers.map(p => ({
       paperKey: p.key, title: p.title, type: TYPE[p.type] ?? 'other', feedType: p.type, scheduled: p.scheduled, video: !!p.video,
