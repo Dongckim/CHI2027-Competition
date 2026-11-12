@@ -1,4 +1,4 @@
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
+import type { AnchorHTMLAttributes, ComponentPropsWithRef } from 'react';
 
 // 44px high. primary = filled (inverse colours), secondary = outlined. `onDark` flips both for use on a dark card.
 // outline = outlined in the text colour, 16px (Figma v3 05–07: "+ Add", "Question").
@@ -10,7 +10,7 @@ const look = ({ variant = 'primary', onDark = false, size = 'md' }: Look) => `in
   : variant === 'outline' ? 'border border-text text-text'
   : onDark ? 'border border-on-inverse text-on-inverse' : 'border border-border-strong text-text'}`;
 
-export function Button({ variant, onDark, size, className = '', ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & Look) {
+export function Button({ variant, onDark, size, className = '', ...rest }: ComponentPropsWithRef<'button'> & Look) { // ref: React 19 passes it as a prop
   return <button type="button" className={`${look({ variant, onDark, size })} ${className}`} {...rest} />;
 }
 export function ButtonLink({ variant, onDark, size, className = '', ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & Look) {

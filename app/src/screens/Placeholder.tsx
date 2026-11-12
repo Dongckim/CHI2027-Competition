@@ -4,7 +4,7 @@ import { Header } from '../components/Header';
 
 // Destinations that later stages build. The route and the talk are real, so links can be wired now.
 const SCREENS = {
-  directions: { title: 'Directions', later: '09 Directions come in S5.' },
+  signscan: { title: 'Scan a room sign', later: 'Experiment, off by default: reading a room sign with the camera is tried outside the app for now (sign scan test page). It is not part of ARC yet.' },
   catchup: { title: 'Catch up', later: 'Catch up comes in S6.' },
   question: { title: 'Question', later: 'The question helper comes in S6.' },
   planlink: { title: 'Plan link', later: 'Opening your plan from a link comes in S7.' },

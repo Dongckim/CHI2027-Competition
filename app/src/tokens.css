@@ -5,6 +5,8 @@
   --surface: #f0f0f0;      /* day tabs, chips */
   --tag-bg: #ededed;
   --highlight: #fff0a0;   /* quoted reason in an abstract (06); text stays --text */
+  /* 09 3D plan (not text colours): the route ≥ 4.3:1 on rooms and floors, the destination ≥ 3.3:1 on the background */
+  --plan-bg: #f0f0f0; --plan-floor: #d6d6d6; --plan-room: #ffffff; --plan-line: #8a8a8a; --plan-dest: #a67c00; --plan-route: #1f1f1f;
   --text: #1f1f1f;
   --text-2: #575757;
   --text-3: #6b6b6b;       /* lightest text allowed: 5.3:1 on --bg, 4.7:1 on --surface */
@@ -19,6 +21,7 @@
   --text-tag: 12px;   --text-small: 14px;  --text-link: 15px;
   --text-body: 16px;  --text-header: 17px; --text-card-title: 18px;
   --text-empty-title: 20px; --text-page-title: 26px; /* "No matches" (05), talk and author name (06, 07) */
+  --text-display: 32px; /* 09 "2–4 min" */
 
   --space-1: 4px; --space-2: 6px; --space-3: 8px; --space-4: 10px; --space-5: 12px; --space-6: 16px;
   --gutter: 16px;
@@ -33,7 +36,7 @@
 :root[data-text="large"] {
   --text-tag: 14px; --text-small: 16px; --text-link: 18px;
   --text-body: 20px; --text-header: 20px; --text-card-title: 22px;
-  --text-empty-title: 24px; --text-page-title: 30px;
+  --text-empty-title: 24px; --text-page-title: 30px; --text-display: 36px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -42,6 +45,7 @@
     --surface: #1e1e1e;
     --tag-bg: #2a2a2a;
     --highlight: #5a4a00;
+    --plan-bg: #1e1e1e; --plan-floor: #333333; --plan-room: #6b6b6b; --plan-line: #9a9a9a; --plan-dest: #c9a227; --plan-route: #ffffff;
     --text: #ededed;
     --text-2: #b0b0b0;
     --text-3: #9a9a9a;

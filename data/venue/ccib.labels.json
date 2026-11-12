@@ -1,0 +1,9 @@
+{
+  "_note": "Names people see, kept by hand on top of ccib.json (generated from the CCIB PDF, do not edit that one). Directions use these instead of the plan's internal names. Coordinates and distances stay in ccib.json.",
+  "corridors": {
+    "Foyer 0": "the P0 concourse",
+    "Foyer 2": "the corridor to Rooms 118–134"
+  },
+  "elevator": "Elevator {n}",
+  "escalator": "Escalator"
+}

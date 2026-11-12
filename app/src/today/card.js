@@ -8,9 +8,9 @@
 //   now ≥ leaveAt(next stop)              → leave      (dark card, "Starts in ~m min")
 //   next stop is the day's first stop     → first      ("FIRST STOP")
 //   otherwise                             → next
-// leaveAt = start − walk (slow end) − buffer.
+// leaveAt = start − walk (slow end) − buffer. walk(stop, i) → [low, high] minutes from the stop before (the first from
+// Registration), step-free when the plan is: app/src/venue/walk.js. null (a room the venue file does not know) → the guesses below.
 
-// shortcut: fake walking times until S5 reads the venue route (stop.travelFromPrevMin / route()); then use the real range.
 export const WALK_MIN = [2, 4];
 export const FIRST_WALK_MIN = [3, 5]; // from registration to the first room
 export const LEAVE_BUFFER_MIN = 5;
@@ -18,7 +18,8 @@ const MIN = 60_000;
 
 export const leaveAt = (stop, walkMax = WALK_MIN[1]) => stop.start - (walkMax + LEAVE_BUFFER_MIN) * MIN;
 
-export function dayCard(stops, now) {
+/** @param {(stop: any, i: number) => number[] | null} [walk] */
+export function dayCard(stops, now, walk = () => null) {
   const total = stops.length;
   const done = stops.filter(s => s.end <= now).length;
   if (!total) return { kind: 'empty', done, total };
@@ -27,7 +28,7 @@ export function dayCard(stops, now) {
   if (now >= stops[total - 1].end) return { kind: 'done', done, total };
   const next = stops.find(s => s.start > now);
   const first = next === stops[0];
-  const lead = first ? FIRST_WALK_MIN[1] : WALK_MIN[1];
+  const lead = (walk(next, stops.indexOf(next)) ?? (first ? FIRST_WALK_MIN : WALK_MIN))[1];
   if (now >= leaveAt(next, lead)) return { kind: 'leave', stop: next, done, total, startsInMin: Math.ceil((next.start - now) / MIN) };
   return { kind: first ? 'first' : 'next', stop: next, done, total };
 }

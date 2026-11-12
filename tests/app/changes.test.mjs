@@ -128,6 +128,6 @@ test('simulate: ?simulate=room-change works on the sample day only, a real plan 
   // Leaving the sample day (to Today with a plan, onboarding, the cleared screen) drops the simulated change;
   // screens opened from the sample day keep it.
   for (const head of ['today', 'start', 'building', 'cleared', 'questions', '']) assert.equal(keepsSample(head, false), false, head);
-  for (const head of ['sample', 'more', 'explore', 'talk', 'person']) assert.equal(keepsSample(head, false), true, head);
+  for (const head of ['sample', 'more', 'explore', 'talk', 'person', 'directions']) assert.equal(keepsSample(head, false), true, head);
   assert.equal(keepsSample('directions', true), true);
 });
