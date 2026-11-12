@@ -61,10 +61,10 @@ function PlannedToday({ mode }: { mode: 'plan' | 'sample' }) {
   useLayoutEffect(() => {
     if (mode === 'sample' && view && !isDemo()) setDemoNow(venueInstant(view.firstWithStops, SLIDER.start, view.tz));
   }, [mode, view]);
-  // Watch for programme updates while Today is open; ?simulate=room-change tries 03-M without a feed change.
+  // Watch for programme updates while Today is open. Sample day only: ?simulate=room-change tries 03-M without a feed change.
   useEffect(() => (base ? watchProgramme(base) : undefined), [base]);
   useEffect(() => {
-    if (!base || !view || !new URLSearchParams(location.search).has('simulate')) return;
+    if (mode !== 'sample' || !base || !view || !new URLSearchParams(location.search).has('simulate')) return;
     const stops = view.plans.find(p => p.stops.length)?.stops ?? [];
     if (stops.length) simulateRoomChange(base, stops[Math.min(2, stops.length - 1)].paperKey);
   }, [base, !!view]); // eslint-disable-line react-hooks/exhaustive-deps

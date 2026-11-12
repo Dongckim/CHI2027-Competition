@@ -62,8 +62,10 @@ export function watchProgramme(base: Schedule) {
 }
 
 // For testing 03-M without a real feed change: the same path, with one talk moved to another room.
-// Sample day: "Simulate a room change". Any screen: open the app with ?simulate=room-change.
+// Sample day only: "Simulate a room change", or open the sample day with ?simulate=room-change. Leaving the sample day
+// drops the simulated change (clearSimulated), so a real plan never shows it.
 export function simulateRoomChange(base: Schedule, paperKey: string) {
   set({ revision: (update?.revision ?? current.revision) + 1, schedule: { ...base, index: fakeRoomChange(base.index, paperKey) }, simulated: true });
 }
 export const clearProgrammeUpdate = () => set(null);
+export const clearSimulated = () => { if (update?.simulated) set(null); };
