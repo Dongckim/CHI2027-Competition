@@ -3,6 +3,16 @@
   "timeZone": "Europe/Madrid",
   "note": "Barcelona (CCIB). Feed conference.timeZoneName is Europe/Brussels; same offsets.",
   "venue": "ccib",
+  "floorsNote": "Feed floor id -> venue level id in data/venue/ccib.json (checked by npm run data:venue:check).",
+  "floors": {
+    "10473": "P0",
+    "10474": "M1",
+    "10475": "P1",
+    "10476": "M2",
+    "10477": "P2",
+    "10478": "AUD",
+    "10479": "AUD"
+  },
   "roomsNote": "Feed room key -> area id in data/venue/ccib.json. Hand-checked against room names; the six P0 programme spaces share the Areas 1+2+3 hall.",
   "rooms": {
     "chi2026:12303": "P1-111",
@@ -48,5 +58,14 @@
     "chi2026:12353": "P0-areas-1+2+3",
     "chi2026:12373": "P0-areas-1+2+3",
     "chi2026:12403": "P0-areas-1+2+3"
-  }
+  },
+  "placesNote": "Fixed starting points for 09-1 Where are you now. area: an area id in the venue file. Registration is the Entrance Hall at CHI 2026 (estimate: the programme does not say where the desk is).",
+  "places": [
+    {
+      "id": "registration",
+      "name": "Registration",
+      "area": "P0-entrance-hall",
+      "estimate": true
+    }
+  ]
 }

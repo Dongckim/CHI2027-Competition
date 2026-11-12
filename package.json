@@ -16,7 +16,8 @@
     "data:venue": "python3 data/scripts/venue-ccib.py",
     "bench": "node tests/serve.mjs",
     "contracts:check": "node contracts/check.mjs",
-    "test": "node --test tests/"
+    "test": "node --test tests/",
+    "data:venue:check": "node data/scripts/venue-check.mjs"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",
