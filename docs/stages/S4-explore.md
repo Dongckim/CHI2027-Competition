@@ -52,7 +52,7 @@
 - 06 초록 문구: 초록이 원래 없으면 "No abstract in the programme.", 그날 파일을 못 받았는데 오프라인이면 "Abstract not saved on this phone yet. Connect to load it.", 온라인인데 실패하면 "Could not load the abstract. Try again in a moment." 다시 온라인이 되면 다시 받음
 - simulate 규칙을 `app/src/today/simulate.js`로 분리 (`simulateRequested`, `keepsSample`). Today와 App이 이것을 씀. 값도 확인함: `?simulate=room-change`만 (전에는 `?simulate`에 무슨 값이든)
 - 고친 것: 서비스 워커가 `Vary: Origin`을 붙이는 서버에서는 오프라인일 때 JS·CSS를 못 찾음 (모듈 스크립트 요청에는 Origin이 붙고 미리 저장할 때는 없음). `vite preview`가 그렇고, 이 때문에 처음 오프라인 확인에서 빈 화면. `caches.match(…, { ignoreVary: true })` (이름에 내용 해시가 있어 안전)
-- 도구: `node tests/explore/bench.mjs [질의...]` (node 속도), `node --experimental-websocket tests/explore/phone-check.mjs [스크린숏 폴더]` (헤드리스 Chrome 390×844, CPU 4배 느리게), `node --experimental-websocket tests/explore/offline-check.mjs` (자기 서버를 켜고 끔)
+- 도구: `node --experimental-websocket tests/explore/qa-check.mjs` (QA 4·5·11·12 재현, 서버를 스스로 켜고 끔), `node tests/explore/bench.mjs [질의...]` (node 속도), `node --experimental-websocket tests/explore/phone-check.mjs [스크린숏 폴더]` (헤드리스 Chrome 390×844, CPU 4배 느리게), `node --experimental-websocket tests/explore/offline-check.mjs` (자기 서버를 켜고 끔)
 
 ## ② 통과 기준 결과
 - **"CMU" → Carnegie Mellon 발표 109개** (Talks 109 · People 181). 테스트가 실제 데이터에서 "저자 중 누구든 어느 소속이든 Carnegie Mellon인 발표" 전체와 같은지 확인
@@ -62,7 +62,9 @@
   - 처음 Explore를 열 때 데이터 받기 + 인덱스 만들기 331–393 ms (로컬 서버)
   - node: 인덱스 76–83 ms, 질의 중앙값 1.5–2 ms
   - 처음 측정은 "CMU" 106–107 ms → 고친 것 2개: 기관 별칭 표(4,536개)를 탭마다 훑던 것을 질의당 한 번으로, 첫 결과 목록이 그려질 때 돌던 플래너 계산을 Explore를 열 때로
-- `npm test` 74/74 · `contracts:check` 5/5 · `build:deploy` 성공 (마무리 시점)
+- `npm test` 83/83 · `contracts:check` 5/5 · `build:deploy` 성공 (QA 수정, 하이라이트 밑줄, 새 revision 저자 뒤)
+- QA 수정 직후: `npm test` 81/81
+- QA 전: `npm test` 74/74 · `contracts:check` 5/5 · `build:deploy` 성공
 - 처음 S4: `npm test` 73/73 · `contracts:check` 5/5 · `tsc` 0 · `npm run build` 성공 · JS gzip 89.5 → 98.0 KB · 서비스 워커 12개 파일 (S3의 피드 정규화 조각 2.8 KB가 본 번들로 들어감: 검색이 `normalizeName`을 씀)
 - 05 No results → Clear filters → 필터 0, 04 Show 1 result → "Filters · 1"
 - 오프라인 (헤드리스 Chrome, 새 프로필): Today(샘플 하루)만 열고 Explore는 안 연 상태에서 세 파일이 103 ms 만에 캐시에 들어감 → 서버를 끄고 `#/explore`를 새로 열어 "CMU" → Talks 109 · People 181 (온라인과 같음) → Other CMUs → 후보 5개 → Chiang Mai → Talks 1
@@ -78,7 +80,38 @@
 - **06 요약 자리는 초록 원문**: "Summary · AI" 대신 "Abstract · from the programme". S7에서 바꿈
 - 세션 화면은 디자인에 없어서 결과 안에서 펼침
 
+## 교차 검증 (QA, 2026-11-12, 브랜치 `fix/s4-qa`)
+코드 검토(제 결론을 모르는 에이전트) + 실제 데이터·헤드리스 Chrome의 경계 입력 확인. 고친 것마다 재현 테스트를 먼저 넣고 고치기 전 실패 → 고친 뒤 통과를 확인.
+- node 재현 테스트 `tests/app/explore-qa.test.mjs` 7개 (QA 1·2·3·6·7·9·10). 브라우저 재현 `tests/explore/qa-check.mjs` (QA 4·5·11·12, 13은 측정만)
+
+| # | 문제 | 고치기 전 | 고친 뒤 | 상태 |
+|---|---|---|---|---|
+| 1 | 별칭·나라 표가 `constructor`·`__proto__`를 찾음 → Filters 빈 화면 | 테스트 실패 | 통과 (`Object.hasOwn`) | 고침 |
+| 2 | DOI 형식이 피드마다 다름 → 링크 깨짐 | 테스트 실패 | 통과. 링크: chi2023 1,538/1,538 · chi2024 1,696/1,696 · chi2025 2,169/2,180 · chi2026 2,721/2,721 | 고침 |
+| 3 | 가지 않는 날의 발표가 "In your day" | 테스트 실패 | 통과 (계획한 날만) | 고침 |
+| 4 | Explore·06·07이 옛 revision | Today Room 111 / 06 Room 134 | 둘 다 Room 111 | 고침 |
+| 5 | 필터 뒤 뒤로가기 두 번 | 한 번 뒤로 → `#/explore` | 한 번 뒤로 → `#/sample` | 고침 |
+| 6 | 기호만 입력하면 2,782개 | 테스트 실패 | 통과, 화면은 검색 전 안내 | 고침 |
+| 7 | 악센트 ("Vazquez" → 0) | 테스트 실패 | 통과 | 고침 |
+| 8 | 한글 줄임말 ("서울대" 0, "서울대학교" 36) | — | — | 보류 (④, 원준님) |
+| 9 | 나라 앞부분 일치 ("unit" → UAE 16개) | 테스트 실패 | 통과 (이름 전체만) | 고침 |
+| 10 | People 탭 엉뚱한 "No matches" | 테스트 실패 | 통과 ("Day filters apply to talks only") | 고침 |
+| 11 | 06 저자 링크 18 px, "+2" 21 px | 18 px | 모두 44 px 이상 | 고침 |
+| 12 | 06 늦게 온 앞 발표 초록이 덮어씀 | 앞 발표 초록이 보임 | 지금 발표 초록 유지 | 고침 |
+| 13 | 둘러보기에서 플래너 계산 | 긴 작업 204 ms | 268 ms (차이는 측정 흔들림 범위) | 고침 (정리, 체감 차이 없음) |
+| — | `abstractFileDay` 중복 | — | — | 보류 (다음 단계) |
+
+- DOI는 요청 범위(doi.org/…, http://dx.doi.org/…, 공백)에 ACM DL 주소(`https://dl.acm.org/doi/10.…`)를 더 받음. 안 받으면 chi2025 2,180개가 모두 숨겨짐. 숨기는 11개는 `https://dl.acm.org/doi/`뿐인 값
+- 13: 둘러보기의 플래너 입력은 샘플 응답 5개뿐이라 원래 가벼웠음. 쓰지 않는 계산을 없앤 정리
+- 하이라이트 대비: 글자 라이트 14.3:1, 다크 7.4:1. 하이라이트와 주변 배경의 차이는 라이트 1.2:1, 다크 2.2:1이라 색만으로는 구별이 어려움 → 2 px 밑줄을 더함 (`<mark>`는 그대로, qa-check 16: 고치기 전 라이트·다크 `none` → 고친 뒤 `underline 2px`)
+- 추가로 찾아 고친 것: 폰이 받은 새 revision은 `buildEdition` 결과를 그대로 써서 저자가 객체, 종류가 `'Paper'` 원문이었음 → 4번 수정 뒤 Explore·06·07의 저자 링크·종류 필터가 깨질 수 있었음. `data/scripts/app-shape.mjs`(`appPaper`, `appPeople`)를 빌드와 폰이 같이 씀 (빌드 결과는 바이트 그대로)
+- 새 revision의 저자: `updatedPeople`가 새 이름·새 저자는 새 revision에서, 이미 있던 사람의 소속은 배포 때 것(ROR 키라서 "CMU" 필터가 계속 찾음). people 목록에 없어 이름이 없는 저자는 06 목록에서 빼고 "+n"에만 셈 (`app/src/explore/authors.js`), 검색 People 결과에서도 뺌. 테스트 QA 14·15 (고치기 전 실패 → 통과)
+- 문제없음 (확인): 잘못된 경로, 슬롯 없는 발표 251개, 소속 없는 사람 31명, 큰 글씨 가로 넘침 0, 페이지 오류 0
+
 ## ④ 남은 문제
+- **원준님께 (8번, 한글 줄임말)**: 검색창에서 "서울대"는 0건, "서울대학교"는 36건. 검색창은 별칭이 정확히 같거나 4글자 이상이 앞부분 일치일 때만 기관으로 봄 (`search.mjs` `findPlace`). 필터 화면의 후보 목록(`placeChoices`)은 "서울대"로도 서울대를 보여 줌. 검색창도 필터와 같은 별칭 표 규칙을 쓰게 할지 정해 주세요 (짧은 한글·중국어 줄임말의 잡음과 맞바꿈)
+- `abstractFileDay`(`app/src/explore/format.ts`)는 `app-data.mjs`의 `abstractDay`와 같은 일: 다음 단계에서 하나로
+- 새 revision에서 이미 있던 저자의 소속이 바뀌면 배포 때 소속이 보임 (기관 키를 맞추려고). 다음 배포에서 바뀜
 - 폰 실기기 확인 안 함 (헤드리스 Chrome CPU 4배로만)
 - 06 저자 줄의 "+n"은 버튼이라 Figma처럼 한 줄로 끝나지 않을 수 있음. 07의 "Prepare a question"과 06의 Question은 S6 자리 화면으로 감
 - 검색 상태(검색어·탭·필터)는 메모리에만 있어서 새로고침하면 사라짐. 돌아올 때 스크롤 위치도 맨 위

@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
-import { searchTalks, searchPeople, searchSessions, placeOf, filterCount, NO_FILTERS } from '../../../data/scripts/search.mjs';
-import { explore, useExploreData, useMyDay, type ExploreState, type Loaded } from '../explore/useExplore';
+import { searchTalks, searchPeople, searchSessions, placeOf, filterCount, hasWords, peopleFilterOnly, NO_FILTERS } from '../../../data/scripts/search.mjs';
+import { explore, openFilters, useExploreData, useMyDay, type ExploreState, type Loaded } from '../explore/useExplore';
 import { TYPE_TAG, weekdayOf, clockOf, firstSlot } from '../explore/format';
 import { go } from '../router';
 import { Header } from '../components/Header';
@@ -23,7 +23,7 @@ export function Explore() {
   const count = filterCount(filters);
   const results = useMemo(() => {
     if (!data) return null;
-    const empty = !query.trim() && !count;
+    const empty = !hasWords(query) && !count; // "(" or "-" alone is no search
     return {
       talks: empty ? [] : searchTalks(data.index, query, filters),
       people: empty ? [] : searchPeople(data.index, query, filters),
@@ -32,6 +32,7 @@ export function Explore() {
       empty,
     };
   }, [data, query, filters, count]);
+  const peopleOnlyFilters = peopleFilterOnly(query, filters);
   const set = (change: Partial<ExploreState>) => setS(x => ({ ...x, shown: PAGE, ...change }));
 
   return (
@@ -44,13 +45,13 @@ export function Explore() {
             <input type="search" value={s.query} onChange={e => set({ query: e.target.value })} placeholder="Search talks, people, topics"
               aria-label="Search talks, people, topics" enterKeyHint="search" className="min-w-0 flex-1 bg-transparent text-body text-text outline-none placeholder:text-text-3" />
           </label>
-          <a href="#/explore/filters" className="inline-flex min-h-12 items-center rounded-row border border-border-strong px-4 text-body font-medium">
+          <a href="#/explore/filters" onClick={openFilters} className="inline-flex min-h-12 items-center rounded-row border border-border-strong px-4 text-body font-medium">
             {count ? `Filters · ${count}` : 'Filters'}
           </a>
         </div>
         <div role="group" aria-label="Show" className="flex border-b border-border">
           {TABS.map(([key, label]) => {
-            const n = results && !results.empty ? results[key].length : null;
+            const n = results && !results.empty && !(key === 'people' && peopleOnlyFilters) ? results[key].length : null;
             return (
               <button key={key} type="button" aria-pressed={s.tab === key} onClick={() => set({ tab: key })}
                 className={`min-h-touch flex-1 text-small ${s.tab === key ? 'border-b-2 border-text font-semibold text-text' : 'text-text-3'}`}>
@@ -62,7 +63,10 @@ export function Explore() {
         {error && <p role="alert" className="text-body">Could not load the programme. {error}</p>}
         {!error && !results && <p className="text-body text-text-3">Loading the programme…</p>}
         {results && results.empty && <p className="text-body text-text-2">Type a title, a name, a topic or a place, like CMU.</p>}
-        {results && !results.empty && (results[s.tab].length === 0 ? (
+        {results && !results.empty && s.tab === 'people' && peopleOnlyFilters ? (
+          // Day and type are about talks; people have neither, so this is not "no matches".
+          <p className="py-16 text-center text-body text-text-2">{filters.days.length && filters.types.length ? 'Day and type filters' : filters.days.length ? 'Day filters' : 'Type filters'} apply to talks only. Type a name to find people.</p>
+        ) : results && !results.empty && (results[s.tab].length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-16 text-center">
             <p className="text-card-title font-semibold">No matches</p>
             {count > 0
@@ -74,7 +78,7 @@ export function Explore() {
             // "CMU" names more than one institution: say which one the results use, and offer the others in the filter screen.
             <p className="text-small text-text-2">
               {query.trim()} = {results.place.label} ·{' '}
-              <a href={`#/explore/filters?place=${encodeURIComponent(query.trim())}`} className="inline-flex min-h-touch items-center font-semibold underline">Other {query.trim()}s</a>
+              <a href={`#/explore/filters?place=${encodeURIComponent(query.trim())}`} onClick={openFilters} className="inline-flex min-h-touch items-center font-semibold underline">Other {query.trim()}s</a>
             </p>
           )}
           <p className="text-small text-text-3">

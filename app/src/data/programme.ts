@@ -4,14 +4,16 @@ import { indexData } from '../planner/plan.js';
 import { sessionSlotsFrom } from '../today/card.js';
 import { checkDue, fakeRoomChange, CHECK_EVERY_MS } from '../today/changes.js';
 import { realNow } from '../clock';
-import type { Schedule } from './load';
+import { loadPeople, type Schedule } from './load';
 
 // Programme updates while the app is open (03-M). Every minute, only while the page is visible, ask the feed for
 // version.json?t=… (CLAUDE.md: never more than every 30 s). A new revision → download that revision file only (the
 // service worker keeps it) → normalize it with the same buildEdition as the data build → Today plans on the new
 // programme and shows what moved in my plan. The deploy's own app data stays as it is.
 const FEED = 'https://chidigitalexperience.org/data';
-type Update = { revision: number; schedule: Schedule; simulated?: boolean } | null;
+type People = Awaited<ReturnType<typeof loadPeople>>;
+// people: the newer revision's authors (app-shape.mjs updatedPeople); none for the sample day's simulated change.
+type Update = { revision: number; schedule: Schedule; people?: People; simulated?: boolean } | null;
 
 let update: Update = null;
 let lastCheckedAt: number | null = null;
@@ -34,17 +36,19 @@ async function check(base: Schedule) {
     const known = update?.revision ?? current.revision;
     if (!(version.revision > known)) return;
     const feed = await (await fetch(version.revision_url)).json();
-    const { buildEdition } = await import('../../../data/scripts/edition.mjs');
+    const [{ buildEdition }, shape] = await Promise.all([import('../../../data/scripts/edition.mjs'), import('../../../data/scripts/app-shape.mjs')]);
     const out = buildEdition(feed, { edition: current.edition, version, timeZone: base.meta.timeZone, institutions: {} });
-    set({ revision: version.revision, schedule: scheduleFrom(base, out) });
+    const people = shape.updatedPeople(await loadPeople(), shape.appPeople({ papers: out.papers, people: out.people, institutions: out.aliases.institutions }));
+    set({ revision: version.revision, schedule: scheduleFrom(base, out, shape.appPaper), people });
   } catch {
     // offline or the feed is down: keep the programme we have, try again next minute
   } finally { checking = false; }
 }
 
 type Edition = ReturnType<typeof import('../../../data/scripts/edition.mjs').buildEdition>;
-function scheduleFrom(base: Schedule, out: Edition): Schedule {
-  const papers = out.papers.map((p: { key: string | null }) => ({ ...p, paperKey: p.key as string }));
+// Papers in the app's shape (as schedule.json: person keys, type paper/poster/demo/other), keyed by `key` for the planner.
+function scheduleFrom(base: Schedule, out: Edition, appPaper: (p: Edition['papers'][number]) => { paperKey: string }): Schedule {
+  const papers = out.papers.map((p: Edition['papers'][number]) => ({ ...appPaper(p), key: p.key as string }));
   return {
     ...base, meta: { ...base.meta, revision: out.meta.revision, publicationVersion: out.meta.publicationVersion }, sessions: out.sessions,
     index: indexData({ meta: out.meta, papers, sessions: out.sessions, rooms: out.rooms }),

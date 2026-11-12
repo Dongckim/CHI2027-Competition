@@ -4,6 +4,12 @@
 import { normalizeName } from './edition.mjs';
 import { localDay as localDayOf } from '../../app/src/planner/plan.js';
 
+// Compared without accents or case ("Vazquez" ~ "Baca-Vázquez", "turkiye" ~ "Türkiye"). Hangul is recomposed (NFC).
+const fold = s => normalizeName(s ?? '').normalize('NFD').replace(/\p{M}/gu, '').normalize('NFC');
+const queryWords = query => fold(query).split(' ').filter(Boolean);
+// A query with no letter or digit ("(", "-") is no query: nothing is searched.
+export const hasWords = query => /[\p{L}\p{N}]/u.test(query ?? '');
+
 // Each query word must be the start of an alias word, in order ("univ of wash" ~ "university of washington").
 const wordsPrefix = (q, alias) => {
   let i = 0;
@@ -16,6 +22,8 @@ const wordsPrefix = (q, alias) => {
 export function searchInstitutions(aliases, query, limit = 5) {
   return scoredInstitutions(aliases, query).slice(0, limit).map(([k]) => k);
 }
+// Own keys only: a plain object also "has" constructor, __proto__, toString … (Explore typed "constructor" → crash).
+const own = (obj, key) => (Object.hasOwn(obj, key) ? obj[key] : undefined);
 const counts = new WeakMap();
 function scoredInstitutions(aliases, query) {
   const q = normalizeName(query);
@@ -23,7 +31,7 @@ function scoredInstitutions(aliases, query) {
   const count = counts.get(aliases) ?? counts.set(aliases, new Map(aliases.institutions.map(i => [i.key, i.authorCount]))).get(aliases);
   const score = new Map();
   const hit = (key, s) => score.set(key, Math.max(score.get(key) ?? 0, s));
-  for (const key of aliases.lookup[q] || []) hit(key, 3);
+  for (const key of own(aliases.lookup, q) ?? []) hit(key, 3);
   const qw = q.split(' ');
   for (const [alias, keys] of Object.entries(aliases.lookup)) {
     if (alias === q) continue;
@@ -45,7 +53,7 @@ const COUNTRY_WORDS = { usa: 'united states', us: 'united states', america: 'uni
 /** @param {{ schedule: any, people: Record<string, any>, topics?: { label: string, contentKeys: string[] }[], aliases: any }} data */
 export function buildSearchIndex({ schedule, people, topics = [], aliases }) {
   const tz = schedule.meta.timeZone;
-  const words = s => normalizeName(s ?? '').split(' ').filter(Boolean);
+  const words = s => fold(s).split(' ').filter(Boolean);
   const topicsOf = new Map();
   for (const t of topics) for (const k of t.contentKeys) (topicsOf.get(k) ?? topicsOf.set(k, []).get(k)).push(t.label);
   const order = new Map([...schedule.papers].sort((a, b) => firstStart(a) - firstStart(b) || (a.title < b.title ? -1 : 1)).map((p, i) => [p.paperKey, i]));
@@ -59,20 +67,21 @@ export function buildSearchIndex({ schedule, people, topics = [], aliases }) {
       authors: p.authors.map(k => ({ key: k, name: people[k]?.name ?? '', words: words(people[k]?.name) })),
       topics: (topicsOf.get(p.paperKey) ?? []).map(label => ({ label, words: words(label) })),
       institutions: new Set(affs.map(a => a.institutionKey).filter(Boolean)),
-      countries: new Set(affs.map(a => normalizeName(a.country ?? '')).filter(Boolean)),
+      countries: new Set(affs.map(a => fold(a.country)).filter(Boolean)),
     };
   });
-  const peopleList = Object.entries(people).map(([key, p]) => ({
+  // People without a name in the programme are not listed (there is nothing to show for them).
+  const peopleList = Object.entries(people).filter(([, p]) => p.name?.trim()).map(([key, p]) => ({
     key, name: p.name, words: words(p.name),
     institutions: new Set(p.affiliations.map(a => a.institutionKey).filter(Boolean)),
-    countries: new Set(p.affiliations.map(a => normalizeName(a.country ?? '')).filter(Boolean)),
+    countries: new Set(p.affiliations.map(a => fold(a.country)).filter(Boolean)),
   })).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   const sessionTalks = new Map();
   for (const t of talks) for (const s of t.sessions) (sessionTalks.get(s) ?? sessionTalks.set(s, []).get(s)).push(t.key);
   const sessions = schedule.sessions.filter(s => sessionTalks.has(s.key)).map(s => ({
     key: s.key, words: words(s.name), start: s.start, days: s.start != null ? [localDayOf(s.start, tz)] : [], talks: sessionTalks.get(s.key),
   })).sort((a, b) => (a.start ?? Infinity) - (b.start ?? Infinity));
-  const countryLabel = new Map(Object.values(people).flatMap(p => p.affiliations).filter(a => a.country).map(a => [normalizeName(a.country), a.country]));
+  const countryLabel = new Map(Object.values(people).flatMap(p => p.affiliations).filter(a => a.country).map(a => [fold(a.country), a.country]));
   const countries = [...new Set(talks.flatMap(t => [...t.countries]))].sort();
   return { talks, talkByKey: new Map(talks.map(t => [t.key, t])), people: peopleList, sessions, aliases, countries, countryLabel,
     names: new Map(aliases.institutions.map(i => [i.key, i.name])), places: new Map() };
@@ -82,17 +91,19 @@ const firstStart = p => Math.min(Infinity, ...p.slots.map(s => s.start).filter(s
 // Every query word is the start of some word of the field (any order): "mellon carn" ~ "carnegie mellon".
 const matches = (qw, fieldWords) => qw.every(q => fieldWords.some(w => w.startsWith(q)));
 
-// What a typed word means as a place: the institution an exact alias names (only the largest one: "CMU" is also
-// Chiang Mai University, 1 author), or institutions whose name starts with it, or a country.
+// What a typed word means as a place: a country by its whole name ("unit" is not United Arab Emirates), the institution
+// an exact alias names (only the largest one: "CMU" is also Chiang Mai University, 1 author), or institutions whose
+// name starts with it.
 /** @returns {Place | null} */
 export function placeOf(index, query) {
   const q = normalizeName(query);
-  if (!q) return null;
+  if (!q || !hasWords(q)) return null;
   if (!index.places.has(q)) index.places.set(q, findPlace(index, q)); // one alias scan per query, not one per tab
   return index.places.get(q);
 }
 function findPlace(index, q) {
-  const country = COUNTRY_WORDS[q] ?? index.countries.find(c => c === q || (q.length >= 4 && c.startsWith(q)));
+  const f = fold(q);
+  const country = own(COUNTRY_WORDS, f) ?? index.countries.find(c => c === f);
   if (country) return { kind: 'country', key: country, label: index.countryLabel.get(country) ?? country };
   const scored = scoredInstitutions(index.aliases, q).filter(([, s]) => s >= 2 && (s === 3 || q.length >= 4));
   if (!scored.length) return null;
@@ -107,9 +118,10 @@ const atPlace = (item, place) => (place.kind === 'country' ? item.countries.has(
 /** @returns {Place[]} */
 export function placeChoices(index, query, limit = 5) {
   const q = normalizeName(query);
-  if (!q) return [];
+  if (!q || !hasWords(q)) return [];
   const out = searchInstitutions(index.aliases, q, limit).map(k => ({ kind: 'institution', keys: [k], label: index.names.get(k) }));
-  const country = COUNTRY_WORDS[q] ?? index.countries.find(c => c.startsWith(q));
+  const f = fold(q);
+  const country = own(COUNTRY_WORDS, f) ?? index.countries.find(c => c.startsWith(f));
   if (country) out.unshift({ kind: 'country', key: country, label: index.countryLabel.get(country) ?? country });
   return out.slice(0, limit);
 }
@@ -121,11 +133,16 @@ export const NO_FILTERS = Object.freeze({ days: [], types: [], place: null });
 export const filterCount = f => (f.days.length > 0) + (f.types.length > 0) + !!f.place;
 const passes = (t, f) => (!f.days.length || t.days.some(d => f.days.includes(d))) && (!f.types.length || f.types.includes(t.type)) && (!f.place || atPlace(t, f.place));
 
+// People have no day or type: with only those filters (and no words), the People tab says so instead of "No matches".
+/** @param {Filters} f */
+export const peopleFilterOnly = (query, f) => !hasWords(query) && !f.place && (f.days.length > 0 || f.types.length > 0);
+
 // → [{ key, why: { field: 'title' | 'author' | 'topic' | 'place', text? } }] in programme order within each field.
 // An empty query lists every talk that passes the filters.
 /** @param {Filters} [filters] */
 export function searchTalks(index, query, filters = NO_FILTERS) {
-  const qw = normalizeName(query).split(' ').filter(Boolean);
+  if (!hasWords(query) && query?.trim() && !filterCount(filters)) return [];
+  const qw = hasWords(query) ? queryWords(query) : [];
   const place = qw.length ? placeOf(index, query) : null;
   const tiers = [[], [], [], []];
   for (const t of index.talks) {
@@ -143,7 +160,7 @@ export function searchTalks(index, query, filters = NO_FILTERS) {
 // People by name, then people at the place the query names. Only the place filter applies (people have no day or type).
 /** @param {Filters} [filters] */
 export function searchPeople(index, query, filters = NO_FILTERS) {
-  const qw = normalizeName(query).split(' ').filter(Boolean);
+  const qw = hasWords(query) ? queryWords(query) : [];
   if (!qw.length && !filters.place) return [];
   const place = qw.length ? placeOf(index, query) : null;
   const byName = [], atIt = [];
@@ -158,7 +175,7 @@ export function searchPeople(index, query, filters = NO_FILTERS) {
 // Sessions by name, in time order. Day filter applies; type and place filter the session's talks.
 /** @param {Filters} [filters] */
 export function searchSessions(index, query, filters = NO_FILTERS) {
-  const qw = normalizeName(query).split(' ').filter(Boolean);
+  const qw = hasWords(query) ? queryWords(query) : [];
   if (!qw.length && !filterCount(filters)) return [];
   const talks = index.talkByKey;
   return index.sessions

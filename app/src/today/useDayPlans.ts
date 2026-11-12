@@ -11,7 +11,8 @@ import { useEdits } from './useEdits';
 // Today and More for you plan the same way: the programme (the deploy's, or a newer revision), the recommendations,
 // the plan (saved, or none for the sample day) and the edits → one planned day per conference day, plus what moved
 // in my plan if the programme changed.
-export function useDayPlans(mode: 'plan' | 'sample') {
+// enabled = false: no planning at all (Explore·06·07 while browsing without a plan, where nothing is planned).
+export function useDayPlans(mode: 'plan' | 'sample', enabled = true) {
   const { plan: mine } = useDevice();
   const [edits, setEdits] = useEdits(mode);
   const response = useRecommendation(mode);
@@ -23,7 +24,7 @@ export function useDayPlans(mode: 'plan' | 'sample') {
   const plan = mode === 'plan' ? mine : null;
 
   const view = useMemo(() => {
-    if (!data || !base) return null;
+    if (!enabled || !data || !base) return null;
     const tz = data.meta.timeZone;
     const days = conferenceDays(data.sessions, tz);
     const chosen = plan ? days.filter(d => plan.days.includes(d)) : days;
@@ -33,7 +34,7 @@ export function useDayPlans(mode: 'plan' | 'sample') {
     const changes = before ? diffStops(before.flatMap(p => p.stops), base.index, data.index) : [];
     const firstWithStops = plans.find((p, i) => p.stops.length && chosen.includes(days[i]))?.day ?? chosen[0] ?? days[0];
     return { tz, days, chosen, plans, firstWithStops, changes };
-  }, [data, base, plan, edits, programme, response]);
+  }, [enabled, data, base, plan, edits, programme, response]);
 
   return { data, base, error, view, edits, setEdits, programme, response };
 }

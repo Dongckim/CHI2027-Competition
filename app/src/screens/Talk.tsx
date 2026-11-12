@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { loadAbstracts } from '../data/load';
 import { talkPosition } from '../today/card.js';
 import { highlightSegments, verifiedReasons } from '../explore/quotes.js';
+import { authorLine } from '../explore/authors.js';
 import { useExploreData, useMyDay } from '../explore/useExplore';
 import { TYPE_TAG, dateOf, clockOf, weekdayOf, firstSlot, abstractFileDay } from '../explore/format';
 import { useOnline } from '../data/offline';
@@ -32,8 +33,10 @@ export function Talk({ paperKey }: { paperKey: string }) {
   const slot = p ? firstSlot(p.slots) : null;
   useEffect(() => {
     if (!p) return;
+    let current = true; // a slower answer for the talk opened before must not replace this talk's abstract
     setAbstract(null);
-    loadAbstracts(abstractFileDay(p.slots, tz)).then(a => setAbstract(a[paperKey] ?? ''), () => setAbstract(false));
+    loadAbstracts(abstractFileDay(p.slots, tz)).then(a => current && setAbstract(a[paperKey] ?? ''), () => current && setAbstract(false));
+    return () => { current = false; };
   }, [p, paperKey, online]); // eslint-disable-line react-hooks/exhaustive-deps -- back online: try the day file again
 
   const header = <Header back={() => history.back()} search />;
@@ -43,7 +46,8 @@ export function Talk({ paperKey }: { paperKey: string }) {
 
   const { index, sessionSlots, timing } = data.schedule;
   const authors: string[] = p.authors;
-  const shownAuthors = allAuthors ? authors : authors.slice(0, 3);
+  const line = authorLine(authors, k => data.people[k]?.name, allAuthors); // unnamed authors only count in "+n"
+  const shownAuthors = line.shown;
   const slots = p.slots.filter((s: { start: number | null }) => s.start != null).sort((a: { start: number }, b: { start: number }) => a.start - b.start);
   const item = response?.items.find(i => i.paperKey === paperKey);
   const reasons: Reason[] = abstract ? verifiedReasons(item?.reasons, abstract) : [];
@@ -57,11 +61,18 @@ export function Talk({ paperKey }: { paperKey: string }) {
       <main className="flex flex-col gap-4 px-gutter pt-2 pb-28">
         <Tag>{TYPE_TAG[p.type] ?? 'TALK'}</Tag>
         <h1 className="text-card-title font-semibold">{p.title}</h1>
-        <p className="text-small text-text-2">
-          {shownAuthors.map((k, i) => <span key={k}>{i > 0 && ', '}<a href={`#/person/${k}`} className="underline">{data.people[k]?.name ?? k}</a></span>)}
-          {authors.length > 3 && <button type="button" onClick={() => setAllAuthors(a => !a)} className="ml-1 font-semibold underline" aria-expanded={allAuthors}>
-            {allAuthors ? 'fewer' : `+${authors.length - 3}`}</button>}
-        </p>
+        {/* Each name and "+n" is a 44px target (they wrap as a list, not as words in a sentence). */}
+        <ul aria-label="Authors" className="-my-2 flex flex-wrap items-center gap-x-1 text-small text-text-2">
+          {shownAuthors.map((k, i) => (
+            <li key={k} className="flex items-center">
+              <a href={`#/person/${k}`} className="inline-flex min-h-touch items-center underline">{data.people[k].name}</a>{i < shownAuthors.length - 1 && ','}
+            </li>
+          ))}
+          {line.canExpand ? (
+            <li><button type="button" onClick={() => setAllAuthors(a => !a)} aria-expanded={allAuthors}
+              className="inline-flex min-h-touch min-w-touch items-center justify-center px-1 font-semibold underline">{allAuthors ? (line.more ? `fewer · +${line.more}` : 'fewer') : `+${line.more}`}</button></li>
+          ) : line.more > 0 && <li className="inline-flex min-h-touch items-center px-1">+{line.more}</li>}
+        </ul>
         <div className="flex flex-col gap-1">
           {slots.length ? slots.map((s: { start: number; roomKey: string; sessionKey: string }) => {
             const pos = talkPosition({ paperKey, start: s.start, sessionKey: s.sessionKey }, sessionSlots, timing.get(s.sessionKey));
@@ -80,7 +91,7 @@ export function Talk({ paperKey }: { paperKey: string }) {
           <section className="flex flex-col gap-2">
             <h2 className="text-small font-semibold">Why for you</h2>
             {why.map(label => <p key={label} className="text-body">Shares <b className="font-semibold">{label}</b> with your research.</p>)}
-            <p className="text-small text-text-3">Highlighted below in the abstract.</p>
+            <p className="text-small text-text-3">Highlighted and underlined below in the abstract.</p>
           </section>
         )}
         <section className="flex flex-col gap-2">
@@ -89,7 +100,7 @@ export function Talk({ paperKey }: { paperKey: string }) {
             <p className="text-body text-text-2">{online ? 'Could not load the abstract. Try again in a moment.' : 'Abstract not saved on this phone yet. Connect to load it.'}</p>
           ) : abstract ? (
             <p className="text-body whitespace-pre-line">
-              {highlightSegments(abstract, reasons).map((seg, i) => seg.mark ? <mark key={i} className="rounded-[2px] bg-[var(--highlight)] text-text">{seg.text}</mark> : <span key={i}>{seg.text}</span>)}
+              {highlightSegments(abstract, reasons).map((seg, i) => seg.mark ? <mark key={i} className="rounded-[2px] bg-[var(--highlight)] text-text underline decoration-2 underline-offset-2">{seg.text}</mark> : <span key={i}>{seg.text}</span>)}
             </p>
           ) : <p className="text-body text-text-2">No abstract in the programme.</p>}
         </section>

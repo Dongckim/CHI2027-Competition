@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import current from '../../../data/build/app-data/chi2026/current.json';
 import { searchTalks, placeChoices, NO_FILTERS } from '../../../data/scripts/search.mjs';
-import { explore, useExploreData, type Filters as F, type Place } from '../explore/useExplore';
+import { explore, leaveFilters, useExploreData, type Filters as F, type Place } from '../explore/useExplore';
 import { dayLabel } from '../explore/format';
-import { go } from '../router';
 import { Header } from '../components/Header';
 import { Chip } from '../components/Chip';
 import { ChoiceRow } from '../components/ChoiceRow';
@@ -25,7 +24,7 @@ export function Filters({ place }: { place?: string }) {
   // From "Other CMUs" the alias becomes the filter and stops being the search words (as words, CMU = Carnegie Mellon).
   const words = (() => { const q = explore.get().query; return place && q.trim().toLowerCase() === place.toLowerCase() ? '' : q; })(); // what apply keeps
   const n = useMemo(() => (data ? searchTalks(data.index, words, draft).length : null), [data, draft, words]);
-  const back = () => go('explore', { replace: true });
+  const back = leaveFilters;
   const apply = () => { explore.set({ ...explore.get(), query: words, filters: draft, tab: 'talks' }); back(); };
 
   return (
