@@ -1,5 +1,6 @@
 import current from '../../../data/build/app-data/chi2026/current.json';
 import { indexData, venueTravelMinutes } from '../planner/plan.js';
+import { sessionSlotsFrom } from '../today/card.js';
 
 // App data from data/build/app-data/<edition>/<path>/ (data/scripts/app-data.mjs). The path is bundled at build time,
 // so a deploy and its data always match, and each file is downloaded once per screen that needs it.
@@ -26,7 +27,10 @@ export const loadSchedule = once(async () => {
   const venue = await get(`/data/venue/${venueMap.venue}.json`);
   const papers = schedule.papers.map((p: { paperKey: string }) => ({ ...p, key: p.paperKey })); // the planner keys papers by `key`
   const { meta, sessions, rooms } = schedule;
-  return { meta, sessions, index: indexData({ meta, papers, sessions, rooms }), travelMinutes: venueTravelMinutes(venue, venueMap) };
+  return {
+    meta, sessions, index: indexData({ meta, papers, sessions, rooms }), travelMinutes: venueTravelMinutes(venue, venueMap),
+    sessionSlots: sessionSlotsFrom(papers), timing: new Map<string, string>(sessions.map((x: { key: string; timing: string }) => [x.key, x.timing])),
+  };
 });
 export type Schedule = Awaited<ReturnType<typeof loadSchedule>>;
 
