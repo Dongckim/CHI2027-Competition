@@ -116,3 +116,18 @@ test('offline line: only when offline, with the time the data was saved on the p
   assert.equal(offlineNote(false, savedAt), new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' }).format(savedAt).replace(/^/, 'Offline · saved at ')); // default = this machine
   assert.equal(offlineNote(false, null), 'Offline · showing what is on this phone');
 });
+
+test('simulate: ?simulate=room-change works on the sample day only, a real plan ignores it and drops it', async () => {
+  const { simulateRequested, keepsSample } = await import('../../app/src/today/simulate.js');
+  assert.equal(simulateRequested('sample', '?simulate=room-change'), true);
+  assert.equal(simulateRequested('sample', '?x=1&simulate=room-change'), true);
+  assert.equal(simulateRequested('plan', '?simulate=room-change'), false); // Today with a built plan
+  assert.equal(simulateRequested('none', '?simulate=room-change'), false); // no plan yet
+  assert.equal(simulateRequested('sample', ''), false);
+  assert.equal(simulateRequested('sample', '?simulate=other'), false);
+  // Leaving the sample day (to Today with a plan, onboarding, the cleared screen) drops the simulated change;
+  // screens opened from the sample day keep it.
+  for (const head of ['today', 'start', 'building', 'cleared', 'questions', '']) assert.equal(keepsSample(head, false), false, head);
+  for (const head of ['sample', 'more', 'explore', 'talk', 'person']) assert.equal(keepsSample(head, false), true, head);
+  assert.equal(keepsSample('directions', true), true);
+});

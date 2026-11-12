@@ -4,7 +4,6 @@ import { Header } from '../components/Header';
 
 // Destinations that later stages build. The route and the talk are real, so links can be wired now.
 const SCREENS = {
-  talk: { title: 'Talk details', later: '06 Talk detail comes in S4.' },
   directions: { title: 'Directions', later: '09 Directions come in S5.' },
   catchup: { title: 'Catch up', later: 'Catch up comes in S6.' },
   question: { title: 'Question', later: 'The question helper comes in S6.' },

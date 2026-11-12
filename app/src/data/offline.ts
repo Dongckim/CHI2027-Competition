@@ -30,3 +30,28 @@ export async function planWasHere(): Promise<boolean> {
 export function registerServiceWorker() {
   if (import.meta.env.PROD && 'serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
+
+// Offline after one visit: after Today is drawn, when the phone is idle (or a few seconds later where there is no
+// requestIdleCallback), fetch files once through the service worker, which keeps /app-data/ (cache first): Explore's
+// search files (05) and the abstracts of the planned days (06). Not with Save-Data on, not again once in the cache.
+// → a cancel function for the effect cleanup.
+export function prefetchWhenIdle(urls: string[]) {
+  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+  if (!import.meta.env.PROD || saveData || !('serviceWorker' in navigator) || !('caches' in window)) return () => {};
+  let cancelled = false;
+  const run = async () => {
+    const sw = navigator.serviceWorker;
+    await sw.ready;
+    if (!sw.controller) await new Promise(r => sw.addEventListener('controllerchange', r, { once: true })); // first visit: wait for the worker to take the page
+    for (const url of urls) {
+      if (cancelled || !navigator.onLine) return;
+      try { if (!(await caches.match(url, { ignoreVary: true }))) await (await fetch(url)).arrayBuffer(); } catch { /* next visit tries again */ }
+    }
+  };
+  if ('requestIdleCallback' in window) {
+    const id = requestIdleCallback(() => void run(), { timeout: 10_000 });
+    return () => { cancelled = true; cancelIdleCallback(id); };
+  }
+  const id = setTimeout(() => void run(), 3000);
+  return () => { cancelled = true; clearTimeout(id); };
+}

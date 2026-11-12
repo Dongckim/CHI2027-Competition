@@ -13,6 +13,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - S1 온보딩: `#/start/<step>` O-1~O-5 → `#/building` → Today. 계획은 `app/src/state/device.js` 형식으로 localStorage `arc.device`에 저장 (앱 내부 형식, DeviceState 계약 아님)
 - S2 오늘: 시각은 `app/src/clock.ts`(`now()`/`useNow()`)에서만, 샘플 하루는 데모 시계. 카드 규칙 `app/src/today/card.js`, 개최지 시각 변환 `app/src/time.js`
 - S3 바꾸기·예외: 변경은 플래너 입력에 (`app/src/today/edits.js`, `plan.edits`), 프로그램 확인 `app/src/data/programme.ts`(1분, 보일 때만), 오프라인 `app/sw.js`(빌드가 목록 생성)
+- S4 찾기: 검색 `data/scripts/search.mjs`(폰·node 공용, 추천 점수 안 씀), 인용 검사·하이라이트 `app/src/explore/quotes.js`, 내 하루·+ Add `app/src/explore/useExplore.ts`의 `useMyDay`
 - 명령 (Node 26 = Vercel 빌드와 같게, `package.json` engines. 로컬 20.19+도 동작하지만 26 권장. `arc/`에서):
   - `npm run data:fetch [edition...]` : version.json 조회 → 새 리비전만 data/raw에 저장
   - `npm run data:validate` : 공식 스키마 검사 (스키마는 초안이라 chi2025 외 실패가 정상, V0 문서 참고)
@@ -26,6 +27,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
   - `node tests/planner/try.mjs <후보.json> [--day YYYY-MM-DD] [--wheelchair]` : 후보 목록으로 루트를 눈으로 확인 (예: tests/planner/examples/accessibility.json). 추천은 recsys/ 몫, 플래너·도구에 추천 로직 넣지 말 것
   - `npm run bench` : 확인 페이지 서버 (tests/serve.mjs, functions/를 /api/로 연결). 길 안내 /tests/venue/bench.html, 자막 /tests/captions/bench.html, 대면 대화 /tests/captions/conversation.html (`.env.local`에 `SONIOX_API_KEY=...`, git 무시)
   - `npm run dev` : 앱 개발 서버 (같은 Wi-Fi 폰에서도 열림) / `npm run build` : dist/ (data/build/chi2026 필요) / `npm run build:deploy` : Vercel이 쓰는 것 (피드 받기 → 빌드 → 앱)
+  - `node tests/explore/bench.mjs [질의...]` : 검색 속도 (node) / `node --experimental-websocket tests/explore/phone-check.mjs` : 헤드리스 Chrome 390×844·CPU 4배로 S4 화면 확인 (`vite preview --port 4317` 먼저) / `tests/explore/offline-check.mjs` : 오프라인 Explore (서버를 스스로 켜고 끔)
   - `npm test` : 전체 테스트 / 하나만: `node --test --test-name-pattern="talk slots" tests/`
 - git은 반드시 `arc/` 안에서 실행. 상위 `chi2027-arc/`는 자체 레포가 아니라 홈 디렉토리(`/Users/dongchankim`) 레포로 잡힘
 
@@ -149,3 +151,6 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - S3 바꾸기·예외 (2026-11-12, stage/S3-changes): Remove/Swap/Undo, PICK ONE, More for you 3상태, 03-J2/K/L/M, 서비스 워커 오프라인
 - 새 revision은 기기에서 같은 buildEdition으로 정규화 → 내 일정 변경만 알림. 헤드리스 Chrome에서 서버를 끄고도 Today·Undo 동작
 - 임시 추천기 baseline-0 (TF-IDF, 폰에서 실행, `app/src/data/recommend.ts`의 TODO(recsys)가 API 자리). 남은 것: 폰 확인(비행기 모드), Edit 버튼 (docs/stages/S3-changes.md)
+- S4 찾기·자세히 (2026-11-12, stage/S4-explore): 05 검색(Talks/People/Sessions, 프로그램 순서 "Not ranked for you"), 04 필터 전체 화면, No results, 06 발표, 07 저자, 어디서든 돋보기
+- "CMU" → Carnegie Mellon 발표 109개(모든 저자의 모든 소속). 06 하이라이트는 abstract.slice(start, end)가 맞는 인용만, 이모지 초록 테스트. 헤드리스 Chrome CPU 4배에서 검색 68–76 ms
+- 앱 데이터에 institutions.json(gzip 91 KB)·DOI 추가, Today 뒤 한가할 때 검색 파일·계획한 날 초록을 미리 받아 오프라인 Explore·06 동작. 남은 것: 폰 실기기, 요약은 S7까지 초록 원문 (docs/stages/S4-explore.md)

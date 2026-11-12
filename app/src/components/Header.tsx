@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import { useDevice } from '../state/useDevice';
 
-// 44px header. Default: wordmark left, settings right. Onboarding: a back button, an optional title and a step count.
-export function Header({ title, back, right, wordmark = !back }: { title?: string; back?: () => void; right?: ReactNode; wordmark?: boolean }) {
+// 44px header. Default: wordmark left, search and settings right. Onboarding: a back button, an optional title and a step count.
+// search: the magnifier that opens Explore from any screen (on by default with the wordmark; off on Explore itself).
+export function Header({ title, back, right, wordmark = !back, search = wordmark }: { title?: string; back?: () => void; right?: ReactNode; wordmark?: boolean; search?: boolean }) {
   return (
     <header className="flex min-h-touch items-center gap-1 px-gutter">
       {back && (
@@ -12,7 +13,12 @@ export function Header({ title, back, right, wordmark = !back }: { title?: strin
       )}
       {wordmark && <span className="text-card-title font-semibold">ARC</span>}
       {title && <h1 className="text-header font-semibold">{title}</h1>}
-      <span className="ml-auto">{right ?? (wordmark && <Settings />)}</span>
+      <span className="ml-auto flex items-center">
+        {search && <a href="#/explore" aria-label="Search" className="grid size-touch place-items-center text-text">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14Zm9 16-4.2-4.2" /></svg>
+        </a>}
+        {right ?? (wordmark && <Settings />)}
+      </span>
     </header>
   );
 }

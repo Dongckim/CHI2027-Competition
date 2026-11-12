@@ -1,6 +1,6 @@
 import current from '../../../data/build/app-data/chi2026/current.json';
 import type { response as Example } from './fake-recommend';
-import { loadSchedule, loadAbstracts, loadPeople } from './load';
+import { loadSchedule, loadAbstracts, loadPeople, loadTopics } from './load';
 
 export type RecommendResponse = typeof Example;
 export type RecommendRequest = { schema_version: '0.1.0'; edition: string; query: string };
@@ -20,7 +20,7 @@ let corpusPromise: Promise<Parameters<typeof import('../recommend/baseline.js').
 function corpusOnce() {
   return (corpusPromise ??= (async () => {
     const [schedule, people, topics, ...days] = await Promise.all([
-      loadSchedule(), loadPeople(), fetch(`/app-data/${current.edition}/${current.path}topics.json`).then(r => { if (!r.ok) throw new Error(`topics.json: HTTP ${r.status}`); return r.json(); }),
+      loadSchedule(), loadPeople(), loadTopics(),
       ...[...current.days, 'unscheduled'].map(d => loadAbstracts(d)),
     ]);
     const abstracts: Record<string, string> = Object.assign({}, ...days);

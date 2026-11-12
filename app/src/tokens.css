@@ -4,6 +4,7 @@
   --bg: #ffffff;
   --surface: #f0f0f0;      /* day tabs, chips */
   --tag-bg: #ededed;
+  --highlight: #fff0a0;   /* quoted reason in an abstract (06); text stays --text */
   --text: #1f1f1f;
   --text-2: #575757;
   --text-3: #6b6b6b;       /* lightest text allowed: 5.3:1 on --bg, 4.7:1 on --surface */
@@ -38,6 +39,7 @@
     --bg: #121212;
     --surface: #1e1e1e;
     --tag-bg: #2a2a2a;
+    --highlight: #5a4a00;
     --text: #ededed;
     --text-2: #b0b0b0;
     --text-3: #9a9a9a;

@@ -50,8 +50,18 @@ export const loadSchedule = once(async () => {
 export type Schedule = Awaited<ReturnType<typeof loadSchedule>>;
 
 // Detail screen (06): abstracts for one day file. Use abstractDay() from data/scripts/app-data.mjs to pick the file.
-export const loadAbstracts = onceBy<Record<string, string>>(day => get(`${base}abstracts/${day}.json`));
+export const loadAbstracts = onceBy<Record<string, string>>(day => get(abstractsUrl(day)));
 
 // Authors and search (07): personKey → { name, affiliations[] }.
 export const loadPeople = once<Record<string, { name: string; affiliations: { institutionKey: string; institution: string; country: string }[] }>>(
   () => get(`${base}people.json`));
+
+// Kept for offline after Today (prefetchWhenIdle): what Explore needs besides schedule.json (already precached),
+// and one day file of abstracts.
+export const EXPLORE_FILES = ['people.json', 'institutions.json', 'topics.json'].map(f => `${base}${f}`);
+export const abstractsUrl = (day: string) => `${base}abstracts/${day}.json`;
+
+// Session topics (baseline recommender, Explore topic matches) and the institution alias table (Explore "CMU").
+export const loadTopics = once<{ key: string; label: string; contentKeys: string[] }[]>(() => get(`${base}topics.json`));
+export const loadInstitutions = once<{ institutions: { key: string; name: string; authorCount: number }[]; lookup: Record<string, string[]> }>(
+  () => get(`${base}institutions.json`));

@@ -5,12 +5,15 @@ import { dayCard, laterStops, talkPosition, WALK_MIN, FIRST_WALK_MIN } from '../
 import { removeStop, pickOne } from '../today/edits.js';
 import { freeGaps, dayBounds } from '../today/more.js';
 import { offlineNote } from '../today/offline.js';
+import { simulateRequested } from '../today/simulate.js';
 import { useDayPlans, type DayView } from '../today/useDayPlans';
 import { venueInstant, venueClock } from '../time.js';
 import { useNow, setDemoNow, isDemo } from '../clock';
 import type { Schedule } from '../data/load';
 import { watchProgramme, simulateRoomChange, markSeen, seenRevision } from '../data/programme';
-import { useOnline, savedAt } from '../data/offline';
+import { useOnline, savedAt, prefetchWhenIdle } from '../data/offline';
+import { EXPLORE_FILES, abstractsUrl } from '../data/load';
+import { abstractFileDay } from '../explore/format';
 import { update } from '../state/useDevice';
 import { addDay } from '../state/device.js';
 import { go } from '../router';
@@ -34,6 +37,7 @@ const weekday = (d: string, o: Intl.DateTimeFormatOptions = { weekday: 'long' })
 const shortDay = (d: string) => `${weekday(d, { weekday: 'short' })} ${weekday(d, { day: 'numeric' })}`;
 
 export function Today({ mode }: { mode: 'plan' | 'sample' | 'none' }) {
+  useEffect(() => prefetchWhenIdle(EXPLORE_FILES), []); // after the first paint, when idle: Explore works offline later
   if (mode === 'none') return (
     <><Header />
       <div className="flex flex-col gap-4 px-gutter pt-3">
@@ -61,8 +65,16 @@ function PlannedToday({ mode }: { mode: 'plan' | 'sample' }) {
   }, [mode, view]);
   // Watch for programme updates while Today is open. Sample day only: ?simulate=room-change tries 03-M without a feed change.
   useEffect(() => (base ? watchProgramme(base) : undefined), [base]);
+  // Offline talk details (06): the abstracts of the days I plan to be there (the sample day for the sample), and the
+  // day file of each planned talk (a talk's abstract sits under the day of its first slot, which may be another day).
+  const abstractDays = !view || !data ? '' : [...new Set([
+    ...(mode === 'sample' ? [view.firstWithStops] : view.chosen),
+    ...view.plans.filter(p => mode !== 'sample' || p.day === view.firstWithStops).flatMap(p => p.stops)
+      .map((s: { paperKey: string }) => data.index.papers.get(s.paperKey)).filter(Boolean).map((p: { slots: [] }) => abstractFileDay(p.slots, view.tz)),
+  ])].sort().join(',');
+  useEffect(() => (abstractDays ? prefetchWhenIdle(abstractDays.split(',').map(abstractsUrl)) : undefined), [abstractDays]);
   useEffect(() => {
-    if (mode !== 'sample' || !base || !view || !new URLSearchParams(location.search).has('simulate')) return;
+    if (!simulateRequested(mode, location.search) || !base || !view) return;
     const stops = view.plans.find(p => p.stops.length)?.stops ?? [];
     if (stops.length) simulateRoomChange(base, stops[Math.min(2, stops.length - 1)].paperKey);
   }, [base, !!view]); // eslint-disable-line react-hooks/exhaustive-deps
