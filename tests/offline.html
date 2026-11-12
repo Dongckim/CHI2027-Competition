@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARC offline check</title>
+<!-- Bench page (no design): is this phone ready to open ARC without a connection? Open it online, then try airplane mode. -->
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 16px system-ui, sans-serif; max-width: 520px; margin: 0 auto; padding: 16px; }
+  li { margin: 6px 0; } .ok { color: green; } .bad { color: #c00; } code { font-size: 14px; }
+  button { min-height: 44px; font-size: 16px; padding: 0 16px; }
+</style>
+</head>
+<body>
+<h1>ARC offline check</h1>
+<ul id="out"><li>Checking…</li></ul>
+<p><button id="again">Check again</button></p>
+<p><a href="/">Open ARC</a> · <a href="index.html">Bench index</a></p>
+<script type="module">
+const out = document.getElementById('out');
+const line = (ok, text) => `<li class="${ok === null ? '' : ok ? 'ok' : 'bad'}">${ok === null ? '·' : ok ? '✓' : '✗'} ${text}</li>`;
+async function check() {
+  const rows = [];
+  rows.push(line(navigator.onLine, `Browser says ${navigator.onLine ? 'online' : 'offline'}`));
+  if (!('serviceWorker' in navigator)) {
+    rows.push(line(false, 'No service worker in this browser (private browsing turns it off in Safari)'));
+    out.innerHTML = rows.join(''); return;
+  }
+  const reg = await navigator.serviceWorker.getRegistration('/');
+  if (!reg) rows.push(line(false, 'Service worker not installed yet: open ARC once while online, wait a few seconds, then check again'));
+  else {
+    const w = reg.active ?? reg.waiting ?? reg.installing;
+    rows.push(line(!!reg.active, `Service worker: active ${reg.active ? 'yes' : 'no'}${reg.waiting ? ', a newer one is waiting (close all ARC tabs and reopen)' : ''}${reg.installing ? ', still installing' : ''} (scope ${reg.scope})`));
+    rows.push(line(!!navigator.serviceWorker.controller, `This page is ${navigator.serviceWorker.controller ? '' : 'not '}handled by it${navigator.serviceWorker.controller ? '' : ' (reload once)'}`));
+    void w;
+  }
+  try {
+    const keys = await caches.keys();
+    const app = keys.filter(k => /^arc-[0-9a-f]{12}$/.test(k));
+    for (const k of app) {
+      const n = (await (await caches.open(k)).keys()).length;
+      const page = !!(await caches.match('/index.html', { cacheName: k }));
+      rows.push(line(n >= 10 && page, `Saved copy <code>${k}</code>: ${n} files${page ? ', page included' : ', page missing'}`));
+    }
+    if (!app.length) rows.push(line(false, 'No saved copy of the app yet'));
+    if (keys.includes('arc-plan-marker')) rows.push(line(true, 'A plan was built on this phone'));
+  } catch (e) { rows.push(line(false, `Cache Storage not available: ${e.message}`)); }
+  try {
+    const plan = JSON.parse(localStorage.getItem('arc.device') ?? 'null');
+    rows.push(line(!!plan?.builtAt, plan?.builtAt ? `Plan saved (${new Date(plan.builtAt).toLocaleString()})` : 'No plan saved in this browser'));
+  } catch { rows.push(line(false, 'localStorage blocked')); }
+  if (navigator.storage?.persisted) rows.push(line(null, `Storage kept under pressure: ${await navigator.storage.persisted() ? 'yes' : 'not guaranteed'}`));
+  out.innerHTML = rows.join('');
+}
+document.getElementById('again').onclick = check;
+check();
+</script>
+</body>
+</html>
