@@ -18,6 +18,7 @@
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --text-tag: 12px;   --text-small: 14px;  --text-link: 15px;
   --text-body: 16px;  --text-header: 17px; --text-card-title: 18px;
+  --text-empty-title: 20px; --text-page-title: 26px; /* "No matches" (05), talk and author name (06, 07) */
 
   --space-1: 4px; --space-2: 6px; --space-3: 8px; --space-4: 10px; --space-5: 12px; --space-6: 16px;
   --gutter: 16px;
@@ -32,6 +33,7 @@
 :root[data-text="large"] {
   --text-tag: 14px; --text-small: 16px; --text-link: 18px;
   --text-body: 20px; --text-header: 20px; --text-card-title: 22px;
+  --text-empty-title: 24px; --text-page-title: 30px;
 }
 
 @media (prefers-color-scheme: dark) {

@@ -29,24 +29,24 @@ export function Filters({ place }: { place?: string }) {
 
   return (
     <div className="mx-auto min-h-dvh max-w-[480px] bg-bg pb-28">
-      <Header back={back} title="Filters" right={
-        <button type="button" onClick={() => { setDraft(NO_FILTERS); setText(''); }} className="-mr-2 min-h-touch px-3 text-small font-semibold underline">Reset</button>
+      <Header back={back} close title="Filters" right={
+        <button type="button" onClick={() => { setDraft(NO_FILTERS); setText(''); }} className="-mr-2 min-h-touch px-3 text-link font-semibold underline">Reset</button>
       } />
       <main className="flex flex-col gap-4 px-gutter pt-2">
         {words.trim() && <p className="text-small text-text-2">For “{words.trim()}”</p>}
         <fieldset className="flex flex-col gap-3">
-          <legend className="pb-3 text-small font-semibold">Day</legend>
+          <legend className="pb-4 text-small font-semibold">Day</legend>
           <div className="flex flex-wrap gap-2">
             {current.days.map(d => <Chip key={d} selected={draft.days.includes(d)} onSelect={() => setDraft(f => ({ ...f, days: toggle(f.days, d) }))}>{dayLabel(d)}</Chip>)}
           </div>
         </fieldset>
         <fieldset className="flex flex-col gap-3">
-          <legend className="pb-3 text-small font-semibold">Type</legend>
+          <legend className="pb-4 text-small font-semibold">Type</legend>
           <div className="flex flex-wrap gap-2">
             {TYPES.map(([k, label]) => <Chip key={k} selected={draft.types.includes(k)} onSelect={() => setDraft(f => ({ ...f, types: toggle(f.types, k) }))}>{label}</Chip>)}
           </div>
         </fieldset>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           <label htmlFor="place" className="text-small font-semibold">Institution</label>
           <input id="place" type="search" value={text} placeholder="e.g. CMU" autoComplete="off"
             onChange={e => {
@@ -54,7 +54,7 @@ export function Filters({ place }: { place?: string }) {
               const first = data ? placeChoices(data.index, e.target.value)[0] ?? null : null;
               setDraft(f => ({ ...f, place: first }));
             }}
-            className="min-h-[59px] rounded-row border border-border-strong bg-bg px-4 text-body text-text placeholder:text-text-3" />
+            className="min-h-14 rounded-bar border-[length:var(--card-border)] border-border-strong bg-bg px-4 text-body text-text placeholder:text-text-3" />
           {choices.length > 0 && (
             <div role="radiogroup" aria-label="Institution" className="flex flex-col gap-2">
               {choices.map(c => <ChoiceRow key={c.label} type="radio" name="place" checked={same(draft.place, c)} onChange={() => setDraft(f => ({ ...f, place: c }))}
@@ -64,7 +64,7 @@ export function Filters({ place }: { place?: string }) {
           {text.trim() && data && !choices.length && <p className="text-small text-text-2">No institution or country by that name.</p>}
         </div>
       </main>
-      <BottomAction label={n == null ? 'Show results' : `Show ${n} result${n === 1 ? '' : 's'}`} onClick={apply} />
+      <BottomAction size="lg" label={n == null ? 'Show results' : `Show ${n} result${n === 1 ? '' : 's'}`} onClick={apply} />
     </div>
   );
 }
