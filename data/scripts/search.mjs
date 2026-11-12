@@ -132,6 +132,10 @@ export const NO_FILTERS = Object.freeze({ days: [], types: [], place: null });
 export const filterCount = f => (f.days.length > 0) + (f.types.length > 0) + !!f.place;
 const passes = (t, f) => (!f.days.length || t.days.some(d => f.days.includes(d))) && (!f.types.length || f.types.includes(t.type)) && (!f.place || atPlace(t, f.place));
 
+// People have no day or type: with only those filters (and no words), the People tab says so instead of "No matches".
+/** @param {Filters} f */
+export const peopleFilterOnly = (query, f) => !hasWords(query) && !f.place && (f.days.length > 0 || f.types.length > 0);
+
 // → [{ key, why: { field: 'title' | 'author' | 'topic' | 'place', text? } }] in programme order within each field.
 // An empty query lists every talk that passes the filters.
 /** @param {Filters} [filters] */

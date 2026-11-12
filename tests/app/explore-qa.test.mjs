@@ -75,3 +75,12 @@ test('QA 3: "in my day" = stops on the days I attend only; other days stay addab
   assert.deepEqual([...plannedKeys(view, ['c'])].sort(), ['a']); // b is on a day I don't attend; c (added) is not planned
   assert.deepEqual([...plannedKeys(null, ['c'])], ['c']); // browsing: no plan, only what was added
 });
+
+test('QA 10: People tab with only day/type filters says those filters are for talks', () => {
+  const { peopleFilterOnly } = search;
+  assert.equal(peopleFilterOnly('', { ...NO_FILTERS, days: ['2026-04-14'] }), true);
+  assert.equal(peopleFilterOnly('(', { ...NO_FILTERS, types: ['paper'] }), true);
+  assert.equal(peopleFilterOnly('ali', { ...NO_FILTERS, days: ['2026-04-14'] }), false);
+  assert.equal(peopleFilterOnly('', { ...NO_FILTERS, place: placeChoices(index, 'cmu')[0] }), false);
+  assert.equal(peopleFilterOnly('', NO_FILTERS), false);
+});
