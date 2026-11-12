@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { loadSchedule, loadPeople, loadTopics, loadInstitutions, type Schedule } from '../data/load';
 import { buildSearchIndex, NO_FILTERS } from '../../../data/scripts/search.mjs';
 import { localDay } from '../planner/plan.js';
@@ -7,6 +7,7 @@ import { addDay, updateEdits } from '../state/device.js';
 import { useDayPlans } from '../today/useDayPlans';
 import { useDevice, update } from '../state/useDevice';
 import { isDemo } from '../clock';
+import { useProgrammeUpdate } from '../data/programme';
 import { plannedKeys } from './myday.js';
 
 // Explore (05/04), talk detail (06) and author (07) share: the search index, what is in my day, and + Add.
@@ -20,19 +21,34 @@ let saved: ExploreState = { query: '', tab: 'talks', filters: NO_FILTERS as Filt
 export const explore = { get: () => saved, set: (s: ExploreState) => { saved = s; } };
 
 type People = Awaited<ReturnType<typeof loadPeople>>;
+type Files = { base: Schedule; people: People; topics: Awaited<ReturnType<typeof loadTopics>>; aliases: Awaited<ReturnType<typeof loadInstitutions>> };
 export type Loaded = { schedule: Schedule; people: People; index: ReturnType<typeof buildSearchIndex> };
-let loading: Promise<Loaded> | null = null;
-const loadAll = () => (loading ??= (async () => {
-  const [schedule, people, topics, aliases] = await Promise.all([loadSchedule(), loadPeople(), loadTopics(), loadInstitutions()]);
-  const papers = [...schedule.index.papers.values()];
-  const index = buildSearchIndex({ schedule: { meta: schedule.meta, papers, sessions: schedule.sessions }, people, topics, aliases });
-  return { schedule, people, index };
-})().catch(e => { loading = null; throw e; }));
+let loading: Promise<Files> | null = null;
+const loadAll = () => (loading ??= Promise.all([loadSchedule(), loadPeople(), loadTopics(), loadInstitutions()])
+  .then(([base, people, topics, aliases]) => ({ base, people, topics, aliases }))
+  .catch(e => { loading = null; throw e; }));
+
+// One search index per programme: the deploy's, or the newer revision Today watches for (and the sample day's
+// simulated change), so Explore, 06 and 07 show the same rooms and times as Today. Rebuilt only when that changes.
+const indexes = new WeakMap<Schedule, ReturnType<typeof buildSearchIndex>>();
+function indexFor(schedule: Schedule, f: Files) {
+  if (!indexes.has(schedule)) {
+    const papers = [...schedule.index.papers.values()];
+    indexes.set(schedule, buildSearchIndex({ schedule: { meta: schedule.meta, papers, sessions: schedule.sessions }, people: f.people, topics: f.topics, aliases: f.aliases }));
+  }
+  return indexes.get(schedule)!;
+}
 
 export function useExploreData() {
-  const [data, setData] = useState<Loaded | null>(null);
+  const [files, setFiles] = useState<Files | null>(null);
   const [error, setError] = useState('');
-  useEffect(() => { loadAll().then(setData, e => setError(String(e.message ?? e))); }, []);
+  const programme = useProgrammeUpdate();
+  useEffect(() => { loadAll().then(setFiles, e => setError(String(e.message ?? e))); }, []);
+  const data = useMemo<Loaded | null>(() => {
+    if (!files) return null;
+    const schedule = programme?.schedule ?? files.base;
+    return { schedule, people: files.people, index: indexFor(schedule, files) };
+  }, [files, programme]);
   return { data, error };
 }
 
