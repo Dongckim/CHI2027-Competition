@@ -46,3 +46,10 @@ test('QA 7: accents are ignored when comparing ("Vazquez" finds "Baca-Vázquez")
   assert.deepEqual(searchPeople(index, 'vázquez'), ['chi2026:p1']);
   assert.deepEqual(searchTalks(index, 'vazquez').map(r => r.key), ['chi2026:1']);
 });
+
+test('QA 9: a country is used only when the whole name matches ("unit" is not United Arab Emirates)', () => {
+  assert.equal(placeOf(index, 'unit'), null);
+  assert.deepEqual(searchTalks(index, 'unit').map(r => r.why.field), ['title']); // "Unity in design" by title only
+  assert.equal(placeOf(index, 'United Arab Emirates')?.label, 'United Arab Emirates');
+  assert.equal(placeOf(index, 'usa')?.label, 'United States');
+});

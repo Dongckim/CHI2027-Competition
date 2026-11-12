@@ -90,8 +90,9 @@ const firstStart = p => Math.min(Infinity, ...p.slots.map(s => s.start).filter(s
 // Every query word is the start of some word of the field (any order): "mellon carn" ~ "carnegie mellon".
 const matches = (qw, fieldWords) => qw.every(q => fieldWords.some(w => w.startsWith(q)));
 
-// What a typed word means as a place: the institution an exact alias names (only the largest one: "CMU" is also
-// Chiang Mai University, 1 author), or institutions whose name starts with it, or a country.
+// What a typed word means as a place: a country by its whole name ("unit" is not United Arab Emirates), the institution
+// an exact alias names (only the largest one: "CMU" is also Chiang Mai University, 1 author), or institutions whose
+// name starts with it.
 /** @returns {Place | null} */
 export function placeOf(index, query) {
   const q = normalizeName(query);
@@ -101,7 +102,7 @@ export function placeOf(index, query) {
 }
 function findPlace(index, q) {
   const f = fold(q);
-  const country = own(COUNTRY_WORDS, f) ?? index.countries.find(c => c === f || (f.length >= 4 && c.startsWith(f)));
+  const country = own(COUNTRY_WORDS, f) ?? index.countries.find(c => c === f);
   if (country) return { kind: 'country', key: country, label: index.countryLabel.get(country) ?? country };
   const scored = scoredInstitutions(index.aliases, q).filter(([, s]) => s >= 2 && (s === 3 || q.length >= 4));
   if (!scored.length) return null;
