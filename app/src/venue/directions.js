@@ -46,7 +46,7 @@ export function directions(venue, labels, r, { fromName, toName } = {}) {
       const a = nodes[0], b = nodes.at(-1), up = levelRank(b.level) > levelRank(a.level);
       const n = a.id.match(/elevator(\d+)/)?.[1];
       const what = g.type === 'elevator' ? (labels.elevator ?? 'Elevator {n}').replace('{n}', n ?? '') : (labels.escalator ?? 'Escalator');
-      lines.push({ kind: g.type, text: `${what.trim()} ${up ? 'up' : 'down'} to ${b.level}`, node: a.id, level: b.level });
+      lines.push({ kind: g.type, text: `${what.trim()} ${up ? 'up' : 'down'} to ${b.level}`, node: a.id, level: b.level, icon: up ? 'up' : 'down' });
       cues.push({ kind: g.type, up, angle: 0, text: `${what.trim()} ${up ? 'up' : 'down'} to ${b.level}` });
       facing = null; // out of a lift or off an escalator the plan does not say which way you face
       return;
@@ -66,12 +66,13 @@ export function directions(venue, labels, r, { fromName, toName } = {}) {
     const pass = run => { const name = run.nodes.slice(1, -1).map(n => stopAt.get(n.id)).find(Boolean); return name ? `, pass ${placeName(name)}` : ''; };
     corr.forEach((run, i) => {
       const label = corridorLabel(run.key);
-      let text;
+      let text, icon = 'straight', inDir = null;
       if (i === 0) {
         if (startsAtDoor) {
           const out = unit(nodes[0], run.a); // leaving the room you face the corridor
           const w = turnWord(out, run.dir);
           text = w === 'straight' ? `Exit straight on into ${label}` : `Exit ${w} into ${label}`;
+          icon = w; inDir = out;
           cues.push({ kind: 'walk', angle: signedAngle(out, run.dir), text: w === 'straight' ? 'Straight ahead' : `Turn ${w}` });
         } else {
           text = `Walk along ${label}`;
@@ -84,33 +85,38 @@ export function directions(venue, labels, r, { fromName, toName } = {}) {
         const prev = lines.at(-1);
         if (w === 'straight' && into && prev?.turn && prev.turnLength < CORNER_M) {
           prev.text = `Turn ${prev.turn}${into}${pass(run)}`;
+          prev.dir = run.dir; // the floor arrow points into the new corridor
           prev.turn = null;
           facing = run.dir;
           return;
         }
         text = w === 'straight' ? `Keep straight on${into}` : `Turn ${w}${into}`;
         cues.push({ kind: 'walk', angle: signedAngle(corr[i - 1].dir, run.dir), text: w === 'straight' ? 'Straight ahead' : `Turn ${w}` });
-        lines.push({ kind: 'walk', text: text + pass(run), node: run.a.id, level: run.a.level, turn: !into && w !== 'straight' ? w : null, turnLength: Math.hypot(run.b.x - run.a.x, run.b.y - run.a.y) });
+        lines.push({ kind: 'walk', text: text + pass(run), node: run.a.id, level: run.a.level, icon: w, dir: run.dir, inDir: corr[i - 1].dir, turn: !into && w !== 'straight' ? w : null, turnLength: Math.hypot(run.b.x - run.a.x, run.b.y - run.a.y) });
         facing = run.dir;
         return;
       }
-      lines.push({ kind: 'walk', text: text + pass(run), node: run.a.id, level: run.a.level });
+      lines.push({ kind: 'walk', text: text + pass(run), node: run.a.id, level: run.a.level, icon, dir: run.dir, inDir });
       facing = run.dir;
     });
     if (lastLeg) {
       const lastRun = corr.at(-1), door = nodes.at(-1), before = nodes.at(-2);
       if (lastRun && before) {
         const side = sideWord(lastRun.dir, unit(before, door));
-        lines.push({ kind: 'arrive', text: `${end} on your ${side}`, node: door.id, level: door.level });
+        lines.push({ kind: 'arrive', text: `${end} on your ${side}`, card: `${end} · on your ${side}`, node: door.id, level: door.level, icon: 'arrive', dir: unit(before, door), inDir: lastRun.dir });
         cues.push({ kind: 'arrive', angle: signedAngle(lastRun.dir, unit(before, door)), text: `Arrive · on your ${side}` });
       } else {
-        lines.push({ kind: 'arrive', text: `${end} is right there`, node: door.id, level: door.level });
+        lines.push({ kind: 'arrive', text: `${end} is right there`, card: `${end} · right there`, node: door.id, level: door.level, icon: 'arrive' });
         cues.push({ kind: 'arrive', angle: 0, text: 'Arrive' });
       }
     }
   });
   const summary = `Route from ${start} to ${end}, about ${r.minutes[0]}–${r.minutes[1]} min, ${r.metres} m${r.levels.length > 1 ? `, ${r.levels.join(' to ')}` : `, ${r.levels[0]}`}${r.wheelchair ? ', step-free' : ''}.`;
-  return { lines: lines.map(({ kind, text, node, level }) => ({ kind, text, node, level })), cues, summary, from: start, to: end };
+  // icon: right | left | straight | up | down | arrive (the step card) · dir: plan direction to walk after this step, inDir:
+  // the direction you come from (the floor arrow bends from inDir to dir; arrival: from the corridor into the door)
+  // card: the card's line where it differs from the list (arrival: "Room 127 · on your right").
+  // The card is one line: what to do, without the "pass …" landmark (the list keeps it).
+  return { lines: lines.map(({ kind, text, node, level, icon, dir, inDir, card }) => ({ kind, text, card: card ?? text.replace(/, pass .*$/, ''), node, level, icon, dir: dir ?? null, inDir: inDir ?? null })), cues, summary, from: start, to: end };
 }
 
 /** What the sound says for a turn angle (radians, + right). */

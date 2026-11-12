@@ -89,3 +89,19 @@ test('every feed room to every feed room: lines end at the room, step-free never
   }
   assert.ok(n > 2000, `${n} routes`);
 });
+
+test('steps for the 3D plan: an icon, the way in and out for the floor arrow, a one-line card', () => {
+  const d = directions(venue, labels, route(venue, 'P1-117', 'P1-127'));
+  assert.deepEqual(d.lines.map(l => [l.icon, l.card]), [
+    ['right', 'Exit right into Foyer 1'],
+    ['left', 'Turn left into the corridor to Rooms 118–134'],
+    ['arrive', 'Room 127 · on your right'],
+  ]);
+  const [exit, turn, arrive] = d.lines;
+  assert.deepEqual([exit.dir.x, exit.dir.y], [1, 0]); // along Foyer 1 (x to the right on the plan)
+  assert.deepEqual([turn.dir.x, turn.dir.y], [0, -1]); // up the 118–134 corridor
+  assert.deepEqual([turn.inDir.x, turn.inDir.y], [1, 0]); // coming along Foyer 1
+  assert.ok(arrive.inDir && arrive.dir); // from the corridor into the door
+  const ride = directions(venue, labels, route(venue, 'P1-113', 'P0-areas-1+2+3')).lines.find(l => l.kind === 'escalator');
+  assert.equal(ride.icon, 'down');
+});

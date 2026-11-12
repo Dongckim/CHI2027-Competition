@@ -110,7 +110,7 @@ function GettingThere({ paperKey, schedule, toKey, lastStop, stepFree }: Start) 
                   </li>
                 ))}
               </ol>
-              <Plan3D venue={schedule.venue} r={result.r} summary={result.d.summary} cues={result.d.cues} lines={result.d.lines} onStep={setStep} goStep={goStep} />
+              <Plan3D venue={schedule.venue} r={result.r} summary={result.d.summary} cues={result.d.cues} lines={result.d.lines as Line[]} onStep={setStep} goStep={goStep} />
             </>)}
         </>)}
       </main>
@@ -121,123 +121,136 @@ function GettingThere({ paperKey, schedule, toKey, lastStop, stepFree }: Start) 
   );
 }
 
-// The 3D view (three.js, loaded now) with its three views, and "Hear the turns". If WebGL is missing it says so; the
-// steps above are complete on their own.
-type View = { mode: (m: string) => boolean; walk: (on: boolean) => boolean; step: (i: number) => void; walking: () => boolean; dispose: () => void };
+// The 3D view (three.js, loaded now): the venue at the angle of the official plans. Previous / Next (or a sideways
+// swipe) stop at each step, with a card on top: a big direction icon and the step's line. The steps above are complete
+// on their own; if WebGL is missing the box says so.
+type Line = { text: string; card: string; node: string; level: string; icon: string; dir: { x: number; y: number } | null };
+type View = { show: (i: number) => void; mode: (m: string) => boolean; dispose: () => void };
+const ICON: Record<string, string> = { // 24px, stroke 2: which way to go
+  right: 'M5 19V11a4 4 0 0 1 4-4h10M15 3l4 4-4 4', left: 'M19 19V11a4 4 0 0 0-4-4H5M9 3 5 7l4 4', straight: 'M12 21V4M6 10l6-6 6 6',
+  up: 'M4 20h4l8-14h4M14 6h6v6', down: 'M4 4h4l8 14h4M14 18h6v-6', arrive: 'M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11ZM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z',
+};
+
+// Phones held sideways: the plan takes the whole screen by itself (no button needed), and goes back when turned upright.
+const SIDEWAYS = '(orientation: landscape) and (max-height: 540px)';
+
 function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
-  venue: Venue; r: ReturnType<typeof findRoute>; summary: string; cues: { text: string }[]; lines: { text: string; node: string; level: string }[];
+  venue: Venue; r: ReturnType<typeof findRoute>; summary: string; cues: { text: string }[]; lines: Line[];
   onStep: (i: number) => void; goStep: { current: (i: number) => void };
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const view = useRef<View | null>(null);
   const [step, setStepHere] = useState(-1);
-  const [walking, setWalking] = useState(false), [playing, setPlaying] = useState(false);
-  const reduceMotion = useMemo(() => matchMedia('(prefers-reduced-motion: reduce)').matches, []);
+  const stepRef = useRef(-1);
   const [state, setState] = useState<'loading' | 'ready' | 'failed'>('loading');
+  const [shown, setShown] = useState<'whole' | 'route'>('whole');
   const [floorsOnly, setFloorsOnly] = useState(false);
-  const [view3d, setView] = useState<'original' | 'fit'>('original');
   const [cue, setCue] = useState(-1);
   const stop = useRef<(() => void) | null>(null);
+  const go = (i: number) => view.current?.show(Math.min(lines.length - 1, Math.max(-1, i)));
   useEffect(() => {
     let cancelled = false;
-    const reached = (i: number, end?: string) => { setStepHere(i); onStep(i); if (end) setPlaying(false); };
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reached = (i: number) => { stepRef.current = i; setStepHere(i); onStep(i); if (i >= 0) setShown('whole'); };
+    const swipe = (d: number) => go(stepRef.current + d);
     import('../venue/view3d.js').then(({ mount }) => {
       if (cancelled || !canvas.current) return;
-      try { view.current = mount(canvas.current, { venue, route: r, summary, steps: lines, onStep: reached, reduceMotion }); setState('ready'); } catch { setState('failed'); }
+      try { view.current = mount(canvas.current, { venue, route: r, summary, steps: lines, onStep: reached, onSwipe: swipe, reduceMotion }); setState('ready'); } catch { setState('failed'); }
     }, () => setState('failed'));
     return () => { cancelled = true; view.current?.dispose(); view.current = null; stop.current?.(); };
   }, [venue, r, summary]); // eslint-disable-line react-hooks/exhaustive-deps -- lines and onStep follow the route
-  goStep.current = i => { view.current?.step(i); setPlaying(false); };
-  const pick = (m: 'original' | 'fit') => { setView(m); setWalking(false); setPlaying(false); view.current?.mode(m); };
-  const walk = () => { const p = view.current?.walk(true) ?? false; setWalking(true); setPlaying(p); };
-  const near = (d: number) => goStep.current(Math.min(lines.length - 1, Math.max(0, (step < 0 ? 0 : step + d))));
-  const walkLabel = !walking ? 'Walk the route' : reduceMotion ? 'Next step' : playing ? 'Pause' : 'Walk on';
+  goStep.current = i => go(i);
+  const line = step >= 0 ? lines[step] : null;
 
-  // First person fills the screen: the same canvas moves into a full-screen layer (no remount). Where the browser
-  // allows it (Android Chrome) the layer goes fullscreen and turns to landscape; elsewhere (iPhone Safari has neither for
-  // a page) it covers the window and asks to turn the phone. Back (Android) or Close returns to 09.
-  const [immersive, setImmersive] = useState(false);
-  const open = useRef(false);
-  const stage = useRef<HTMLDivElement>(null), closeBtn = useRef<HTMLButtonElement>(null), walkBtn = useRef<HTMLButtonElement>(null);
-  const [portrait, setPortrait] = useState(false);
-  const leave = (fromHistory: boolean) => {
-    if (!open.current) return;
-    open.current = false; setImmersive(false);
-    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
-    try { (screen.orientation as ScreenOrientation & { unlock?: () => void })?.unlock?.(); } catch { /* not locked */ }
-    pick('original');
-    if (!fromHistory) history.back(); // drop the entry added on opening
-    walkBtn.current?.focus();
+  // Large view: by turning the phone sideways, or with the button. The same canvas moves into a layer over the window
+  // (no remount). From the button, where the browser allows it (Android Chrome), it also goes fullscreen and landscape;
+  // iPhone Safari has neither for a page, so there the layer covers the window. Back, Esc or Close returns.
+  const [sideways, setSideways] = useState(() => matchMedia(SIDEWAYS).matches);
+  const [opened, setOpened] = useState(false); // from the button
+  const [dismissed, setDismissed] = useState(false); // closed while sideways: stays closed until the phone is upright again
+  useEffect(() => {
+    const mq = matchMedia(SIDEWAYS);
+    const change = () => { setSideways(mq.matches); if (!mq.matches) setDismissed(false); };
+    mq.addEventListener('change', change); return () => mq.removeEventListener('change', change);
+  }, []);
+  const big = opened || (sideways && !dismissed);
+  const openedRef = useRef(false);
+  const close = (fromHistory = false) => {
+    if (openedRef.current) {
+      openedRef.current = false; setOpened(false);
+      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+      try { (screen.orientation as ScreenOrientation & { unlock?: () => void })?.unlock?.(); } catch { /* not locked */ }
+      if (!fromHistory) history.back(); // drop the entry added on opening
+    } else setDismissed(true);
   };
-  const enter = () => {
-    open.current = true; setImmersive(true);
-    history.pushState({ arcWalk: true }, ''); // so Back closes the walk instead of leaving 09
-    const el = stage.current as (HTMLDivElement & { webkitRequestFullscreen?: () => void }) | null;
-    el?.requestFullscreen?.({ navigationUI: 'hide' })
+  const open = () => {
+    openedRef.current = true; setOpened(true);
+    history.pushState({ arcPlan: true }, ''); // so Back closes the large view instead of leaving 09
+    (canvas.current?.parentElement as HTMLElement | null)?.requestFullscreen?.({ navigationUI: 'hide' })
       .then(() => (screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> })?.lock?.('landscape'))
-      .catch(() => { /* no fullscreen or no lock here: the layer still covers the window */ });
-    walk();
+      .catch(() => { /* no fullscreen or lock here: the layer still covers the window */ });
   };
   useEffect(() => {
-    if (!immersive) return;
-    closeBtn.current?.focus();
-    const pop = () => leave(true);
-    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') leave(false); };
-    const fs = () => { if (!document.fullscreenElement) leave(false); }; // left fullscreen from the system UI
-    const orient = () => setPortrait(innerHeight > innerWidth);
-    orient();
+    if (!big) return;
+    const pop = () => { if (openedRef.current) close(true); };
+    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
     const scroll = document.body.style.overflow; document.body.style.overflow = 'hidden';
-    addEventListener('popstate', pop); addEventListener('keydown', key); addEventListener('resize', orient);
-    // Listen for leaving fullscreen only once it has started (the request above resolves a moment later, or never).
-    const fsTimer = setTimeout(() => { if (document.fullscreenElement) document.addEventListener('fullscreenchange', fs); }, 400);
-    return () => {
-      document.body.style.overflow = scroll; clearTimeout(fsTimer);
-      removeEventListener('popstate', pop); removeEventListener('keydown', key); removeEventListener('resize', orient);
-      document.removeEventListener('fullscreenchange', fs);
-    };
-  }, [immersive]); // eslint-disable-line react-hooks/exhaustive-deps -- leave() reads refs
-  useEffect(() => () => { if (open.current) { open.current = false; if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {}); } }, []);
+    addEventListener('popstate', pop); addEventListener('keydown', key);
+    return () => { document.body.style.overflow = scroll; removeEventListener('popstate', pop); removeEventListener('keydown', key); };
+  }, [big]); // eslint-disable-line react-hooks/exhaustive-deps -- close() reads refs
+  useEffect(() => () => { if (openedRef.current && document.fullscreenElement) document.exitFullscreen?.().catch(() => {}); }, []);
 
+  const nav = (cls = '') => (
+    <div className={`flex gap-2 ${cls}`} role="group" aria-label="Steps on the plan">
+      <Button variant="outline" aria-label="Previous step" className="w-touch bg-bg px-0" disabled={step < 0} onClick={() => go(step - 1)}>‹</Button>
+      <Button className="min-w-0 flex-1" onClick={() => go(step + 1 >= lines.length ? -1 : step + 1)}>
+        {step < 0 ? 'Show step 1' : step + 1 >= lines.length ? 'Whole plan' : `Next: step ${step + 2}`}
+      </Button>
+      <Button variant="outline" aria-label="Next step" className="w-touch bg-bg px-0" disabled={step >= lines.length - 1} onClick={() => go(step + 1)}>›</Button>
+    </div>
+  );
+  const seg = (label: string, pressed: boolean, onClick: () => void) => (
+    <button type="button" aria-pressed={pressed} onClick={onClick}
+      className={`min-h-touch rounded-full px-3 text-small font-semibold ${pressed ? 'bg-inverse text-on-inverse' : 'text-text'}`}>{label}</button>
+  );
   return (
     <section aria-label="Floor plan" className="flex flex-1 flex-col gap-2">
-      <div ref={stage} role={immersive ? 'dialog' : undefined} aria-modal={immersive || undefined} aria-label={immersive ? 'Walk the route' : undefined}
-        className={immersive ? 'fixed inset-0 z-50 bg-[var(--plan-bg)]' : 'relative min-h-[140px] flex-1 overflow-hidden rounded-bar bg-surface'}>
+      {/* At least 300 px (Figma's box is 140 px): the step card sits on top and the plan around the step needs room. */}
+      <div role={big ? 'dialog' : undefined} aria-modal={big || undefined} aria-label={big ? 'Floor plan, large' : undefined}
+        className={big ? 'fixed inset-0 z-50 bg-[var(--plan-bg)]' : 'relative min-h-[300px] flex-1 overflow-hidden rounded-bar bg-surface'}>
         <canvas ref={canvas} className="absolute inset-0 size-full touch-none" />
         {state !== 'ready' && <p className="absolute inset-0 grid place-items-center text-small text-text-2">{state === 'loading' ? 'Floor plan' : 'The 3D plan cannot be shown here. The steps above are complete.'}</p>}
-        {immersive && (<>
-          <div className="absolute inset-x-0 top-0 flex items-start gap-2 pt-[max(8px,env(safe-area-inset-top))] pr-[max(12px,env(safe-area-inset-right))] pl-[max(4px,env(safe-area-inset-left))]">
-            <button ref={closeBtn} type="button" aria-label="Close" onClick={() => leave(false)} className="grid size-touch shrink-0 place-items-center rounded-full bg-bg text-text shadow">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6L12 12M12 12L6 18M12 12L6 6M12 12L18 18" /></svg>
+        {state === 'ready' && (<>
+          {/* top: the step card (same step as the list) and the large-view button */}
+          <div className={`absolute inset-x-0 top-0 flex items-start gap-2 ${big ? 'pt-[max(8px,env(safe-area-inset-top))] pr-[max(8px,env(safe-area-inset-right))] pl-[max(8px,env(safe-area-inset-left))]' : 'p-2'}`}>
+            {line ? (
+              <div aria-hidden={!big || undefined} aria-live={big ? 'polite' : undefined} className={`flex flex-1 items-center gap-3 rounded-bar bg-bg/95 p-2 pr-3 shadow ${big ? 'max-w-[520px]' : ''}`}>
+                <span className="grid size-11 shrink-0 place-items-center rounded-full bg-inverse text-on-inverse">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={ICON[line.icon] ?? ICON.straight} /></svg>
+                </span>
+                <p className="flex-1 text-body leading-6"><span className="font-semibold">{step + 1}.</span> {line.card}</p>
+              </div>
+            ) : <span className="flex-1" />}
+            <button type="button" aria-label={big ? 'Close the large plan' : 'Larger plan'} onClick={() => (big ? close() : open())}
+              className="grid size-touch shrink-0 place-items-center rounded-full bg-bg/95 text-text shadow">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d={big ? 'M18 6L12 12M12 12L6 18M12 12L6 6M12 12L18 18' : 'M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5'} />
+              </svg>
             </button>
-            <p aria-live="polite" className="mt-1 max-w-[560px] rounded-bar bg-bg px-3 py-2 text-body shadow">{step >= 0 ? `${step + 1} of ${lines.length} · ${lines[step].text}` : 'Walking the route'}</p>
           </div>
-          {portrait && <p className="absolute inset-x-0 top-[calc(max(8px,env(safe-area-inset-top))+64px)] mx-auto w-fit rounded-bar bg-bg px-3 py-2 text-small shadow">Turn your phone sideways for a wider view.</p>}
-          {/* On a light panel, so the buttons stay visible over the (dark) route line. */}
-          <div className="absolute inset-x-0 bottom-0 flex justify-center px-[max(12px,env(safe-area-inset-left))] pb-[max(12px,env(safe-area-inset-bottom))]">
-            <div className="flex gap-2 rounded-bar bg-bg p-2 shadow">
-              <Button aria-label="Previous step" className="w-touch px-0" variant="outline" disabled={step <= 0} onClick={() => near(-1)}>‹</Button>
-              <Button className="min-w-40" onClick={walk}>{walkLabel}</Button>
-              <Button aria-label="Next step" className="w-touch px-0" variant="outline" disabled={step >= lines.length - 1} onClick={() => near(1)}>›</Button>
+          {/* bottom: what the view shows, one compact bar on the plan (and, large, the step buttons) */}
+          <div className={`absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-2 ${big ? 'pr-[max(8px,env(safe-area-inset-right))] pb-[max(8px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))]' : 'p-2'}`}>
+            <div role="group" aria-label="What the plan shows" className="flex rounded-full bg-bg/95 p-0.5 shadow">
+              {seg('Whole', step < 0 && shown === 'whole', () => { setShown('whole'); view.current?.mode('original'); })}
+              {seg('Route', step < 0 && shown === 'route', () => { setShown('route'); view.current?.mode('fit'); })}
+              {seg('Floors', floorsOnly, () => setFloorsOnly(!!view.current?.mode('floors')))}
             </div>
+            {big && nav('w-full max-w-[420px] rounded-bar bg-bg/95 p-2 shadow')}
           </div>
         </>)}
       </div>
-      {state === 'ready' && (
-        <div className="flex flex-wrap gap-2" role="group" aria-label="3D view">
-          <Button variant="outline" aria-pressed={view3d === 'original'} onClick={() => pick('original')}>Original angle</Button>
-          <Button variant="outline" aria-pressed={view3d === 'fit'} onClick={() => pick('fit')}>Fit route</Button>
-          <Button variant="outline" aria-pressed={floorsOnly} onClick={() => setFloorsOnly(!!view.current?.mode('floors'))}>Route floors only</Button>
-        </div>
-      )}
-      {state === 'ready' && (
-        // First person: walk the route at eye height; the step reached shows in the list above and here.
-        <div className="flex gap-2" role="group" aria-label="Walk the route">
-          <Button variant="outline" aria-label="Previous step" className="w-touch px-0" disabled={step <= 0} onClick={() => near(-1)}>‹</Button>
-          <Button ref={walkBtn} variant="outline" className="flex-1" onClick={enter}>Walk the route</Button>
-          <Button variant="outline" aria-label="Next step" className="w-touch px-0" disabled={step >= lines.length - 1} onClick={() => near(1)}>›</Button>
-        </div>
-      )}
-      {state === 'ready' && <p aria-live="polite" className="min-h-6 text-small">{step >= 0 ? `Step ${step + 1} of ${lines.length}: ${lines[step].text}` : walking ? '' : 'Tap a step to see it on the plan.'}</p>}
+      {state === 'ready' && !big && nav()}
+      {state === 'ready' && <p aria-live={big ? undefined : 'polite'} className="min-h-6 text-small">{line ? `Step ${step + 1} of ${lines.length}: ${line.card}` : 'Swipe the plan or press Show step 1 to go step by step. Turn the phone sideways for a larger plan.'}</p>}
       <Button variant="outline" aria-pressed={cue >= 0} onClick={() => {
         if (stop.current) { stop.current(); stop.current = null; return; }
         stop.current = playCues(cues as never, (i: number) => { setCue(i); if (i < 0) stop.current = null; });
