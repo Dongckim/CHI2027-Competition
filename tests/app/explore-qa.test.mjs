@@ -67,3 +67,11 @@ test('QA 2: DOI → https://doi.org/10.…, other forms normalized, anything els
   for (const bad of ['javascript:alert(1)', 'https://example.com/10.1145/1', 'doi.org/11.1/x', 'https://doi.org/', '', null, undefined, 42])
     assert.equal(doiUrl(bad), null, String(bad));
 });
+
+test('QA 3: "in my day" = stops on the days I attend only; other days stay addable', async () => {
+  const { plannedKeys } = await import('../../app/src/explore/myday.js');
+  const view = { days: ['2026-04-14', '2026-04-15'], chosen: ['2026-04-14'],
+    plans: [{ day: '2026-04-14', stops: [{ paperKey: 'a' }] }, { day: '2026-04-15', stops: [{ paperKey: 'b' }] }] };
+  assert.deepEqual([...plannedKeys(view, ['c'])].sort(), ['a']); // b is on a day I don't attend; c (added) is not planned
+  assert.deepEqual([...plannedKeys(null, ['c'])], ['c']); // browsing: no plan, only what was added
+});

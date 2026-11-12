@@ -7,6 +7,7 @@ import { addDay, updateEdits } from '../state/device.js';
 import { useDayPlans } from '../today/useDayPlans';
 import { useDevice, update } from '../state/useDevice';
 import { isDemo } from '../clock';
+import { plannedKeys } from './myday.js';
 
 // Explore (05/04), talk detail (06) and author (07) share: the search index, what is in my day, and + Add.
 
@@ -41,8 +42,7 @@ export function useMyDay() {
   const state = useDevice();
   const mode = state.builtAt ? 'plan' : isDemo() ? 'sample' : null;
   const { view, edits, setEdits, response } = useDayPlans(mode ?? 'plan');
-  const planned = new Set<string>(mode ? (view?.plans ?? []).flatMap(p => p.stops.map((s: { paperKey: string }) => s.paperKey)) : []);
-  for (const k of edits.added) planned.add(k);
+  const planned = plannedKeys(mode ? view ?? { days: [], chosen: [], plans: [] } : null, edits.added);
   const add = (paperKey: string, start: number, timeZone: string) => {
     const day = localDay(start, timeZone);
     if (mode === 'sample') setEdits(e => addItem(e, paperKey));
