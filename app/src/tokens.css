@@ -27,6 +27,12 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px); /* Figma draws 34px for iPhone; the device supplies the real value */
 }
 
+/* "Larger text" (onboarding O-4): every size one step up, app-wide. Set by state/useDevice.ts on <html data-text>. */
+:root[data-text="large"] {
+  --text-tag: 14px; --text-small: 16px; --text-link: 18px;
+  --text-body: 20px; --text-header: 20px; --text-card-title: 22px;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #121212;

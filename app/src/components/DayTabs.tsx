@@ -6,7 +6,7 @@ export function DayTabs({ days, selected, timeZone, onSelect }: { days: string[]
       {days.map(d => (
         <button key={d} type="button" aria-pressed={d === selected} onClick={() => onSelect(d)}
           aria-label={fmt(d, { weekday: 'long', month: 'long', day: 'numeric' })}
-          className={`flex h-12 flex-1 flex-col items-center justify-center rounded-button text-tag leading-tight ${d === selected ? 'bg-inverse font-semibold text-on-inverse' : 'bg-surface text-text'}`}>
+          className={`flex min-h-12 flex-1 flex-col items-center justify-center rounded-button text-tag leading-tight ${d === selected ? 'bg-inverse font-semibold text-on-inverse' : 'bg-surface text-text'}`}>
           <span>{fmt(d, { weekday: 'short' })}</span>
           <span>{fmt(d, { day: 'numeric' })}</span>
         </button>

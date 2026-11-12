@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import response from '../../../contracts/examples/RecommendResponse.chi2026-tuesday.json';
-import { planDay } from '../planner/plan.js';
+import { response } from '../data/fake-recommend';
+import { planDay, TRAVEL_COST_PER_MIN } from '../planner/plan.js';
 import { todayRows, candidatesFrom, conferenceDays } from '../today/rows.js';
+import { candidatesFor, limitStops, HOW_FULL } from '../state/device.js';
+import { useDevice, update } from '../state/useDevice';
+import { go } from '../router';
 import { loadSchedule, EDITION, type Schedule } from '../data/load';
 import { Header } from '../components/Header';
 import { DayTabs } from '../components/DayTabs';
@@ -10,10 +13,13 @@ import { RouteRow } from '../components/RouteRow';
 import { Button } from '../components/Button';
 import { LinkRow } from '../components/LinkRow';
 
-// S0: the recommendation is the fake contract example (chi2026 Tuesday). No clock yet, so the first stop is shown as NEXT.
+// The recommendation is still the fake contract example (chi2026 Tuesday). No clock yet, so the first stop is shown as NEXT.
+// mode: plan = the saved plan (topics, kinds, days, step-free, fewer room changes, how full) · sample = "Try a sample day",
+// everything recommended, nothing saved · none = "Just browse", no plan yet.
 if (response.dataVersion.edition !== EDITION) throw new Error(`fake response is for ${response.dataVersion.edition}, app data is ${EDITION}`);
 
-export function Today() {
+export function Today({ mode }: { mode: 'plan' | 'sample' | 'none' }) {
+  const { plan: mine } = useDevice();
   const [data, setData] = useState<Schedule | null>(null);
   const [error, setError] = useState('');
   const [day, setDay] = useState('');
@@ -22,11 +28,30 @@ export function Today() {
   const view = useMemo(() => {
     if (!data) return null;
     const tz = data.meta.timeZone;
-    const days = conferenceDays(data.sessions, tz);
-    const plans = days.map(d => planDay(data.index, candidatesFrom(response), { day: d, travelMinutes: data.travelMinutes }));
+    const all = conferenceDays(data.sessions, tz);
+    const chosen = mode === 'plan' ? all.filter(d => mine.days.includes(d)) : [];
+    const days = chosen.length ? chosen : all;
+    const candidates = mode === 'plan' ? candidatesFor(response, mine) : candidatesFrom(response);
+    const options = mode === 'plan'
+      ? { wheelchair: mine.needs.stepFree, travelCostPerMin: TRAVEL_COST_PER_MIN * (mine.needs.fewerRoomChanges ? 3 : 1) }
+      : {};
+    const plans = days.map(d => {
+      const p = planDay(data.index, candidates, { day: d, travelMinutes: data.travelMinutes, ...options });
+      return mode === 'plan' ? limitStops(p, HOW_FULL[mine.howFull as keyof typeof HOW_FULL]) : p;
+    });
     const first = plans.find(p => p.stops.length)?.day ?? days[0];
     return { tz, days, plans, first };
-  }, [data]);
+  }, [data, mode, mine]);
+
+  if (mode === 'none') return (
+    <><Header />
+      <div className="flex flex-col gap-4 px-gutter pt-3">
+        <h1 className="text-card-title font-semibold">No plan yet</h1>
+        <p className="text-body text-text-2">Tell ARC what you research and it plans your days.</p>
+        <button type="button" onClick={() => { update(s => ({ ...s, mode: null })); go('start/research'); }}
+          className="min-h-touch self-start rounded-button bg-inverse px-4 text-small font-semibold text-on-inverse">Plan my days</button>
+      </div></>
+  );
 
   if (error) return <><Header /><p role="alert" className="px-gutter py-6 text-body">Could not load the programme. {error}</p></>;
   if (!view || !data) return <><Header /><p className="px-gutter py-6 text-body text-text-3">Loading the programme…</p></>;
@@ -43,6 +68,12 @@ export function Today() {
   return (
     <>
       <Header />
+      {mode === 'sample' && (
+        <div className="mx-gutter mt-2 flex items-center justify-between gap-3 rounded-[var(--radius-bar)] bg-inverse px-3 py-2 text-on-inverse">
+          <span className="text-small font-semibold">Preview · sample day</span>
+          <button type="button" onClick={() => go('start/research')} className="min-h-touch px-2 text-small underline">Make my own</button>
+        </div>
+      )}
       <div className="flex flex-col gap-4 pt-3">
         <DayTabs days={view.days} selected={selected} timeZone={view.tz} onSelect={setDay} />
         {next ? (

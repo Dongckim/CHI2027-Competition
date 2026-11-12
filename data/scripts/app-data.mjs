@@ -1,6 +1,6 @@
 // App-sized slices of data/build/<edition>/ so the phone downloads only what a screen needs.
 // Output: data/build/app-data/<edition>/r<revision>-<hash>/{schedule.json, abstracts/<day>.json, people.json}
-//         data/build/app-data/<edition>/current.json  → { edition, revision, path } (the app bundles it at build time)
+//         data/build/app-data/<edition>/current.json  → { edition, revision, path, days } (the app bundles it at build time)
 // The path changes when the feed revision or any file's content changes, so the files can be cached forever.
 import { createHash } from 'node:crypto';
 import { localDay } from '../../app/src/planner/plan.js';
@@ -51,5 +51,7 @@ export function buildAppData({ meta, papers, sessions, rooms, people, aliases })
   const hash = createHash('sha256');
   for (const f of Object.keys(text).sort()) hash.update(f).update('\0').update(text[f]).update('\0');
   const path = `r${meta.revision}-${hash.digest('hex').slice(0, 8)}/`;
-  return { path, text, current: { edition: meta.edition, revision: meta.revision, path } };
+  // Conference days (venue-local), so onboarding can offer and pre-select them before any data file is downloaded.
+  const days = [...new Set(sessions.filter(x => x.start != null).map(x => localDay(x.start, tz)))].sort();
+  return { path, text, current: { edition: meta.edition, revision: meta.revision, path, days } };
 }
