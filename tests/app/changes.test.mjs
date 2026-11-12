@@ -107,10 +107,12 @@ test('More for you: a talk fits a gap only with the walk to it and from it; remo
   assert.deepEqual(moreForYou(ctx, cands, NO_EDITS, dayPlan, bounds, morning), []);
 });
 
-test('offline line: only when offline, with the time the data was saved (venue time)', async () => {
+test('offline line: only when offline, with the time the data was saved on the phone’s clock', async () => {
   const { offlineNote } = await import('../../app/src/today/offline.js');
-  const savedAt = Date.UTC(2026, 3, 14, 6, 40); // 08:40 in Madrid (UTC+2)
-  assert.equal(offlineNote(true, savedAt, 'Europe/Madrid'), null);
-  assert.equal(offlineNote(false, savedAt, 'Europe/Madrid'), 'Offline · saved at 08:40');
-  assert.equal(offlineNote(false, null, 'Europe/Madrid'), 'Offline · showing what is on this phone');
+  const savedAt = Date.UTC(2026, 3, 14, 6, 40);
+  assert.equal(offlineNote(true, savedAt, 'Asia/Seoul'), null);
+  assert.equal(offlineNote(false, savedAt, 'Asia/Seoul'), 'Offline · saved at 15:40'); // a phone in Seoul
+  assert.equal(offlineNote(false, savedAt, 'America/Chicago'), 'Offline · saved at 01:40'); // the same moment in Chicago
+  assert.equal(offlineNote(false, savedAt), new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' }).format(savedAt).replace(/^/, 'Offline · saved at ')); // default = this machine
+  assert.equal(offlineNote(false, null), 'Offline · showing what is on this phone');
 });

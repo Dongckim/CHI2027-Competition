@@ -109,7 +109,7 @@ function PlannedToday({ mode }: { mode: 'plan' | 'sample' }) {
   const what = (c: (typeof changes)[number]) => (c.kind === 'room' ? `moved to ${room(c.to)}` : c.kind === 'time' ? `moved to ~${at(c.to)}` : 'is no longer in the programme');
   const movedNote = (k: string) => { const c = moved.get(k); return c && what(c).replace(/^./, x => x.toUpperCase()).replace(/^Is no/, 'No'); };
   const showChange = programme && changes.length > 0 && seenRevision() !== programme.revision;
-  const offline = offlineNote(online, savedAt(), tz);
+  const offline = offlineNote(online, savedAt()); // phone time
 
   return (
     <>
