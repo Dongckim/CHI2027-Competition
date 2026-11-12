@@ -4,6 +4,9 @@
 import { normalizeName } from './edition.mjs';
 import { localDay as localDayOf } from '../../app/src/planner/plan.js';
 
+// A query with no letter or digit ("(", "-") is no query: nothing is searched.
+export const hasWords = query => /[\p{L}\p{N}]/u.test(query ?? '');
+
 // Each query word must be the start of an alias word, in order ("univ of wash" ~ "university of washington").
 const wordsPrefix = (q, alias) => {
   let i = 0;
@@ -89,7 +92,7 @@ const matches = (qw, fieldWords) => qw.every(q => fieldWords.some(w => w.startsW
 /** @returns {Place | null} */
 export function placeOf(index, query) {
   const q = normalizeName(query);
-  if (!q) return null;
+  if (!q || !hasWords(q)) return null;
   if (!index.places.has(q)) index.places.set(q, findPlace(index, q)); // one alias scan per query, not one per tab
   return index.places.get(q);
 }
@@ -109,7 +112,7 @@ const atPlace = (item, place) => (place.kind === 'country' ? item.countries.has(
 /** @returns {Place[]} */
 export function placeChoices(index, query, limit = 5) {
   const q = normalizeName(query);
-  if (!q) return [];
+  if (!q || !hasWords(q)) return [];
   const out = searchInstitutions(index.aliases, q, limit).map(k => ({ kind: 'institution', keys: [k], label: index.names.get(k) }));
   const country = own(COUNTRY_WORDS, q) ?? index.countries.find(c => c.startsWith(q));
   if (country) out.unshift({ kind: 'country', key: country, label: index.countryLabel.get(country) ?? country });
@@ -127,7 +130,8 @@ const passes = (t, f) => (!f.days.length || t.days.some(d => f.days.includes(d))
 // An empty query lists every talk that passes the filters.
 /** @param {Filters} [filters] */
 export function searchTalks(index, query, filters = NO_FILTERS) {
-  const qw = normalizeName(query).split(' ').filter(Boolean);
+  if (!hasWords(query) && query?.trim() && !filterCount(filters)) return [];
+  const qw = hasWords(query) ? normalizeName(query).split(' ').filter(Boolean) : [];
   const place = qw.length ? placeOf(index, query) : null;
   const tiers = [[], [], [], []];
   for (const t of index.talks) {
@@ -145,7 +149,7 @@ export function searchTalks(index, query, filters = NO_FILTERS) {
 // People by name, then people at the place the query names. Only the place filter applies (people have no day or type).
 /** @param {Filters} [filters] */
 export function searchPeople(index, query, filters = NO_FILTERS) {
-  const qw = normalizeName(query).split(' ').filter(Boolean);
+  const qw = hasWords(query) ? normalizeName(query).split(' ').filter(Boolean) : [];
   if (!qw.length && !filters.place) return [];
   const place = qw.length ? placeOf(index, query) : null;
   const byName = [], atIt = [];
@@ -160,7 +164,7 @@ export function searchPeople(index, query, filters = NO_FILTERS) {
 // Sessions by name, in time order. Day filter applies; type and place filter the session's talks.
 /** @param {Filters} [filters] */
 export function searchSessions(index, query, filters = NO_FILTERS) {
-  const qw = normalizeName(query).split(' ').filter(Boolean);
+  const qw = hasWords(query) ? normalizeName(query).split(' ').filter(Boolean) : [];
   if (!qw.length && !filterCount(filters)) return [];
   const talks = index.talkByKey;
   return index.sessions

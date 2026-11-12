@@ -31,3 +31,12 @@ test('QA 1: JS built-in names are not aliases or countries (constructor, __proto
     assert.deepEqual(search.searchInstitutions(aliases, q), [], q);
   }
 });
+
+test('QA 6: a query without letters or digits searches nothing', () => {
+  const { hasWords } = search;
+  for (const q of ['(', '-', '.', '  ', '?!', '()[]']) assert.equal(hasWords(q), false, q);
+  for (const q of ['a', '9', '서울', 'Vázquez', 'C++']) assert.equal(hasWords(q), true, q);
+  assert.deepEqual(searchTalks(index, '('), []);
+  assert.deepEqual(searchPeople(index, '-'), []);
+  assert.deepEqual(searchSessions(index, '.'), []);
+});
