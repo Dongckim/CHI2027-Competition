@@ -12,6 +12,14 @@ const personName = p => [p.firstName, p.middleInitial, p.lastName].filter(Boolea
 // Author country is the feed's own value per affiliation, not the institution's (CMU Qatar, Microsoft Research Cambridge).
 // Only spellings of the same country are folded; Hong Kong / Macao / China stay as the authors wrote them.
 const COUNTRY_SPELLINGS = { USA: 'United States', UK: 'United Kingdom', 'South Korea': 'Korea, Republic of' };
+// DOI from the feed → https://doi.org/10.… or null (no link). Feeds write it differently: chi2024 "doi.org/10.…" (no
+// scheme, a relative link in the app), chi2023 "http://dx.doi.org/10.…", chi2025 the ACM DL page "https://dl.acm.org/doi/10.…",
+// sometimes with spaces. Anything else is dropped.
+export function doiUrl(raw) {
+  if (typeof raw !== 'string') return null;
+  const id = raw.trim().replace(/^(?:https?:\/\/)?(?:(?:dx\.)?doi\.org|dl\.acm\.org\/doi(?:\/(?:abs|full|pdf))?)\//i, '').replace(/^doi:\s*/i, '');
+  return /^10\.\d{4,9}\/\S+$/.test(id) ? `https://doi.org/${id}` : null;
+}
 export const countryName = c => (c?.trim() ? COUNTRY_SPELLINGS[c.trim()] ?? c.trim() : null);
 
 // Feed epoch ms are venue wall-clock times written as if they were UTC (every edition's sessions start at
@@ -171,7 +179,7 @@ export function buildEdition(feed, { edition, version, timeZone, institutions = 
     const video = Object.values(c.addons || {}).find(a => a?.type === 'video')?.url ?? null;
     return {
       key: key(c.id), id: c.id, type: types.get(c.typeId)?.name ?? null, title: c.title, abstract: c.abstract ?? null,
-      authors, doi: c.addons?.doi?.url ?? null, video, award: c.award ?? null,
+      authors, doi: doiUrl(c.addons?.doi?.url), video, award: c.award ?? null,
       scheduled: slots.some(s => s.start != null), slots,
     };
   });

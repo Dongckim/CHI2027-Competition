@@ -53,3 +53,17 @@ test('QA 9: a country is used only when the whole name matches ("unit" is not Un
   assert.equal(placeOf(index, 'United Arab Emirates')?.label, 'United Arab Emirates');
   assert.equal(placeOf(index, 'usa')?.label, 'United States');
 });
+
+test('QA 2: DOI → https://doi.org/10.…, other forms normalized, anything else hidden', () => {
+  const { doiUrl } = edition;
+  assert.equal(doiUrl('https://doi.org/10.1145/3772363.3778795'), 'https://doi.org/10.1145/3772363.3778795');
+  assert.equal(doiUrl('doi.org/10.1145/3613904.3642337'), 'https://doi.org/10.1145/3613904.3642337'); // chi2024
+  assert.equal(doiUrl('http://dx.doi.org/10.1145/3577012'), 'https://doi.org/10.1145/3577012'); // chi2023
+  assert.equal(doiUrl('  https://doi.org/10.1145/1.2  '), 'https://doi.org/10.1145/1.2');
+  assert.equal(doiUrl('https://dl.acm.org/doi/10.1145/3706598.3714208'), 'https://doi.org/10.1145/3706598.3714208'); // chi2025
+  assert.equal(doiUrl('https://dl.acm.org/doi/abs/10.1145/3531005'), 'https://doi.org/10.1145/3531005');
+  assert.equal(doiUrl('10.1145/3544548.3580000'), 'https://doi.org/10.1145/3544548.3580000');
+  assert.equal(doiUrl('doi:10.1145/3544548.3580000'), 'https://doi.org/10.1145/3544548.3580000');
+  for (const bad of ['javascript:alert(1)', 'https://example.com/10.1145/1', 'doi.org/11.1/x', 'https://doi.org/', '', null, undefined, 42])
+    assert.equal(doiUrl(bad), null, String(bad));
+});
