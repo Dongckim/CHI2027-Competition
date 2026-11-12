@@ -91,7 +91,7 @@ export function Talk({ paperKey }: { paperKey: string }) {
           <section className="flex flex-col gap-2">
             <h2 className="text-small font-semibold">Why for you</h2>
             {why.map(label => <p key={label} className="text-body">Shares <b className="font-semibold">{label}</b> with your research.</p>)}
-            <p className="text-small text-text-3">Highlighted below in the abstract.</p>
+            <p className="text-small text-text-3">Highlighted and underlined below in the abstract.</p>
           </section>
         )}
         <section className="flex flex-col gap-2">
@@ -100,7 +100,7 @@ export function Talk({ paperKey }: { paperKey: string }) {
             <p className="text-body text-text-2">{online ? 'Could not load the abstract. Try again in a moment.' : 'Abstract not saved on this phone yet. Connect to load it.'}</p>
           ) : abstract ? (
             <p className="text-body whitespace-pre-line">
-              {highlightSegments(abstract, reasons).map((seg, i) => seg.mark ? <mark key={i} className="rounded-[2px] bg-[var(--highlight)] text-text">{seg.text}</mark> : <span key={i}>{seg.text}</span>)}
+              {highlightSegments(abstract, reasons).map((seg, i) => seg.mark ? <mark key={i} className="rounded-[2px] bg-[var(--highlight)] text-text underline decoration-2 underline-offset-2">{seg.text}</mark> : <span key={i}>{seg.text}</span>)}
             </p>
           ) : <p className="text-body text-text-2">No abstract in the programme.</p>}
         </section>

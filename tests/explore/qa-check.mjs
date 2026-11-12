@@ -4,6 +4,7 @@
 //   11 06 author links and "+n" are 44px touch targets
 //   12 06: a slow abstract of the talk opened before does not overwrite the talk shown now
 //   13 browsing (no plan): Explore does not run the planner (time to the first screen, CPU 4x slower)
+//   16 06 highlight is underlined (2px) as well as coloured, light and dark, and stays a <mark>
 // npm run build && node --experimental-websocket tests/explore/qa-check.mjs   (starts and stops its own vite preview)
 // Exit code 1 when a check fails.
 import { spawn } from 'node:child_process';
@@ -52,6 +53,21 @@ try {
   // 11: on that 06, author links and the "+n" button.
   const small = await ev(`[...document.querySelectorAll('main a[href^="#/person/"], main button[aria-expanded]')].map(e => [e.innerText, Math.round(e.getBoundingClientRect().height)]).filter(([, h]) => h < 44)`);
   check('11 author targets 44px', Array.isArray(small) && small.length === 0, { under44: small });
+
+  // 16: highlight = <mark> with colour and a 2px underline, in light and dark.
+  await ev(`location.hash = '#/sample'`);
+  await waitFor(`document.body.innerText.includes('Preview')`);
+  await ev(`location.hash = '#/talk/chi2026:221879'`);
+  await waitFor(`!!document.querySelector('main mark')`);
+  const markStyle = () => ev(`(() => { const m = document.querySelector('main mark'); const c = getComputedStyle(m); return { tag: m.tagName, line: c.textDecorationLine, thickness: c.textDecorationThickness, bg: c.backgroundColor }; })()`);
+  const hl = {};
+  for (const scheme of ['light', 'dark']) {
+    await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: scheme }] });
+    await sleep(200);
+    hl[scheme] = await markStyle();
+  }
+  await send('Emulation.setEmulatedMedia', { features: [] });
+  check('16 highlight underlined', ['light', 'dark'].every(k => hl[k]?.tag === 'MARK' && hl[k].line.includes('underline') && hl[k].thickness === '2px'), hl);
 
   // 5: Today (sample) → magnifier → Filters → Show n results → Back once → Today.
   await ev(`location.hash = '#/sample'`);
