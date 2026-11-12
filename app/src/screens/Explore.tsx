@@ -70,6 +70,13 @@ export function Explore() {
               : <p className="text-small text-text-2">Try fewer or shorter words.</p>}
           </div>
         ) : (<>
+          {results.place?.kind === 'institution' && !!results.place.others && (
+            // "CMU" names more than one institution: say which one the results use, and offer the others in the filter screen.
+            <p className="text-small text-text-2">
+              {query.trim()} = {results.place.label} ·{' '}
+              <a href={`#/explore/filters?place=${encodeURIComponent(query.trim())}`} className="inline-flex min-h-touch items-center font-semibold underline">Other {query.trim()}s</a>
+            </p>
+          )}
           <p className="text-small text-text-3">
             Not ranked for you · in programme order
             {s.tab !== 'sessions' && results.place && ` · includes people at ${results.place.label}`}

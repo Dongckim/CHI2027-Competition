@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { verifiedReasons, highlightSegments } from '../../app/src/explore/quotes.js';
-import { buildSearchIndex, searchTalks, searchPeople, searchSessions, placeChoices, filterCount, NO_FILTERS } from '../../data/scripts/search.mjs';
+import { buildSearchIndex, searchTalks, searchPeople, searchSessions, placeOf, placeChoices, filterCount, NO_FILTERS } from '../../data/scripts/search.mjs';
 
 const reason = (abstract, quote, shift = 0) => {
   const start = abstract.indexOf(quote) + shift;
@@ -65,6 +65,8 @@ const index = buildSearchIndex({ schedule, people, topics, aliases });
 test('search: title, author, topic, then place; programme order inside each; CMU = the largest CMU only', () => {
   assert.deepEqual(searchTalks(index, 'CMU').map(r => r.key), ['chi2026:1', 'chi2026:3']); // not Chiang Mai's only
   assert.deepEqual(searchTalks(index, 'CMU')[0].why, { field: 'place', text: 'Carnegie Mellon University' });
+  assert.equal(placeOf(index, 'CMU').others, 1); // Chiang Mai: offered as "Other CMUs"
+  assert.equal(placeOf(index, 'kaist').others, 0);
   assert.deepEqual(searchTalks(index, 'ada').map(r => [r.key, r.why.field]), [['chi2026:1', 'author'], ['chi2026:3', 'author']]);
   assert.deepEqual(searchTalks(index, 'cartog').map(r => r.why), [{ field: 'topic', text: 'Cartography' }]);
   assert.deepEqual(searchTalks(index, 'ense').map(r => r.key), []); // words must start words

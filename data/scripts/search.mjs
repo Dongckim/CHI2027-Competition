@@ -33,7 +33,7 @@ function scoredInstitutions(aliases, query) {
   return [...score].sort((a, b) => b[1] - a[1] || count.get(b[0]) - count.get(a[0]) || (a[0] < b[0] ? -1 : 1));
 }
 
-/** @typedef {{ kind: 'institution', keys: string[], label: string } | { kind: 'country', key: string, label: string }} Place */
+/** @typedef {{ kind: 'institution', keys: string[], label: string, others?: number } | { kind: 'country', key: string, label: string }} Place */
 /** @typedef {{ days: string[], types: string[], place: Place | null }} Filters */
 
 // Countries as people type them → the folded names authors' affiliations use (edition.mjs countryName).
@@ -96,8 +96,10 @@ function findPlace(index, q) {
   if (country) return { kind: 'country', key: country, label: index.countryLabel.get(country) ?? country };
   const scored = scoredInstitutions(index.aliases, q).filter(([, s]) => s >= 2 && (s === 3 || q.length >= 4));
   if (!scored.length) return null;
-  const best = scored[0][1] === 3 ? [scored[0][0]] : scored.map(([k]) => k);
-  return { kind: 'institution', keys: best, label: index.names.get(best[0]) };
+  const exact = scored.filter(([, s]) => s === 3).length;
+  const best = exact ? [scored[0][0]] : scored.map(([k]) => k);
+  // others: more institutions the same alias names ("Other CMUs" opens them in the filter screen)
+  return { kind: 'institution', keys: best, label: index.names.get(best[0]), others: Math.max(0, exact - 1) };
 }
 const atPlace = (item, place) => (place.kind === 'country' ? item.countries.has(place.key) : place.keys.some(k => item.institutions.has(k)));
 
