@@ -4,6 +4,8 @@ import { go } from '../router';
 import { update, useDevice } from '../state/useDevice';
 import { candidatesFor, canBuild } from '../state/device.js';
 import { loadSchedule } from '../data/load';
+import { realNow } from '../clock';
+import { markPlanSaved } from '../data/offline';
 import { Header } from '../components/Header';
 import { Button } from '../components/Button';
 
@@ -32,7 +34,8 @@ export function Building() {
         await pause(); if (!live) return; setDone(2);       // matches
         await Promise.all([loadSchedule(), pause()]); if (!live) return; setDone(3); // rooms and walking graph
         navigator.storage?.persist?.().catch(() => {});     // ask the browser not to clear the plan under storage pressure
-        update(s => ({ ...s, builtAt: Date.now(), mode: 'plan' }));
+        update(s => ({ ...s, builtAt: realNow(), mode: 'plan' }));
+        markPlanSaved();
         await pause(); if (live) go('today', { replace: true });
       } catch (e) {
         if (live) setError(String((e as Error).message ?? e));
