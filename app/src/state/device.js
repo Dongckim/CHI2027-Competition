@@ -118,6 +118,9 @@ export const toggleKind = (state, kind) => withPlan(state, { see: Object.keys(KI
 export const toggleNeed = (state, need) => withPlan(state, { needs: { ...state.plan.needs, [need]: !state.plan.needs[need] } });
 export const setLanguage = (state, language) => withPlan(state, { language });
 export const setHowFull = (state, howFull) => withPlan(state, { howFull });
+// A day can be built only from a sentence and at least one topic or nearby field (RecommendRequest.query needs text).
+export const canBuild = state => !!state.plan.query.trim() && (state.plan.topics.some(t => t.on) || state.plan.nearbyAdded.length > 0);
+
 export const atStep = (state, step) => (state.builtAt || state.step === step ? state : { ...state, step });
 
 // Recommendations the plan allows: only kinds the person wants to see, and not items whose only matching topics were switched off.

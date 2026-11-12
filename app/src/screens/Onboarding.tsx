@@ -5,7 +5,7 @@ import { go } from '../router';
 import { update, useDevice, isSaved, loadNote, LANGUAGES, type DeviceState } from '../state/useDevice';
 import {
   KINDS, REGISTRATION_NEEDED, HOW_FULL, setQuery, topicsFromResponse, toggleTopic, addOwnTopic, toggleNearby,
-  toggleDay, toggleKind, toggleNeed, setLanguage, setHowFull, atStep,
+  toggleDay, toggleKind, toggleNeed, setLanguage, setHowFull, atStep, canBuild,
 } from '../state/device.js';
 import { Header } from '../components/Header';
 import { Chip } from '../components/Chip';
@@ -28,7 +28,11 @@ const dayLabel = (d: string, o: Intl.DateTimeFormatOptions) => new Intl.DateTime
 export function Onboarding({ step, edit }: { step: Step; edit: boolean }) {
   const state = useDevice();
   // Remember where onboarding is; edits from the summary come back to the summary.
-  useEffect(() => { if (!edit && MAIN.includes(step)) update(s => atStep(s, step)); }, [step, edit]);
+  // Every screen after O-1 needs the sentence: without it (e.g. the summary opened directly) go back to O-1.
+  const noSentence = step !== 'research' && !state.plan.query.trim();
+  useEffect(() => { if (noSentence) go('start/research', { replace: true }); }, [noSentence]);
+  useEffect(() => { if (!noSentence && !edit && MAIN.includes(step)) update(s => atStep(s, step)); }, [step, edit, noSentence]);
+  if (noSentence) return null;
   const next = (to: Step) => go(edit ? 'start/summary' : `start/${to}`);
   // Back is explicit, not history.back(): a reopened app has no history but should still step back one question.
   const back = () => go(`start/${edit || !MAIN.includes(step) ? 'summary' : MAIN[MAIN.indexOf(step) - 1]}`);
@@ -171,7 +175,7 @@ function Summary({ state, back }: Props) {
   const days = p.days.length === 1 ? short(p.days[0]) : consecutive ? `${short(p.days[0])} – ${short(p.days.at(-1)!)}` : p.days.map(short).join(', ');
   const needs = Object.entries(p.needs).filter(([, v]) => v).map(([k]) => NEED_SHORT[k]).join(', ') || 'None';
   return (
-    <Screen header={<Header back={back} />} heading="Your plan" action={{ label: 'Build my day', onClick: () => go('building') }}>
+    <Screen header={<Header back={back} />} heading="Your plan" action={{ label: 'Build my day', onClick: () => go('building'), disabled: !canBuild(state) }}>
       <ul>
         <SummaryRow label="Topics" value={topics} href="#/start/topics/edit" />
         <SummaryRow label="Days" value={days} href="#/start/days/edit" />

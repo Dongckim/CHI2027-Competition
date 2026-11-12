@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useDevice } from '../state/useDevice';
 
 // 44px header. Default: wordmark left, settings right. Onboarding: a back button, an optional title and a step count.
 export function Header({ title, back, right, wordmark = !back }: { title?: string; back?: () => void; right?: ReactNode; wordmark?: boolean }) {
@@ -17,7 +18,9 @@ export function Header({ title, back, right, wordmark = !back }: { title?: strin
 }
 
 // TODO(S7): point to the 17 Settings screen. Until then the gear opens "Your plan" (O-5) so the plan can be changed.
+// Only once a plan is built: before that, the gear would let people skip onboarding (sample day, browse).
 function Settings() {
+  if (!useDevice().builtAt) return null;
   return (
     <a href="#/start/summary" aria-label="Settings" className="-mr-3 grid size-touch place-items-center text-text">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
