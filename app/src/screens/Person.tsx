@@ -29,7 +29,7 @@ export function Person({ personKey }: { personKey: string }) {
     <div className="mx-auto min-h-dvh max-w-[480px] bg-bg">
       {header}
       <main className="flex flex-col gap-4 px-gutter pt-2 pb-28">
-        <h1 className="text-card-title font-semibold">{person.name}</h1>
+        <h1 className="text-page-title leading-[1.3] font-semibold">{person.name}</h1>
         <ul className="flex flex-col gap-1">
           {person.affiliations.map(a => <li key={`${a.institution}|${a.country}`} className="text-small text-text-2">{a.institution} · {a.country}</li>)}
         </ul>
@@ -37,14 +37,14 @@ export function Person({ personKey }: { personKey: string }) {
         {talks.length ? (
           <ul className="flex flex-col">
             {talks.map(({ p, slot }) => (
-              <li key={p.paperKey} className="flex items-start gap-3 border-b border-border py-3">
-                <a href={`#/talk/${p.paperKey}`} className="flex flex-1 flex-col gap-1">
-                  <span className="font-mono text-small text-text-2">{slot ? `${weekdayOf(slot.start, tz)} · ${clockOf(slot.start, tz)} · ${rooms.get(slot.roomKey)?.name ?? ''}` : 'Online'}</span>
-                  <span className="text-body">{p.title}</span>
+              <li key={p.paperKey} className="flex items-center gap-3 border-b border-border py-3">
+                <a href={`#/talk/${p.paperKey}`} className="flex flex-1 flex-col gap-0.5">
+                  <span className="font-mono text-tag font-medium text-text-2">{slot ? `${weekdayOf(slot.start, tz)} · ${clockOf(slot.start, tz)} · ${rooms.get(slot.roomKey)?.name ?? ''}` : 'Online'}</span>
+                  <span className="text-body leading-[22px]">{p.title}</span>
                 </a>
                 {slot && (planned.has(p.paperKey)
                   ? <span className="inline-flex min-h-touch items-center px-2 text-small text-text-2">Added</span>
-                  : <Button variant="secondary" aria-label={`Add ${p.title}`} onClick={() => {
+                  : <Button variant="outline" aria-label={`Add ${p.title}`} onClick={() => {
                     add(p.paperKey, slot.start, tz);
                     setToast({ text: `Added ${p.title} · ${weekdayOf(slot.start, tz)} ${clockOf(slot.start, tz)}`, action: today ? { label: 'View', run: () => go(today) } : undefined });
                   }}>+ Add</Button>)}
@@ -57,7 +57,7 @@ export function Person({ personKey }: { personKey: string }) {
       </main>
       {talks[0] && (
         <div className="fixed inset-x-0 bottom-0 bg-bg px-gutter pt-3 pb-[calc(var(--safe-bottom)+12px)]">
-          <div className="mx-auto max-w-[448px]"><ButtonLink href={`#/question/${talks[0].p.paperKey}`} className="w-full">Prepare a question</ButtonLink></div>
+          <div className="mx-auto max-w-[448px]"><ButtonLink href={`#/question/${talks[0].p.paperKey}`} size="lg" className="w-full">Prepare a question</ButtonLink></div>
         </div>
       )}
       <Toast toast={toast} onClose={closeToast} bottom="calc(var(--safe-bottom) + 76px)" />

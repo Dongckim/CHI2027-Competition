@@ -60,7 +60,7 @@ export function Talk({ paperKey }: { paperKey: string }) {
       {header}
       <main className="flex flex-col gap-4 px-gutter pt-2 pb-28">
         <Tag>{TYPE_TAG[p.type] ?? 'TALK'}</Tag>
-        <h1 className="text-card-title font-semibold">{p.title}</h1>
+        <h1 className="text-page-title leading-[1.3] font-semibold">{p.title}</h1>
         {/* Each name and "+n" is a 44px target (they wrap as a list, not as words in a sentence). */}
         <ul aria-label="Authors" className="-my-2 flex flex-wrap items-center gap-x-1 text-small text-text-2">
           {shownAuthors.map((k, i) => (
@@ -77,29 +77,27 @@ export function Talk({ paperKey }: { paperKey: string }) {
           {slots.length ? slots.map((s: { start: number; roomKey: string; sessionKey: string }) => {
             const pos = talkPosition({ paperKey, start: s.start, sessionKey: s.sessionKey }, sessionSlots, timing.get(s.sessionKey));
             return (
-              <p key={`${s.sessionKey}-${s.start}`} className="font-mono text-body">
+              <p key={`${s.sessionKey}-${s.start}`} className="text-body leading-6">
                 {dateOf(s.start, tz)} · {clockOf(s.start, tz)} · {index.rooms.get(s.roomKey)?.name ?? 'Room to be announced'}
-                {pos && <span className="text-text-2"> · Talk {pos.index} of {pos.count}</span>}
+                {pos && ` · Talk ${pos.index} of ${pos.count}`}
               </p>
             );
           }) : <p className="text-body">Not presented in a room · online only</p>}
-          {slots[0] && <p className="text-small text-text-3">{index.sessions.get(slots[0].sessionKey)?.name}</p>}
         </div>
         <p className="text-small font-semibold">{p.video ? 'Can catch later · video' : 'Only here now · no video'}</p>
         {p.doi && <a href={p.doi} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-touch items-center self-start text-small underline">Paper in the ACM Digital Library</a>}
         {why.length > 0 && (
-          <section className="flex flex-col gap-2">
+          <section className="flex flex-col gap-4">
             <h2 className="text-small font-semibold">Why for you</h2>
-            {why.map(label => <p key={label} className="text-body">Shares <b className="font-semibold">{label}</b> with your research.</p>)}
-            <p className="text-small text-text-3">Highlighted and underlined below in the abstract.</p>
+            {why.map(label => <p key={label} className="text-body leading-6 text-text-2">Shares {label} with your research.</p>)}
           </section>
         )}
-        <section className="flex flex-col gap-2">
+        <section className="flex flex-col gap-4">
           <h2 className="text-small font-semibold">Abstract · from the programme</h2>
           {abstract == null ? <p className="text-body text-text-3">Loading…</p> : abstract === false ? (
             <p className="text-body text-text-2">{online ? 'Could not load the abstract. Try again in a moment.' : 'Abstract not saved on this phone yet. Connect to load it.'}</p>
           ) : abstract ? (
-            <p className="text-body whitespace-pre-line">
+            <p className="text-body leading-6 whitespace-pre-line text-text-2">
               {highlightSegments(abstract, reasons).map((seg, i) => seg.mark ? <mark key={i} className="rounded-[2px] bg-[var(--highlight)] text-text underline decoration-2 underline-offset-2">{seg.text}</mark> : <span key={i}>{seg.text}</span>)}
             </p>
           ) : <p className="text-body text-text-2">No abstract in the programme.</p>}
@@ -108,10 +106,10 @@ export function Talk({ paperKey }: { paperKey: string }) {
       </main>
       <div className="fixed inset-x-0 bottom-0 bg-bg px-gutter pt-3 pb-[calc(var(--safe-bottom)+12px)]">
         <div className="mx-auto flex max-w-[448px] gap-2">
-          <ButtonLink href={`#/question/${paperKey}`} variant="secondary" className="flex-1">Question</ButtonLink>
+          <ButtonLink href={`#/question/${paperKey}`} variant="outline" size="lg" className="flex-1">Question</ButtonLink>
           {slot && (inDay
-            ? <Button className="flex-1 opacity-60" disabled>In your day</Button>
-            : <Button className="flex-1" onClick={() => {
+            ? <Button size="lg" className="flex-1 opacity-60" disabled>In your day</Button>
+            : <Button size="lg" className="flex-1" onClick={() => {
               add(paperKey, slot.start, tz);
               setToast({ text: `Added · ${weekdayOf(slot.start, tz)} ${clockOf(slot.start, tz)}`, action: today ? { label: 'View', run: () => go(today) } : undefined });
             }}>Add to my day</Button>)}
