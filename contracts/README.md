@@ -2,7 +2,8 @@
 
 ARC의 기능들(추천·플래너·지니·자막·앱)이 주고받는 데이터의 모양을 정한 약속입니다. 각 기능은 상대의 코드를 몰라도 이 모양만 맞추면 됩니다.
 
-> **상태: 설계 중.** 필드는 Figma 초안을 바탕으로 Dongchan이 먼저 설계하고 Wonjune과 논의해서 정합니다. 그전까지는 각 기능이 내부 형식을 쓰고, 계약이 정해지면 경계에서 변환합니다.
+> **상태:** RecommendRequest·RecommendResponse 0.1.0 확정 (원준 확인 필요). 나머지 계약은 설계 중이며, 그전까지는 각 기능이 내부 형식을 쓰고 경계에서 변환합니다.
+> RecommendResponse는 스키마 외 규칙도 `npm run contracts:check`가 검사합니다: `quote === abstract.slice(start, end)`, institutionKeys·countries 정렬·중복 없음, clusterId가 clusters에 있음, feedType = papers.json type, `bridge.via` 개수 = path 단계 수.
 
 ## 규칙
 - 파일: `contracts/<Name>.schema.json` (JSON Schema draft 2020-12)

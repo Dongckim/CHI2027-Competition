@@ -36,7 +36,7 @@ npm run data:build   # data/build/<edition>/ 생성, 약 1초
 한 줄에 한 레코드라 `JSON.parse` 한 번이면 됩니다 (Python: `json.load`).
 
 ### 3. 출력을 플래너에 넣어 보기
-계약이 확정되기 전까지 임시 형식은 이것 하나입니다:
+계약 `contracts/RecommendResponse.schema.json` 0.1.0이 나왔습니다 (예시 `contracts/examples/RecommendResponse.chi2026-tuesday.json`). 플래너 도구는 아직 이 짧은 형식을 받습니다:
 ```json
 [
   { "paperKey": "chi2026:223509", "relevance": 0.9 },
