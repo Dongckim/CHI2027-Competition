@@ -1,0 +1,5830 @@
+{
+  "topics": [
+    {
+      "conceptId": "topic:human-ai-decision-making",
+      "label": "Human-AI Decision Making",
+      "weight": 1
+    },
+    {
+      "conceptId": "topic:sensemaking",
+      "label": "Sensemaking",
+      "weight": 0.552
+    },
+    {
+      "conceptId": "topic:ai-explanations-and-decision-support-in-healthcare",
+      "label": "AI Explanations and Decision Support in Healthcare",
+      "weight": 0.551
+    }
+  ],
+  "schema_version": "0.1.0",
+  "modelVersion": "baseline-0",
+  "dataVersion": {
+    "edition": "chi2026",
+    "revision": 1,
+    "publicationVersion": 86
+  },
+  "nearby": [
+    {
+      "conceptId": "topic:social-intelligence-human-agent-dynamics",
+      "label": "Social Intelligence & Human-Agent Dynamics",
+      "sharedConcept": "topic:human-ai-decision-making",
+      "matchCount": 3,
+      "suggested": true
+    },
+    {
+      "conceptId": "topic:explaining-and-evaluating-ai-systems",
+      "label": "Explaining and Evaluating AI Systems",
+      "sharedConcept": "topic:human-ai-decision-making",
+      "matchCount": 3,
+      "suggested": false
+    }
+  ],
+  "totalMatches": 1501,
+  "items": [
+    {
+      "paperKey": "chi2026:222208",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 1,
+      "band": "near",
+      "concepts": [
+        "topic:ai-explanations-and-decision-support-in-healthcare"
+      ],
+      "clusterId": "topic:ai-explanations-and-decision-support-in-healthcare",
+      "institutionKeys": [
+        "inst:ror-0074grg94",
+        "inst:ror-01an3r305",
+        "inst:ror-05x2bcf33"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:ai-explanations-and-decision-support-in-healthcare",
+          "quote": "We address this gap by reconsidering AI interfaces as collections of intelligent reasoning cues: discrete pieces of AI information that can individually influence decision-making.",
+          "start": 330,
+          "end": 509
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222732",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.994,
+      "band": "near",
+      "concepts": [
+        "topic:human-ai-decision-making"
+      ],
+      "clusterId": "topic:human-ai-decision-making",
+      "institutionKeys": [
+        "inst:ror-02dqehb95"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:human-ai-decision-making",
+          "quote": "We introduce the AI-Assisted Critical Thinking (AACT) framework, which leverages a domain-specific AI model’s counterfactual analysis of human decision to help decision-makers identify potential flaws in their decision argument and support the correction of them.",
+          "start": 350,
+          "end": 613
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229556",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.988,
+      "band": "near",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-017xnm587",
+        "inst:ror-04p491231"
+      ],
+      "countries": [
+        "Korea, Republic of",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Although generative AI platforms are now widely used by consumers to search for product information due to its convenience, we still do not know how accurate this information is or how much it truly helps consumers’ purchase decisions especially during the product launch period.",
+          "start": 311,
+          "end": 590
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222333",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.98,
+      "band": "near",
+      "concepts": [
+        "topic:sensemaking"
+      ],
+      "clusterId": "topic:sensemaking",
+      "institutionKeys": [
+        "inst:ror-04p491231"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:sensemaking",
+          "quote": "Our findings highlight the potential of these online interactions to help teens cope with privacy violations, make sense of complex social matters, and nurture their sense of agency.",
+          "start": 531,
+          "end": 713
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229614",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.934,
+      "band": "near",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-04h9pn542",
+        "inst:ror-04q78tk20"
+      ],
+      "countries": [
+        "Korea, Republic of"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Novice investors rely on online information when making stock investment decisions.",
+          "start": 0,
+          "end": 83
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222481",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.9,
+      "band": "near",
+      "concepts": [
+        "topic:human-ai-decision-making"
+      ],
+      "clusterId": "topic:human-ai-decision-making",
+      "institutionKeys": [
+        "inst:guangdong-engineering-center-for-social-computing-and-mental-health",
+        "inst:ror-02q963474",
+        "inst:ror-033vjfk17",
+        "inst:ror-03hamhx47",
+        "inst:shanghai-customs-university"
+      ],
+      "countries": [
+        "China",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:human-ai-decision-making",
+          "quote": "People often rely on heuristic reasoning when receiving algorithm advice, and this reliance leads to biased decisions that undermine the effectiveness of human-AI collaboration.",
+          "start": 0,
+          "end": 177
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223201",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.897,
+      "band": "near",
+      "concepts": [
+        "topic:discussions"
+      ],
+      "clusterId": "topic:discussions",
+      "institutionKeys": [
+        "inst:ror-0213rcc28"
+      ],
+      "countries": [
+        "Canada"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:discussions",
+          "quote": "Developing AI literacy is increasingly urgent as generative AI reshapes creative practice.",
+          "start": 0,
+          "end": 90
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:214885",
+      "type": "other",
+      "feedType": "Workshop",
+      "relevance": 0.876,
+      "band": "near",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:mbzaiu-abu-dhabi",
+        "inst:ror-00f54p054",
+        "inst:ror-03prydq77",
+        "inst:ror-05x2bcf33"
+      ],
+      "countries": [
+        "Austria",
+        "United Arab Emirates",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "This workshop will focus on the most recent work in sensemaking, the methods, technologies and behaviors that people do when making sense of their complex information spaces.",
+          "start": 1043,
+          "end": 1217
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229623",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.875,
+      "band": "near",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-016xsfp80"
+      ],
+      "countries": [
+        "Netherlands"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "We measure the impact of being outperformed by AI on key psychological variables Sense of Agency and Self-Efficacy.",
+          "start": 494,
+          "end": 609
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222960",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.872,
+      "band": "near",
+      "concepts": [
+        "topic:online-cultures-and-creator-economies"
+      ],
+      "clusterId": "topic:online-cultures-and-creator-economies",
+      "institutionKeys": [
+        "inst:ror-02v51f717"
+      ],
+      "countries": [
+        "China"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:online-cultures-and-creator-economies",
+          "quote": "Through interviews with 20 participants and analysis of annual recaps, we investigated how users make sense of and reflect on these presentations.",
+          "start": 280,
+          "end": 426
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222977",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.864,
+      "band": "near",
+      "concepts": [
+        "topic:llm-interactions-and-generative-ai-mechanics"
+      ],
+      "clusterId": "topic:llm-interactions-and-generative-ai-mechanics",
+      "institutionKeys": [
+        "inst:national-intitutes-of-health",
+        "inst:nci-nih",
+        "inst:ror-013meh722",
+        "inst:university-duisburg-essen"
+      ],
+      "countries": [
+        "Germany",
+        "United Kingdom",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:llm-interactions-and-generative-ai-mechanics",
+          "quote": "Finally, we present relevant tradeoffs and design choices across human-LLM archetypes, including decision control, social hierarchies, cognitive forcing strategies, and information requirements.",
+          "start": 784,
+          "end": 978
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229738",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.857,
+      "band": "near",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-02v51f717",
+        "inst:ror-04facbs33"
+      ],
+      "countries": [
+        "China"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "In this poster, based on Heidegger’s concept of Dasein, we present DASEIN, an AI-augmented diary system to help users reconnect with the meaning of their daily lives in today’s digital and fast-paced world.",
+          "start": 0,
+          "end": 206
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222270",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.855,
+      "band": "near",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-03h0qfp10",
+        "inst:ror-05wp7an13"
+      ],
+      "countries": [
+        "Sweden"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "Designers face opportunities and challenges in leveraging AI to make sense of increasingly available data.",
+          "start": 0,
+          "end": 106
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229958",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.849,
+      "band": "near",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-036nfer12"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "We therefore make recommendations for decision makers to include both executive and worker perspectives in the creation of Gen AI adoption plans within their organizations, to prevent potential work knowledge gaps between entry-level and augmented knowledge workers.",
+          "start": 766,
+          "end": 1032
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223003",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.843,
+      "band": "near",
+      "concepts": [
+        "topic:affective-agents-reflective-data"
+      ],
+      "clusterId": "topic:affective-agents-reflective-data",
+      "institutionKeys": [
+        "inst:ror-0168r3w48",
+        "inst:university-of-california-riverside"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:affective-agents-reflective-data",
+          "quote": "We then developed PrivacyAkinator, an interactive tool that helps developers articulate key privacy decisions by answering LLM-generated multiple-choice questions.",
+          "start": 496,
+          "end": 659
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223143",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.841,
+      "band": "near",
+      "concepts": [
+        "topic:ai-governance-and-accountability"
+      ],
+      "clusterId": "topic:ai-governance-and-accountability",
+      "institutionKeys": [
+        "inst:ror-01zkghx44",
+        "inst:ror-02mpq6x41",
+        "inst:ror-03vek6s52",
+        "inst:ror-05x2bcf33"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:ai-governance-and-accountability",
+          "quote": "Gathering information about AI systems is essential for contesting their use; it forms the basis of arguments about how AI is causing harm.",
+          "start": 0,
+          "end": 139
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230132",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.837,
+      "band": "near",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-04tmmky42"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "While recent work on AI literacy has developed AI literacy curricula to guide student use of GAI, researchers have called for empirical studies to investigate students' understandings of GAI tools.",
+          "start": 95,
+          "end": 292
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230263",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.835,
+      "band": "near",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00v4yb702"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Concerns around users' over-reliance on artificial intelligence (AI) systems are increasingly prevalent in human-AI decision-making contexts.",
+          "start": 0,
+          "end": 141
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222335",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.829,
+      "band": "near",
+      "concepts": [
+        "topic:immersive-and-spatial-visualization"
+      ],
+      "clusterId": "topic:immersive-and-spatial-visualization",
+      "institutionKeys": [
+        "inst:ror-017zqws13"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:immersive-and-spatial-visualization",
+          "quote": "Artificial Intelligence (AI) and indoor sensing increasingly support decision-making in spatial environments.",
+          "start": 0,
+          "end": 109
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223198",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.826,
+      "band": "near",
+      "concepts": [
+        "topic:human-robot-interaction"
+      ],
+      "clusterId": "topic:human-robot-interaction",
+      "institutionKeys": [
+        "inst:cnrs",
+        "inst:onera",
+        "inst:ror-02rx3b187",
+        "inst:univ-bourgogne-franche-comté-femto-st-institute-cnrs"
+      ],
+      "countries": [
+        "France"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:human-robot-interaction",
+          "quote": "This paper studies the extent to which this assistance impacts users’ sense of agency.",
+          "start": 99,
+          "end": 185
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222632",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.824,
+      "band": "near",
+      "concepts": [
+        "topic:health-tools-and-technologies"
+      ],
+      "clusterId": "topic:health-tools-and-technologies",
+      "institutionKeys": [
+        "inst:ror-00cvxb145",
+        "inst:ror-01pxwe438",
+        "inst:ror-03dbr7087"
+      ],
+      "countries": [
+        "Canada",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:health-tools-and-technologies",
+          "quote": "Conversational agents powered by large language models (LLMs) can automate this process to make it more scalable and consistent, but this risks producing information overload that exacerbates physicians’ workload as they spend time parsing through data.",
+          "start": 203,
+          "end": 456
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223265",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.82,
+      "band": "near",
+      "concepts": [
+        "topic:social-intelligence-human-agent-dynamics"
+      ],
+      "clusterId": "topic:social-intelligence-human-agent-dynamics",
+      "institutionKeys": [
+        "inst:ror-01tgyzw49",
+        "inst:ror-03rc6as71",
+        "inst:ror-057zh3y96"
+      ],
+      "countries": [
+        "China",
+        "Japan",
+        "Singapore"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:social-intelligence-human-agent-dynamics",
+          "quote": "However, highlighting unexpectedly shifted from a sense-making strategy to an instrumental act of \"feeding the AI,\" leading to significant reliance on AI and declines in writers' sense of autonomy, ownership, and self-credit.",
+          "start": 682,
+          "end": 907
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223406",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.795,
+      "band": "near",
+      "concepts": [
+        "topic:ai-assisted-clinical-diagnosis-and-reasoning"
+      ],
+      "clusterId": "topic:ai-assisted-clinical-diagnosis-and-reasoning",
+      "institutionKeys": [
+        "inst:ror-0524sp257"
+      ],
+      "countries": [
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:ai-assisted-clinical-diagnosis-and-reasoning",
+          "quote": "We conducted vignette-based interviews with 33 primary and emergency care clinicians to explore how they make sense of patient-generated ECG data and which factors shape anticipated use in decision making.",
+          "start": 374,
+          "end": 579
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223019",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.792,
+      "band": "near",
+      "concepts": [
+        "topic:critical-reflections-on-a"
+      ],
+      "clusterId": "topic:critical-reflections-on-a",
+      "institutionKeys": [
+        "inst:ror-003109y17",
+        "inst:ror-00hj8s172",
+        "inst:ror-01y9bpm73",
+        "inst:ror-02e2c7k09"
+      ],
+      "countries": [
+        "Germany",
+        "Italy",
+        "Netherlands",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:critical-reflections-on-a",
+          "quote": "Our results underscore the deleterious effects of information asymmetries on AI adoption, but also highlight the potential of partial disclosure designs to improve the overall efficiency of human decision-making.",
+          "start": 844,
+          "end": 1056
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222840",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.781,
+      "band": "near",
+      "concepts": [
+        "topic:physical-and-tangible-data-visualizations"
+      ],
+      "clusterId": "topic:physical-and-tangible-data-visualizations",
+      "institutionKeys": [
+        "inst:ror-0220mzb33",
+        "inst:ror-042tfbd02",
+        "inst:ror-05f950310"
+      ],
+      "countries": [
+        "Belgium",
+        "France",
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:physical-and-tangible-data-visualizations",
+          "quote": "This process revealed how the interplay of physical and non-physical actions during construction negotiations supported collaborative sense-making among 14 groups of 55 participants during 4 workshops, enabling us to articulate how explicit power is embodied by the physicalization artifact and negotiated between authoring and collaborating participants, and facilitators; whereas tacit power operates through artifact meanings, participant identity and design decisions.",
+          "start": 496,
+          "end": 968
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223361",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.774,
+      "band": "near",
+      "concepts": [
+        "topic:interactive-prompting-chaining-and-llm-orchestration-tools"
+      ],
+      "clusterId": "topic:interactive-prompting-chaining-and-llm-orchestration-tools",
+      "institutionKeys": [
+        "inst:ror-03q8dnn23"
+      ],
+      "countries": [
+        "China"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:interactive-prompting-chaining-and-llm-orchestration-tools",
+          "quote": "Although Speech-to-text can capture these thoughts, transcripts can be difficult to read and make sense due to disfluencies, repetitions and potential disorganization.",
+          "start": 89,
+          "end": 256
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229817",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.77,
+      "band": "near",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-01vy4gh70"
+      ],
+      "countries": [
+        "China"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "001), while AI support and self-decision alternated across information-seeking and reflective stages (p < 0.",
+          "start": 583,
+          "end": 691
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223291",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.769,
+      "band": "near",
+      "concepts": [
+        "topic:group-work"
+      ],
+      "clusterId": "topic:group-work",
+      "institutionKeys": [
+        "inst:ror-02smfhw86"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:group-work",
+          "quote": "Artificial intelligence (AI) is increasingly deployed in high-stakes domains such as search-and-rescue (SAR), where detections or classifications can shape how teams share information, build trust, and make time-critical decisions.",
+          "start": 0,
+          "end": 231
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222215",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.769,
+      "band": "near",
+      "concepts": [
+        "topic:human-ai-decision-making"
+      ],
+      "clusterId": "topic:human-ai-decision-making",
+      "institutionKeys": [
+        "inst:independent",
+        "inst:ror-00v4yb702",
+        "inst:ror-04pp8hn57"
+      ],
+      "countries": [
+        "Belgium",
+        "Netherlands",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:human-ai-decision-making",
+          "quote": "AI systems are increasingly being positioned to assist people in decision-making.",
+          "start": 0,
+          "end": 81
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222069",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.765,
+      "band": "near",
+      "concepts": [
+        "topic:ecological-hci-and-urbanism"
+      ],
+      "clusterId": "topic:ecological-hci-and-urbanism",
+      "institutionKeys": [
+        "inst:ror-01zkghx44"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:ecological-hci-and-urbanism",
+          "quote": "This paper presents ContAQT, an interactive platform that helps public audiences explore multi-pollutant air quality data in informal learning settings.",
+          "start": 309,
+          "end": 461
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229740",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.762,
+      "band": "near",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00chfja07"
+      ],
+      "countries": [
+        "Korea, Republic of"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "Fragmented narrative delivery in games often causes cognitive gaps, while external resources risk spoilers and information overload.",
+          "start": 0,
+          "end": 132
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230210",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.749,
+      "band": "near",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-03cve4549"
+      ],
+      "countries": [
+        "China"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "As AI-driven systems evolve from instruction-following tools to autonomous collaborators, users may experience reduced sense of agency (SoA), the subjective perception of control, when reciprocal intent alignment is limited.",
+          "start": 0,
+          "end": 224
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230108",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.736,
+      "band": "near",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00f54p054",
+        "inst:ror-02pp7px91",
+        "inst:ror-05a28rw58"
+      ],
+      "countries": [
+        "Germany",
+        "Switzerland",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Developers of high-risk AI systems often face difficult tradeoffs\r\nwhen striving to embed ethical considerations into systems in competitive\r\nenvironments where ethics is often treated as an afterthought.",
+          "start": 0,
+          "end": 204
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223218",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.731,
+      "band": "near",
+      "concepts": [
+        "topic:personalization-and-human-ai-alignment"
+      ],
+      "clusterId": "topic:personalization-and-human-ai-alignment",
+      "institutionKeys": [
+        "inst:ror-01tgyzw49"
+      ],
+      "countries": [
+        "Singapore"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:personalization-and-human-ai-alignment",
+          "quote": "While Explainable AI (XAI) helps users understand AI decisions, misalignment in domain knowledge can lead to disagreement.",
+          "start": 0,
+          "end": 122
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230126",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.729,
+      "band": "near",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:independent-researcher",
+        "inst:ror-00v4yb702",
+        "inst:ror-04pp8hn57"
+      ],
+      "countries": [
+        "Belgium",
+        "Netherlands",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Although artificial intelligence (AI) systems are expected to support business decision-making, their adoption among non-technical professionals, for instance, in business contexts, remains limited.",
+          "start": 0,
+          "end": 198
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222043",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.724,
+      "band": "near",
+      "concepts": [
+        "topic:margins"
+      ],
+      "clusterId": "topic:margins",
+      "institutionKeys": [
+        "inst:ror-00rqy9422"
+      ],
+      "countries": [
+        "Australia"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:margins",
+          "quote": "Building a sense of home is vital to refugees’ well-being and integration during resettlement.",
+          "start": 0,
+          "end": 94
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222713",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.721,
+      "band": "near",
+      "concepts": [
+        "topic:ai-explanations-and-decision-support-in-healthcare"
+      ],
+      "clusterId": "topic:ai-explanations-and-decision-support-in-healthcare",
+      "institutionKeys": [
+        "inst:ottawa-general-campus",
+        "inst:ror-00f54p054",
+        "inst:ror-0213rcc28",
+        "inst:ror-03yjb2x39"
+      ],
+      "countries": [
+        "Canada",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:ai-explanations-and-decision-support-in-healthcare",
+          "quote": "As Artificial Intelligence (AI) conversational agents become widespread, people are increasingly using them for health information seeking.",
+          "start": 0,
+          "end": 139
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:221879",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.707,
+      "band": "near",
+      "concepts": [
+        "topic:sensemaking"
+      ],
+      "clusterId": "topic:sensemaking",
+      "institutionKeys": [
+        "inst:ror-042nb2s44"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:sensemaking",
+          "quote": "Large language models (LLMs) are increasingly used to make sense of unstructured data, but their use in contexts like conversation analysis, where sensemaking is often human-driven, iterative, and subjective, is underexplored.",
+          "start": 0,
+          "end": 226
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222586",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.706,
+      "band": "near",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:division-of-computer-science-and-engineering",
+        "inst:ror-05ect4e57"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "In a controlled experiment with 250 participants playing a Whac-A-Mole MR game, we introduced three types of deception attacks: (1) a Physiological Spoofing Attack intended to foster false beliefs about bodily state; (2) a Gaslighting Attack that evokes false interpretations about bodily state by inducing doubt; and (3) a Disinformation Attack that presents false information by mimicking game- and system-level notifications to influence decision-making.",
+          "start": 136,
+          "end": 593
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223523",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.699,
+      "band": "near",
+      "concepts": [
+        "topic:sound-music-and-dance-accessibility"
+      ],
+      "clusterId": "topic:sound-music-and-dance-accessibility",
+      "institutionKeys": [
+        "inst:apple-inc",
+        "inst:ror-00hj8s172",
+        "inst:ror-059hsda18"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:sound-music-and-dance-accessibility",
+          "quote": "Our user study demonstrates that SceneScout helps BLV users uncover visual information otherwise unavailable through existing means.",
+          "start": 895,
+          "end": 1027
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222397",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.695,
+      "band": "near",
+      "concepts": [
+        "topic:human-behavior-with-ai-systems"
+      ],
+      "clusterId": "topic:human-behavior-with-ai-systems",
+      "institutionKeys": [
+        "inst:ror-042nb2s44"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:human-behavior-with-ai-systems",
+          "quote": "Given the growing prevalence of fake information, including increasingly realistic AI-generated news, there is an urgent need to train people to better evaluate and detect misinformation.",
+          "start": 0,
+          "end": 187
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:221979",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.69,
+      "band": "near",
+      "concepts": [
+        "topic:human-ai-decision-making"
+      ],
+      "clusterId": "topic:human-ai-decision-making",
+      "institutionKeys": [
+        "inst:ror-00a2xv884",
+        "inst:ror-04w9fbh59",
+        "inst:ror-0530pts50"
+      ],
+      "countries": [
+        "China"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:human-ai-decision-making",
+          "quote": "In a 4×2 mixed-design online study (\\textit{N} = 106), we compare non-sycophantic AI with sycophantic variants on decision outcomes and confidence changes.",
+          "start": 511,
+          "end": 666
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222307",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.688,
+      "band": "near",
+      "concepts": [
+        "topic:family-caregiving-and-support-technologies"
+      ],
+      "clusterId": "topic:family-caregiving-and-support-technologies",
+      "institutionKeys": [
+        "inst:ror-02r109517",
+        "inst:ror-04qscbg47",
+        "inst:ror-05bnh6r87"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:family-caregiving-and-support-technologies",
+          "quote": "Participants saw conversational AI as a promising tool that might help streamline communication, coordinate shift handovers, bridge language gaps, and support onboarding of new or substitute caregivers.",
+          "start": 332,
+          "end": 534
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222391",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.681,
+      "band": "near",
+      "concepts": [
+        "topic:social-intelligence-human-agent-dynamics"
+      ],
+      "clusterId": "topic:social-intelligence-human-agent-dynamics",
+      "institutionKeys": [
+        "inst:ror-05apxxy63"
+      ],
+      "countries": [
+        "Korea, Republic of"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:social-intelligence-human-agent-dynamics",
+          "quote": "Users often struggle to make rational privacy decisions within the notice and choice framework, primarily due to difficulties in understanding and processing privacy policies.",
+          "start": 0,
+          "end": 175
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222599",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.68,
+      "band": "near",
+      "concepts": [
+        "topic:multi-agent-reasoning-systems-for-sensemaking-and-planning"
+      ],
+      "clusterId": "topic:multi-agent-reasoning-systems-for-sensemaking-and-planning",
+      "institutionKeys": [
+        "inst:adobe-research",
+        "inst:ror-00jmfr291"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:multi-agent-reasoning-systems-for-sensemaking-and-planning",
+          "quote": "Knowledge workers increasingly rely on conversational AI for sense-making tasks (e.",
+          "start": 0,
+          "end": 83
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222932",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.677,
+      "band": "near",
+      "concepts": [
+        "topic:privacy-policies"
+      ],
+      "clusterId": "topic:privacy-policies",
+      "institutionKeys": [
+        "inst:ror-03s7gtk40"
+      ],
+      "countries": [
+        "Germany"
+      ],
+      "reasons": []
+    },
+    {
+      "paperKey": "chi2026:229908",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.676,
+      "band": "near",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:mysten-labs",
+        "inst:ror-05x2bcf33"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "However, confirmation also marks the boundary between deliberation and irreversible commitment, suggesting it may play a functional role in human decision-making.",
+          "start": 120,
+          "end": 282
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230195",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.673,
+      "band": "near",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ai4life-institute",
+        "inst:new-york-university"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "We built AI Kitchen, a web-based make–test–share experience that turns a tiny training set into ingredients and makes coverage gaps visible at decision time.",
+          "start": 127,
+          "end": 284
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222562",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.668,
+      "band": "near",
+      "concepts": [
+        "topic:steering-and-evaluating-generative-a"
+      ],
+      "clusterId": "topic:steering-and-evaluating-generative-a",
+      "institutionKeys": [
+        "inst:microsoft-research",
+        "inst:princeton-university",
+        "inst:ror-00cvxb145"
+      ],
+      "countries": [
+        "Canada",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:steering-and-evaluating-generative-a",
+          "quote": "In this paper, we conducted an integrative review to build a multi-dimensional framework that specifies what kind of information about generative AI use could be reported and how, and illustrated its analytical utility by applying the framework to a collection of over 110 industry documents.",
+          "start": 600,
+          "end": 892
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230224",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.665,
+      "band": "near",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00v4yb702"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "To this end, human-AI decision-making research uses several constructs, bifurcated between trust and reliance, for measuring human perception and behavior with AI.",
+          "start": 131,
+          "end": 294
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229589",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.662,
+      "band": "adjacent",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-03265fv13"
+      ],
+      "countries": [
+        "Ireland"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "This paper argues that generative AI will not become a true asset in the workplace unless it allows people to focus on productive articulation that helps them reflect on and refine the objectives of their work, by reducing the need for mundane articulation that makes up the rote work of setting up fundamental context for generative AI to deliver useful results.",
+          "start": 424,
+          "end": 787
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:252237",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.662,
+      "band": "adjacent",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-03265fv13"
+      ],
+      "countries": [
+        "Ireland"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "This paper argues that generative AI will not become a true asset in the workplace unless it allows people to focus on productive articulation that helps them reflect on and refine the objectives of their work, by reducing the need for mundane articulation that makes up the rote work of setting up fundamental context for generative AI to deliver useful results.",
+          "start": 424,
+          "end": 787
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:214844",
+      "type": "other",
+      "feedType": "Workshop",
+      "relevance": 0.66,
+      "band": "adjacent",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:iti-larsys",
+        "inst:ror-02c2kyt77",
+        "inst:ror-02e2c7k09",
+        "inst:ror-04cnfrn26",
+        "inst:ror-04n0g0b29",
+        "inst:ror-04t5xt781",
+        "inst:ror-05kb8h459",
+        "inst:ror-05wp7an13"
+      ],
+      "countries": [
+        "Canada",
+        "Netherlands",
+        "Portugal",
+        "Spain",
+        "Sweden",
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "We make sense of the world around us through our bodies; however, this somatic dimension of meaning-making is often overlooked in the development of AI systems.",
+          "start": 0,
+          "end": 160
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222045",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.658,
+      "band": "adjacent",
+      "concepts": [
+        "topic:context-aware-interfaces-for-mobility-automation"
+      ],
+      "clusterId": "topic:context-aware-interfaces-for-mobility-automation",
+      "institutionKeys": [
+        "inst:ror-008zs3103",
+        "inst:ror-02dqehb95",
+        "inst:ror-04tj63d06"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:context-aware-interfaces-for-mobility-automation",
+          "quote": "While perception-only feedback suffices for simple encounters, in complex situations, information on system comprehension and projection aids better and easier understanding of driving decisions.",
+          "start": 796,
+          "end": 991
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:221969",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.657,
+      "band": "adjacent",
+      "concepts": [
+        "topic:ai-for-language-learning-communication-skills"
+      ],
+      "clusterId": "topic:ai-for-language-learning-communication-skills",
+      "institutionKeys": [
+        "inst:ror-04h9pn542"
+      ],
+      "countries": [
+        "Korea, Republic of"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:ai-for-language-learning-communication-skills",
+          "quote": "These insights inform the design of AI-assisted learning systems that preserve learner agency while supporting diverse learning goals.",
+          "start": 962,
+          "end": 1096
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:214822",
+      "type": "other",
+      "feedType": "Workshop",
+      "relevance": 0.655,
+      "band": "adjacent",
+      "concepts": [
+        "term:help"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-0253jyq40",
+        "inst:ror-03angcq70",
+        "inst:ror-042nb2s44",
+        "inst:ror-04f2nsd36",
+        "inst:ror-0524sp257",
+        "inst:university-of-copenhagen"
+      ],
+      "countries": [
+        "Denmark",
+        "United Kingdom",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:help",
+          "quote": "Details about the design and the steps necessary for production may be limited, and bringing the relevant information together often introduces significant educational, institutional and socio-economic barriers.",
+          "start": 71,
+          "end": 282
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223066",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.654,
+      "band": "adjacent",
+      "concepts": [
+        "topic:explaining-and-evaluating-ai-systems"
+      ],
+      "clusterId": "topic:explaining-and-evaluating-ai-systems",
+      "institutionKeys": [
+        "inst:ror-05bnh6r87"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:explaining-and-evaluating-ai-systems",
+          "quote": "To achieve this, we combine visualization, optimization, and (optionally) the integration of AI to help users identify and correct or explain inconsistencies in their evaluation of different choices.",
+          "start": 480,
+          "end": 679
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229800",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.653,
+      "band": "adjacent",
+      "concepts": [
+        "term:information"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-010t7sr36",
+        "inst:ror-05m7pjf47"
+      ],
+      "countries": [
+        "Ireland"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:information",
+          "quote": "We conducted an online survey of 96 participants aged 18–28 in the UK and Ireland to assess use, perceived benefits and risks, context-specific preferences, and attitudes toward AI-generated information.",
+          "start": 287,
+          "end": 490
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222975",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.649,
+      "band": "adjacent",
+      "concepts": [
+        "topic:embodied-interaction-and-wearables"
+      ],
+      "clusterId": "topic:embodied-interaction-and-wearables",
+      "institutionKeys": [
+        "inst:ror-03angcq70"
+      ],
+      "countries": [
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:embodied-interaction-and-wearables",
+          "quote": "Users of Virtual Reality (VR) primarily sense their environment through audiovisual cues.",
+          "start": 0,
+          "end": 89
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222580",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.645,
+      "band": "adjacent",
+      "concepts": [
+        "topic:human-steering-and-interaction-with-a"
+      ],
+      "clusterId": "topic:human-steering-and-interaction-with-a",
+      "institutionKeys": [
+        "inst:hkust",
+        "inst:ror-00q4vv597"
+      ],
+      "countries": [
+        "China",
+        "Hong Kong"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:human-steering-and-interaction-with-a",
+          "quote": "Web AI agents such as ChatGPT Agent and GenSpark are increasingly used for routine web-based tasks, yet they still rely on text-based input prompts, lack proactive detection of user intent, and offer no support for interactive data analysis and decision making.",
+          "start": 0,
+          "end": 261
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223538",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.64,
+      "band": "adjacent",
+      "concepts": [
+        "topic:non-visual-and-conversational-experiences"
+      ],
+      "clusterId": "topic:non-visual-and-conversational-experiences",
+      "institutionKeys": [
+        "inst:ror-04qscbg47",
+        "inst:ror-05bnh6r87"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:non-visual-and-conversational-experiences",
+          "quote": "Researchers have proposed an AI “sighted guide” to help users navigate VR and answer their questions, but it has not been studied with users.",
+          "start": 139,
+          "end": 280
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223222",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.636,
+      "band": "adjacent",
+      "concepts": [
+        "topic:educational-support"
+      ],
+      "clusterId": "topic:educational-support",
+      "institutionKeys": [
+        "inst:ror-02smfhw86"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:educational-support",
+          "quote": "As AI assistance becomes embedded in programming practice, researchers have increasingly examined how these systems help learners generate code and work more efficiently.",
+          "start": 0,
+          "end": 170
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230048",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.635,
+      "band": "adjacent",
+      "concepts": [
+        "term:help"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-01wjejq96"
+      ],
+      "countries": [
+        "Korea, Republic of"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:help",
+          "quote": "We reframe clinician trust in LLM-based biomedical QA as an ongoing process of information foraging and sensemaking.",
+          "start": 337,
+          "end": 453
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222342",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.627,
+      "band": "adjacent",
+      "concepts": [
+        "topic:online-citizen-communities"
+      ],
+      "clusterId": "topic:online-citizen-communities",
+      "institutionKeys": [
+        "inst:ror-003sav189",
+        "inst:ror-01srpnj69",
+        "inst:ror-033n9gh91"
+      ],
+      "countries": [
+        "Germany",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:online-citizen-communities",
+          "quote": "The growing use of AI in public administration improves efficiency, yet its use in discretionary decisions raises concerns about fairness and legitimacy.",
+          "start": 0,
+          "end": 153
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229979",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.625,
+      "band": "adjacent",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00za53h95",
+        "inst:ror-024mw5h28"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "In a human--AI decision task, we compare three interfaces: no CoT, read-only CoT, and editable CoT.",
+          "start": 283,
+          "end": 382
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:214870",
+      "type": "other",
+      "feedType": "Workshop",
+      "relevance": 0.623,
+      "band": "adjacent",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00hj54h04",
+        "inst:ror-01y2jtd41",
+        "inst:ror-03dbr7087",
+        "inst:ror-047s2c258",
+        "inst:ror-05hs6h993",
+        "inst:ror-05x2bcf33"
+      ],
+      "countries": [
+        "Canada",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "Public sector agencies are rapidly adopting AI systems to make critical decisions that span across services such as benefits eligibility, housing and homelessness services, child welfare services, mobility, inspections, and more.",
+          "start": 0,
+          "end": 229
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:221851",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.622,
+      "band": "adjacent",
+      "concepts": [
+        "topic:human-ai-decision-making"
+      ],
+      "clusterId": "topic:human-ai-decision-making",
+      "institutionKeys": [
+        "inst:ror-057zh3y96"
+      ],
+      "countries": [
+        "Japan"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:human-ai-decision-making",
+          "quote": "Just as people improve decision-making by consulting diverse human advisors, they can now also consult with multiple AI systems.",
+          "start": 0,
+          "end": 128
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222438",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.616,
+      "band": "adjacent",
+      "concepts": [
+        "topic:collaborating-with-a"
+      ],
+      "clusterId": "topic:collaborating-with-a",
+      "institutionKeys": [
+        "inst:newcastle-university"
+      ],
+      "countries": [
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:collaborating-with-a",
+          "quote": "Its impact, however, on collaboration dynamics, such as information flow, role negotiation, and decision-making, remains unclear.",
+          "start": 134,
+          "end": 263
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229775",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.616,
+      "band": "adjacent",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-046865y68"
+      ],
+      "countries": [
+        "Korea, Republic of"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "While the emergence of large language models (LLMs) makes it feasible to interpret complex driving contexts and generate personalized strategies, mechanisms that allow a system’s internal decision-making structure to progressively adapt to user preferences remain limited.",
+          "start": 331,
+          "end": 603
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:214802",
+      "type": "other",
+      "feedType": "Workshop",
+      "relevance": 0.615,
+      "band": "adjacent",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:midjourney",
+        "inst:queen-mary-university-london",
+        "inst:ror-01an7q238",
+        "inst:ror-02smfhw86",
+        "inst:ror-046rm7j60",
+        "inst:ror-05apxxy63",
+        "inst:ror-05bnh6r87",
+        "inst:ror-05x2bcf33"
+      ],
+      "countries": [
+        "Korea, Republic of",
+        "United Kingdom",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "Traces of creative activity constitute a rich resource for identifying the impacts of CSTs---especially AI-based CSTs---on the creative process, and may also inform general-purpose process theories of creativity.",
+          "start": 172,
+          "end": 384
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222752",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.613,
+      "band": "adjacent",
+      "concepts": [
+        "topic:synergistic-with-a"
+      ],
+      "clusterId": "topic:synergistic-with-a",
+      "institutionKeys": [
+        "inst:johannes-kepler-university",
+        "inst:ror-03jqp6d56"
+      ],
+      "countries": [
+        "Austria"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:synergistic-with-a",
+          "quote": "When participants perceived the AI as a teammate or colleague, they felt a stronger sense of team cohesion and their conversations were more collaborative, with more positive emotions.",
+          "start": 749,
+          "end": 933
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223372",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.612,
+      "band": "adjacent",
+      "concepts": [
+        "topic:explaining-and-evaluating-ai-systems"
+      ],
+      "clusterId": "topic:explaining-and-evaluating-ai-systems",
+      "institutionKeys": [
+        "inst:fujitsu-limited",
+        "inst:ror-00vtgdb53",
+        "inst:ror-057zh3y96"
+      ],
+      "countries": [
+        "Japan",
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:explaining-and-evaluating-ai-systems",
+          "quote": "To address this gap, we conducted a qualitative study with 26 stakeholders without AI expertise, representing potential decision subjects in a credit rating scenario, to examine how they assess fairness when placed in the role of deciding on features with priority, metrics, and thresholds.",
+          "start": 321,
+          "end": 611
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222197",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.603,
+      "band": "adjacent",
+      "concepts": [
+        "topic:ai-timing-matters"
+      ],
+      "clusterId": "topic:ai-timing-matters",
+      "institutionKeys": [
+        "inst:ror-05m7pjf47"
+      ],
+      "countries": [
+        "Ireland"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:ai-timing-matters",
+          "quote": "Collaboration is a key use case for conversational AI agents.",
+          "start": 0,
+          "end": 61
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229776",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.6,
+      "band": "adjacent",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-01rtyzb94"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "These findings highlight an interactional visibility problem and motivate the design of task-based dialogue systems that make assumptions, constraints, and interpretations explicit to support more reliable human--AI collaboration.",
+          "start": 848,
+          "end": 1078
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223308",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.596,
+      "band": "adjacent",
+      "concepts": [
+        "topic:human-in-the-loop-machine-learning-interfaces"
+      ],
+      "clusterId": "topic:human-in-the-loop-machine-learning-interfaces",
+      "institutionKeys": [
+        "inst:ror-041051y78",
+        "inst:ror-05apxxy63"
+      ],
+      "countries": [
+        "Korea, Republic of"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:human-in-the-loop-machine-learning-interfaces",
+          "quote": "To address this, we present the CLEAR approach, which structures reasoning into cognitive decision steps—linked units of actions, artifacts, and explanations, making decisions traceable with generative AI.",
+          "start": 230,
+          "end": 435
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229791",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.593,
+      "band": "adjacent",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:kisti"
+      ],
+      "countries": [
+        "Korea, Republic of"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "AI-based recommendation systems are increasingly used in technology commercialization to generate ranked TOP-N lists of candidate technologies or companies.",
+          "start": 0,
+          "end": 156
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222660",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.589,
+      "band": "adjacent",
+      "concepts": [
+        "topic:family-caregiving-and-support-technologies"
+      ],
+      "clusterId": "topic:family-caregiving-and-support-technologies",
+      "institutionKeys": [
+        "inst:ror-017zqws13",
+        "inst:ror-03r0ha626"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:family-caregiving-and-support-technologies",
+          "quote": "Previous studies have examined technological supports, such as information access and online social groups.",
+          "start": 127,
+          "end": 234
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230196",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.585,
+      "band": "adjacent",
+      "concepts": [
+        "term:information"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:microsoft-research",
+        "inst:ror-000e0be47",
+        "inst:ror-00jmfr291"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:information",
+          "quote": "Conversational generative AI systems such as ChatGPT are transforming how people seek and engage with information online.",
+          "start": 0,
+          "end": 121
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:252130",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.585,
+      "band": "adjacent",
+      "concepts": [
+        "term:information"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:microsoft-research",
+        "inst:ror-000e0be47",
+        "inst:ror-00jmfr291"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:information",
+          "quote": "Conversational generative AI systems such as ChatGPT are transforming how people seek and engage with information online.",
+          "start": 0,
+          "end": 121
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229466",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.585,
+      "band": "adjacent",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:cyberagent"
+      ],
+      "countries": [
+        "Japan"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "High text recognition performance does not guarantee that Vision-Language Models (VLMs) share human-like decision patterns when resolving ambiguity.",
+          "start": 0,
+          "end": 148
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222304",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.583,
+      "band": "adjacent",
+      "concepts": [
+        "topic:experiencing-virtual-worlds-xr"
+      ],
+      "clusterId": "topic:experiencing-virtual-worlds-xr",
+      "institutionKeys": [
+        "inst:ror-02smfhw86",
+        "inst:ror-036nfer12"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:experiencing-virtual-worlds-xr",
+          "quote": "Numerous studies have investigated the effects of system fidelity as a whole on one’s total sense of presence in virtual reality (VR).",
+          "start": 0,
+          "end": 134
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229802",
+      "type": "demo",
+      "feedType": "Interactive Demos",
+      "relevance": 0.582,
+      "band": "adjacent",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-0291w4p60",
+        "inst:sony-corporation"
+      ],
+      "countries": [
+        "Japan"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "Additionally, the eight micro blowers arranged around the neck allow a wide range of haptic information, including wind direction, airflow, localized stimulation, and notifications, to be presented with high expressive capability.",
+          "start": 419,
+          "end": 649
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229725",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.582,
+      "band": "adjacent",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-02jx3x895"
+      ],
+      "countries": [
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "A two-stage qualitative design—ten semi-structured interviews followed by a co-design workshop\r\nwith two participants—identified key challenges: fragmented and inaccessible information, psychological burdens and dependence on others, limitations of existing assistive technologies, and expectations for proactive but controllable AI support.",
+          "start": 172,
+          "end": 513
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230070",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.579,
+      "band": "adjacent",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-050qmg959"
+      ],
+      "countries": [
+        "Singapore"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Artificial intelligence (AI) systems are deployed as collaborators in human decision-making.",
+          "start": 0,
+          "end": 92
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222706",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.577,
+      "band": "adjacent",
+      "concepts": [
+        "topic:mental-health-chatbots-and-conversational-agents"
+      ],
+      "clusterId": "topic:mental-health-chatbots-and-conversational-agents",
+      "institutionKeys": [
+        "inst:google",
+        "inst:ror-00njsd438"
+      ],
+      "countries": [
+        "Israel",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:mental-health-chatbots-and-conversational-agents",
+          "quote": "These results demonstrate the strong impact of proactive context-seeking on conversational dynamics, and suggest design patterns for conversational AI to help navigate health topics.",
+          "start": 862,
+          "end": 1044
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222196",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.573,
+      "band": "adjacent",
+      "concepts": [
+        "topic:modeling-minds-and-mentalities"
+      ],
+      "clusterId": "topic:modeling-minds-and-mentalities",
+      "institutionKeys": [
+        "inst:ror-03jzk4720",
+        "inst:ror-04d836q62"
+      ],
+      "countries": [
+        "Austria"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:modeling-minds-and-mentalities",
+          "quote": "Human autonomy is a core concept that helps explain the acceptance of and interaction with computer systems and AI technology.",
+          "start": 0,
+          "end": 126
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223121",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.572,
+      "band": "adjacent",
+      "concepts": [
+        "topic:personalization-and-human-ai-alignment"
+      ],
+      "clusterId": "topic:personalization-and-human-ai-alignment",
+      "institutionKeys": [
+        "inst:ror-01tgyzw49"
+      ],
+      "countries": [
+        "Singapore"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:personalization-and-human-ai-alignment",
+          "quote": "Explaining with examples is an intuitive way to justify AI decisions.",
+          "start": 0,
+          "end": 69
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223316",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.566,
+      "band": "adjacent",
+      "concepts": [
+        "topic:teenagers-technology"
+      ],
+      "clusterId": "topic:teenagers-technology",
+      "institutionKeys": [
+        "inst:ror-02jqj7156"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:teenagers-technology",
+          "quote": "We introduce the concept of ambient trust to describe how repeated interactions foster a sense of alignment with AI systems—even without deep emotional reliance.",
+          "start": 505,
+          "end": 666
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229666",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.566,
+      "band": "adjacent",
+      "concepts": [
+        "term:help"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-01e3m7079",
+        "inst:ror-02qskvh78",
+        "inst:ror-03eftgw80"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:help",
+          "quote": "People with ADHD often experience persistent challenges with task initiation and increasingly turn to conversational AI to support everyday activities.",
+          "start": 0,
+          "end": 151
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222234",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.566,
+      "band": "adjacent",
+      "concepts": [
+        "term:help"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-04qscbg47",
+        "inst:ror-05bnh6r87"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:help",
+          "quote": "We conclude by proposing the \"visual assistant\" skill and guidelines to help MLLM-enabled visual interpretation applications better support BLV people's access to visual information.",
+          "start": 1130,
+          "end": 1312
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222791",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.565,
+      "band": "adjacent",
+      "concepts": [
+        "topic:toxicity-and-moderation-in-online-games"
+      ],
+      "clusterId": "topic:toxicity-and-moderation-in-online-games",
+      "institutionKeys": [
+        "inst:ror-04pp8hn57"
+      ],
+      "countries": [
+        "Netherlands"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:toxicity-and-moderation-in-online-games",
+          "quote": "Frustration Buddy leverages distraction and soothing techniques to help players control their emotions.",
+          "start": 317,
+          "end": 420
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229638",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.563,
+      "band": "adjacent",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-042nb2s44"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Collective decision-making is a core challenge across domains where multiple stakeholders must negotiate under conflicting values, limited resources, and uncertain futures.",
+          "start": 0,
+          "end": 172
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222568",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.562,
+      "band": "adjacent",
+      "concepts": [
+        "topic:interactive-prompting-chaining-and-llm-orchestration-tools"
+      ],
+      "clusterId": "topic:interactive-prompting-chaining-and-llm-orchestration-tools",
+      "institutionKeys": [
+        "inst:ror-0168r3w48"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:interactive-prompting-chaining-and-llm-orchestration-tools",
+          "quote": "While recent AI systems enable fully automated web browsing and information synthesis, they often diminish user agency and hinder contextual understanding.",
+          "start": 181,
+          "end": 336
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223539",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.561,
+      "band": "adjacent",
+      "concepts": [
+        "topic:role-play-creativity-and-a"
+      ],
+      "clusterId": "topic:role-play-creativity-and-a",
+      "institutionKeys": [
+        "inst:ror-00f54p054",
+        "inst:ror-05a28rw58"
+      ],
+      "countries": [
+        "Switzerland",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:role-play-creativity-and-a",
+          "quote": "20 participants texted a chatbot over a month, then completed a 2-hour interview with our toolkit evaluating AI's ability to extract (pull details regarding), embody (make decisions guided by), and explain (provide proof of) their values.",
+          "start": 258,
+          "end": 496
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:214858",
+      "type": "other",
+      "feedType": "Meet-Ups",
+      "relevance": 0.56,
+      "band": "adjacent",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00q4vv597",
+        "inst:ror-013meh722",
+        "inst:ror-020hwjq30",
+        "inst:ror-0258gkt32",
+        "inst:ror-05591te55",
+        "inst:university-of-copenhagen"
+      ],
+      "countries": [
+        "China",
+        "Denmark",
+        "Finland",
+        "Germany",
+        "United Arab Emirates",
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "While AI has a long history in HCI, AI is now readily accessible to everyone and providing a level of performance that makes the use of AI tractable across a wide range of applications.",
+          "start": 0,
+          "end": 185
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222708",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.56,
+      "band": "adjacent",
+      "concepts": [
+        "topic:co-design-and-collaboration"
+      ],
+      "clusterId": "topic:co-design-and-collaboration",
+      "institutionKeys": [
+        "inst:ror-04gyf1771",
+        "inst:university-of-california-berkley"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:co-design-and-collaboration",
+          "quote": "However, there is a gap in systems that identify and monitor characteristics of noise sensitivity experiences to help PWNS and their companions better understand their condition and make informed management decisions.",
+          "start": 155,
+          "end": 372
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230245",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.56,
+      "band": "adjacent",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:digital-nature-group",
+        "inst:ror-02956yf07"
+      ],
+      "countries": [
+        "Japan"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "We present Life is Mystery, a design practice for embedding open-ended mysteries into everyday environments to invite sense-making rather than solution seeking.",
+          "start": 0,
+          "end": 160
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230213",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.558,
+      "band": "adjacent",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ntt",
+        "inst:ntt-social-informatics-laboratories"
+      ],
+      "countries": [
+        "Japan"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "Core body temperature (CBT) can reflect circadian phase, and recent non-invasive sensors make it increasingly feasible to estimate and present nocturnal CBT rhythms in everyday settings.",
+          "start": 162,
+          "end": 348
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222418",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.556,
+      "band": "adjacent",
+      "concepts": [
+        "topic:negotiating-health-identity-and-belief"
+      ],
+      "clusterId": "topic:negotiating-health-identity-and-belief",
+      "institutionKeys": [
+        "inst:ror-00cvxb145",
+        "inst:ror-00hj8s172",
+        "inst:ror-013q1eq08",
+        "inst:ror-01zkghx44"
+      ],
+      "countries": [
+        "China",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:negotiating-health-identity-and-belief",
+          "quote": "While prior patient-centered studies have examined the capabilities and experience of LLM-based tools in specific health-related tasks such as information-seeking, diagnosis, or decision-supporting, the inherently longitudinal nature of healthcare in real-world practice has been underexplored.",
+          "start": 117,
+          "end": 411
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223297",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.555,
+      "band": "adjacent",
+      "concepts": [
+        "topic:physical-activity-and-behavior-change-technologies"
+      ],
+      "clusterId": "topic:physical-activity-and-behavior-change-technologies",
+      "institutionKeys": [
+        "inst:ror-01an3r305",
+        "inst:ror-05x2bcf33"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:physical-activity-and-behavior-change-technologies",
+          "quote": "Prior work focused primarily on improving relevance and accuracy fails to address users' diverse information needs and emotions triggered.",
+          "start": 89,
+          "end": 227
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:214832",
+      "type": "other",
+      "feedType": "Meet-Ups",
+      "relevance": 0.555,
+      "band": "adjacent",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:archtecture-design",
+        "inst:ror-01c27hj86",
+        "inst:ror-03265fv13",
+        "inst:ror-049e6bc10",
+        "inst:ror-04cnfrn26",
+        "inst:ror-04m5j1k67",
+        "inst:ror-0524sp257"
+      ],
+      "countries": [
+        "Denmark",
+        "Ireland",
+        "Japan",
+        "Portugal",
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "Following our Special Interest Group (SIG) meeting at CHI last year, we aim to further establish a sense of community, continuity, and tradition at CHI and continue these discussions in the long term.",
+          "start": 201,
+          "end": 401
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229788",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.553,
+      "band": "adjacent",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:hitachi-ltd"
+      ],
+      "countries": [
+        "Japan"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "While these tools help workers complete tasks quickly, they often inadvertently introduce the “Execution-Reflection Gap”: users blindly follow AI-generated instructions without understanding the underlying principles.",
+          "start": 93,
+          "end": 310
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222902",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.546,
+      "band": "adjacent",
+      "concepts": [
+        "topic:trust-and-transparency-in-everyday-life"
+      ],
+      "clusterId": "topic:trust-and-transparency-in-everyday-life",
+      "institutionKeys": [
+        "inst:ror-01zkghx44"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:trust-and-transparency-in-everyday-life",
+          "quote": "While AI ethics interventions often focus on how researchers should navigate consequential choices, they may overlook a prior question: when do researchers recognize they are making a decision at all?",
+          "start": 0,
+          "end": 200
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222761",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.544,
+      "band": "adjacent",
+      "concepts": [
+        "topic:scam-experiences"
+      ],
+      "clusterId": "topic:scam-experiences",
+      "institutionKeys": [
+        "inst:google",
+        "inst:google-llc",
+        "inst:ror-00njsd438",
+        "inst:ror-013meh722",
+        "inst:ror-024mw5h28"
+      ],
+      "countries": [
+        "United Kingdom",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:scam-experiences",
+          "quote": "Online financial scams represent a long-standing and serious threat for which people seek help.",
+          "start": 0,
+          "end": 95
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222114",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.54,
+      "band": "adjacent",
+      "concepts": [
+        "topic:people-and-data"
+      ],
+      "clusterId": "topic:people-and-data",
+      "institutionKeys": [
+        "inst:ror-00cvxb145",
+        "inst:tableau-research"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:people-and-data",
+          "quote": "This paper investigates how data workers navigate, make sense of, and communicate prior analytical conversations.",
+          "start": 378,
+          "end": 491
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223480",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.539,
+      "band": "adjacent",
+      "concepts": [
+        "topic:privacy-and-security-in-software-development"
+      ],
+      "clusterId": "topic:privacy-and-security-in-software-development",
+      "institutionKeys": [
+        "inst:ror-00rcxh774",
+        "inst:ror-041nas322",
+        "inst:ror-04tsk2644",
+        "inst:univeristy-of-cologne"
+      ],
+      "countries": [
+        "Germany"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:privacy-and-security-in-software-development",
+          "quote": "With the rapid rise of AI assistant tools such as ChatGPT, it remains unclear whether AI assistance supports or undermines secure practices, whether explicit security instructions are still essential, and how developers behave without guidance.",
+          "start": 114,
+          "end": 358
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222832",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.539,
+      "band": "adjacent",
+      "concepts": [
+        "topic:explaining-and-evaluating-ai-systems"
+      ],
+      "clusterId": "topic:explaining-and-evaluating-ai-systems",
+      "institutionKeys": [
+        "inst:ror-00vtgdb53",
+        "inst:ror-045wgfr59",
+        "inst:ror-04m01e293",
+        "inst:ror-05krs5044",
+        "inst:strathclyde-university",
+        "inst:university-of-of-strathclyde"
+      ],
+      "countries": [
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:explaining-and-evaluating-ai-systems",
+          "quote": "Artificial intelligence (AI) applications have become ubiquitous in their impact on individuals and society, highlighting a crucial need for their responsible development.",
+          "start": 0,
+          "end": 171
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:221997",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.538,
+      "band": "adjacent",
+      "concepts": [
+        "topic:living-with-ai-llms"
+      ],
+      "clusterId": "topic:living-with-ai-llms",
+      "institutionKeys": [
+        "inst:microsoft-research",
+        "inst:ror-000e0be47",
+        "inst:ror-024mw5h28"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:living-with-ai-llms",
+          "quote": "We find that journalists are selectively willing to cede control: they view AI that gathers information or offers feedback as supporting their efficiency by automating execution while leaving decision making intact.",
+          "start": 434,
+          "end": 649
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222034",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.538,
+      "band": "adjacent",
+      "concepts": [
+        "topic:privacy-health-and-gender"
+      ],
+      "clusterId": "topic:privacy-health-and-gender",
+      "institutionKeys": [
+        "inst:ror-017zqws13",
+        "inst:ror-01zkghx44"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:privacy-health-and-gender",
+          "quote": "Survivors may leverage generative AI to make sensitive disclosures and access hermeneutic resources.",
+          "start": 305,
+          "end": 405
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222378",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.534,
+      "band": "adjacent",
+      "concepts": [
+        "topic:mental-wellbeing"
+      ],
+      "clusterId": "topic:mental-wellbeing",
+      "institutionKeys": [
+        "inst:ror-04s5mat29"
+      ],
+      "countries": [
+        "Canada"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:mental-wellbeing",
+          "quote": "Engaging in creative activities makes people happy.",
+          "start": 0,
+          "end": 51
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222035",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.531,
+      "band": "adjacent",
+      "concepts": [
+        "topic:movement-based-games-sports-and-coaching"
+      ],
+      "clusterId": "topic:movement-based-games-sports-and-coaching",
+      "institutionKeys": [
+        "inst:ror-05nkf0n29"
+      ],
+      "countries": [
+        "Canada"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:movement-based-games-sports-and-coaching",
+          "quote": "Sport training games address this, aiming to make practicing techniques fun.",
+          "start": 76,
+          "end": 152
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:214874",
+      "type": "other",
+      "feedType": "Workshop",
+      "relevance": 0.531,
+      "band": "adjacent",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:admiral-group-cardiff",
+        "inst:google",
+        "inst:ror-053fq8t95",
+        "inst:ror-05wwcw481"
+      ],
+      "countries": [
+        "United Kingdom",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "User Experience Research (UXR) Points of View (POVs) distil complex data into actionable insights for product strategy and design, providing a focused perspective on user needs, pain points, and motivations, enabling teams to make informed decisions.",
+          "start": 0,
+          "end": 250
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229931",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.53,
+      "band": "adjacent",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00ks66431"
+      ],
+      "countries": [
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Appropriate AI reliance requires users to accurately evaluate their own performance in order to discern whether to retain or defer responsibility.",
+          "start": 0,
+          "end": 146
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229859",
+      "type": "other",
+      "feedType": "Student Research Competition",
+      "relevance": 0.53,
+      "band": "adjacent",
+      "concepts": [
+        "topic:student-research-competition-posters"
+      ],
+      "clusterId": "topic:student-research-competition-posters",
+      "institutionKeys": [
+        "inst:ror-05rrcem69"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:student-research-competition-posters",
+          "quote": "The findings show the wide range of perimenopausal symptoms and underscore the role of online forums in helping women make sense of their experiences together.",
+          "start": 644,
+          "end": 803
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229551",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.527,
+      "band": "adjacent",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-02k7v4d05"
+      ],
+      "countries": [
+        "Switzerland"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Household food waste remains a persistent sustainability challenge, driven less by lack of motivation than by everyday decision breakdowns under time pressure and uncertainty.",
+          "start": 0,
+          "end": 175
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222025",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.525,
+      "band": "adjacent",
+      "concepts": [
+        "topic:ecological-hci-and-urbanism"
+      ],
+      "clusterId": "topic:ecological-hci-and-urbanism",
+      "institutionKeys": [
+        "inst:ror-049tgcd06"
+      ],
+      "countries": [
+        "India"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:ecological-hci-and-urbanism",
+          "quote": "We contribute an understanding of how HCI can help design resilient information infrastructures that serves vulnerable voices and strengthen community preparedness in the face of environmental crises.",
+          "start": 956,
+          "end": 1156
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229473",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.524,
+      "band": "adjacent",
+      "concepts": [
+        "term:information"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00jmfr291",
+        "inst:ror-01e3m7079",
+        "inst:ror-02gz6gg07",
+        "inst:ror-032db5x82"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:information",
+          "quote": "Using Mixed Reality to provide proactive information support shows promise in helping individuals engage in and contribute to group conversations.",
+          "start": 271,
+          "end": 417
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222838",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.521,
+      "band": "adjacent",
+      "concepts": [
+        "topic:digital-wellbeing-frameworks-and-design-strategies"
+      ],
+      "clusterId": "topic:digital-wellbeing-frameworks-and-design-strategies",
+      "institutionKeys": [
+        "inst:university-of-copenhagen"
+      ],
+      "countries": [
+        "Denmark"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:digital-wellbeing-frameworks-and-design-strategies",
+          "quote": "Despite decades of research, behavior change technologies remain limited in effectiveness because they mainly focus on offering information.",
+          "start": 0,
+          "end": 140
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223356",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.519,
+      "band": "adjacent",
+      "concepts": [
+        "topic:ai-in-practice"
+      ],
+      "clusterId": "topic:ai-in-practice",
+      "institutionKeys": [
+        "inst:ror-020hwjq30",
+        "inst:ror-03769b225"
+      ],
+      "countries": [
+        "Finland"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:ai-in-practice",
+          "quote": "Large language models (LLMs) are being introduced into the public sector – for example, to assist caseworkers in making decisions on citizens’ cases.",
+          "start": 0,
+          "end": 149
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223161",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.518,
+      "band": "adjacent",
+      "concepts": [
+        "topic:environment-and-sustainability"
+      ],
+      "clusterId": "topic:environment-and-sustainability",
+      "institutionKeys": [
+        "inst:ror-03dbr7087",
+        "inst:ror-05xv2md42"
+      ],
+      "countries": [
+        "Canada"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:environment-and-sustainability",
+          "quote": "Communication also emerged as a form of occupant agency, where human, machine, and AI-mediated dialogue makes automated decisions legible and contestable.",
+          "start": 869,
+          "end": 1023
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222566",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.518,
+      "band": "adjacent",
+      "concepts": [
+        "topic:designing-for-sensory-access"
+      ],
+      "clusterId": "topic:designing-for-sensory-access",
+      "institutionKeys": [
+        "inst:ror-00cvxb145"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:designing-for-sensory-access",
+          "quote": "Geovisualizations are powerful tools for communicating spatial information, but are inaccessible to screen-reader users.",
+          "start": 0,
+          "end": 120
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222020",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.518,
+      "band": "adjacent",
+      "concepts": [
+        "topic:vr-ar-xr"
+      ],
+      "clusterId": "topic:vr-ar-xr",
+      "institutionKeys": [
+        "inst:ror-0524sp257"
+      ],
+      "countries": [
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:vr-ar-xr",
+          "quote": "Multisensory integration, the process by which we combine information from different senses, develops rapidly in the preschool years, shaping processes of perception and sense-making.",
+          "start": 149,
+          "end": 332
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222217",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.517,
+      "band": "adjacent",
+      "concepts": [
+        "topic:justice-surveillance-and-marginalized-identities"
+      ],
+      "clusterId": "topic:justice-surveillance-and-marginalized-identities",
+      "institutionKeys": [
+        "inst:ror-02crff812"
+      ],
+      "countries": [
+        "Switzerland"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:justice-surveillance-and-marginalized-identities",
+          "quote": "Participants emphasized that recognition and information-seeking are gradual, nonlinear processes shaped by emotional readiness and informal supports, yet much current awareness content overlooks this reality, pushing immediate reporting rather than supporting the slow work of sense-making.",
+          "start": 639,
+          "end": 930
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229811",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.514,
+      "band": "adjacent",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:kent-state-university"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Do generative AI systems have implicit biases (say-do gap) like humans?",
+          "start": 0,
+          "end": 71
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229582",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.514,
+      "band": "adjacent",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-002rw7y37"
+      ],
+      "countries": [
+        "Japan"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "Preliminary findings suggest that this dual-perspective approach may help reduce optimism bias and support empathy, with participants reporting a heightened sense of danger when placed in the victim's role.",
+          "start": 684,
+          "end": 890
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222614",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.514,
+      "band": "adjacent",
+      "concepts": [
+        "topic:conversational-a"
+      ],
+      "clusterId": "topic:conversational-a",
+      "institutionKeys": [
+        "inst:ror-020hwjq30"
+      ],
+      "countries": [
+        "Finland"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:conversational-a",
+          "quote": "When AI systems allow human-like communication, they elicit increasingly complex relational responses.",
+          "start": 0,
+          "end": 102
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223160",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.513,
+      "band": "adjacent",
+      "concepts": [
+        "topic:trust-and-perception-in-ai-systems"
+      ],
+      "clusterId": "topic:trust-and-perception-in-ai-systems",
+      "institutionKeys": [
+        "inst:ror-0030zas98",
+        "inst:ror-00rs6vg23",
+        "inst:ror-0130frc33"
+      ],
+      "countries": [
+        "China",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:trust-and-perception-in-ai-systems",
+          "quote": "Expectation cues such as source labels, expertise signals, or identity-based indicators can bias how humans interpret and evaluate information.",
+          "start": 0,
+          "end": 143
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229579",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.512,
+      "band": "adjacent",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:department-of-communication",
+        "inst:ror-04h9pn542"
+      ],
+      "countries": [
+        "Korea, Republic of"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "Building on these insights, we propose design implications that help readers navigate these tensions, informing the future design of reader-centered AI-mediated news experiences.",
+          "start": 926,
+          "end": 1104
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223258",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.512,
+      "band": "adjacent",
+      "concepts": [
+        "topic:human-steering-and-interaction-with-a"
+      ],
+      "clusterId": "topic:human-steering-and-interaction-with-a",
+      "institutionKeys": [
+        "inst:ror-0213rcc28"
+      ],
+      "countries": [
+        "Canada"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:human-steering-and-interaction-with-a",
+          "quote": "'' We contribute empirical insights into how generative AI reshapes help-seeking, highlighting new practices of onboarding, recursive AI-for-AI support, and shifting expertise in interpreting outputs.",
+          "start": 867,
+          "end": 1067
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:221855",
+      "type": "other",
+      "feedType": "Panels",
+      "relevance": 0.511,
+      "band": "adjacent",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:google",
+        "inst:ror-0258gkt32",
+        "inst:ror-02jx3x895",
+        "inst:ror-053fq8t95",
+        "inst:university-of-st-gallen"
+      ],
+      "countries": [
+        "Switzerland",
+        "United Arab Emirates",
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "This panel will prompt the audience to discuss how AI is transforming HCI while still holding aspirations to make AI more human-centred.",
+          "start": 0,
+          "end": 136
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:221867",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.511,
+      "band": "wild",
+      "concepts": [
+        "topic:accessibility-in-everyday-life"
+      ],
+      "clusterId": "topic:accessibility-in-everyday-life",
+      "institutionKeys": [
+        "inst:ror-0258gkt32",
+        "inst:ror-047s2c258",
+        "inst:ror-05vzafd60",
+        "inst:university-of-maryland"
+      ],
+      "countries": [
+        "United Arab Emirates",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:accessibility-in-everyday-life",
+          "quote": "We found that people with disabilities perceive and experience discrimination by AI hiring interviews that: 1) center normative characteristics, 2) exacerbate information asymmetries, 3) undermine autonomy, and 4) intrude on privacy.",
+          "start": 627,
+          "end": 860
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222429",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.51,
+      "band": "wild",
+      "concepts": [
+        "topic:sensemaking"
+      ],
+      "clusterId": "topic:sensemaking",
+      "institutionKeys": [
+        "inst:indire",
+        "inst:ror-0192m2k53"
+      ],
+      "countries": [
+        "Italy"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:sensemaking",
+          "quote": "We present Blockchain@School, an unplugged board-game-based toolkit designed to make concepts such as distributed consensus, immutability, and cryptographic security tangible via collaborative play.",
+          "start": 148,
+          "end": 346
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229661",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.509,
+      "band": "wild",
+      "concepts": [
+        "term:help"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:college-of-communication-nccu",
+        "inst:digital-cotent-technologies",
+        "inst:ror-03rqk8h36"
+      ],
+      "countries": [
+        "Taiwan"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:help",
+          "quote": "AI emotional support chatbots (e.",
+          "start": 0,
+          "end": 33
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223239",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.508,
+      "band": "wild",
+      "concepts": [
+        "topic:context-specific-studies-and-perspectives"
+      ],
+      "clusterId": "topic:context-specific-studies-and-perspectives",
+      "institutionKeys": [
+        "inst:ror-02azyry73"
+      ],
+      "countries": [
+        "Germany"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:context-specific-studies-and-perspectives",
+          "quote": "Our findings show how civilians performed largely invisible work to make soldiers’ work possible: they circumvented broken supply chains, fundraised through digital micro-donation tools, re-engineered commercial drones and software into command-and-control workflows, and joined early cyber and counter-information operations.",
+          "start": 541,
+          "end": 867
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230242",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.507,
+      "band": "wild",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00jmfr291",
+        "inst:ror-00q4vv597"
+      ],
+      "countries": [
+        "China",
+        "Hong Kong",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "Sharing gendered experiences on social media has been widely recognized as supporting women's personal sense-making and contributing to digital feminism.",
+          "start": 0,
+          "end": 153
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:214815",
+      "type": "other",
+      "feedType": "Workshop",
+      "relevance": 0.505,
+      "band": "wild",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00g30e956",
+        "inst:ror-00jzwgz36",
+        "inst:ror-026vcq606",
+        "inst:ror-02bfwt286",
+        "inst:ror-05gs8cd61",
+        "inst:ror-05r0ap620"
+      ],
+      "countries": [
+        "Australia",
+        "Austria",
+        "Germany",
+        "Sweden",
+        "Switzerland",
+        "Turkey"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "Movement and sound are intrinsically connected; movement makes sound and sound makes movement.",
+          "start": 0,
+          "end": 94
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223467",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.505,
+      "band": "wild",
+      "concepts": [
+        "topic:dark-sides-of-a"
+      ],
+      "clusterId": "topic:dark-sides-of-a",
+      "institutionKeys": [
+        "inst:ror-01an57a31",
+        "inst:ror-03yjb2x39"
+      ],
+      "countries": [
+        "Canada",
+        "Korea, Republic of"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:dark-sides-of-a",
+          "quote": "Focusing on dominance, we examine how verbal and nonverbal dominance cues influence users' decision-making and perceptions of the agent in VR.",
+          "start": 100,
+          "end": 242
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229501",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.503,
+      "band": "wild",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00cvxb145",
+        "inst:ror-00za53h95",
+        "inst:ror-01njes783"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Diverging values, roles, and asymmetrical situational awareness across decision-maker groups often hinder collaboration and affect health outcomes, highlighting the need to support collaborative decision-making.",
+          "start": 174,
+          "end": 385
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230016",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.503,
+      "band": "wild",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00x7ekv49",
+        "inst:ror-04dkp9463",
+        "inst:ror-04ksd4g47",
+        "inst:ror-04pp8hn57",
+        "inst:yale-school-of-medicine"
+      ],
+      "countries": [
+        "Japan",
+        "Netherlands",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "We found that correct rationales and certainty cues increased trust, decision confidence, and AI advice adoption, whereas uncertainty cues reduced them.",
+          "start": 563,
+          "end": 715
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229836",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.503,
+      "band": "wild",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:nanyang-institute-of-technology",
+        "inst:ror-03cve4549"
+      ],
+      "countries": [
+        "China"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "The results highlight the potential of an AI assistant to provide missing procedural details, help users adapt steps to mismatched materials and tools, support troubleshooting when errors occur, and enable exploratory ideation.",
+          "start": 537,
+          "end": 764
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223408",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.502,
+      "band": "wild",
+      "concepts": [
+        "topic:hcai-and-collaboration"
+      ],
+      "clusterId": "topic:hcai-and-collaboration",
+      "institutionKeys": [
+        "inst:ror-00rzspn62",
+        "inst:ror-01wcbdc92",
+        "inst:school-of-computer-science-and-technology"
+      ],
+      "countries": [
+        "China",
+        "Malaysia"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:hcai-and-collaboration",
+          "quote": "AI coding assistants help, but developers still spend effort verifying model output.",
+          "start": 0,
+          "end": 84
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229583",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.501,
+      "band": "wild",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-02jqj7156",
+        "inst:ror-03v4gjf40"
+      ],
+      "countries": [
+        "Germany",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Prior decision-making research shows that people exhibit algorithm appreciation or algorithm aversion depending on the expertise of human advice.",
+          "start": 0,
+          "end": 145
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222310",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.499,
+      "band": "wild",
+      "concepts": [
+        "topic:stress-management-and-emotional-regulation"
+      ],
+      "clusterId": "topic:stress-management-and-emotional-regulation",
+      "institutionKeys": [
+        "inst:ror-01tgyzw49",
+        "inst:ror-05j6fvn87"
+      ],
+      "countries": [
+        "Singapore"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:stress-management-and-emotional-regulation",
+          "quote": "To probe this fraught design space of high-risk, high-subjectivity decision support, we built an experience prototype (\\acpagent{}) and asked 15 participants in 4 workshops to train it to be their personal ACP proxy.",
+          "start": 197,
+          "end": 413
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:214880",
+      "type": "other",
+      "feedType": "Meet-Ups",
+      "relevance": 0.497,
+      "band": "wild",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00x7ekv49",
+        "inst:ror-0167rnj42",
+        "inst:ror-02e2c7k09",
+        "inst:ror-03y7q9t39",
+        "inst:ror-04pp8hn57",
+        "inst:ror-05591te55",
+        "inst:ror-05n911h24"
+      ],
+      "countries": [
+        "Germany",
+        "Netherlands",
+        "New Zealand"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "Yet, little is known about how these patterns can be translated to the other human senses and what other forms of deception could be implemented for them.",
+          "start": 151,
+          "end": 305
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230188",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.497,
+      "band": "wild",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-02ttsq026",
+        "inst:ror-047p7y759"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "As Artificial Intelligence (AI) increasingly mediates everyday decisions, Human-centered AI (HCAI) emphasizes meaningful engagement over mere output delivery.",
+          "start": 0,
+          "end": 158
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223109",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.495,
+      "band": "wild",
+      "concepts": [
+        "topic:non-visual-and-conversational-experiences"
+      ],
+      "clusterId": "topic:non-visual-and-conversational-experiences",
+      "institutionKeys": [
+        "inst:google-inc",
+        "inst:ror-00za53h95"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:non-visual-and-conversational-experiences",
+          "quote": "Generative AI (GenAI) is evolving from standalone tools to interconnected ecosystems that integrate chatbots, cloud platforms, and third-party services.",
+          "start": 0,
+          "end": 152
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:221908",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.494,
+      "band": "wild",
+      "concepts": [
+        "topic:environment-and-sustainability"
+      ],
+      "clusterId": "topic:environment-and-sustainability",
+      "institutionKeys": [
+        "inst:ror-03s65by71"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:environment-and-sustainability",
+          "quote": "We tested the game onsite (n = 254), followed by two surveys, one immediately after playing (n = 57) and one conducted two weeks later (n = 11), assessing players' awareness, and sense of empowerment and agency.",
+          "start": 369,
+          "end": 580
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229479",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.493,
+      "band": "wild",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00ntfnx83",
+        "inst:ror-05tjaf288"
+      ],
+      "countries": [
+        "Japan"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "In addition, GYARU-AI estimates a prototype Gyaru-mind index, ``GYARU-MIDX'', to make the user’s Gyaru-mind level visible.",
+          "start": 724,
+          "end": 846
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222103",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.492,
+      "band": "wild",
+      "concepts": [
+        "topic:human-steering-and-interaction-with-a"
+      ],
+      "clusterId": "topic:human-steering-and-interaction-with-a",
+      "institutionKeys": [
+        "inst:ror-017zhmm22"
+      ],
+      "countries": [
+        "China"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:human-steering-and-interaction-with-a",
+          "quote": "Information seeking on mobile devices is often fragmented, trapping users in repetitive cycles of context switching and data re-entry, which increases cognitive load and disrupts workflow.",
+          "start": 0,
+          "end": 188
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222809",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.488,
+      "band": "wild",
+      "concepts": [
+        "topic:virtual-reality"
+      ],
+      "clusterId": "topic:virtual-reality",
+      "institutionKeys": [
+        "inst:ror-00ntfnx83",
+        "inst:ror-01wc2tq75",
+        "inst:ror-01xb55050",
+        "inst:ror-04dt6bw53",
+        "inst:ror-05aevyc10"
+      ],
+      "countries": [
+        "Japan"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:virtual-reality",
+          "quote": "In organizational and team decision-making, it is critical for each member to engage in discussions from a broader perspective, without fixating on personal values and knowledge.",
+          "start": 0,
+          "end": 178
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223226",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.487,
+      "band": "wild",
+      "concepts": [
+        "topic:negotiating-health-identity-and-belief"
+      ],
+      "clusterId": "topic:negotiating-health-identity-and-belief",
+      "institutionKeys": [
+        "inst:ror-05bnh6r87"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:negotiating-health-identity-and-belief",
+          "quote": "We qualitatively analyzed 522 Reddit threads to understand what drives remote caregivers’ online help-seeking behaviors and the responses they receive from the community.",
+          "start": 188,
+          "end": 358
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222314",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.486,
+      "band": "wild",
+      "concepts": [
+        "topic:research-methodology-u"
+      ],
+      "clusterId": "topic:research-methodology-u",
+      "institutionKeys": [
+        "inst:ror-039a2re55",
+        "inst:ror-04knbh022",
+        "inst:ror-05gs8cd61"
+      ],
+      "countries": [
+        "Austria"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:research-methodology-u",
+          "quote": "We present Branching Foresight, a self-guided scenario tool that helps individuals explore climate futures through AI-generated scenarios framed as positive, neutral, and challenging trajectories.",
+          "start": 70,
+          "end": 266
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:214825",
+      "type": "other",
+      "feedType": "Workshop",
+      "relevance": 0.486,
+      "band": "wild",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:department-of-computer-science",
+        "inst:ror-00mkhxb43",
+        "inst:ror-01ej9dk98",
+        "inst:ror-01tgyzw49",
+        "inst:ror-02e2c7k09",
+        "inst:ror-03yj89h83",
+        "inst:ror-04m5j1k67",
+        "inst:ror-057zh3y96"
+      ],
+      "countries": [
+        "Australia",
+        "Denmark",
+        "Finland",
+        "Japan",
+        "Netherlands",
+        "Singapore",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "Cognitive biases — systematic deviations from rational judgement — profoundly influence human decision-making, and reliance on such \"mental shortcuts\" can make AI systems appear more or less trustworthy than they really are, often undermining collaboration outcomes.",
+          "start": 128,
+          "end": 394
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:221829",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.485,
+      "band": "wild",
+      "concepts": [
+        "topic:security-and-privacy-behavior"
+      ],
+      "clusterId": "topic:security-and-privacy-behavior",
+      "institutionKeys": [
+        "inst:ror-01jdpyv68",
+        "inst:ror-02njgxr09"
+      ],
+      "countries": [
+        "Germany"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:security-and-privacy-behavior",
+          "quote": "Mobile permission decisions are often studied at the moment a permission request appears.",
+          "start": 0,
+          "end": 89
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222550",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.485,
+      "band": "wild",
+      "concepts": [
+        "topic:people-and-data"
+      ],
+      "clusterId": "topic:people-and-data",
+      "institutionKeys": [
+        "inst:ror-030bhh786",
+        "inst:shanghai-clinical-research-and-trial-center"
+      ],
+      "countries": [
+        "China"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:people-and-data",
+          "quote": "Preparing an oral case presentation (OCP) is a crucial skill for medical students, requiring clear communication of patient information, clinical findings, and treatment plans.",
+          "start": 0,
+          "end": 176
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229644",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.484,
+      "band": "wild",
+      "concepts": [
+        "term:help"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00q4vv597"
+      ],
+      "countries": [
+        "China",
+        "Hong Kong"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:help",
+          "quote": "As conversational AI systems become popular for information retrieval and question-answering, the references they cite are key to ensuring their answers are reliable and trustworthy.",
+          "start": 0,
+          "end": 182
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230259",
+      "type": "demo",
+      "feedType": "Interactive Demos",
+      "relevance": 0.484,
+      "band": "wild",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-04xfq0f34"
+      ],
+      "countries": [
+        "Germany"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "However, conveying information about orientation and guiding the user to the correct location can be a challenging task.",
+          "start": 95,
+          "end": 215
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222674",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.483,
+      "band": "wild",
+      "concepts": [
+        "topic:health-tools-and-technologies"
+      ],
+      "clusterId": "topic:health-tools-and-technologies",
+      "institutionKeys": [
+        "inst:inria",
+        "inst:inria-saclay",
+        "inst:ror-02en5vm52",
+        "inst:ror-03xjwb503"
+      ],
+      "countries": [
+        "France"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:health-tools-and-technologies",
+          "quote": "We argue that instead of formalizing their workarounds into new electronic health record (EHR) features, future systems should explicitly support improvisation capabilities that help clinicians better handle unpredictable breakdowns.",
+          "start": 158,
+          "end": 391
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:214804",
+      "type": "other",
+      "feedType": "Workshop",
+      "relevance": 0.482,
+      "band": "wild",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-020hwjq30",
+        "inst:ror-02e2c7k09",
+        "inst:ror-02jjdwm75",
+        "inst:ror-038mj2660",
+        "inst:ror-04t3en479",
+        "inst:ror-05x2bcf33",
+        "inst:university-paul-sabatier-toulouse-iii"
+      ],
+      "countries": [
+        "Finland",
+        "France",
+        "Germany",
+        "Netherlands",
+        "Spain",
+        "Switzerland",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "The integration of agentic AI, however, obscures this relationship and makes it more difficult for humans to identify which agent is responsible for a given outcome.",
+          "start": 408,
+          "end": 573
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222722",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.481,
+      "band": "wild",
+      "concepts": [
+        "topic:collaborating-with-a"
+      ],
+      "clusterId": "topic:collaborating-with-a",
+      "institutionKeys": [
+        "inst:ror-05m7pjf47"
+      ],
+      "countries": [
+        "Ireland"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:collaborating-with-a",
+          "quote": "Cognitive biases often shape human decisions.",
+          "start": 0,
+          "end": 45
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230045",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.48,
+      "band": "wild",
+      "concepts": [
+        "term:information"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:microsoft",
+        "inst:microsoft-research",
+        "inst:microsoft-research-emeritus",
+        "inst:ror-02gz6gg07"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:information",
+          "quote": "Layering information spaces is a promising strategy to design intuitive and engaging interactive experiences.",
+          "start": 0,
+          "end": 109
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230082",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.479,
+      "band": "wild",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:interdisciplinary-transformation-university",
+        "inst:university-of-upper-austria"
+      ],
+      "countries": [
+        "Austria"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "While prior research has examined interpretability and effectiveness of XAI methods, the role of temporal constraints in shaping human–AI decision behavior remains underexplored.",
+          "start": 207,
+          "end": 385
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223525",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.479,
+      "band": "wild",
+      "concepts": [
+        "topic:mental-health-chatbots-and-conversational-agents"
+      ],
+      "clusterId": "topic:mental-health-chatbots-and-conversational-agents",
+      "institutionKeys": [
+        "inst:ror-00mng9617",
+        "inst:ror-00zdnkx70",
+        "inst:ror-01tgyzw49"
+      ],
+      "countries": [
+        "Singapore",
+        "Taiwan"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:mental-health-chatbots-and-conversational-agents",
+          "quote": "The experiment established that format-distance alignment reduced users' risk perceptions while increasing decision confidence, perceptions of information usefulness, ease of use, enjoyment, and credibility, and adoption intentions.",
+          "start": 566,
+          "end": 798
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229795",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.476,
+      "band": "wild",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00t3r8h32",
+        "inst:ror-032xqbj11",
+        "inst:ror-039c0bt50"
+      ],
+      "countries": [
+        "Germany"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Large Language Models (LLMs) are rapidly embedded in everyday interfaces as assistants, copilots, and autonomous agents that influence human decision-making.",
+          "start": 0,
+          "end": 157
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222209",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.475,
+      "band": "wild",
+      "concepts": [
+        "term:help"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:australia-national-university",
+        "inst:ror-01f5ytq51",
+        "inst:ror-02jqj7156",
+        "inst:ror-03q8dnn23"
+      ],
+      "countries": [
+        "Australia",
+        "China",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:help",
+          "quote": "To lower this bar, we propose InterFlow, an AI-powered visual scaffold that helps interviewers manage the interview flow and facilitates real-time data sensemaking.",
+          "start": 182,
+          "end": 346
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222216",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.474,
+      "band": "wild",
+      "concepts": [
+        "topic:heritage-memory-speculative-narratives"
+      ],
+      "clusterId": "topic:heritage-memory-speculative-narratives",
+      "institutionKeys": [
+        "inst:ror-02c2kyt77"
+      ],
+      "countries": [
+        "Netherlands"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:heritage-memory-speculative-narratives",
+          "quote": "Generative Artificial Intelligence (GAI) offers new opportunities for reconstructing these unrecorded memory scenes, yet existing web-based tools undermine users' sense of agency through disengaging and unpredictable interactions.",
+          "start": 0,
+          "end": 230
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222332",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.474,
+      "band": "wild",
+      "concepts": [
+        "topic:social-intelligence-human-agent-dynamics"
+      ],
+      "clusterId": "topic:social-intelligence-human-agent-dynamics",
+      "institutionKeys": [
+        "inst:ror-05x2bcf33"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:social-intelligence-human-agent-dynamics",
+          "quote": "This study investigates how AI Deciders reason about AI benefits and risks, and how their knowledge about AI influences their decisions on what and where to innovate.",
+          "start": 273,
+          "end": 439
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:225587",
+      "type": "other",
+      "feedType": "Journals",
+      "relevance": 0.474,
+      "band": "wild",
+      "concepts": [
+        "topic:xr-embodied-and-spatial-interaction"
+      ],
+      "clusterId": "topic:xr-embodied-and-spatial-interaction",
+      "institutionKeys": [
+        "inst:ror-03x297z98"
+      ],
+      "countries": [
+        "Norway"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:xr-embodied-and-spatial-interaction",
+          "quote": "The analysis of transition behaviors in public organizations could help in understanding the duality between the need for continuity of services provided to the community, and the cyclical nature of risk and crisis management.",
+          "start": 117,
+          "end": 343
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229917",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.473,
+      "band": "wild",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:interdisciplinary-transformation-university",
+        "inst:ror-03jzk4720",
+        "inst:ror-03s7gtk40"
+      ],
+      "countries": [
+        "Austria",
+        "Germany"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "Designing mobile and interactive technologies requires understanding how users sample dynamic environments to acquire information and make decisions under time pressure.",
+          "start": 0,
+          "end": 169
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222834",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.471,
+      "band": "wild",
+      "concepts": [
+        "topic:ai-explanations-and-decision-support-in-healthcare"
+      ],
+      "clusterId": "topic:ai-explanations-and-decision-support-in-healthcare",
+      "institutionKeys": [
+        "inst:ror-01nrxwf90",
+        "inst:ror-01y1kjr75",
+        "inst:ror-02cdyrc89",
+        "inst:ror-02v51f717",
+        "inst:ror-03zmrmn05",
+        "inst:ror-04wwqze12",
+        "inst:university-of-hong-kong"
+      ],
+      "countries": [
+        "China",
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:ai-explanations-and-decision-support-in-healthcare",
+          "quote": "We present AICare, an interactive and interpretable AI copilot for collaborative clinical decision-making.",
+          "start": 82,
+          "end": 188
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222130",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.471,
+      "band": "wild",
+      "concepts": [
+        "topic:trust-and-transparency-in-everyday-life"
+      ],
+      "clusterId": "topic:trust-and-transparency-in-everyday-life",
+      "institutionKeys": [
+        "inst:ror-042nb2s44",
+        "inst:ror-05ect4e57"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:trust-and-transparency-in-everyday-life",
+          "quote": "Civic technologies aim to address this gap by making connections between voices and decisions visible, but rarely evaluate impact on democratic participants.",
+          "start": 165,
+          "end": 322
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222606",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.471,
+      "band": "wild",
+      "concepts": [
+        "topic:human-behavior-with-ai-systems"
+      ],
+      "clusterId": "topic:human-behavior-with-ai-systems",
+      "institutionKeys": [
+        "inst:ror-02e2c7k09"
+      ],
+      "countries": [
+        "Netherlands"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:human-behavior-with-ai-systems",
+          "quote": "We thus examine how CA personalities expressed linguistically affect user decisions and perceptions in the context of charitable giving.",
+          "start": 193,
+          "end": 329
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230017",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.469,
+      "band": "wild",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00e87hq62",
+        "inst:ror-00zdnkx70",
+        "inst:ror-042nb2s44"
+      ],
+      "countries": [
+        "Taiwan",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "AI holds promise for clinical decision support, but many systems remain difficult to use in real workflows: they often do not integrate heterogeneous modalities into a clinician-ready overview, offer limited interactive clarification, and are rarely evaluated with multidisciplinary clinicians using real cases.",
+          "start": 0,
+          "end": 311
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223381",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.467,
+      "band": "wild",
+      "concepts": [
+        "topic:designing-creative-genai-tools"
+      ],
+      "clusterId": "topic:designing-creative-genai-tools",
+      "institutionKeys": [
+        "inst:ror-03xjwb503",
+        "inst:ror-05vrs3189"
+      ],
+      "countries": [
+        "France"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:designing-creative-genai-tools",
+          "quote": "Its interactive branching structure helps them maintain visual consistency across design iterations; remember and revisit earlier design decisions; and see connections across ideas.",
+          "start": 730,
+          "end": 911
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229839",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.467,
+      "band": "wild",
+      "concepts": [
+        "term:make"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00q4vv597",
+        "inst:ror-01aff2v68",
+        "inst:ror-02fa3aq29",
+        "inst:ubisoft-düsseldorf-gmbh"
+      ],
+      "countries": [
+        "Canada",
+        "China",
+        "Germany"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:make",
+          "quote": "Through semi-structured interviews with 15 senior UX leaders from AAA game studios, we examined how practitioners make design decisions during early development.",
+          "start": 145,
+          "end": 306
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222799",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.466,
+      "band": "wild",
+      "concepts": [
+        "topic:technology-for-social-impact"
+      ],
+      "clusterId": "topic:technology-for-social-impact",
+      "institutionKeys": [
+        "inst:ror-03dbr7087",
+        "inst:york-university"
+      ],
+      "countries": [
+        "Canada"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:technology-for-social-impact",
+          "quote": "We make three arguments to help orient future work.",
+          "start": 484,
+          "end": 535
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223511",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.465,
+      "band": "wild",
+      "concepts": [
+        "topic:quantifying-the-algorithmic-lens"
+      ],
+      "clusterId": "topic:quantifying-the-algorithmic-lens",
+      "institutionKeys": [
+        "inst:ror-02azyry73",
+        "inst:ror-04bwf3e34"
+      ],
+      "countries": [
+        "Germany"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:quantifying-the-algorithmic-lens",
+          "quote": "However, so far it remains unclear whether information provided by a CA outperforms static text in increasing agreement, decreasing reactance, fostering environmental awareness and trust.",
+          "start": 176,
+          "end": 363
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229499",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.462,
+      "band": "wild",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00bgk9508"
+      ],
+      "countries": [
+        "Italy"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "Social media platforms increasingly rely on Attention-Capture Damaging Patterns (ACDPs) optimized to maximize user engagement, often at the expense of users’ Sense of Agency (SoA) and perceived control.",
+          "start": 0,
+          "end": 202
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229885",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.461,
+      "band": "wild",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-002hsbm82",
+        "inst:ror-04t5xt781"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Adolescents are directly affected by preventive health decisions such as vaccination, yet their perspectives are rarely solicited or supported.",
+          "start": 0,
+          "end": 143
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229805",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.46,
+      "band": "wild",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-026zzn846"
+      ],
+      "countries": [
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "Based on SENSE-42, a multimodal dataset collected from 42 participants during 2-hour sessions in a simulated desktop environment, we analyse predictors of subjective sleepiness fluctuation during routine tasks such as typing, file management, and web browsing.",
+          "start": 216,
+          "end": 476
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229938",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.459,
+      "band": "wild",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-0384j8v12",
+        "inst:ror-03r8z3t63"
+      ],
+      "countries": [
+        "Australia"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "We present an in-situ usability evaluation of the SAFE-WAIT Risk Identification Dashboard (SWRID), an AI-powered clinical decision support system (CDSS) used by triage nurses to assess sepsis risk in Emergency Department waiting rooms.",
+          "start": 0,
+          "end": 235
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222192",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.458,
+      "band": "wild",
+      "concepts": [
+        "topic:physical-and-tangible-data-visualizations"
+      ],
+      "clusterId": "topic:physical-and-tangible-data-visualizations",
+      "institutionKeys": [
+        "inst:ror-0258gkt32",
+        "inst:ror-027bh9e22",
+        "inst:ror-03prydq77",
+        "inst:ror-04knbh022"
+      ],
+      "countries": [
+        "Austria",
+        "Netherlands",
+        "United Arab Emirates"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:physical-and-tangible-data-visualizations",
+          "quote": "However, existing work offers limited insight into how practitioners make design decisions based on their envisioned target audiences and across different media channels.",
+          "start": 171,
+          "end": 341
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229882",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.457,
+      "band": "wild",
+      "concepts": [
+        "term:information"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-006e5kg04"
+      ],
+      "countries": [
+        "Belgium"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:information",
+          "quote": "Contemporary scholars navigate complex workflows that involve managing vast amounts of information, from literature and experimental data to manuscript writing.",
+          "start": 0,
+          "end": 160
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229705",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.457,
+      "band": "wild",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00cvxb145",
+        "inst:ror-01tgyzw49"
+      ],
+      "countries": [
+        "Singapore",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Older adults are increasingly turning to conversational AI for emotional expression.",
+          "start": 0,
+          "end": 84
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222831",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.457,
+      "band": "wild",
+      "concepts": [
+        "topic:privacy-health-and-gender"
+      ],
+      "clusterId": "topic:privacy-health-and-gender",
+      "institutionKeys": [
+        "inst:ingenio-csic-upv",
+        "inst:ror-0220mzb33"
+      ],
+      "countries": [
+        "Spain",
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:privacy-health-and-gender",
+          "quote": "The rapid adoption of generative AI (GenAI) chatbots has reshaped access to sexual and reproductive health (SRH) information, particularly following the overturning of Roe v.",
+          "start": 0,
+          "end": 174
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:229482",
+      "type": "other",
+      "feedType": "Student Research Competition",
+      "relevance": 0.457,
+      "band": "wild",
+      "concepts": [
+        "topic:student-research-competition-posters"
+      ],
+      "clusterId": "topic:student-research-competition-posters",
+      "institutionKeys": [
+        "inst:ror-02k7v4d05"
+      ],
+      "countries": [
+        "Switzerland"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:student-research-competition-posters",
+          "quote": "Prior work in Sustainable Human–Computer Interaction has largely relied on post-decision eco-feedback, which often intervenes too late and can introduce pressure or disengagement in everyday practices.",
+          "start": 141,
+          "end": 342
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223288",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.456,
+      "band": "wild",
+      "concepts": [
+        "topic:mixed-reality-systems-for-spatial-understanding-and-navigation"
+      ],
+      "clusterId": "topic:mixed-reality-systems-for-spatial-understanding-and-navigation",
+      "institutionKeys": [
+        "inst:city-university-london",
+        "inst:ror-00v4yb702",
+        "inst:ror-01ee9ar58",
+        "inst:ror-01wjejq96",
+        "inst:ror-020hwjq30",
+        "inst:ror-03769b225",
+        "inst:ror-04xysgw12"
+      ],
+      "countries": [
+        "Finland",
+        "Korea, Republic of",
+        "United Kingdom",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:mixed-reality-systems-for-spatial-understanding-and-navigation",
+          "quote": ", Gemini Live) allow users to search for spatiotemporal information through natural language dialogues as they move through urban space.",
+          "start": 59,
+          "end": 195
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222859",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.455,
+      "band": "wild",
+      "concepts": [
+        "topic:ai-for-language-learning-communication-skills"
+      ],
+      "clusterId": "topic:ai-for-language-learning-communication-skills",
+      "institutionKeys": [
+        "inst:ror-00sge8677",
+        "inst:ror-01tqv1p28",
+        "inst:ror-05p0tzt32"
+      ],
+      "countries": [
+        "Bangladesh"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:ai-for-language-learning-communication-skills",
+          "quote": "We identify opportunities for AI to act as access support by stabilizing visual information, ensuring teacher-validated Bangla Sign Language, enabling offline use, and protecting emotional safety when seeking help.",
+          "start": 651,
+          "end": 865
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:214876",
+      "type": "other",
+      "feedType": "Workshop",
+      "relevance": 0.454,
+      "band": "wild",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-01nrxwf90",
+        "inst:ror-02jx3x895",
+        "inst:ror-03yj89h83",
+        "inst:ror-052gg0110",
+        "inst:ror-05kdgvd18"
+      ],
+      "countries": [
+        "Finland",
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "We ask: how could synthetic media and other AI systems and applications be designed to support children and young people in making informed decisions and enacting them meaningfully together with other stakeholders, i.",
+          "start": 595,
+          "end": 812
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230049",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.454,
+      "band": "wild",
+      "concepts": [
+        "term:sense"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-012m9bp23",
+        "inst:ror-033bb5z47"
+      ],
+      "countries": [
+        "Germany"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:sense",
+          "quote": "Rather than displaying information continuously or inferring cognitive states, the system briefly surfaces numerical feedback when interaction patterns indicate checking or reflection.",
+          "start": 627,
+          "end": 811
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222113",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.453,
+      "band": "wild",
+      "concepts": [
+        "topic:conversational-a"
+      ],
+      "clusterId": "topic:conversational-a",
+      "institutionKeys": [
+        "inst:ror-05apxxy63"
+      ],
+      "countries": [
+        "Korea, Republic of"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:conversational-a",
+          "quote": "Conversational search, powered by Large Language Models (LLMs), has rapidly become a dominant mode of information seeking.",
+          "start": 0,
+          "end": 122
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222972",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.453,
+      "band": "wild",
+      "concepts": [
+        "topic:creating-with-a"
+      ],
+      "clusterId": "topic:creating-with-a",
+      "institutionKeys": [
+        "inst:ror-03dbr7087"
+      ],
+      "countries": [
+        "Canada"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:creating-with-a",
+          "quote": "AI co-writing systems challenge long held ideals about agency and ownership in the creative process, thereby hindering widespread adoption.",
+          "start": 0,
+          "end": 139
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:225838",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.452,
+      "band": "wild",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ebay",
+        "inst:tooploox"
+      ],
+      "countries": [
+        "Poland",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "In a pilot focused on conversational systems, RAMP provides interpretable compliance evidence and decision-oriented summaries through an interactive dashboard, supporting traceability in responsible AI workflows.",
+          "start": 973,
+          "end": 1185
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:223335",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.452,
+      "band": "wild",
+      "concepts": [
+        "topic:steering-and-evaluating-generative-a"
+      ],
+      "clusterId": "topic:steering-and-evaluating-generative-a",
+      "institutionKeys": [
+        "inst:ror-00cvxb145",
+        "inst:ror-05x2bcf33",
+        "inst:school-of-information-sciences"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:steering-and-evaluating-generative-a",
+          "quote": "AI creates and exacerbates privacy risks, yet practitioners lack effective resources to identify and mitigate these risks.",
+          "start": 0,
+          "end": 122
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222393",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.45,
+      "band": "wild",
+      "concepts": [
+        "topic:personalization-and-human-ai-alignment"
+      ],
+      "clusterId": "topic:personalization-and-human-ai-alignment",
+      "institutionKeys": [
+        "inst:ror-02ttsq026",
+        "inst:ror-047426m28",
+        "inst:ror-054b0b564"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:personalization-and-human-ai-alignment",
+          "quote": "AI-driven recommender systems are often perceived as personalization black boxes, limiting users’ ability to understand how their data shapes content (information asymmetry) or to influence system behavior meaningfully (power asymmetry).",
+          "start": 0,
+          "end": 237
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:230022",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.45,
+      "band": "wild",
+      "concepts": [
+        "term:information"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:ror-00rjdhd62"
+      ],
+      "countries": [
+        "China"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:information",
+          "quote": "It is crucial to facilitate familiarity with campus regulations and ensure easy access to relevant information.",
+          "start": 139,
+          "end": 250
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:214790",
+      "type": "other",
+      "feedType": "Workshop",
+      "relevance": 0.447,
+      "band": "wild",
+      "concepts": [
+        "term:decision"
+      ],
+      "clusterId": "other",
+      "institutionKeys": [
+        "inst:kings-college-london",
+        "inst:ror-001w7jn25",
+        "inst:ror-003sav189",
+        "inst:ror-00f7hpc57",
+        "inst:ror-025602r80",
+        "inst:ror-02jx3x895",
+        "inst:ror-05591te55",
+        "inst:ror-05s754026"
+      ],
+      "countries": [
+        "Germany",
+        "Italy",
+        "Sweden",
+        "United Kingdom"
+      ],
+      "reasons": [
+        {
+          "conceptId": "term:decision",
+          "quote": "Emerging systems based on large-scale data and machine learning complicate the boundaries of user control and consent; invisible inferences, decisions delegated to AI agents, and opaque personalisation create new challenges.",
+          "start": 485,
+          "end": 709
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222687",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.446,
+      "band": "wild",
+      "concepts": [
+        "topic:virtual-reality"
+      ],
+      "clusterId": "topic:virtual-reality",
+      "institutionKeys": [
+        "inst:autodesk-research",
+        "inst:ror-03dbr7087"
+      ],
+      "countries": [
+        "Canada"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:virtual-reality",
+          "quote": "To help professionals access knowledge, we present GroundLink, a Unity add-on that surfaces meeting-derived knowledge directly in the editor to support establishing common ground.",
+          "start": 368,
+          "end": 547
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222489",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.444,
+      "band": "wild",
+      "concepts": [
+        "topic:relationships-with-a"
+      ],
+      "clusterId": "topic:relationships-with-a",
+      "institutionKeys": [
+        "inst:ror-00scwqd12",
+        "inst:ror-024mw5h28",
+        "inst:ror-0387jng26",
+        "inst:sentience-institute"
+      ],
+      "countries": [
+        "Germany",
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:relationships-with-a",
+          "quote": "Narratives about artificial intelligence (AI) entangle autonomy, the capacity to self-govern, with sentience, the capacity to sense and feel.",
+          "start": 0,
+          "end": 141
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:222269",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.442,
+      "band": "wild",
+      "concepts": [
+        "topic:generative-ai-in-design-and-practice"
+      ],
+      "clusterId": "topic:generative-ai-in-design-and-practice",
+      "institutionKeys": [
+        "inst:ror-00cvxb145"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:generative-ai-in-design-and-practice",
+          "quote": "To address this gap, we explore the use of generative AI to help researchers transform their academic papers into accessible video content.",
+          "start": 172,
+          "end": 311
+        }
+      ]
+    }
+  ],
+  "bridge": {
+    "path": [],
+    "via": []
+  },
+  "clusters": [
+    {
+      "clusterId": "other",
+      "label": "Other"
+    },
+    {
+      "clusterId": "topic:accessibility-in-everyday-life",
+      "label": "Accessibility in Everyday Life"
+    },
+    {
+      "clusterId": "topic:affective-agents-reflective-data",
+      "label": "Affective Agents & Reflective Data"
+    },
+    {
+      "clusterId": "topic:ai-assisted-clinical-diagnosis-and-reasoning",
+      "label": "AI-Assisted Clinical Diagnosis and Reasoning"
+    },
+    {
+      "clusterId": "topic:ai-explanations-and-decision-support-in-healthcare",
+      "label": "AI Explanations and Decision Support in Healthcare"
+    },
+    {
+      "clusterId": "topic:ai-for-language-learning-communication-skills",
+      "label": "AI for Language Learning & Communication Skills"
+    },
+    {
+      "clusterId": "topic:ai-governance-and-accountability",
+      "label": "AI Governance and Accountability"
+    },
+    {
+      "clusterId": "topic:ai-in-practice",
+      "label": "AI in Practice"
+    },
+    {
+      "clusterId": "topic:ai-timing-matters",
+      "label": "AI & Timing Matters"
+    },
+    {
+      "clusterId": "topic:co-design-and-collaboration",
+      "label": "Co-Design and Collaboration"
+    },
+    {
+      "clusterId": "topic:collaborating-with-a",
+      "label": "Collaborating with A"
+    },
+    {
+      "clusterId": "topic:context-aware-interfaces-for-mobility-automation",
+      "label": "Context-aware Interfaces for Mobility & Automation"
+    },
+    {
+      "clusterId": "topic:context-specific-studies-and-perspectives",
+      "label": "Context-specific Studies and Perspectives"
+    },
+    {
+      "clusterId": "topic:conversational-a",
+      "label": "Conversational A"
+    },
+    {
+      "clusterId": "topic:creating-with-a",
+      "label": "Creating with A"
+    },
+    {
+      "clusterId": "topic:critical-reflections-on-a",
+      "label": "Critical Reflections on A"
+    },
+    {
+      "clusterId": "topic:dark-sides-of-a",
+      "label": "The Dark Sides of A"
+    },
+    {
+      "clusterId": "topic:designing-creative-genai-tools",
+      "label": "Designing Creative GenAI Tools"
+    },
+    {
+      "clusterId": "topic:designing-for-sensory-access",
+      "label": "Designing for Sensory Access"
+    },
+    {
+      "clusterId": "topic:digital-wellbeing-frameworks-and-design-strategies",
+      "label": "Digital Wellbeing Frameworks and Design Strategies"
+    },
+    {
+      "clusterId": "topic:discussions",
+      "label": "Discussions"
+    },
+    {
+      "clusterId": "topic:ecological-hci-and-urbanism",
+      "label": "Ecological HCI and Urbanism"
+    },
+    {
+      "clusterId": "topic:educational-support",
+      "label": "Educational Support"
+    },
+    {
+      "clusterId": "topic:embodied-interaction-and-wearables",
+      "label": "Embodied Interaction and Wearables"
+    },
+    {
+      "clusterId": "topic:environment-and-sustainability",
+      "label": "Environment and Sustainability"
+    },
+    {
+      "clusterId": "topic:experiencing-virtual-worlds-xr",
+      "label": "Experiencing Virtual Worlds (XR)"
+    },
+    {
+      "clusterId": "topic:explaining-and-evaluating-ai-systems",
+      "label": "Explaining and Evaluating AI Systems"
+    },
+    {
+      "clusterId": "topic:family-caregiving-and-support-technologies",
+      "label": "Family Caregiving and Support Technologies"
+    },
+    {
+      "clusterId": "topic:generative-ai-in-design-and-practice",
+      "label": "Generative AI in Design and Practice"
+    },
+    {
+      "clusterId": "topic:group-work",
+      "label": "Group Work"
+    },
+    {
+      "clusterId": "topic:hcai-and-collaboration",
+      "label": "HCAI and Collaboration"
+    },
+    {
+      "clusterId": "topic:health-tools-and-technologies",
+      "label": "Health Tools and Technologies"
+    },
+    {
+      "clusterId": "topic:heritage-memory-speculative-narratives",
+      "label": "Heritage, Memory, & Speculative Narratives"
+    },
+    {
+      "clusterId": "topic:human-ai-decision-making",
+      "label": "Human-AI Decision Making"
+    },
+    {
+      "clusterId": "topic:human-behavior-with-ai-systems",
+      "label": "Human Behavior with AI Systems"
+    },
+    {
+      "clusterId": "topic:human-in-the-loop-machine-learning-interfaces",
+      "label": "Human-in-the-Loop Machine Learning Interfaces"
+    },
+    {
+      "clusterId": "topic:human-robot-interaction",
+      "label": "Human-Robot Interaction"
+    },
+    {
+      "clusterId": "topic:human-steering-and-interaction-with-a",
+      "label": "Human Steering and Interaction with A"
+    },
+    {
+      "clusterId": "topic:immersive-and-spatial-visualization",
+      "label": "Immersive and Spatial Visualization"
+    },
+    {
+      "clusterId": "topic:interactive-prompting-chaining-and-llm-orchestration-tools",
+      "label": "Interactive Prompting, Chaining, and LLM Orchestration Tools"
+    },
+    {
+      "clusterId": "topic:justice-surveillance-and-marginalized-identities",
+      "label": "Justice, Surveillance and Marginalized Identities"
+    },
+    {
+      "clusterId": "topic:living-with-ai-llms",
+      "label": "Living with AI/LLMs"
+    },
+    {
+      "clusterId": "topic:llm-interactions-and-generative-ai-mechanics",
+      "label": "LLM Interactions and Generative AI Mechanics"
+    },
+    {
+      "clusterId": "topic:margins",
+      "label": "Margins"
+    },
+    {
+      "clusterId": "topic:mental-health-chatbots-and-conversational-agents",
+      "label": "Mental Health Chatbots and Conversational Agents"
+    },
+    {
+      "clusterId": "topic:mental-wellbeing",
+      "label": "Mental Wellbeing"
+    },
+    {
+      "clusterId": "topic:mixed-reality-systems-for-spatial-understanding-and-navigation",
+      "label": "Mixed-Reality Systems for Spatial Understanding and Navigation"
+    },
+    {
+      "clusterId": "topic:modeling-minds-and-mentalities",
+      "label": "Modeling Minds and Mentalities"
+    },
+    {
+      "clusterId": "topic:movement-based-games-sports-and-coaching",
+      "label": "Movement-based Games, Sports, and Coaching"
+    },
+    {
+      "clusterId": "topic:multi-agent-reasoning-systems-for-sensemaking-and-planning",
+      "label": "Multi-Agent Reasoning Systems for Sensemaking and Planning"
+    },
+    {
+      "clusterId": "topic:negotiating-health-identity-and-belief",
+      "label": "Negotiating Health, Identity, and Belief"
+    },
+    {
+      "clusterId": "topic:non-visual-and-conversational-experiences",
+      "label": "Non-visual and conversational experiences"
+    },
+    {
+      "clusterId": "topic:online-citizen-communities",
+      "label": "Online & Citizen Communities"
+    },
+    {
+      "clusterId": "topic:online-cultures-and-creator-economies",
+      "label": "Online Cultures and Creator Economies"
+    },
+    {
+      "clusterId": "topic:people-and-data",
+      "label": "People and Data"
+    },
+    {
+      "clusterId": "topic:personalization-and-human-ai-alignment",
+      "label": "Personalization and Human-AI Alignment"
+    },
+    {
+      "clusterId": "topic:physical-activity-and-behavior-change-technologies",
+      "label": "Physical Activity and Behavior Change Technologies"
+    },
+    {
+      "clusterId": "topic:physical-and-tangible-data-visualizations",
+      "label": "Physical and Tangible Data Visualizations"
+    },
+    {
+      "clusterId": "topic:privacy-and-security-in-software-development",
+      "label": "Privacy and Security in Software Development"
+    },
+    {
+      "clusterId": "topic:privacy-health-and-gender",
+      "label": "Privacy, Health and Gender"
+    },
+    {
+      "clusterId": "topic:privacy-policies",
+      "label": "Privacy Policies"
+    },
+    {
+      "clusterId": "topic:quantifying-the-algorithmic-lens",
+      "label": "Quantifying the Algorithmic Lens"
+    },
+    {
+      "clusterId": "topic:relationships-with-a",
+      "label": "Relationships with A"
+    },
+    {
+      "clusterId": "topic:research-methodology-u",
+      "label": "Research Methodology & U"
+    },
+    {
+      "clusterId": "topic:role-play-creativity-and-a",
+      "label": "Role Play, Creativity and A"
+    },
+    {
+      "clusterId": "topic:scam-experiences",
+      "label": "Scam Experiences"
+    },
+    {
+      "clusterId": "topic:security-and-privacy-behavior",
+      "label": "Security and Privacy Behavior"
+    },
+    {
+      "clusterId": "topic:sensemaking",
+      "label": "Sensemaking"
+    },
+    {
+      "clusterId": "topic:social-intelligence-human-agent-dynamics",
+      "label": "Social Intelligence & Human-Agent Dynamics"
+    },
+    {
+      "clusterId": "topic:sound-music-and-dance-accessibility",
+      "label": "Sound, Music, and Dance Accessibility"
+    },
+    {
+      "clusterId": "topic:steering-and-evaluating-generative-a",
+      "label": "Steering and Evaluating Generative A"
+    },
+    {
+      "clusterId": "topic:stress-management-and-emotional-regulation",
+      "label": "Stress Management and Emotional Regulation"
+    },
+    {
+      "clusterId": "topic:student-research-competition-posters",
+      "label": "Student Research Competition: Posters"
+    },
+    {
+      "clusterId": "topic:synergistic-with-a",
+      "label": "Synergistic with A"
+    },
+    {
+      "clusterId": "topic:technology-for-social-impact",
+      "label": "Technology for Social Impact"
+    },
+    {
+      "clusterId": "topic:teenagers-technology",
+      "label": "Teenagers & Technology"
+    },
+    {
+      "clusterId": "topic:toxicity-and-moderation-in-online-games",
+      "label": "Toxicity and Moderation in Online Games"
+    },
+    {
+      "clusterId": "topic:trust-and-perception-in-ai-systems",
+      "label": "Trust and Perception in AI Systems"
+    },
+    {
+      "clusterId": "topic:trust-and-transparency-in-everyday-life",
+      "label": "Trust and Transparency in Everyday Life"
+    },
+    {
+      "clusterId": "topic:virtual-reality",
+      "label": "Virtual Reality"
+    },
+    {
+      "clusterId": "topic:vr-ar-xr",
+      "label": "VR AR XR"
+    },
+    {
+      "clusterId": "topic:xr-embodied-and-spatial-interaction",
+      "label": "XR Embodied and Spatial Interaction"
+    }
+  ],
+  "people": [
+    {
+      "personKey": "chi2026:215625",
+      "relevance": 1,
+      "concepts": [
+        "term:decision",
+        "topic:human-ai-decision-making",
+        "topic:mixed-reality-systems-for-spatial-understanding-and-navigation"
+      ]
+    },
+    {
+      "personKey": "chi2026:218911",
+      "relevance": 0.868,
+      "concepts": [
+        "term:decision",
+        "topic:human-ai-decision-making"
+      ]
+    },
+    {
+      "personKey": "chi2026:214309",
+      "relevance": 0.649,
+      "concepts": [
+        "topic:social-intelligence-human-agent-dynamics",
+        "term:make",
+        "topic:mental-health-chatbots-and-conversational-agents"
+      ]
+    },
+    {
+      "personKey": "chi2026:221013",
+      "relevance": 0.442,
+      "concepts": [
+        "topic:modeling-minds-and-mentalities",
+        "term:decision",
+        "term:make"
+      ]
+    },
+    {
+      "personKey": "chi2026:216005",
+      "relevance": 0.434,
+      "concepts": [
+        "topic:human-ai-decision-making",
+        "term:decision"
+      ]
+    },
+    {
+      "personKey": "chi2026:219649",
+      "relevance": 0.434,
+      "concepts": [
+        "topic:human-ai-decision-making",
+        "term:decision"
+      ]
+    },
+    {
+      "personKey": "chi2026:218820",
+      "relevance": 0.408,
+      "concepts": [
+        "topic:discussions",
+        "topic:human-steering-and-interaction-with-a"
+      ]
+    },
+    {
+      "personKey": "chi2026:219356",
+      "relevance": 0.408,
+      "concepts": [
+        "topic:discussions",
+        "topic:human-steering-and-interaction-with-a"
+      ]
+    },
+    {
+      "personKey": "chi2026:214159",
+      "relevance": 0.386,
+      "concepts": [
+        "term:sense",
+        "topic:physical-and-tangible-data-visualizations"
+      ]
+    },
+    {
+      "personKey": "chi2026:214226",
+      "relevance": 0.386,
+      "concepts": [
+        "term:sense",
+        "topic:physical-and-tangible-data-visualizations"
+      ]
+    }
+  ]
+}
