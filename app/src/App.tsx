@@ -18,6 +18,7 @@ import { loadNote } from './state/useDevice';
 import { planWasHere } from './data/offline';
 import { setDemoNow, isDemo } from './clock';
 import { clearSimulated } from './data/programme';
+import { keepsSample } from './today/simulate.js';
 
 const TITLES = { today: 'Today', explore: 'Explore', questions: 'Questions' };
 const STEPS = ['research', 'topics', 'days', 'needs', 'summary', 'see', 'language', 'howfull'] as const;
@@ -36,7 +37,7 @@ export function App() {
   useEffect(() => { if (misplaced) go(startRoute(state), { replace: true }); }, [misplaced, state]);
   // The demo clock belongs to the sample day (and the talks opened from it); anywhere else the real clock runs.
   // The demo clock and a simulated programme change belong to the sample day (and screens opened from it).
-  useEffect(() => { if (!['sample', 'more', 'explore', 'talk', 'person'].includes(head) && !isPlaceholder(head)) { if (isDemo()) setDemoNow(null); clearSimulated(); } }, [head]);
+  useEffect(() => { if (!keepsSample(head, isPlaceholder(head))) { if (isDemo()) setDemoNow(null); clearSimulated(); } }, [head]);
   // 03-J2: no usable plan here, but one was built on this phone (or the stored one could not be read).
   useEffect(() => {
     if (state.builtAt || state.mode) return;

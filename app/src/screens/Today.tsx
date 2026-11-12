@@ -5,6 +5,7 @@ import { dayCard, laterStops, talkPosition, WALK_MIN, FIRST_WALK_MIN } from '../
 import { removeStop, pickOne } from '../today/edits.js';
 import { freeGaps, dayBounds } from '../today/more.js';
 import { offlineNote } from '../today/offline.js';
+import { simulateRequested } from '../today/simulate.js';
 import { useDayPlans, type DayView } from '../today/useDayPlans';
 import { venueInstant, venueClock } from '../time.js';
 import { useNow, setDemoNow, isDemo } from '../clock';
@@ -64,7 +65,7 @@ function PlannedToday({ mode }: { mode: 'plan' | 'sample' }) {
   // Watch for programme updates while Today is open. Sample day only: ?simulate=room-change tries 03-M without a feed change.
   useEffect(() => (base ? watchProgramme(base) : undefined), [base]);
   useEffect(() => {
-    if (mode !== 'sample' || !base || !view || !new URLSearchParams(location.search).has('simulate')) return;
+    if (!simulateRequested(mode, location.search) || !base || !view) return;
     const stops = view.plans.find(p => p.stops.length)?.stops ?? [];
     if (stops.length) simulateRoomChange(base, stops[Math.min(2, stops.length - 1)].paperKey);
   }, [base, !!view]); // eslint-disable-line react-hooks/exhaustive-deps

@@ -19,7 +19,8 @@ ws.addEventListener('message', e => { const m = JSON.parse(e.data); if (m.id && 
 const send = (method, params = {}) => new Promise(r => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
 const ev = async expr => { const r = await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true }); if (r.result.exceptionDetails) throw new Error(JSON.stringify(r.result.exceptionDetails)); return r.result.result.value; };
 const shot = async name => { const r = await send('Page.captureScreenshot', { format: 'png' }); writeFileSync(`${OUT}${name}.png`, Buffer.from(r.result.data, 'base64')); };
-const waitFor = async (expr, ms = 15000) => { const t = Date.now(); while (Date.now() - t < ms) { if (await ev(expr)) return true; await sleep(50); } throw new Error('timeout: ' + expr); };
+// catch: the page may be between loads (no body yet)
+const waitFor = async (expr, ms = 15000) => { const t = Date.now(); while (Date.now() - t < ms) { if (await ev(expr).catch(() => false)) return true; await sleep(50); } throw new Error('timeout: ' + expr); };
 
 await send('Page.enable'); await send('Runtime.enable');
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
@@ -98,5 +99,18 @@ await ev(`document.querySelector('main a[href^="#/person/"]').click()`);
 await waitFor(`document.body.innerText.includes('Their talks')`);
 result.person = await ev(`document.querySelector('main').innerText.split('\\n').slice(0, 8)`);
 await shot('07-author');
+// ?simulate=room-change: the sample day shows "Programme updated"; Today with a built plan ignores it.
+await send('Page.navigate', { url: BASE + '?simulate=room-change#/sample' });
+await waitFor(`document.body.innerText.includes('Preview')`, 30000);
+result.simulateSample = await waitFor(`document.body.innerText.includes('Programme updated')`, 10000).then(() => true, () => false);
+await ev(`(() => { const s = JSON.parse(localStorage.getItem('arc.device') ?? 'null'); const days = ['2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17'];
+  localStorage.setItem('arc.device', JSON.stringify({ version: 1, edition: 'chi2026', mode: 'plan', step: 'summary', builtAt: Date.now(),
+    plan: { query: 'sensemaking with AI', topicsFor: 'sensemaking with AI', topics: [{ conceptId: 'topic:sensemaking', label: 'Sensemaking', on: true }], nearbyAdded: [], days,
+      needs: { stepFree: false, fewerRoomChanges: false, breaks: false, largerText: false, summaries: false }, language: 'en', see: ['papers', 'posters', 'demos'], howFull: 'balanced' } })); })()`);
+await send('Page.navigate', { url: BASE + '?simulate=room-change&plan#/today' }); // another URL: a real load with the plan
+await waitFor(`document.body.innerText.includes('Your ') || document.body.innerText.includes('Nothing planned')`, 30000);
+await sleep(1500);
+result.simulatePlanIgnored = await ev(`!document.body.innerText.includes('Programme updated') && !document.body.innerText.includes('Preview')`);
+await ev(`localStorage.removeItem('arc.device')`);
 console.log(JSON.stringify(result, null, 2));
 ws.close(); chrome.kill();
