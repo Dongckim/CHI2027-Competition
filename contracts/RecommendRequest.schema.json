@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "RecommendRequest.schema.json",
+  "title": "RecommendRequest",
+  "description": "앱 → 추천. 연구 문장과 학회 연도만 보낸다. 기관·나라 등 개인 항목은 기기 안에서 처리하므로 넣지 않는다.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "edition", "query"],
+  "properties": {
+    "schema_version": { "const": "0.1.0" },
+    "edition": { "type": "string", "pattern": "^(chi\\d{4}|sandbox)$", "description": "어떤 data/build/<edition>을 기준으로 추천할지" },
+    "query": { "type": "string", "minLength": 1, "description": "자유 연구 문장. 서버는 저장·로그하지 않는다" }
+  }
+}

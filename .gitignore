@@ -9,3 +9,4 @@ data/build/
 .env*
 # Read-only reference prototypes (local only, see CLAUDE.md)
 reference/
+dist/

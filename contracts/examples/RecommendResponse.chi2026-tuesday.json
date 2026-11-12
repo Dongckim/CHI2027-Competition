@@ -1,0 +1,213 @@
+{
+  "topics": [
+    {
+      "conceptId": "topic:sensemaking",
+      "label": "Sensemaking",
+      "weight": 0.9
+    },
+    {
+      "conceptId": "topic:human-ai-decision-making",
+      "label": "Human-AI Decision Making",
+      "weight": 0.8
+    }
+  ],
+  "schema_version": "0.1.0",
+  "modelVersion": "fake-s0",
+  "dataVersion": {
+    "edition": "chi2026",
+    "revision": 1,
+    "publicationVersion": 86
+  },
+  "nearby": [
+    {
+      "conceptId": "topic:multi-agent-reasoning-systems-for-sensemaking-and-planning",
+      "label": "Multi-Agent Reasoning Systems for Sensemaking and Planning",
+      "sharedConcept": "topic:sensemaking",
+      "matchCount": 7,
+      "suggested": true
+    },
+    {
+      "conceptId": "topic:explaining-and-evaluating-ai-systems",
+      "label": "Explaining and Evaluating AI Systems",
+      "sharedConcept": "topic:human-ai-decision-making",
+      "matchCount": 7,
+      "suggested": false
+    }
+  ],
+  "totalMatches": 38,
+  "items": [
+    {
+      "paperKey": "chi2026:221879",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.92,
+      "band": "near",
+      "concepts": [
+        "topic:sensemaking"
+      ],
+      "clusterId": "c-sense",
+      "institutionKeys": [
+        "inst:ror-042nb2s44"
+      ],
+      "countries": [
+        "United States"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:sensemaking",
+          "quote": "Large language models (LLMs) are increasingly used to make sense of unstructured data",
+          "start": 0,
+          "end": 85
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:221851",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.85,
+      "band": "near",
+      "concepts": [
+        "topic:human-ai-decision-making"
+      ],
+      "clusterId": "c-decide",
+      "institutionKeys": [
+        "inst:ror-057zh3y96"
+      ],
+      "countries": [
+        "Japan"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:human-ai-decision-making",
+          "quote": "Accuracy improved for small panels relative to a single AI; larger panels yielded no gains.",
+          "start": 554,
+          "end": 645
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:221829",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.58,
+      "band": "adjacent",
+      "concepts": [
+        "topic:security-and-privacy-behavior"
+      ],
+      "clusterId": "c-decide",
+      "institutionKeys": [
+        "inst:ror-01jdpyv68",
+        "inst:ror-02njgxr09"
+      ],
+      "countries": [
+        "Germany"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:security-and-privacy-behavior",
+          "quote": "users’ choices are shaped much earlier, across a multi-stage journey",
+          "start": 122,
+          "end": 190
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:225821",
+      "type": "poster",
+      "feedType": "Posters",
+      "relevance": 0.55,
+      "band": "adjacent",
+      "concepts": [
+        "topic:sensemaking"
+      ],
+      "clusterId": "c-sense",
+      "institutionKeys": [
+        "inst:ror-00kbjsx88",
+        "inst:ror-02956yf07",
+        "inst:ror-057zh3y96"
+      ],
+      "countries": [
+        "Japan"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:sensemaking",
+          "quote": "Identifying emerging research connections is essential for tracking how research fields evolve",
+          "start": 0,
+          "end": 94
+        }
+      ]
+    },
+    {
+      "paperKey": "chi2026:221848",
+      "type": "paper",
+      "feedType": "Paper",
+      "relevance": 0.31,
+      "band": "wild",
+      "concepts": [
+        "topic:labor-equity-and-the-hidden-economy"
+      ],
+      "clusterId": "c-work",
+      "institutionKeys": [
+        "inst:ror-03dbr7087"
+      ],
+      "countries": [
+        "Canada"
+      ],
+      "reasons": [
+        {
+          "conceptId": "topic:labor-equity-and-the-hidden-economy",
+          "quote": "These farmers are recognized as skilled at home and reclassified as `unskilled' in Canada",
+          "start": 190,
+          "end": 279
+        }
+      ]
+    }
+  ],
+  "bridge": {
+    "path": [
+      "chi2026:221879",
+      "chi2026:225821",
+      "chi2026:221848"
+    ],
+    "via": [
+      [
+        "topic:sensemaking"
+      ],
+      [
+        "topic:labor-equity-and-the-hidden-economy"
+      ]
+    ]
+  },
+  "clusters": [
+    {
+      "clusterId": "c-sense",
+      "label": "Making sense with AI"
+    },
+    {
+      "clusterId": "c-decide",
+      "label": "Deciding with AI and apps"
+    },
+    {
+      "clusterId": "c-work",
+      "label": "Work and labour"
+    }
+  ],
+  "people": [
+    {
+      "personKey": "chi2026:214278",
+      "relevance": 0.8,
+      "concepts": [
+        "topic:sensemaking"
+      ]
+    },
+    {
+      "personKey": "chi2026:221756",
+      "relevance": 0.7,
+      "concepts": [
+        "topic:human-ai-decision-making"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "RecommendResponse.schema.json",
+  "title": "RecommendResponse",
+  "description": "추천 → 플래너·앱. 무엇이 관련 있는지만 담는다. 시간·방·겹침(PICK ONE)은 플래너가 정한다. 화면의 TRY NEW = band가 near가 아닌 항목.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "topics", "modelVersion", "dataVersion", "nearby", "totalMatches", "items", "bridge", "clusters", "people"],
+  "properties": {
+    "schema_version": { "const": "0.1.0" },
+    "topics": {
+      "description": "질문에서 읽어 낸 개념. 맨 앞 필드 (화면이 가장 먼저 보여 줌)",
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["conceptId", "label", "weight"],
+        "properties": {
+          "conceptId": { "$ref": "#/$defs/conceptId" },
+          "label": { "type": "string", "minLength": 1 },
+          "weight": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      }
+    },
+    "modelVersion": { "type": "string", "minLength": 1 },
+    "dataVersion": {
+      "description": "추천에 쓴 data/build/<edition>/meta.json 값 그대로",
+      "type": "object", "additionalProperties": false,
+      "required": ["edition", "revision", "publicationVersion"],
+      "properties": {
+        "edition": { "$ref": "#/$defs/edition" },
+        "revision": { "type": "integer", "minimum": 0 },
+        "publicationVersion": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "nearby": {
+      "description": "질문 개념과 이웃한 개념 (넓혀 보기 제안)",
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["conceptId", "label", "sharedConcept", "matchCount", "suggested"],
+        "properties": {
+          "conceptId": { "$ref": "#/$defs/conceptId" },
+          "label": { "type": "string", "minLength": 1 },
+          "sharedConcept": { "$ref": "#/$defs/conceptId" },
+          "matchCount": { "type": "integer", "minimum": 0 },
+          "suggested": { "type": "boolean" }
+        }
+      }
+    },
+    "totalMatches": { "type": "integer", "minimum": 0, "description": "잘라 내기 전 관련 발표 수" },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["paperKey", "type", "feedType", "relevance", "band", "concepts", "clusterId", "institutionKeys", "countries", "reasons"],
+        "properties": {
+          "paperKey": { "$ref": "#/$defs/key" },
+          "type": { "enum": ["paper", "poster", "demo", "other"] },
+          "feedType": { "type": "string", "minLength": 1, "description": "papers.json의 type 원문 (예: Paper, Posters, Interactive Demos)" },
+          "relevance": { "type": "number", "minimum": 0, "maximum": 1, "description": "0~1 정규화. 모델이 바뀌어도 같은 뜻" },
+          "band": { "enum": ["near", "adjacent", "wild"] },
+          "concepts": { "type": "array", "items": { "$ref": "#/$defs/conceptId" }, "uniqueItems": true },
+          "clusterId": { "type": "string", "minLength": 1, "description": "clusters[].clusterId 중 하나" },
+          "institutionKeys": { "description": "저자 소속 기관. 중복 없이 정렬", "type": "array", "items": { "type": "string", "pattern": "^inst:" }, "uniqueItems": true },
+          "countries": { "description": "저자 소속 나라. 중복 없이 정렬", "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+          "reasons": {
+            "description": "이유 = 개념 ID + 초록 원문 인용. quote === abstract.slice(start, end) (data/build/<edition>/papers.json, UTF-16 위치)",
+            "type": "array",
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["conceptId", "quote", "start", "end"],
+              "properties": {
+                "conceptId": { "$ref": "#/$defs/conceptId" },
+                "quote": { "type": "string", "minLength": 1 },
+                "start": { "type": "integer", "minimum": 0 },
+                "end": { "type": "integer", "minimum": 1 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "bridge": {
+      "description": "가까운 발표에서 먼 발표로 이어지는 길. via[i] = path[i]와 path[i+1]을 잇는 개념들",
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "via"],
+      "properties": {
+        "path": { "type": "array", "items": { "$ref": "#/$defs/key" } },
+        "via": { "type": "array", "items": { "type": "array", "items": { "$ref": "#/$defs/conceptId" }, "minItems": 1 } }
+      }
+    },
+    "clusters": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["clusterId", "label"],
+        "properties": {
+          "clusterId": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "people": {
+      "description": "만나볼 사람. 언제 어디서 만날지는 기기에서 people.json appearances로 붙인다",
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["personKey", "relevance", "concepts"],
+        "properties": {
+          "personKey": { "$ref": "#/$defs/key" },
+          "relevance": { "type": "number", "minimum": 0, "maximum": 1 },
+          "concepts": { "type": "array", "items": { "$ref": "#/$defs/conceptId" }, "uniqueItems": true }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "edition": { "type": "string", "pattern": "^(chi\\d{4}|sandbox)$" },
+    "key": { "type": "string", "pattern": "^(chi\\d{4}|sandbox):\\d+$", "description": "edition:id" },
+    "conceptId": { "type": "string", "minLength": 1 }
+  }
+}

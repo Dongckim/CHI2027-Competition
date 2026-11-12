@@ -4,6 +4,11 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build && node app/scripts/copy-static.mjs",
+    "build:deploy": "npm run data:fetch chi2026 && npm run data:build chi2026 && npm run build",
+    "preview": "vite preview",
+    "typecheck": "tsc",
     "data:fetch": "node data/scripts/fetch.mjs",
     "data:validate": "node data/scripts/validate.mjs",
     "data:ror": "node data/scripts/ror.mjs",
@@ -11,10 +16,26 @@
     "data:venue": "python3 data/scripts/venue-ccib.py",
     "bench": "node tests/serve.mjs",
     "contracts:check": "node contracts/check.mjs",
-    "test": "node --test"
+    "test": "node --test tests/"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
     "ajv": "^8.20.0",
-    "ajv-formats": "^3.0.1"
+    "ajv-formats": "^3.0.1",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "engines": {
+    "node": "26.x"
   }
 }
