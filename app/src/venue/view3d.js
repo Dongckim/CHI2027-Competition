@@ -3,17 +3,25 @@
 // The written steps are the directions; this view only helps. The canvas carries the route summary as its label.
 //
 // venue: data/venue/<venue>.json (metres; x to the right, y down on the plan) · r: route() result.
-// mount(canvas, { venue, route, summary, reduceMotion }) → { mode(m), dispose() }
+// mount(canvas, { venue, route, summary, steps, onStep, reduceMotion }) → { mode(m), walk(on), step(i), dispose() }
 //   mode: 'original' (the angle of the printed plans) · 'fit' (frame the route) · 'floors' (only the route's levels)
+//   steps: directions().lines ({ node, level }): numbered 1, 2, 3 … on the route, as in the written list
+//   walk(true): first person, at eye height along the route (onStep(i) as each step is reached); step(i): look at step i
+//   (in first person: stand there). With reduced motion nothing glides: walking moves from step to step.
 import * as THREE from 'three';
 
 const LEVELS = ['P0', 'M1', 'P1', 'M2', 'P2']; // bottom to top; AUD has no coordinates and is not drawn
 const STOREY = 9; // metres between levels in the view (mezzanines included), enough to see one through another
 const ORIGINAL = { theta: Math.PI / 4, phi: 0.95 };
+const WALK_MPS = 8; // first-person playback speed (a real walk is ~1.3 m/s: this is a preview, not a pace)
+const EYE = 2.6; // metres above the route line (which floats 2.2 m over the floor): you see the line run ahead, not under you
+const LOOK_AHEAD_M = 14; // and look this far along it, slightly down
 
 const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888';
 
-export function mount(canvas, { venue, route, summary, reduceMotion = false }) {
+/** @param {HTMLCanvasElement} canvas
+ * @param {{ venue: any, route: any, summary: string, steps?: { node: string, level: string }[], onStep?: (i: number, end?: string) => void, reduceMotion?: boolean }} options */
+export function mount(canvas, { venue, route, summary, steps = [], onStep = () => {}, reduceMotion = false }) {
   canvas.setAttribute('role', 'img');
   canvas.setAttribute('aria-label', `3D view. ${summary} The steps are listed above.`);
 
@@ -29,6 +37,9 @@ export function mount(canvas, { venue, route, summary, reduceMotion = false }) {
   let onlyRouteFloors = false;
   const cam = { theta: ORIGINAL.theta, phi: ORIGINAL.phi, radius: 260, target: new THREE.Vector3(0, height('P1'), 0) };
   let goal = null;
+  // First person: where on the route (0..1), playing or not; the step reached last; each step's place on the route.
+  const walker = { on: false, playing: false, t: 0 };
+  let current = -1, stepT = [], badges = [];
 
   function build() {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
@@ -77,8 +88,91 @@ export function mount(canvas, { venue, route, summary, reduceMotion = false }) {
     marker(pts[0], 2.4);
     marker(pts.at(-1), 2.4);
     comet = reduceMotion ? null : marker(pts[0], 1.6);
+    // Step numbers, the same as the written list: a round badge that keeps its size on screen and is never hidden.
+    const samples = curve.getSpacedPoints(600);
+    badges = steps.map((st, i) => {
+      const n = venue.nodes[st.node];
+      const p = n?.x != null ? at(n.x, n.y, n.level, 2.2) : pts[0];
+      let best = 0; samples.forEach((q, j) => { if (q.distanceToSquared(p) < samples[best].distanceToSquared(p)) best = j; });
+      stepT[i] = best / (samples.length - 1);
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: badgeTexture(i + 1, false), depthTest: false, sizeAttenuation: false }));
+      sprite.position.copy(p).add(new THREE.Vector3(0, 5, 0)); sprite.renderOrder = 10; scene.add(sprite);
+      return sprite;
+    });
+    canvas.dataset.steps = String(badges.length); // for the phone check
     resize();
-    apply('original', true);
+    if (walker.on) placeWalker(); else apply('original', true);
+    highlight(current);
+  }
+
+  // A number in a circle, drawn once per step (normal, and the step you are at).
+  function badgeTexture(n, on) {
+    const c = document.createElement('canvas'); c.width = c.height = 96;
+    const g = c.getContext('2d');
+    g.fillStyle = css(on ? '--plan-dest' : '--plan-route'); g.beginPath(); g.arc(48, 48, 44, 0, Math.PI * 2); g.fill();
+    g.lineWidth = 6; g.strokeStyle = css('--plan-bg'); g.stroke();
+    g.fillStyle = css(on ? '--plan-route' : '--plan-bg'); g.font = '600 52px "IBM Plex Sans", system-ui, sans-serif';
+    g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), 48, 51);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  }
+  function highlight(i) {
+    badges.forEach((b, j) => {
+      const on = j === i;
+      if (b.userData.on !== on) { b.material.map?.dispose(); b.material.map = badgeTexture(j + 1, on); b.material.needsUpdate = true; b.userData.on = on; }
+    });
+    sizeBadges(); needs = true;
+  }
+  function sizeBadges() {
+    const h = canvas.clientHeight || 300;
+    // The step you are at is bigger and drawn last, so it stays on top where steps sit close together.
+    badges.forEach((b, j) => { const s = (j === current ? 28 : 20) / h; b.scale.set(s, s, 1); b.renderOrder = j === current ? 20 : 10; });
+  }
+  function reach(i) { if (i !== current) { current = i; highlight(i); onStep(i); } }
+
+  // First person: stand on the route at walker.t, eyes a little over the line, looking a few metres ahead.
+  function placeWalker() {
+    const len = curve.getLength() || 1;
+    const here = curve.getPointAt(walker.t), ahead = curve.getPointAt(Math.min(1, walker.t + LOOK_AHEAD_M / len));
+    if (ahead.distanceTo(here) < 0.5) ahead.copy(here).add(curve.getTangentAt(Math.max(0, walker.t - 0.001)).setY(0).normalize());
+    ahead.y = here.y; // look level, also on a ride between levels
+    camera.position.copy(here).add(new THREE.Vector3(0, EYE, 0));
+    camera.lookAt(ahead.x, here.y, ahead.z); // down to the line ahead: the route reads as a path in front of you
+    let i = 0; stepT.forEach((t, j) => { if (walker.t + 1e-4 >= t) i = j; }); // at the door you are on step 1 ("Exit …")
+    reach(i);
+    needs = true;
+  }
+  function setWalk(on) {
+    const entering = on && !walker.on;
+    if (entering) {
+      walker.on = true; walker.t = 0;
+      camera.fov = 62; camera.updateProjectionMatrix();
+      if (comet) comet.visible = false;
+    }
+    if (!on && walker.on) {
+      walker.on = false; walker.playing = false;
+      camera.fov = 36; camera.updateProjectionMatrix();
+      if (comet) comet.visible = true;
+      apply('original', true);
+      return false;
+    }
+    if (on) {
+      // Reduced motion: no gliding; each press goes to the next step instead.
+      if (reduceMotion) {
+        const next = entering ? 0 : stepT.findIndex(t => t > walker.t + 1e-4);
+        walker.t = next < 0 ? 0 : stepT[next] ?? 0; walker.playing = false;
+      } else {
+        if (walker.t >= 1) walker.t = 0; // play again from the start
+        walker.playing = entering || !walker.playing;
+      }
+      placeWalker();
+    }
+    return walker.playing;
+  }
+  function toStep(i) {
+    if (i < 0 || i >= stepT.length) return;
+    if (walker.on) { walker.playing = false; walker.t = stepT[i]; placeWalker(); return; }
+    moveTo({ theta: cam.theta, phi: cam.phi, target: badges[i].position.clone().sub(new THREE.Vector3(0, 5, 0)), radius: 70 });
+    reach(i);
   }
 
   function placeCamera() {
@@ -91,7 +185,7 @@ export function mount(canvas, { venue, route, summary, reduceMotion = false }) {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     if (!w || !h || !renderer) return;
     renderer.setSize(w, h, false);
-    camera.aspect = w / h; camera.updateProjectionMatrix(); needs = true;
+    camera.aspect = w / h; camera.updateProjectionMatrix(); sizeBadges(); needs = true;
   }
   function moveTo(w, now) {
     if (reduceMotion || now) { Object.assign(cam, { ...w, target: w.target.clone() }); goal = null; placeCamera(); } else goal = w;
@@ -102,6 +196,7 @@ export function mount(canvas, { venue, route, summary, reduceMotion = false }) {
     return { target: box.getCenter(new THREE.Vector3()), radius: span * (camera.aspect < 1 ? 2.1 : 1.5) };
   }
   function apply(m, now = false) {
+    if (walker.on && m !== 'floors') { walker.on = false; walker.playing = false; camera.fov = 36; camera.updateProjectionMatrix(); if (comet) comet.visible = true; }
     if (m === 'floors') onlyRouteFloors = !onlyRouteFloors;
     for (const [level, g] of groups) g.visible = !onlyRouteFloors || routeLevels.has(level);
     if (m === 'original') {
@@ -115,9 +210,10 @@ export function mount(canvas, { venue, route, summary, reduceMotion = false }) {
   // Drag to turn the view, pinch or wheel to zoom.
   const pointers = new Map(); let pinch = null;
   const down = e => { canvas.setPointerCapture?.(e.pointerId); pointers.set(e.pointerId, { x: e.clientX, y: e.clientY }); goal = null;
+    if (walker.on) { walker.playing = false; return; } // a touch pauses the walk
     if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), r: cam.radius }; } };
   const move = e => {
-    const p = pointers.get(e.pointerId); if (!p) return;
+    const p = pointers.get(e.pointerId); if (!p || walker.on) return;
     const dx = e.clientX - p.x, dy = e.clientY - p.y; pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.size === 2 && pinch) { const [a, b] = [...pointers.values()]; cam.radius = clampR(pinch.r * pinch.d / Math.max(1, Math.hypot(a.x - b.x, a.y - b.y))); }
     else { cam.theta -= dx * 0.006; cam.phi = Math.min(1.4, Math.max(0.25, cam.phi - dy * 0.005)); }
@@ -142,7 +238,11 @@ export function mount(canvas, { venue, route, summary, reduceMotion = false }) {
       if (Math.abs(goal.radius - cam.radius) < 0.3 && cam.target.distanceTo(goal.target) < 0.2) goal = null;
       placeCamera();
     }
-    if (comet && curve) { comet.position.copy(curve.getPointAt((now / 1000 * 25 / curve.getLength()) % 1)); needs = true; }
+    if (walker.on && walker.playing) {
+      walker.t = Math.min(1, walker.t + dt * WALK_MPS / (curve.getLength() || 1));
+      if (walker.t >= 1) { walker.playing = false; onStep(current, 'end'); }
+      placeWalker();
+    } else if (comet && curve && !walker.on) { comet.position.copy(curve.getPointAt((now / 1000 * 25 / curve.getLength()) % 1)); needs = true; }
     if (needs) { renderer.render(scene, camera); needs = false; canvas.dataset.frames = String(++frames); } // frames: for the phone check
   }
 
@@ -169,6 +269,9 @@ export function mount(canvas, { venue, route, summary, reduceMotion = false }) {
   raf = requestAnimationFrame(loop);
   return {
     mode: m => apply(m),
+    walk: on => setWalk(on),
+    step: i => toStep(i),
+    walking: () => walker.on,
     rendered: () => !!renderer && !lost,
     dispose() {
       cancelAnimationFrame(raf); ro.disconnect();

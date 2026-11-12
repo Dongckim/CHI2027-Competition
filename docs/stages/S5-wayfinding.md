@@ -74,6 +74,11 @@
   - 그릴 것이 있을 때만 그림. 동작 줄이기면 카메라 이동·움직이는 점 없음 → 멈추면 그리지 않음
   - `webglcontextlost`에서 기본 동작 막고 `webglcontextrestored`에서 장면을 다시 만듦, 숨은 탭은 건너뜀
   - canvas `role="img"` + `aria-label` = 경로 요약 ("3D view. Route from … to …, about 3–5 min, 192 m, P0 to M1 to P1. The steps are listed above.")
+- 단계 번호와 1인칭 (2026-11-12 추가 요청)
+  - 경로 위 각 단계 자리에 글 안내와 같은 번호(1, 2, 3 …). 화면에서 크기가 일정하고 가려지지 않음, 지금 단계는 크게·목적지 색·맨 위
+  - 글 안내의 각 줄이 버튼(44 px): 누르면 3D가 그 단계로. 3D가 보여 주는 단계는 목록에서 번호가 채워짐(`aria-current="step"`), "Step 3 of 5: …"를 `aria-live`로
+  - Walk the route: 눈높이 1인칭으로 경로를 따라감 (미리보기 속도 8 m/s, 앞 14 m를 내려다봄). 닿은 단계가 목록에 표시, Pause / Walk on, 화면을 만지면 멈춤, 이전·다음 단계 버튼
+  - 동작 줄이기: 미끄러지듯 움직이지 않고 1단계에 선 뒤 Next step으로 한 단계씩
 - 방향 소리 `app/src/venue/sound.js`: Hear the turns를 눌러야 AudioContext, HRTF PannerNode, `navigator.audioSession.type = "playback"` 시도, 끝나면 닫음. 화면에 지금 신호를 `aria-live`로
 - 화면 `app/src/screens/Directions.tsx`
   - 09 `#/directions/<paperKey>`: "From …" + Change, 32 px 시간, "to … · 층 · step-free", 번호 목록, 3D, 3개 보기 버튼, Hear the turns, 하단 I'm here (Today 또는 샘플 하루로)
@@ -93,6 +98,7 @@
 - 3D는 09에서만: Today에서는 `view3d-*.js` 요청 0, 09를 열면 1. 09를 연 뒤 83 ms에 첫 그림
 - WebGL context 잃음 → 복구 → 108 ms 뒤 다시 그림. 동작 줄이기: 멈춘 뒤 1.5초에 0장
 - Change → 09-1 → Room 133 → 09 "From Room 133", 뒤로 한 번에 샘플 하루. 이미 고른 줄을 다시 눌러도 09로
+- 단계 번호·1인칭 (헤드리스): 단계 5개 = 경로 위 번호 5개, 3번을 누르면 목록·3D가 3번, Walk the route → 1단계에서 시작해 6.3초 뒤 스스로 2단계, Pause면 1초에 0장, 동작 줄이기면 1단계 → Next → 2단계, 그 사이 0장
 - `npm test` 93/93 · `contracts:check` 5/5 · `tsc` 0 · `data:venue:check` 7개 층·방 43개 · `build:deploy` 성공 · 첫 화면 JS gzip 99.9 → 106.2 KB (+ 3D 조각 137 KB는 09에서만) · 서비스 워커 14개 파일 (+ 이름 파일)
 
 ## ③ 결정과 이유
@@ -108,6 +114,9 @@
 - 엘리베이터·에스컬레이터에서 내린 뒤 어느 쪽을 보는지 평면도에 없어서 "Walk along …"만 (왼쪽/오른쪽 없음)
 - 09 첫 화면에 3D 아래 버튼들(Hear the turns 설명)이 하단 버튼에 가려질 수 있음 (스크롤하면 보임)
 - 3D의 구역 이름(글자)은 그리지 않음. 목적지만 색으로
+- 전체 보기에서는 가까운 단계(예: 에스컬레이터 앞뒤)의 번호가 겹침. 지금 단계가 맨 위에 오고, Fit route나 단계를 누르면 펼쳐 보임
+- 1인칭은 방 상자가 낮아(1.6 m) 벽 사이를 걷는 느낌은 아님. 엘리베이터·에스컬레이터 구간은 위아래로 곧게 움직임
+- 1인칭 중 CPU 4배 프레임 측정은 안 함 (전체 보기에서만 p95 16.8 ms)
 - Registration 위치는 추정 (Entrance Hall)
 - 폰 실기기: 3D 끊김·소리·아이폰 무음 스위치 확인 안 함
 - "Scan a room sign"은 자리 화면만 (프로토타입은 `reference/`라 배포 안 됨)

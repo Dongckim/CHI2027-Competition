@@ -71,6 +71,8 @@ type Start = ReturnType<typeof useStart> & { paperKey: string };
 function GettingThere({ paperKey, schedule, toKey, lastStop, stepFree }: Start) {
   const fromKey = picked.get(paperKey) ?? lastStop ?? REGISTRATION;
   const back = () => history.back();
+  const [step, setStep] = useState(-1); // the step the 3D plan shows (−1: none)
+  const goStep = useRef<(i: number) => void>(() => {});
   const result = useMemo(() => {
     if (!schedule || !toKey) return null;
     const a = areaOf(schedule, fromKey), b = schedule.venueMap.rooms?.[toKey];
@@ -97,15 +99,18 @@ function GettingThere({ paperKey, schedule, toKey, lastStop, stepFree }: Start) 
             : result && (<>
               <p className="text-display leading-[1.3] font-semibold">{result.r.minutes[0]}–{result.r.minutes[1]} min</p>
               <p className="text-body leading-6">to {result.d.to} · {result.r.levels.at(-1)}{stepFree ? ' · step-free' : ''}</p>
-              <ol className="flex flex-col gap-3.5" aria-label="Steps">
+              {/* Each step is a 44px row: tapping it shows that step on the plan. The step the plan is at is filled. */}
+              <ol className="flex flex-col" aria-label="Steps">
                 {result.d.lines.map((l: { text: string }, i: number) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full bg-surface text-small font-semibold">{i + 1}</span>
-                    <span className="flex-1 text-body leading-6">{l.text}</span>
+                  <li key={i} aria-current={i === step ? 'step' : undefined}>
+                    <button type="button" onClick={() => goStep.current(i)} className="flex min-h-touch w-full items-start gap-3 py-1 text-left">
+                      <span aria-hidden="true" className={`grid size-7 shrink-0 place-items-center rounded-full text-small font-semibold ${i === step ? 'bg-inverse text-on-inverse' : 'bg-surface'}`}>{i + 1}</span>
+                      <span className="flex-1 text-body leading-6">{l.text}</span>
+                    </button>
                   </li>
                 ))}
               </ol>
-              <Plan3D venue={schedule.venue} r={result.r} summary={result.d.summary} cues={result.d.cues} />
+              <Plan3D venue={schedule.venue} r={result.r} summary={result.d.summary} cues={result.d.cues} lines={result.d.lines} onStep={setStep} goStep={goStep} />
             </>)}
         </>)}
       </main>
@@ -118,9 +123,16 @@ function GettingThere({ paperKey, schedule, toKey, lastStop, stepFree }: Start) 
 
 // The 3D view (three.js, loaded now) with its three views, and "Hear the turns". If WebGL is missing it says so; the
 // steps above are complete on their own.
-function Plan3D({ venue, r, summary, cues }: { venue: Venue; r: ReturnType<typeof findRoute>; summary: string; cues: { text: string }[] }) {
+type View = { mode: (m: string) => boolean; walk: (on: boolean) => boolean; step: (i: number) => void; walking: () => boolean; dispose: () => void };
+function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
+  venue: Venue; r: ReturnType<typeof findRoute>; summary: string; cues: { text: string }[]; lines: { text: string; node: string; level: string }[];
+  onStep: (i: number) => void; goStep: { current: (i: number) => void };
+}) {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const view = useRef<{ mode: (m: string) => boolean; dispose: () => void } | null>(null);
+  const view = useRef<View | null>(null);
+  const [step, setStepHere] = useState(-1);
+  const [walking, setWalking] = useState(false), [playing, setPlaying] = useState(false);
+  const reduceMotion = useMemo(() => matchMedia('(prefers-reduced-motion: reduce)').matches, []);
   const [state, setState] = useState<'loading' | 'ready' | 'failed'>('loading');
   const [floorsOnly, setFloorsOnly] = useState(false);
   const [view3d, setView] = useState<'original' | 'fit'>('original');
@@ -128,14 +140,18 @@ function Plan3D({ venue, r, summary, cues }: { venue: Venue; r: ReturnType<typeo
   const stop = useRef<(() => void) | null>(null);
   useEffect(() => {
     let cancelled = false;
-    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reached = (i: number, end?: string) => { setStepHere(i); onStep(i); if (end) setPlaying(false); };
     import('../venue/view3d.js').then(({ mount }) => {
       if (cancelled || !canvas.current) return;
-      try { view.current = mount(canvas.current, { venue, route: r, summary, reduceMotion }); setState('ready'); } catch { setState('failed'); }
+      try { view.current = mount(canvas.current, { venue, route: r, summary, steps: lines, onStep: reached, reduceMotion }); setState('ready'); } catch { setState('failed'); }
     }, () => setState('failed'));
     return () => { cancelled = true; view.current?.dispose(); view.current = null; stop.current?.(); };
-  }, [venue, r, summary]);
-  const pick = (m: 'original' | 'fit') => { setView(m); view.current?.mode(m); };
+  }, [venue, r, summary]); // eslint-disable-line react-hooks/exhaustive-deps -- lines and onStep follow the route
+  goStep.current = i => { view.current?.step(i); setPlaying(false); };
+  const pick = (m: 'original' | 'fit') => { setView(m); setWalking(false); setPlaying(false); view.current?.mode(m); };
+  const walk = () => { const p = view.current?.walk(true) ?? false; setWalking(true); setPlaying(p); };
+  const near = (d: number) => goStep.current(Math.min(lines.length - 1, Math.max(0, (step < 0 ? 0 : step + d))));
+  const walkLabel = !walking ? 'Walk the route' : reduceMotion ? 'Next step' : playing ? 'Pause' : 'Walk on';
   return (
     <section aria-label="Floor plan" className="flex flex-1 flex-col gap-2">
       <div className="relative min-h-[140px] flex-1 overflow-hidden rounded-bar bg-surface">
@@ -149,6 +165,15 @@ function Plan3D({ venue, r, summary, cues }: { venue: Venue; r: ReturnType<typeo
           <Button variant="outline" aria-pressed={floorsOnly} onClick={() => setFloorsOnly(!!view.current?.mode('floors'))}>Route floors only</Button>
         </div>
       )}
+      {state === 'ready' && (
+        // First person: walk the route at eye height; the step reached shows in the list above and here.
+        <div className="flex gap-2" role="group" aria-label="Walk the route">
+          <Button variant="outline" aria-label="Previous step" className="w-touch px-0" disabled={step <= 0} onClick={() => near(-1)}>‹</Button>
+          <Button variant="outline" className="flex-1" aria-pressed={walking} onClick={walk}>{walkLabel}</Button>
+          <Button variant="outline" aria-label="Next step" className="w-touch px-0" disabled={step >= lines.length - 1} onClick={() => near(1)}>›</Button>
+        </div>
+      )}
+      {state === 'ready' && <p aria-live="polite" className="min-h-6 text-small">{step >= 0 ? `Step ${step + 1} of ${lines.length}: ${lines[step].text}` : walking ? '' : 'Tap a step to see it on the plan.'}</p>}
       <Button variant="outline" aria-pressed={cue >= 0} onClick={() => {
         if (stop.current) { stop.current(); stop.current = null; return; }
         stop.current = playCues(cues as never, (i: number) => { setCue(i); if (i < 0) stop.current = null; });

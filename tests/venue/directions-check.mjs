@@ -63,6 +63,29 @@ try {
   const sorted = [...frames].sort((a, b) => a - b), p = q => +sorted[Math.floor(q * (sorted.length - 1))].toFixed(1);
   check('smooth at CPU 4x', p(0.95) < 34 && frames.filter(x => x > 50).length <= 3, { frames: frames.length, medianMs: p(0.5), p95Ms: p(0.95), over50ms: frames.filter(x => x > 50).length });
 
+  // Step numbers on the route = the written steps; tapping step 3 selects it in the list and on the plan.
+  const nLines = (out.steps ?? []).length;
+  check('step numbers on the route', (await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.steps`)) === String(nLines), { lines: nLines });
+  await ev(`document.querySelectorAll('ol[aria-label=Steps] li button')[2].click()`); await sleep(1200);
+  out.tapStep3 = { current: await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step')`), live: await ev(`[...document.querySelectorAll('[aria-live]')].map(p => p.innerText).find(t => t.startsWith('Step')) ?? null`) };
+  check('tap a step: selected', out.tapStep3.current === 2 && /^Step 3 of /.test(out.tapStep3.live ?? ''), out.tapStep3);
+  await ev(`[...document.querySelectorAll('button')].find(b => b.innerText === 'Original angle').click()`); await sleep(1200);
+  await shot('s5-09-steps');
+  // First person: Walk the route → frames keep coming, the step advances by itself; Pause stops.
+  await ev(`[...document.querySelectorAll('button')].find(b => b.innerText === 'Walk the route').click()`);
+  await sleep(400);
+  const w0 = { f: await ev(framesNow), step: await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step')`) };
+  await shot('s5-09-first-person-start');
+  // It reaches the next step by itself (within 10 s at the preview speed); step 1 is current from the door.
+  const reachedIn = await waitFor(`[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step') > ${w0.step}`, 10000);
+  const w1 = { f: await ev(framesNow), step: await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step')`), label: await ev(`[...document.querySelectorAll('[aria-label="Walk the route"] button')][1].innerText`) };
+  await shot('s5-09-first-person');
+  check('first person walks on', w0.step === 0 && reachedIn != null && w1.f - w0.f > 60 && w1.label === 'Pause', { start: w0, nextStepInMs: reachedIn, then: w1 });
+  await ev(`[...document.querySelectorAll('[aria-label="Walk the route"] button')][1].click()`); await sleep(300);
+  const p0 = await ev(framesNow); await sleep(1000); const p1 = await ev(framesNow);
+  check('Pause stops', p1 === p0 && (await ev(`[...document.querySelectorAll('[aria-label="Walk the route"] button')][1].innerText`)) === 'Walk on', { framesIn1s: p1 - p0 });
+  await ev(`[...document.querySelectorAll('button')].find(b => b.innerText === 'Original angle').click()`); await sleep(600);
+
   // Buttons: Fit route, Route floors only.
   await ev(`[...document.querySelectorAll('button')].find(b => b.innerText === 'Fit route').click()`); await sleep(900);
   await ev(`[...document.querySelectorAll('button')].find(b => b.innerText === 'Route floors only').click()`); await sleep(900);
@@ -106,6 +129,13 @@ try {
   await sleep(800);
   const f0 = await ev(framesNow); await sleep(1500); const f1 = await ev(framesNow);
   check('reduced motion: still', f1 === f0, { framesIn1500ms: f1 - f0 });
+  // Reduced motion, first person: no gliding; it stands at step 1, Next step goes to step 2, and then nothing moves.
+  await ev(`[...document.querySelectorAll('button')].find(b => b.innerText === 'Walk the route').click()`); await sleep(400);
+  const r0 = await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step')`);
+  await ev(`[...document.querySelectorAll('[aria-label="Walk the route"] button')][1].click()`); await sleep(400);
+  const r1 = await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step')`);
+  const g0 = await ev(framesNow); await sleep(1200); const g1 = await ev(framesNow);
+  check('reduced motion: first person jumps step to step', r0 === 0 && r1 === 1 && g1 === g0, { first: r0, afterNext: r1, framesIn1200ms: g1 - g0 });
   await shot('s5-09-dark-reduced');
   out.pageErrors = errors;
   if (errors.length) fails.push('page errors');
