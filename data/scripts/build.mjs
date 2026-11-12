@@ -1,6 +1,7 @@
 // Normalize data/raw/<edition>/rev-NNN.json (latest revision) into data/build/<edition>/.
 // Output is a pure function of the feed + venue + curated files: no clock, sorted by id.
-import { readFile, readdir, mkdir, writeFile } from 'node:fs/promises';
+import { readFile, readdir, mkdir, writeFile, rm } from 'node:fs/promises';
+import { buildAppData } from './app-data.mjs';
 import { fileURLToPath } from 'node:url';
 
 const DATA = new URL('../', import.meta.url);
@@ -251,6 +252,16 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     for (const [name, value] of Object.entries(out)) {
       await writeFile(new URL(`${name}.json`, dir), Array.isArray(value) ? lines(value) : JSON.stringify(value, null, 2) + '\n');
     }
-    console.log(`${edition}: ${JSON.stringify(out.meta.counts)}`);
+    // App slices (data/scripts/app-data.mjs). The edition folder is replaced so only the current revision path remains.
+    const app = buildAppData(out);
+    const appDir = new URL(`build/app-data/${edition}/`, DATA);
+    await rm(appDir, { recursive: true, force: true });
+    for (const [file, text] of Object.entries(app.text)) {
+      const target = new URL(app.path + file, appDir);
+      await mkdir(new URL('./', target), { recursive: true });
+      await writeFile(target, text);
+    }
+    await writeFile(new URL('current.json', appDir), JSON.stringify(app.current, null, 2) + '\n');
+    console.log(`${edition}: ${JSON.stringify(out.meta.counts)} · app-data/${edition}/${app.path}`);
   }
 }

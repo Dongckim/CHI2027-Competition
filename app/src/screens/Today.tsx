@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import response from '../../../contracts/examples/RecommendResponse.chi2026-tuesday.json';
 import { planDay } from '../planner/plan.js';
 import { todayRows, candidatesFrom, conferenceDays } from '../today/rows.js';
-import { loadProgramme, type Programme } from '../data/load';
+import { loadSchedule, EDITION, type Schedule } from '../data/load';
 import { Header } from '../components/Header';
 import { DayTabs } from '../components/DayTabs';
 import { NowCard } from '../components/NowCard';
@@ -11,13 +11,13 @@ import { Button } from '../components/Button';
 import { LinkRow } from '../components/LinkRow';
 
 // S0: the recommendation is the fake contract example (chi2026 Tuesday). No clock yet, so the first stop is shown as NEXT.
-const EDITION = response.dataVersion.edition;
+if (response.dataVersion.edition !== EDITION) throw new Error(`fake response is for ${response.dataVersion.edition}, app data is ${EDITION}`);
 
 export function Today() {
-  const [data, setData] = useState<Programme | null>(null);
+  const [data, setData] = useState<Schedule | null>(null);
   const [error, setError] = useState('');
   const [day, setDay] = useState('');
-  useEffect(() => { loadProgramme(EDITION).then(setData, e => setError(String(e.message ?? e))); }, []);
+  useEffect(() => { loadSchedule().then(setData, e => setError(String(e.message ?? e))); }, []);
 
   const view = useMemo(() => {
     if (!data) return null;
