@@ -10,7 +10,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - V0(데이터) 완료. V6 길 안내 조건부(`app/src/venue/route.js`, 플래너에 연결). V4 자막 조건부(`app/src/captions/`, `functions/soniox-key.mjs`, 키는 `.env.local`)
 - V2 진행 중: 플래너 `app/src/planner/plan.js`(내부 입력). contracts/는 RecommendRequest·RecommendResponse 0.1.0만 확정, 나머지는 사용자가 설계 중 → 임의로 계약 필드를 만들지 말 것. recsys/는 비어 있음
 - S0 뼈대: `app/` Vite + React + TS + Tailwind v4, 해시 라우팅 3탭, 가짜 추천 = `contracts/examples/RecommendResponse.chi2026-tuesday.json`
-- 명령 (Node 20, `arc/`에서):
+- 명령 (Node 26 = Vercel 빌드와 같게, `package.json` engines. 로컬 20.19+도 동작하지만 26 권장. `arc/`에서):
   - `npm run data:fetch [edition...]` : version.json 조회 → 새 리비전만 data/raw에 저장
   - `npm run data:validate` : 공식 스키마 검사 (스키마는 초안이라 chi2025 외 실패가 정상, V0 문서 참고)
   - `npm run data:ror` : data/raw의 새 기관 이름만 ROR로 조회해 data/curated/ror-*.json에 캐시 (새 리비전 받은 뒤)

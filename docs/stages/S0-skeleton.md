@@ -57,6 +57,7 @@
 - 예시의 conceptId는 `topics.json`의 `topic:<slug>` (실제 ID). 개념 체계가 정해지면 바뀔 수 있음
 - countries는 data/build 값 그대로 나라 이름 (ISO 코드 아님)
 - 다크 값은 제안값. 대비 실측은 S8
+- Node: `engines` 26.x. Vercel이 20.x를 더 이상 받지 않음 (`BUILD_UTILS_NODE_VERSION_DISCONTINUED`, 첫 미리보기 빌드가 여기서 실패)
 - 배포 데이터는 빌드 때 피드에서 받음: 리비전 파일은 바뀌지 않음, version.json 1회. 피드 서버가 죽으면 배포가 원인과 함께 멈춤
 - 앱 데이터 경로 = 리비전 + 내용 해시: 리비전만 넣으면 빌드 코드가 바뀌어도 경로가 같아서, 1년 캐시에 옛 파일이 남음
 - 경로는 런타임에 묻지 않고 번들에 넣음: index.html이 no-cache라 새 배포는 새 경로를 바로 씀. 런타임 조회 파일(max-age=300)을 두면 배포 직후 5분 동안 옛 경로를 가리켜 404가 날 수 있음
