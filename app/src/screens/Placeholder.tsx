@@ -25,4 +25,4 @@ export function Placeholder({ kind, paperKey }: { kind: PlaceholderKind; paperKe
     </div>
   );
 }
-export const isPlaceholder = (head: string): head is PlaceholderKind => head in SCREENS;
+export const isPlaceholder = (head: string): head is PlaceholderKind => Object.hasOwn(SCREENS, head); // not `in`: #/toString/x is no screen

@@ -86,3 +86,15 @@ test('how full keeps the most valuable stops in time order', () => {
   assert.deepEqual(kept.conflicts.map(c => c.paperKey), ['c']);
   assert.equal(limitStops(day, 8), day);
 });
+
+test('a day is built only from a sentence and at least one topic or nearby field', async () => {
+  const { canBuild } = await import('../../app/src/state/device.js');
+  const blank = freshState(defaults);
+  assert.equal(canBuild(blank), false, 'gear → summary → Build my day with nothing typed');
+  let s = topicsFromResponse(setQuery(blank, 'I study maps'), response);
+  assert.equal(canBuild(s), true);
+  s = toggleTopic(toggleTopic(s, 'topic:a'), 'topic:b');
+  assert.equal(canBuild(s), false, 'every topic switched off');
+  assert.equal(canBuild(toggleNearby(s, response.nearby[0])), true);
+  assert.equal(canBuild(setQuery(topicsFromResponse(setQuery(blank, 'x'), response), '   ')), false);
+});

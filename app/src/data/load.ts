@@ -7,8 +7,21 @@ import { sessionSlotsFrom } from '../today/card.js';
 export const EDITION = current.edition;
 const base = `/app-data/${current.edition}/${current.path}`;
 
+// A deploy ships only its own app-data path, so a tab still running an older bundle gets 404 for its path.
+// Reload once (per path) to pick up the new bundle and path; if that already happened, report the error instead of looping.
+const RELOADED = 'arc.reloadedFor';
+function reloadForNewDeploy() {
+  try {
+    if (sessionStorage.getItem(RELOADED) === current.path) return false;
+    sessionStorage.setItem(RELOADED, current.path);
+  } catch { return false; }
+  location.reload();
+  return true;
+}
+
 const get = async (url: string) => {
   const r = await fetch(url);
+  if (r.status === 404 && url.startsWith(base) && reloadForNewDeploy()) return new Promise<never>(() => {}); // the page is reloading
   if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);
   return r.json();
 };

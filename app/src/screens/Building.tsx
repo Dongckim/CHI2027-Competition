@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { response } from '../data/fake-recommend';
 import { go } from '../router';
 import { update, useDevice } from '../state/useDevice';
-import { candidatesFor } from '../state/device.js';
+import { candidatesFor, canBuild } from '../state/device.js';
 import { loadSchedule } from '../data/load';
 import { Header } from '../components/Header';
 import { Button } from '../components/Button';
@@ -13,13 +13,17 @@ const PAUSE_MS = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 70
 const pause = () => new Promise(r => setTimeout(r, PAUSE_MS));
 
 export function Building() {
-  const { plan } = useDevice();
+  const state = useDevice();
+  const { plan } = state;
+  const allowed = canBuild(state);
+  useEffect(() => { if (!allowed) go('start/research', { replace: true }); }, [allowed]);
   const [done, setDone] = useState(0);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
   const found = candidatesFor(response, plan).length;
 
   useEffect(() => {
+    if (!allowed) return;
     let live = true;
     (async () => {
       try {
@@ -35,7 +39,7 @@ export function Building() {
       }
     })();
     return () => { live = false; };
-  }, [attempt]);
+  }, [attempt, allowed]);
 
   const steps = ['Read your research', `Found ${found} talks for you`, plan.needs.stepFree ? 'Checking rooms and step-free paths' : 'Checking rooms and walking times'];
   return (
