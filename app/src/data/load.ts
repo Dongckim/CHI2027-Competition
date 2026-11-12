@@ -44,6 +44,7 @@ export const loadSchedule = once(async () => {
   markDataSaved();
   return {
     meta, sessions, index: indexData({ meta, papers, sessions, rooms }), travelMinutes: venueTravelMinutes(venue, venueMap),
+    venue, venueMap, // Today's walking minutes and 09 directions (app/src/venue/)
     sessionSlots: sessionSlotsFrom(papers), timing: new Map<string, string>(sessions.map((x: { key: string; timing: string }) => [x.key, x.timing])),
   };
 });

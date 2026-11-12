@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { localDay } from '../planner/plan.js';
 import { todayRows } from '../today/rows.js';
 import { dayCard, laterStops, talkPosition, WALK_MIN, FIRST_WALK_MIN } from '../today/card.js';
+import { walkMinutes, REGISTRATION } from '../venue/walk.js';
 import { removeStop, pickOne } from '../today/edits.js';
 import { freeGaps, dayBounds } from '../today/more.js';
 import { offlineNote } from '../today/offline.js';
@@ -88,7 +89,10 @@ function PlannedToday({ mode }: { mode: 'plan' | 'sample' }) {
   const plan = plans[days.indexOf(selected)];
   const attending = chosen.includes(selected);
   const live = attending && selected === today;
-  const card = live ? dayCard(plan.stops, nowMs) : null;
+  // Walking minutes on the venue's routes: from the stop before, the first from Registration; step-free plans walk step-free.
+  const walkOf = (stop: { roomKey: string }, i: number) =>
+    walkMinutes(data.venue, data.venueMap, i > 0 ? plan.stops[i - 1].roomKey : REGISTRATION, stop.roomKey, { wheelchair: plan.wheelchair });
+  const card = live ? dayCard(plan.stops, nowMs, walkOf) : null;
   const later = live && card && !(card.kind === 'done' && wholeDay) ? laterStops(plan.stops, card) : plan.stops;
   const tags = new Map(todayRows(plan, response).map(r => [r.paperKey, r]));
   const title = (k: string) => data.index.papers.get(k)?.title ?? k;
@@ -147,7 +151,7 @@ function PlannedToday({ mode }: { mode: 'plan' | 'sample' }) {
             <Button className="self-start" onClick={() => update(s => addDay(s, selected))}>Add this day</Button>
           </div>
         ) : (<>
-          {card && <TopCard card={card} plan={plan} data={data} at={at} title={title} room={room} weekday={weekday(selected)} short={shortDay(selected)}
+          {card && <TopCard card={card} plan={plan} data={data} walkOf={walkOf} at={at} title={title} room={room} weekday={weekday(selected)} short={shortDay(selected)}
             onSkip={remove} onWholeDay={() => setWholeDay(w => !w)} wholeDay={wholeDay} />}
           {card?.kind === 'done' && nextDay && <LinkRow href={`#/${back}`} onClick={() => setDay(nextDay)}>{`Your ${weekday(nextDay)} is ready`}</LinkRow>}
           {items.length > 0 && (
@@ -207,8 +211,9 @@ function PlannedToday({ mode }: { mode: 'plan' | 'sample' }) {
 }
 
 type Card = ReturnType<typeof dayCard>;
-function TopCard({ card, plan, data, at, title, room, weekday, short, onSkip, onWholeDay, wholeDay }: {
-  card: Card; plan: DayView['plans'][number]; data: Schedule; at: (ms: number) => string; title: (k: string) => string; room: (k: string) => string;
+function TopCard({ card, plan, data, walkOf, at, title, room, weekday, short, onSkip, onWholeDay, wholeDay }: {
+  card: Card; plan: DayView['plans'][number]; data: Schedule; walkOf: (stop: { roomKey: string }, i: number) => number[] | null;
+  at: (ms: number) => string; title: (k: string) => string; room: (k: string) => string;
   weekday: string; short: string; onSkip: (k: string) => void; onWholeDay: () => void; wholeDay: boolean;
 }) {
   if (card.kind === 'empty') return null;
@@ -218,8 +223,9 @@ function TopCard({ card, plan, data, at, title, room, weekday, short, onSkip, on
   );
   const s = card.stop!;
   const href = `#/talk/${s.paperKey}`;
-  const isFirst = s.paperKey === plan.stops[0].paperKey;
-  const walk = isFirst ? `${range(FIRST_WALK_MIN)} from Registration` : `${range(WALK_MIN)} walk`;
+  const i = plan.stops.indexOf(s), isFirst = i === 0;
+  const minutes = walkOf(s, i) ?? (isFirst ? FIRST_WALK_MIN : WALK_MIN);
+  const walk = isFirst ? `${range(minutes)} from Registration` : `${range(minutes)} walk`;
   const buttons = (dark = false) => (
     <><ButtonLink href={`#/directions/${s.paperKey}`} className="flex-1" onDark={dark}>Directions</ButtonLink>
       <Button variant="secondary" className="w-[104px]" onDark={dark} onClick={() => onSkip(s.paperKey)}>Skip</Button></>
