@@ -32,8 +32,10 @@ export function Talk({ paperKey }: { paperKey: string }) {
   const slot = p ? firstSlot(p.slots) : null;
   useEffect(() => {
     if (!p) return;
+    let current = true; // a slower answer for the talk opened before must not replace this talk's abstract
     setAbstract(null);
-    loadAbstracts(abstractFileDay(p.slots, tz)).then(a => setAbstract(a[paperKey] ?? ''), () => setAbstract(false));
+    loadAbstracts(abstractFileDay(p.slots, tz)).then(a => current && setAbstract(a[paperKey] ?? ''), () => current && setAbstract(false));
+    return () => { current = false; };
   }, [p, paperKey, online]); // eslint-disable-line react-hooks/exhaustive-deps -- back online: try the day file again
 
   const header = <Header back={() => history.back()} search />;
