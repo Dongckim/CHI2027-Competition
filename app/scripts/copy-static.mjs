@@ -16,10 +16,11 @@ cpSync(from(`data/build/app-data/${EDITION}/${current.path}`), from(`dist/app-da
 cpSync(from('app/src'), from('dist/app/src'), { recursive: true, filter: s => !/\.(tsx?|css)$/.test(s) });
 console.log(`copied ${EDITION} data, app-data/${EDITION}/${current.path}, venue, tests and app/src modules into dist/`);
 
-// Service worker with this deploy's precache list: the page, its hashed JS/CSS/woff2, Today's data and the venue graph.
+// Service worker with this deploy's precache list: the page, its hashed JS/CSS/woff2, Today's data and the venue graph
+// with its names. Not the 3D view (view3d-*.js, with three.js): it loads when 09 opens, and the worker keeps it then.
 export function precacheList(assets, appDataPath, venue) {
-  return ['/', '/index.html', ...assets.filter(f => /\.(js|css|woff2)$/.test(f)).sort().map(f => `/assets/${f}`),
-    `/app-data/${EDITION}/${appDataPath}schedule.json`, `/data/venue/${EDITION}.json`, `/data/venue/${venue}.json`];
+  return ['/', '/index.html', ...assets.filter(f => /\.(js|css|woff2)$/.test(f) && !/^view3d-/.test(f)).sort().map(f => `/assets/${f}`),
+    `/app-data/${EDITION}/${appDataPath}schedule.json`, `/data/venue/${EDITION}.json`, `/data/venue/${venue}.json`, `/data/venue/${venue}.labels.json`];
 }
 const venueName = JSON.parse(readFileSync(from(`data/venue/${EDITION}.json`))).venue;
 const precache = precacheList(readdirSync(from('dist/assets')), current.path, venueName);
