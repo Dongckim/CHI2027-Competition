@@ -40,3 +40,9 @@ test('QA 6: a query without letters or digits searches nothing', () => {
   assert.deepEqual(searchPeople(index, '-'), []);
   assert.deepEqual(searchSessions(index, '.'), []);
 });
+
+test('QA 7: accents are ignored when comparing ("Vazquez" finds "Baca-Vázquez")', () => {
+  assert.deepEqual(searchPeople(index, 'Vazquez'), ['chi2026:p1']);
+  assert.deepEqual(searchPeople(index, 'vázquez'), ['chi2026:p1']);
+  assert.deepEqual(searchTalks(index, 'vazquez').map(r => r.key), ['chi2026:1']);
+});

@@ -4,6 +4,9 @@
 import { normalizeName } from './edition.mjs';
 import { localDay as localDayOf } from '../../app/src/planner/plan.js';
 
+// Compared without accents or case ("Vazquez" ~ "Baca-Vázquez", "turkiye" ~ "Türkiye"). Hangul is recomposed (NFC).
+const fold = s => normalizeName(s ?? '').normalize('NFD').replace(/\p{M}/gu, '').normalize('NFC');
+const queryWords = query => fold(query).split(' ').filter(Boolean);
 // A query with no letter or digit ("(", "-") is no query: nothing is searched.
 export const hasWords = query => /[\p{L}\p{N}]/u.test(query ?? '');
 
@@ -50,7 +53,7 @@ const COUNTRY_WORDS = { usa: 'united states', us: 'united states', america: 'uni
 /** @param {{ schedule: any, people: Record<string, any>, topics?: { label: string, contentKeys: string[] }[], aliases: any }} data */
 export function buildSearchIndex({ schedule, people, topics = [], aliases }) {
   const tz = schedule.meta.timeZone;
-  const words = s => normalizeName(s ?? '').split(' ').filter(Boolean);
+  const words = s => fold(s).split(' ').filter(Boolean);
   const topicsOf = new Map();
   for (const t of topics) for (const k of t.contentKeys) (topicsOf.get(k) ?? topicsOf.set(k, []).get(k)).push(t.label);
   const order = new Map([...schedule.papers].sort((a, b) => firstStart(a) - firstStart(b) || (a.title < b.title ? -1 : 1)).map((p, i) => [p.paperKey, i]));
@@ -64,20 +67,20 @@ export function buildSearchIndex({ schedule, people, topics = [], aliases }) {
       authors: p.authors.map(k => ({ key: k, name: people[k]?.name ?? '', words: words(people[k]?.name) })),
       topics: (topicsOf.get(p.paperKey) ?? []).map(label => ({ label, words: words(label) })),
       institutions: new Set(affs.map(a => a.institutionKey).filter(Boolean)),
-      countries: new Set(affs.map(a => normalizeName(a.country ?? '')).filter(Boolean)),
+      countries: new Set(affs.map(a => fold(a.country)).filter(Boolean)),
     };
   });
   const peopleList = Object.entries(people).map(([key, p]) => ({
     key, name: p.name, words: words(p.name),
     institutions: new Set(p.affiliations.map(a => a.institutionKey).filter(Boolean)),
-    countries: new Set(p.affiliations.map(a => normalizeName(a.country ?? '')).filter(Boolean)),
+    countries: new Set(p.affiliations.map(a => fold(a.country)).filter(Boolean)),
   })).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   const sessionTalks = new Map();
   for (const t of talks) for (const s of t.sessions) (sessionTalks.get(s) ?? sessionTalks.set(s, []).get(s)).push(t.key);
   const sessions = schedule.sessions.filter(s => sessionTalks.has(s.key)).map(s => ({
     key: s.key, words: words(s.name), start: s.start, days: s.start != null ? [localDayOf(s.start, tz)] : [], talks: sessionTalks.get(s.key),
   })).sort((a, b) => (a.start ?? Infinity) - (b.start ?? Infinity));
-  const countryLabel = new Map(Object.values(people).flatMap(p => p.affiliations).filter(a => a.country).map(a => [normalizeName(a.country), a.country]));
+  const countryLabel = new Map(Object.values(people).flatMap(p => p.affiliations).filter(a => a.country).map(a => [fold(a.country), a.country]));
   const countries = [...new Set(talks.flatMap(t => [...t.countries]))].sort();
   return { talks, talkByKey: new Map(talks.map(t => [t.key, t])), people: peopleList, sessions, aliases, countries, countryLabel,
     names: new Map(aliases.institutions.map(i => [i.key, i.name])), places: new Map() };
@@ -97,7 +100,8 @@ export function placeOf(index, query) {
   return index.places.get(q);
 }
 function findPlace(index, q) {
-  const country = own(COUNTRY_WORDS, q) ?? index.countries.find(c => c === q || (q.length >= 4 && c.startsWith(q)));
+  const f = fold(q);
+  const country = own(COUNTRY_WORDS, f) ?? index.countries.find(c => c === f || (f.length >= 4 && c.startsWith(f)));
   if (country) return { kind: 'country', key: country, label: index.countryLabel.get(country) ?? country };
   const scored = scoredInstitutions(index.aliases, q).filter(([, s]) => s >= 2 && (s === 3 || q.length >= 4));
   if (!scored.length) return null;
@@ -114,7 +118,8 @@ export function placeChoices(index, query, limit = 5) {
   const q = normalizeName(query);
   if (!q || !hasWords(q)) return [];
   const out = searchInstitutions(index.aliases, q, limit).map(k => ({ kind: 'institution', keys: [k], label: index.names.get(k) }));
-  const country = own(COUNTRY_WORDS, q) ?? index.countries.find(c => c.startsWith(q));
+  const f = fold(q);
+  const country = own(COUNTRY_WORDS, f) ?? index.countries.find(c => c.startsWith(f));
   if (country) out.unshift({ kind: 'country', key: country, label: index.countryLabel.get(country) ?? country });
   return out.slice(0, limit);
 }
@@ -131,7 +136,7 @@ const passes = (t, f) => (!f.days.length || t.days.some(d => f.days.includes(d))
 /** @param {Filters} [filters] */
 export function searchTalks(index, query, filters = NO_FILTERS) {
   if (!hasWords(query) && query?.trim() && !filterCount(filters)) return [];
-  const qw = hasWords(query) ? normalizeName(query).split(' ').filter(Boolean) : [];
+  const qw = hasWords(query) ? queryWords(query) : [];
   const place = qw.length ? placeOf(index, query) : null;
   const tiers = [[], [], [], []];
   for (const t of index.talks) {
@@ -149,7 +154,7 @@ export function searchTalks(index, query, filters = NO_FILTERS) {
 // People by name, then people at the place the query names. Only the place filter applies (people have no day or type).
 /** @param {Filters} [filters] */
 export function searchPeople(index, query, filters = NO_FILTERS) {
-  const qw = hasWords(query) ? normalizeName(query).split(' ').filter(Boolean) : [];
+  const qw = hasWords(query) ? queryWords(query) : [];
   if (!qw.length && !filters.place) return [];
   const place = qw.length ? placeOf(index, query) : null;
   const byName = [], atIt = [];
@@ -164,7 +169,7 @@ export function searchPeople(index, query, filters = NO_FILTERS) {
 // Sessions by name, in time order. Day filter applies; type and place filter the session's talks.
 /** @param {Filters} [filters] */
 export function searchSessions(index, query, filters = NO_FILTERS) {
-  const qw = hasWords(query) ? normalizeName(query).split(' ').filter(Boolean) : [];
+  const qw = hasWords(query) ? queryWords(query) : [];
   if (!qw.length && !filterCount(filters)) return [];
   const talks = index.talkByKey;
   return index.sessions
