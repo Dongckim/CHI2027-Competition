@@ -148,4 +148,4 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 폰 확인 통과(데모 슬라이더). 남은 것: 걷는 시간 가짜(S5), Skip·Edit 동작, 06/09/S6 자리만 (docs/stages/S2-today.md)
 - S3 바꾸기·예외 (2026-11-12, stage/S3-changes): Remove/Swap/Undo, PICK ONE, More for you 3상태, 03-J2/K/L/M, 서비스 워커 오프라인
 - 새 revision은 기기에서 같은 buildEdition으로 정규화 → 내 일정 변경만 알림. 헤드리스 Chrome에서 서버를 끄고도 Today·Undo 동작
-- 남은 것: 폰 확인(비행기 모드), 맞는 추천은 가짜 응답이 작아 화면에서 못 봄, Edit 버튼 (docs/stages/S3-changes.md)
+- 임시 추천기 baseline-0 (TF-IDF, 폰에서 실행, `app/src/data/recommend.ts`의 TODO(recsys)가 API 자리). 남은 것: 폰 확인(비행기 모드), Edit 버튼 (docs/stages/S3-changes.md)

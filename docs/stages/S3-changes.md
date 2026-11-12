@@ -15,7 +15,7 @@
 
 ### 2. PICK ONE 규칙과 영상 여부
 - 같은 시각 다른 발표 = 플래너의 `conflicts`. 행을 누르면 두(이상) 발표와 Choose
-- 영상 여부: `data/build/<edition>/papers.json`의 `video` (피드 `contents[].addons`의 `type: video` URL, 없으면 null). chi2026: 2,782편 중 544편 (Paper 270, Posters 235, Demos 39)
+- 영상 여부: `data/build/<edition>/papers.json`의 `video` (피드 `contents[].addons`의 `type: video` URL, 없으면 null) → 앱의 `schedule.json` `video` (true/false). chi2026 schedule.json: 544 / 2,782 — paper 270/1,702, poster 235/807, demo 39/67, other 0/206
   - 영상 없음 → "Only here now", 있음 → "Can catch later"
 - Choose → `pickOne`: 고른 것 added, 나머지 passed
 
@@ -24,7 +24,7 @@
 - revision이 앱 데이터의 revision보다 크면 → 그 `revision_url` 파일만 받기 → 빌드와 같은 `buildEdition`(`data/scripts/edition.mjs`로 분리, 브라우저에서 따로 떨어진 2.8 KB 조각) → 새 프로그램으로 일정을 다시 짬
 - `diffStops`: 내 일정에 있는 발표만 비교 → 방 이동 / 시간 이동 / 빠짐. 있으면 03-M 알림("Programme updated. [발표] moved to [방]." + OK)과 행의 "Moved to …"
 - OK = 그 revision은 다시 알리지 않음 (`arc.programmeSeen`)
-- 테스트용 가짜 변경: 샘플 하루의 "Simulate a room change" 버튼, 또는 아무 화면에서 주소에 `?simulate=room-change` (같은 경로로 한 발표의 방을 바꿈)
+- 테스트용 가짜 변경: **샘플 하루에서만**. 샘플 띠의 "Simulate a room change" 버튼, 또는 `?simulate=room-change#/sample`. 샘플 하루를 나가면 가짜 변경은 지워짐 (계획 모드에서는 무시)
 - CORS: version.json·revisions 모두 `access-control-allow-origin: *`, 커스텀 헤더 없는 GET만
 
 ### 4. 오프라인 (`app/sw.js`, `app/scripts/copy-static.mjs`)
@@ -34,7 +34,7 @@
   - `/data/venue/`: 저장본을 바로 주고 뒤에서 갱신
   - 피드 revision 파일: 저장본 먼저 (바뀌지 않음), version.json은 저장 안 함
 - 새 배포 = 새 서비스 워커 → 옛 저장본 삭제 (`sw.js`는 `no-cache`)
-- "Offline · saved at 08:40": 마지막으로 온라인에서 일정 데이터를 받은 시각 (`arc.savedAt`, 개최지 시각)
+- "Offline · saved at 08:40": 마지막으로 온라인에서 일정 데이터를 받은 시각 (`arc.savedAt`), **폰의 현지 시각**으로 표시
 
 ### 5. More for you 규칙 (`app/src/today/more.js`)
 - 대상: 추천 항목 중 그날 일정에 없는 것 (뺀 것 제외, PICK ONE에서 넘긴 것 포함)
@@ -42,6 +42,20 @@
 - 맞음: 슬롯이 빈 시간 안에 들어가고, 앞 정차에서 걸어오는 시간과 다음 정차로 가는 시간(플래너의 이동 시간)까지 들어감
 - 세 상태: 기본 "Fits your free time on Tue" (그날 모든 빈 시간) / Free time "Free 15:30–16:10" (Fill로 온 그 빈 시간) / "Nothing else fits Tue" + "See Wed"
 - Swap = 그 정차를 뺀 빈 시간의 More for you, + Add가 빼기+넣기를 한 번에
+
+## 임시 추천기 baseline-0 (원준님 API 전까지)
+- `app/src/recommend/baseline.js` (순수, node·폰 공용): 연구 문장 ↔ 제목(가중치 2)·초록 TF-IDF → RecommendResponse 0.1.0, 최대 200개
+  - reasons: 질문 단어가 가장 많이 든 초록 문장, `abstract.slice(start, end)` 그대로 (UTF-16 위치)
+  - concepts: 세션 주제(`topics.json`), 주제가 없는 포스터·데모는 가장 드문 일치 단어 `term:<단어>`. topics = 점수 합 상위 3, nearby = 그다음 2
+  - band는 순위로: 상위 25% near, 다음 40% adjacent, 나머지 wild (키워드 점수가 0.44~0.7에 몰려서 고정 기준이면 거의 다 near)
+  - bridge는 비움 (`path: [], via: []`), Student Mentoring Program은 제외 (발표가 아님)
+  - `modelVersion: "baseline-0"`
+- 앱: O-1 Next → `app/src/data/recommend.ts`의 `recommend()` (`TODO(recsys)`: 여기서 API로 바꿈) → 지금은 baseline을 폰에서 실행 (연구 문장이 폰 밖으로 안 나감) → 응답을 계획 옆에 저장 (`arc.recommendation`, 약 118 KB) → O-2·Building·Today·More for you가 씀. 샘플 하루는 계약 예시 그대로
+- 앱 데이터에 `topics.json` 추가 (gzip 11.5 KB) → 경로 `r1-831bd150` → `r1-9b2672d8`. baseline 코드는 따로 떨어진 2.2 KB 조각
+- `node tests/recommend/baseline.mjs "<문장>" [--out 파일]`: 명령줄에서 실행. 예시 `contracts/examples/RecommendResponse.baseline-sensemaking.json` (contracts:check 5/5)
+- 결과 ("I study how people make sense of information and make decisions with AI help"): 1,501개 일치 중 200개, node 131 ms, 헤드리스 Chrome에서 O-1 → O-2 263 ms. 주제 Human-AI Decision Making · Sensemaking · AI Explanations and Decision Support in Healthcare
+  - 계획 모드 Today(월요일): PICK ONE 4줄 (3개·2개·3개·3개 중 고르기, 방과 "Only here now") + TRY NEW 1줄
+  - More for you: "Fits your free time on Mon" (18:00 포스터·데모), + Add → "Added When Friction Helps: … at 18:00"
 
 ## ① 만든 것
 - 로직 (순수, 테스트): `today/edits.js`, `today/more.js`, `today/changes.js`, `today/offline.js`, `plan-days.js`가 edits 적용
@@ -59,13 +73,14 @@
 - 고친 것
   - `useNow` 무한 렌더 (S2 교차 검증 수정이 만든 것, 이미 main에 있음): 실제 시계에서 구독마다 새 값을 만들어 계획 모드 Today가 빈 화면이 될 수 있었음 → 구독·스냅숏을 모듈 수준으로, 30초 지났을 때만 새 값
   - `report.mjs`가 `data/build/app-data/`를 연도로 읽다가 실패 (S0부터)
-- 테스트 `tests/app/changes.test.mjs` 7개, `device.test.mjs`·`card.test.mjs` 그대로 통과
+- 테스트: `changes.test.mjs` 6개, `baseline.test.mjs` 3개, `clock.test.mjs` 2개 (useNow 무한 렌더 회귀: react-test-renderer로 실제 훅을 그리고 Date.now()를 호출마다 1 ms씩 움직임. 고치기 전 코드에서는 "Maximum update depth exceeded"로 실패, 고친 뒤 통과). `clock.ts` → `clock.js` (JSDoc, node에서 import하려고)
 
 ## ② 통과 기준 결과
-- `npm test` 63/63 · `contracts:check` 4/4 · `tsc` 0 · `build:deploy` 성공 · JS gzip 83 → 88 KB (+ 변경 시에만 받는 2.8 KB)
+- `npm test` 68/68 · `contracts:check` 5/5 · `tsc` 0 · `build:deploy` 성공 · JS gzip 83 → 88 KB (+ 필요할 때만 받는 조각: 피드 정규화 2.8 KB, baseline 2.2 KB). 서비스 워커 13개 파일
 - 헤드리스 Chrome 390×844 (실제 빌드, 서비스 워커 포함)
   - 샘플 하루: 14:15 포스터 ⋯ → Remove → "Free 12:15–18:00 · Fill"과 "Removed … · Undo" → Undo → 원래 4곳. PICK ONE → Forage / Prism, 둘 다 "Only here now" → Prism Choose → 11:15가 Prism으로. More for you → "Nothing else fits Tue · See Wed". Simulate a room change → "Programme updated. More Isn't Always Better … moved to P1 - Room 111." + 행 "Moved to P1 - Room 111"
-  - **오프라인**: 계획을 만든 뒤 서비스 워커가 페이지를 맡은 것을 확인 → 서버를 실제로 끄고 네트워크도 끊고 새로고침 → `#/today`에 화요일 4곳과 "Offline · saved at 05:18" → 오프라인에서 Remove → Free 줄 → Undo → 원래 4곳
+  - **오프라인**: 계획을 만든 뒤 서비스 워커가 페이지를 맡은 것을 확인 → 서버를 실제로 끄고 네트워크도 끊고 새로고침 → `#/today`에 화요일 4곳과 "Offline · saved at 22:29" (이 컴퓨터의 현지 시각 America/Chicago와 같음) → 오프라인에서 Remove → Free 줄 → Undo → 원래 4곳
+  - 가짜 변경: 샘플 하루 + `?simulate` → 알림, 샘플을 나가 계획을 만들면 알림 없음, 계획 모드 + `?simulate` → 알림 없음
   - 03-K: 월요일을 뺀 계획에서 Mon → "You're not at CHI on Mon 13" → Add this day → 날짜에 추가
   - 03-J2: 계획을 만든 뒤 localStorage만 지우고 다시 열기 → `#/cleared`
   - S1 온보딩 → 닫았다 열기 = Today, S2 시각별 카드 10개 그대로
@@ -84,9 +99,10 @@
 
 ## ④ 남은 문제
 - 폰 실기기 확인 (비행기 모드, Undo)
-- 가짜 추천이 5개뿐이라 "Fits your free time"(맞는 추천이 있는 상태)은 화면에서 볼 수 없음. 규칙은 테스트로 확인 (가상 데이터). recsys가 붙으면 나옴
+- 샘플 하루는 아직 5개짜리 계약 예시라 거기서는 "Fits your free time"이 안 나옴 (계획 모드는 baseline으로 나옴)
+- baseline은 키워드 일치라 PICK ONE이 많음 (월요일 5줄 중 4줄). 원준님 모델로 바뀌면 달라짐. 문장마다 abstracts 6개 파일 + people.json(gzip 약 1.3 MB)을 처음 한 번 받음
+- 계획을 baseline 전에 만든 사람은 저장된 응답이 없어 계약 예시로 보임 (다시 Build하면 baseline)
 - 서비스 워커는 개발 서버(`npm run dev`)에서는 켜지 않음 (빌드에서만)
-- "saved at"은 개최지 시각으로 보임 (학회 전에는 기기 시각과 다름)
 - 프로그램 변경 알림은 앱이 열려 있을 때만 (푸시 아님). 시간 이동도 감지하지만 실제 피드 변경으로는 확인 못 함 (chi2026 피드는 고정)
 - Edit 버튼은 아직 동작 없음. 토스트가 하단 고정 요소(탭 바) 위에 잠깐 겹침
 - DeviceState 계약은 S7 (edits 포함)
