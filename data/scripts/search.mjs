@@ -16,6 +16,8 @@ const wordsPrefix = (q, alias) => {
 export function searchInstitutions(aliases, query, limit = 5) {
   return scoredInstitutions(aliases, query).slice(0, limit).map(([k]) => k);
 }
+// Own keys only: a plain object also "has" constructor, __proto__, toString … (Explore typed "constructor" → crash).
+const own = (obj, key) => (Object.hasOwn(obj, key) ? obj[key] : undefined);
 const counts = new WeakMap();
 function scoredInstitutions(aliases, query) {
   const q = normalizeName(query);
@@ -23,7 +25,7 @@ function scoredInstitutions(aliases, query) {
   const count = counts.get(aliases) ?? counts.set(aliases, new Map(aliases.institutions.map(i => [i.key, i.authorCount]))).get(aliases);
   const score = new Map();
   const hit = (key, s) => score.set(key, Math.max(score.get(key) ?? 0, s));
-  for (const key of aliases.lookup[q] || []) hit(key, 3);
+  for (const key of own(aliases.lookup, q) ?? []) hit(key, 3);
   const qw = q.split(' ');
   for (const [alias, keys] of Object.entries(aliases.lookup)) {
     if (alias === q) continue;
@@ -92,7 +94,7 @@ export function placeOf(index, query) {
   return index.places.get(q);
 }
 function findPlace(index, q) {
-  const country = COUNTRY_WORDS[q] ?? index.countries.find(c => c === q || (q.length >= 4 && c.startsWith(q)));
+  const country = own(COUNTRY_WORDS, q) ?? index.countries.find(c => c === q || (q.length >= 4 && c.startsWith(q)));
   if (country) return { kind: 'country', key: country, label: index.countryLabel.get(country) ?? country };
   const scored = scoredInstitutions(index.aliases, q).filter(([, s]) => s >= 2 && (s === 3 || q.length >= 4));
   if (!scored.length) return null;
@@ -109,7 +111,7 @@ export function placeChoices(index, query, limit = 5) {
   const q = normalizeName(query);
   if (!q) return [];
   const out = searchInstitutions(index.aliases, q, limit).map(k => ({ kind: 'institution', keys: [k], label: index.names.get(k) }));
-  const country = COUNTRY_WORDS[q] ?? index.countries.find(c => c.startsWith(q));
+  const country = own(COUNTRY_WORDS, q) ?? index.countries.find(c => c.startsWith(q));
   if (country) out.unshift({ kind: 'country', key: country, label: index.countryLabel.get(country) ?? country });
   return out.slice(0, limit);
 }
