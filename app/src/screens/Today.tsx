@@ -104,7 +104,7 @@ export function Today({ mode }: { mode: 'plan' | 'sample' | 'none' }) {
         )}
         {!plan.stops.length && <p className="px-gutter text-body text-text-3">Nothing planned for {weekday(selected)}.</p>}
         {card?.kind !== 'done' && <LinkRow href="#/explore">More for you</LinkRow>}
-        <p className="px-gutter pt-2 text-tag text-text-3">{data.meta.attribution}</p>
+        <p className="px-gutter pt-2 text-small text-text-3">{data.meta.attribution}</p>
       </div>
     </>
   );
@@ -155,7 +155,7 @@ function SampleBar({ day, tz, nowMs }: { day: string; tz: string; nowMs: number 
         <span className="text-small font-semibold">Preview · sample day</span>
         <button type="button" onClick={() => { setDemoNow(null); go('start/research'); }} className="min-h-touch px-2 text-small underline">Make my own</button>
       </div>
-      <p className="text-tag text-on-inverse-2">{date} · CHI 2026 programme · venue time</p>
+      <p className="text-small text-on-inverse-2">{date} · CHI 2026 programme · venue time</p>
       <label className="flex items-center gap-3">
         <span className="w-12 font-mono text-body font-medium" aria-hidden="true">{label(minutes)}</span>
         <input type="range" min={SLIDER.min} max={SLIDER.max} step={SLIDER.step} value={minutes} aria-label="Time of day" aria-valuetext={label(minutes)}
