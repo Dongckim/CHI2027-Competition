@@ -10,7 +10,8 @@ import { venueInstant, venueClock } from '../time.js';
 import { useNow, setDemoNow, isDemo } from '../clock';
 import type { Schedule } from '../data/load';
 import { watchProgramme, simulateRoomChange, markSeen, seenRevision } from '../data/programme';
-import { useOnline, savedAt } from '../data/offline';
+import { useOnline, savedAt, prefetchForExplore } from '../data/offline';
+import { EXPLORE_FILES } from '../data/load';
 import { update } from '../state/useDevice';
 import { addDay } from '../state/device.js';
 import { go } from '../router';
@@ -34,6 +35,7 @@ const weekday = (d: string, o: Intl.DateTimeFormatOptions = { weekday: 'long' })
 const shortDay = (d: string) => `${weekday(d, { weekday: 'short' })} ${weekday(d, { day: 'numeric' })}`;
 
 export function Today({ mode }: { mode: 'plan' | 'sample' | 'none' }) {
+  useEffect(() => prefetchForExplore(EXPLORE_FILES), []); // after the first paint, when idle: Explore works offline later
   if (mode === 'none') return (
     <><Header />
       <div className="flex flex-col gap-4 px-gutter pt-3">

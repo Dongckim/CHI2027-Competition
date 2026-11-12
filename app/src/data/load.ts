@@ -56,6 +56,9 @@ export const loadAbstracts = onceBy<Record<string, string>>(day => get(`${base}a
 export const loadPeople = once<Record<string, { name: string; affiliations: { institutionKey: string; institution: string; country: string }[] }>>(
   () => get(`${base}people.json`));
 
+// What Explore needs besides schedule.json (already precached): kept for offline after Today (prefetchForExplore).
+export const EXPLORE_FILES = ['people.json', 'institutions.json', 'topics.json'].map(f => `${base}${f}`);
+
 // Session topics (baseline recommender, Explore topic matches) and the institution alias table (Explore "CMU").
 export const loadTopics = once<{ key: string; label: string; contentKeys: string[] }[]>(() => get(`${base}topics.json`));
 export const loadInstitutions = once<{ institutions: { key: string; name: string; authorCount: number }[]; lookup: Record<string, string[]> }>(
