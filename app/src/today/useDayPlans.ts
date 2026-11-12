@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { response } from '../data/fake-recommend';
+import { useRecommendation } from '../data/recommendation';
 import { loadSchedule, type Schedule } from '../data/load';
 import { useProgrammeUpdate } from '../data/programme';
 import { useDevice } from '../state/useDevice';
@@ -14,6 +14,7 @@ import { useEdits } from './useEdits';
 export function useDayPlans(mode: 'plan' | 'sample') {
   const { plan: mine } = useDevice();
   const [edits, setEdits] = useEdits(mode);
+  const response = useRecommendation(mode);
   const [base, setBase] = useState<Schedule | null>(null);
   const [error, setError] = useState('');
   useEffect(() => { loadSchedule().then(setBase, e => setError(String(e.message ?? e))); }, []);
@@ -32,8 +33,8 @@ export function useDayPlans(mode: 'plan' | 'sample') {
     const changes = before ? diffStops(before.flatMap(p => p.stops), base.index, data.index) : [];
     const firstWithStops = plans.find((p, i) => p.stops.length && chosen.includes(days[i]))?.day ?? chosen[0] ?? days[0];
     return { tz, days, chosen, plans, firstWithStops, changes };
-  }, [data, base, plan, edits, programme]);
+  }, [data, base, plan, edits, programme, response]);
 
-  return { data, base, error, view, edits, setEdits, programme };
+  return { data, base, error, view, edits, setEdits, programme, response };
 }
 export type DayView = NonNullable<ReturnType<typeof useDayPlans>['view']>;

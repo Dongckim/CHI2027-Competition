@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import current from '../../../data/build/app-data/chi2026/current.json';
-import { response } from '../data/fake-recommend';
+import { recommend } from '../data/recommend';
+import { saveRecommendation, useRecommendation } from '../data/recommendation';
 import { go } from '../router';
 import { update, useDevice, isSaved, loadNote, LANGUAGES, type DeviceState } from '../state/useDevice';
 import {
@@ -69,20 +70,32 @@ const Count = ({ n }: { n: number }) => <span className="text-small text-text-2"
 
 function Research({ state, edit, next }: Props) {
   const [text, setText] = useState(state.plan.query);
-  const done = () => {
-    update(s => topicsFromResponse(setQuery(s, text.trim()), response));
-    next('topics');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  // Next asks for recommendations (data/recommend.ts: baseline-0 on the phone for now) and keeps them with the plan.
+  const done = async () => {
+    const query = text.trim();
+    setBusy(true); setError('');
+    try {
+      const response = await recommend({ schema_version: '0.1.0', edition: current.edition, query });
+      saveRecommendation(query, response);
+      update(s => topicsFromResponse(setQuery(s, query), response));
+      next('topics');
+    } catch (e) {
+      setError(`Could not read the programme. ${(e as Error).message ?? e}`);
+    } finally { setBusy(false); }
   };
   return (
     <Screen header={<Header wordmark right={<Count n={1} />} />} heading="What do you research?"
       intro={<p className="text-body text-text-2">One sentence. ARC plans your CHI days around it.</p>}
-      action={{ label: edit ? 'Done' : 'Next', onClick: done, disabled: !text.trim() }}>
+      action={{ label: busy ? 'Reading the programme…' : edit ? 'Done' : 'Next', onClick: done, disabled: !text.trim() || busy }}>
       <textarea aria-labelledby="question" value={text} onChange={e => setText(e.target.value)} rows={3} placeholder="I study …"
         className="min-h-[96px] w-full resize-none rounded-row border border-border-strong bg-bg p-3 text-body text-text placeholder:text-text-3" />
       <p className="text-small text-text-2">
         {isSaved() ? 'No account. Saved on this phone.' : "No account. This browser won't keep your plan after you close it."}
       </p>
       {loadNote === 'unreadable' && <p className="text-small text-text-2">Your earlier plan could not be read, so ARC is starting fresh.</p>}
+      {error && <p role="alert" className="text-small">{error}</p>}
       {!edit && (
         <div className="flex justify-center gap-2 pt-6">
           <button type="button" className="min-h-touch px-3 text-link underline" onClick={() => { update(s => ({ ...s, mode: 'browse' })); go('explore'); }}>Just browse</button>
@@ -94,6 +107,7 @@ function Research({ state, edit, next }: Props) {
 }
 
 function Topics({ state, edit, next, back }: Props) {
+  const response = useRecommendation('plan');
   const [adding, setAdding] = useState(false);
   const [own, setOwn] = useState('');
   const { topics, nearbyAdded } = state.plan;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { response } from '../data/fake-recommend';
+import { useRecommendation } from '../data/recommendation';
 import { go } from '../router';
 import { update, useDevice } from '../state/useDevice';
 import { candidatesFor, canBuild } from '../state/device.js';
@@ -18,6 +18,7 @@ export function Building() {
   const state = useDevice();
   const { plan } = state;
   const allowed = canBuild(state);
+  const response = useRecommendation('plan');
   useEffect(() => { if (!allowed) go('start/research', { replace: true }); }, [allowed]);
   const [done, setDone] = useState(0);
   const [error, setError] = useState('');

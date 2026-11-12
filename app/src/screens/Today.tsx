@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
-import { response } from '../data/fake-recommend';
 import { localDay } from '../planner/plan.js';
 import { todayRows } from '../today/rows.js';
 import { dayCard, laterStops, talkPosition, WALK_MIN, FIRST_WALK_MIN } from '../today/card.js';
@@ -9,7 +8,7 @@ import { offlineNote } from '../today/offline.js';
 import { useDayPlans, type DayView } from '../today/useDayPlans';
 import { venueInstant, venueClock } from '../time.js';
 import { useNow, setDemoNow, isDemo } from '../clock';
-import { EDITION, type Schedule } from '../data/load';
+import type { Schedule } from '../data/load';
 import { watchProgramme, simulateRoomChange, markSeen, seenRevision } from '../data/programme';
 import { useOnline, savedAt } from '../data/offline';
 import { update } from '../state/useDevice';
@@ -23,12 +22,11 @@ import { Button, ButtonLink } from '../components/Button';
 import { LinkRow } from '../components/LinkRow';
 import { Toast, type ToastValue } from '../components/Toast';
 
-// Today (Figma 288:1174, 288:1903). Recommendations (still the fake contract example) → planner → one planned day per
+// Today (Figma 288:1174, 288:1903). Recommendations (baseline-0 for a plan, the contract example on the sample day) → planner → one planned day per
 // date, with the person's edits (Remove / Pick / Swap / Add) applied → the card for "now" (today/card.js). Time comes
 // from app/src/clock.ts only.
 // mode: plan = saved plan, real clock · sample = "Try a sample day" (03-P): the chi2026 day the sample recommends,
 //   a slider sets the demo clock, edits kept in memory only · none = "Just browse", no plan yet (03-J).
-if (response.dataVersion.edition !== EDITION) throw new Error(`fake response is for ${response.dataVersion.edition}, app data is ${EDITION}`);
 
 export const SLIDER = { min: 8 * 60 + 30, max: 18 * 60 + 30, step: 5, start: 8 * 60 + 40 }; // minutes of the venue day
 const range = ([a, b]: number[]) => `${a}–${b} min`;
@@ -48,7 +46,7 @@ export function Today({ mode }: { mode: 'plan' | 'sample' | 'none' }) {
 }
 
 function PlannedToday({ mode }: { mode: 'plan' | 'sample' }) {
-  const { data, base, error, view, edits, setEdits, programme } = useDayPlans(mode);
+  const { data, base, error, view, edits, setEdits, programme, response } = useDayPlans(mode);
   const [day, setDay] = useState('');
   const [wholeDay, setWholeDay] = useState(false);
   const [open, setOpen] = useState<string | null>(null); // row whose actions or choices are shown

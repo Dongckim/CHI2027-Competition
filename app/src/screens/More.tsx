@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import { response } from '../data/fake-recommend';
 import { candidatesFor } from '../state/device.js';
 import { addItem, swapStop } from '../today/edits.js';
 import { moreForYou, dayBounds } from '../today/more.js';
@@ -21,7 +20,7 @@ const TAG: Record<string, string> = { paper: 'PAPER', poster: 'POSTER', demo: 'D
 export function More({ day, range, swap }: { day: string; range?: string; swap?: string }) {
   const { builtAt, plan: mine } = useDevice();
   const mode = !builtAt && isDemo() ? 'sample' : 'plan';
-  const { data, view, edits, setEdits } = useDayPlans(mode);
+  const { data, view, edits, setEdits, response } = useDayPlans(mode);
   const [toast, setToast] = useState<ToastValue>(null);
   const closeToast = useCallback(() => setToast(null), []);
   const back = mode === 'sample' ? 'sample' : 'today';
