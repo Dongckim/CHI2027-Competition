@@ -95,7 +95,28 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 ## Git 규칙
 - 커밋까지만 한다. git push, git remote, gh, GitHub API는 어떤 형태로도 쓰지 않는다. push와 PR은 사람이 한다.
 - 커밋 메시지에 Co-Authored-By나 도구 이름을 넣지 않는다.
-- 단계마다 stage/<단계>-<이름> 브랜치에서 작업한다.
+- 단계마다 stage/<단계>-<이름> 브랜치에서 작업한다. 단계가 아닌 작업은 <type>/<이름> (예: docs/git-conventions, fix/fetch-timeout).
+
+### 커밋 메시지 (Conventional Commits)
+```
+<type>(<scope>): <요약>
+
+<본문: 무엇을 왜. 숫자가 있으면 숫자>
+```
+- type: feat(기능) · fix(버그) · docs(문서만) · refactor(동작 그대로 구조 변경) · test(테스트만) · perf(속도·크기) · build(빌드·의존성·vercel.json) · chore(그 밖) · revert
+- scope: 단계(s0, v4) 또는 영역(app, data, contracts, planner, venue, captions, functions, deploy). 여러 개면 가장 큰 것 하나
+- 요약: 영어, 명령형 현재형(add, fix), 소문자로 시작, 마침표 없음, 72자 이내
+- 본문: 한 줄 비우고 시작, 72자에서 줄바꿈. 한국어도 됨. 왜 바꿨는지, 측정값, 영향받는 쪽
+- 계약 필드 삭제·이름 변경처럼 깨지는 변경은 type 뒤에 `!`, 본문에 `BREAKING CHANGE: <무엇이 깨지는지>`
+- 커밋 하나 = 기능 하나. 데이터·캐시·문서처럼 성격이 다르면 나눈다
+- 예: `feat(app): add hash-routed tabs for Today, Explore, Questions` · `fix(data): stop with the cause when the feed fetch fails` · `build(deploy): use Node 26 on Vercel`
+
+### PR
+- 제목: 커밋과 같은 형식 (`feat(s0): app skeleton with tabs, tokens and fake recommendations`)
+- 본문: `.github/pull_request_template.md`의 순서 (요약 / 바뀐 것 / 확인한 것 / 확인할 것 / 문서)
+- 확인한 것에는 실제로 돌린 명령과 결과 숫자만 적는다 (예: `npm test` 46/46). 안 돌린 것은 "확인 안 함"으로 적는다
+- 계약(contracts/)을 바꾸면 확인할 것에 "원준 확인 필요"를 적는다
+- 머지는 merge commit으로 (커밋을 기능별로 나눈 기록을 유지)
 
 ## 디자인 기준 (Figma v3)
 - 파일: UfKtv7eGMTOrCZEzszq9GS, 페이지 "v3 · 리뷰 반영 (11/09)"
