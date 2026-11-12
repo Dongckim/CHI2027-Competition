@@ -41,7 +41,7 @@ export function useExploreData() {
 export function useMyDay() {
   const state = useDevice();
   const mode = state.builtAt ? 'plan' : isDemo() ? 'sample' : null;
-  const { view, edits, setEdits, response } = useDayPlans(mode ?? 'plan');
+  const { view, edits, setEdits, response } = useDayPlans(mode ?? 'plan', !!mode);
   const planned = plannedKeys(mode ? view ?? { days: [], chosen: [], plans: [] } : null, edits.added);
   const add = (paperKey: string, start: number, timeZone: string) => {
     const day = localDay(start, timeZone);
