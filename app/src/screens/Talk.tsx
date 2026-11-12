@@ -57,11 +57,16 @@ export function Talk({ paperKey }: { paperKey: string }) {
       <main className="flex flex-col gap-4 px-gutter pt-2 pb-28">
         <Tag>{TYPE_TAG[p.type] ?? 'TALK'}</Tag>
         <h1 className="text-card-title font-semibold">{p.title}</h1>
-        <p className="text-small text-text-2">
-          {shownAuthors.map((k, i) => <span key={k}>{i > 0 && ', '}<a href={`#/person/${k}`} className="underline">{data.people[k]?.name ?? k}</a></span>)}
-          {authors.length > 3 && <button type="button" onClick={() => setAllAuthors(a => !a)} className="ml-1 font-semibold underline" aria-expanded={allAuthors}>
-            {allAuthors ? 'fewer' : `+${authors.length - 3}`}</button>}
-        </p>
+        {/* Each name and "+n" is a 44px target (they wrap as a list, not as words in a sentence). */}
+        <ul aria-label="Authors" className="-my-2 flex flex-wrap items-center gap-x-1 text-small text-text-2">
+          {shownAuthors.map((k, i) => (
+            <li key={k} className="flex items-center">
+              <a href={`#/person/${k}`} className="inline-flex min-h-touch items-center underline">{data.people[k]?.name ?? k}</a>{i < shownAuthors.length - 1 && ','}
+            </li>
+          ))}
+          {authors.length > 3 && <li><button type="button" onClick={() => setAllAuthors(a => !a)} aria-expanded={allAuthors}
+            className="inline-flex min-h-touch min-w-touch items-center justify-center px-1 font-semibold underline">{allAuthors ? 'fewer' : `+${authors.length - 3}`}</button></li>}
+        </ul>
         <div className="flex flex-col gap-1">
           {slots.length ? slots.map((s: { start: number; roomKey: string; sessionKey: string }) => {
             const pos = talkPosition({ paperKey, start: s.start, sessionKey: s.sessionKey }, sessionSlots, timing.get(s.sessionKey));
