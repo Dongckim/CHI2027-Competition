@@ -72,7 +72,7 @@ try {
   const press = label => ev(`[...document.querySelectorAll('section[aria-label="Floor plan"] button')].find(b => b.innerText === ${JSON.stringify(label)}).click()`);
   check('step numbers on the route', (await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.steps`)) === String(nLines), { lines: nLines });
   await press('Show step 1'); await sleep(1500);
-  const s1 = { list: await ev(cur), card: await ev(card) };
+  const s1 = { list: await ev(cur), card: await ev(card), levels: await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.levels`) };
   await shot('s5-09-step1');
   await press('Next: step 2'); await sleep(1500);
   const s2 = { list: await ev(cur), card: await ev(card) };
@@ -85,7 +85,9 @@ try {
   await shot('s5-09-step3');
   check('steps: Show step 1, Next, swipe', s1.list === 0 && s2.list === 1 && s3.list === 2 && /^1\./.test(s1.card ?? '') && /^3\./.test(s3.card ?? ''), { s1, s2, s3 });
   await ev(`[...document.querySelectorAll('[aria-label="What the plan shows"] button')].find(b => b.innerText === 'Whole').click()`); await sleep(600);
+  const wholeLevels = await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.levels`);
   check('Whole: back to no step', (await ev(cur)) === -1 && (await ev(card)) === null, {});
+  check('a step shows only its level, Whole shows all', s1.levels?.split(' ').length === 1 && wholeLevels?.split(' ').length > 1, { step1: s1.levels, whole: wholeLevels });
 
   // Two fingers, as in map apps: a clockwise twist turns the view (theta up), both fingers up tilt it (phi up); a step or
   // Whole comes back to the plans' angle (0.785, 0.950).
