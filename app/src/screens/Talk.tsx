@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { loadAbstracts } from '../data/load';
-import { localDay } from '../planner/plan.js';
 import { talkPosition } from '../today/card.js';
 import { highlightSegments, verifiedReasons } from '../explore/quotes.js';
 import { useExploreData, useMyDay } from '../explore/useExplore';
-import { TYPE_TAG, dateOf, clockOf, weekdayOf, firstSlot } from '../explore/format';
+import { TYPE_TAG, dateOf, clockOf, weekdayOf, firstSlot, abstractFileDay } from '../explore/format';
+import { useOnline } from '../data/offline';
 import { useDevice } from '../state/useDevice';
 import { go } from '../router';
 import { Header } from '../components/Header';
@@ -21,7 +21,9 @@ export function Talk({ paperKey }: { paperKey: string }) {
   const { data, error } = useExploreData();
   const { planned, add, response, today } = useMyDay();
   const { plan } = useDevice();
-  const [abstract, setAbstract] = useState<string | null>(null);
+  // string = the abstract ('' = none in the programme) · null = loading · false = the day file could not be fetched
+  const [abstract, setAbstract] = useState<string | null | false>(null);
+  const online = useOnline();
   const [allAuthors, setAllAuthors] = useState(false);
   const [toast, setToast] = useState<ToastValue>(null);
   const closeToast = useCallback(() => setToast(null), []);
@@ -31,8 +33,8 @@ export function Talk({ paperKey }: { paperKey: string }) {
   useEffect(() => {
     if (!p) return;
     setAbstract(null);
-    loadAbstracts(slot ? localDay(slot.start, tz) : 'unscheduled').then(a => setAbstract(a[paperKey] ?? ''), () => setAbstract(''));
-  }, [p, paperKey]); // eslint-disable-line react-hooks/exhaustive-deps
+    loadAbstracts(abstractFileDay(p.slots, tz)).then(a => setAbstract(a[paperKey] ?? ''), () => setAbstract(false));
+  }, [p, paperKey, online]); // eslint-disable-line react-hooks/exhaustive-deps -- back online: try the day file again
 
   const header = <Header back={() => history.back()} search />;
   if (error) return <Page>{header}<p role="alert" className="px-gutter py-6 text-body">Could not load the programme. {error}</p></Page>;
@@ -83,7 +85,9 @@ export function Talk({ paperKey }: { paperKey: string }) {
         )}
         <section className="flex flex-col gap-2">
           <h2 className="text-small font-semibold">Abstract · from the programme</h2>
-          {abstract == null ? <p className="text-body text-text-3">Loading…</p> : abstract ? (
+          {abstract == null ? <p className="text-body text-text-3">Loading…</p> : abstract === false ? (
+            <p className="text-body text-text-2">{online ? 'Could not load the abstract. Try again in a moment.' : 'Abstract not saved on this phone yet. Connect to load it.'}</p>
+          ) : abstract ? (
             <p className="text-body whitespace-pre-line">
               {highlightSegments(abstract, reasons).map((seg, i) => seg.mark ? <mark key={i} className="rounded-[2px] bg-[var(--highlight)] text-text">{seg.text}</mark> : <span key={i}>{seg.text}</span>)}
             </p>
