@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { response } from '../data/fake-recommend';
 import { localDay } from '../planner/plan.js';
 import { todayRows, conferenceDays } from '../today/rows.js';
@@ -45,8 +45,9 @@ export function Today({ mode }: { mode: 'plan' | 'sample' | 'none' }) {
     return { tz, days, plans, firstWithStops };
   }, [data, mode, mine]);
 
-  // Sample day: start the demo clock on the sample's day (kept while visiting a talk and coming back).
-  useEffect(() => {
+  // Sample day: start the demo clock on the sample's day (kept while visiting a talk and coming back). Layout effect:
+  // set before the first paint, so the real clock never flashes a "done" card on the sample day.
+  useLayoutEffect(() => {
     if (mode === 'sample' && view && !isDemo()) setDemoNow(venueInstant(view.firstWithStops, SLIDER.start, view.tz));
   }, [mode, view]);
 
