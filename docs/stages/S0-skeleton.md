@@ -48,7 +48,11 @@
 | (참고) 원본 `people.json` | 4,151,941 | 454,257 | 앱은 안 받음 |
 
 - 첫 화면 전체 (gzip, woff2는 그대로): 전 2,021,924 B (코드·글꼴·venue 173,896 + papers·sessions·rooms·meta 1,848,028) → 후 **393,094 B** (173,896 + schedule 219,198). 원본 크기로는 8.8 MB → 1.7 MB
-- 판정: 통과 (폰 실기기 확인은 Vercel Git 연결 뒤)
+- Vercel 미리보기 (`arc-nkxaiepii-dongckims-projects.vercel.app`, `942849f`): `build:deploy` 성공 (피드 11.9 MB 받음 → app-data 경로·해시와 JS 파일 이름이 로컬 빌드와 같음)
+  - 응답 헤더: `/`·`/index.html` no-cache · `/assets/*`·`/app-data/*` public, max-age=31536000, immutable · `/data/*` max-age=300 · `/tests/` Vercel 기본값
+  - 함수: `/api/push` GET 200 (공개키) · `/api/soniox-key` POST 200 (apiKey·expiresAt·sessionMaxSeconds)
+- 폰 실기기 (사용자 확인, 기종·브라우저는 기록 안 함): Today(정차 4개, NEXT·PICK ONE·TRY NEW), 3탭 이동·새로고침·뒤로 가기, 다크 모드, 하단 탭 바 safe area, 자막 bench 모두 정상
+- 판정: 통과
 
 ## ③ 결정과 이유
 - 해시 라우팅, 라우터 라이브러리 없음: 탭 3개뿐, 정적 호스트에서 재작성 규칙 불필요
@@ -72,8 +76,8 @@
 - 임베딩 파일: 추천 실행 위치(서버/기기, 원준 결정)가 정해지면 app-data에 추가
 - Directions·Skip·Edit·더보기·설정 버튼은 아직 아무 일도 안 함. 시계 없음 → 첫 정차를 항상 NEXT로 표시
 - schedule.json 1.28 MB(gzip 219 KB)는 더 줄일 여지 있음 (키 이름 축약, 세션 목록 분리). 지금은 측정만
-- 캐시 헤더는 실제 Vercel 응답으로 확인 안 함 (배포 뒤 `curl -sI <주소>/assets/<파일>`로 확인)
-- 폰 실기기 확인 안 함
+- ~~캐시 헤더 실제 응답 확인~~ → 미리보기에서 확인함 (②)
+- ~~폰 실기기 확인~~ → 확인함 (②). 대비 실측은 S8
 
 ## ⑤ 다음 단계가 알아야 할 것
 - 토큰은 `tokens.css` 한 곳. Tailwind 이름: `bg-surface`, `text-text-3`, `rounded-card`, `text-tag`, `min-h-touch`, `px-gutter`
@@ -81,6 +85,14 @@
 - three.js는 한 화면에서 `await import('three')`로 불러오면 Vite가 따로 나눔
 - 피드 version.json CORS (S3용): GET은 `access-control-allow-origin: *`로 브라우저에서 바로 됨. OPTIONS는 405라 **커스텀 헤더 없이** 단순 GET만 쓸 것. `cache-control: max-age=600`이라 `?t=` 붙이는 규칙 유지
 - bench 페이지가 읽는 경로(`/app/src/*.js`, `/data/...`)는 dev(`repoFiles` 플러그인)와 dist(`copy-static.mjs`)가 같은 목록을 써야 함
+
+- Vercel 프로젝트 `arc` (`prj_tzvq5tBs9hktNB9iE4NIeHc7UvEj`, 2026-11-11 새로 만듦). 정식 주소 `arc-seven-wheat.vercel.app` (예전 `arc-six-rho`는 없어짐)
+  - Git push 배포: 프로젝트 설정 `gitProviderOptions.createDeployments`가 `disabled`였음 → `enabled`로 바꿈. vercel.json에는 배포를 막는 설정 없음
+  - 환경 변수: `SONIOX_API_KEY`, `VAPID_JWK` (Production·Preview, sensitive). 값은 로컬 `.env.local`과 같음. 넣은 뒤에는 다시 배포해야 적용
+  - 미리보기는 Vercel 로그인 보호 (`ssoProtection: all_except_custom_domains`). 폰·팀원은 대시보드 Share 링크로 열기. 보호를 끄는 건 함수 요청 수 제한(V8) 정리 뒤
+  - Node: 프로젝트 26.x, `package.json` engines 26.x
+  - 로컬 `.vercel/project.json`은 지워진 예전 프로젝트(`prj_Qfe6…`)를 가리킴 → 로컬 CLI 배포나 `vercel env` 전에 `vercel link` 필요
+  - `main`을 merge하기 전까지 정식 주소는 예전 코드 (`/` → `/tests/` 308). 브라우저가 308을 기억하므로 merge 뒤 확인은 시크릿 창에서
 
 ## ⑥ 비용·토큰
 - 외부 API 비용 0 (Vercel 미리보기 무료 범위, 피드는 빌드당 version.json 1회 + 리비전 1회)

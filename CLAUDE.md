@@ -115,4 +115,4 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 (단계마다 3줄씩 추가)
 - S0 뼈대 (2026-11-11, stage/S0-skeleton): 3탭 해시 라우팅, Figma v3 토큰(+다크 제안), 공통 컴포넌트 9개, Today = 가짜 추천 → 플래너
 - 계약 RecommendRequest/Response 0.1.0 + contracts:check 규칙(인용 위치 등). Vercel 빌드가 피드를 받아 dist/ 생성, 실패 시 원인 출력
-- 앱 데이터 분리(첫 화면 gzip 2.02 MB → 393 KB)·캐시 헤더. 남은 것: 버튼 동작·시계, 계약 원준 확인, 폰 실기기 확인 (docs/stages/S0-skeleton.md)
+- 앱 데이터 분리(첫 화면 gzip 2.02 MB → 393 KB)·캐시 헤더, Vercel 미리보기·폰 실기기 확인 통과. 남은 것: 버튼 동작·시계, 계약 원준 확인 (docs/stages/S0-skeleton.md)
