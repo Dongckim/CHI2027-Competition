@@ -34,15 +34,19 @@ export function mount(canvas, { venue, route, summary, reduceMotion = false }) {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(css('--surface'));
+    scene.background = new THREE.Color(css('--plan-bg'));
     camera = new THREE.PerspectiveCamera(36, 1, 1, 3000);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.85));
-    const sun = new THREE.DirectionalLight(0xffffff, 0.5); sun.position.set(120, 260, 160); scene.add(sun);
+    // Tops come out close to the token colours; the sides a little darker, for depth.
+    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    const sun = new THREE.DirectionalLight(0xffffff, 0.3); sun.position.set(40, 300, 60); scene.add(sun);
 
-    const room = new THREE.MeshLambertMaterial({ color: css('--bg') });
-    const dest = new THREE.MeshLambertMaterial({ color: css('--highlight') });
-    const plate = new THREE.MeshLambertMaterial({ color: css('--border-strong'), transparent: true, opacity: 0.35 });
-    const corridor = new THREE.LineBasicMaterial({ color: css('--text-3') });
+    // Levels the route uses are solid; the others are faint and never cover them (no depth write), so stacked floors
+    // do not hide the route's floor.
+    const FAINT = 0.14;
+    const faded = level => !routeLevels.has(level);
+    const mat = (token, level, opacity = 1) => new THREE.MeshLambertMaterial({ color: css(token), transparent: faded(level) || opacity < 1,
+      opacity: faded(level) ? FAINT : opacity, depthWrite: !faded(level) });
+    const dest = new THREE.MeshLambertMaterial({ color: css('--plan-dest') });
     groups = new Map();
     for (const level of LEVELS) {
       const g = new THREE.Group(); g.userData.level = level; scene.add(g); groups.set(level, g);
@@ -50,6 +54,8 @@ export function mount(canvas, { venue, route, summary, reduceMotion = false }) {
       if (!areas.length) continue;
       const x0 = Math.min(...areas.map(a => a.rect[0])), x1 = Math.max(...areas.map(a => a.rect[2]));
       const y0 = Math.min(...areas.map(a => a.rect[1])), y1 = Math.max(...areas.map(a => a.rect[3]));
+      const room = mat('--plan-room', level), plate = mat('--plan-floor', level, 0.85);
+      const corridor = new THREE.LineBasicMaterial({ color: css('--plan-line'), transparent: faded(level), opacity: faded(level) ? FAINT : 1, depthWrite: !faded(level) });
       const p = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0 + 8, 0.4, y1 - y0 + 8), plate);
       p.position.copy(at((x0 + x1) / 2, (y0 + y1) / 2, level, -0.2)); g.add(p);
       for (const a of areas) {
@@ -64,7 +70,7 @@ export function mount(canvas, { venue, route, summary, reduceMotion = false }) {
     // The route: a tube along the path (rides drawn straight between levels), a dot that walks it, start and end markers.
     const pts = route.path.map(id => venue.nodes[id]).filter(n => n.x != null).map(n => at(n.x, n.y, n.level, 2.2));
     curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.05);
-    const ink = new THREE.MeshBasicMaterial({ color: css('--text') });
+    const ink = new THREE.MeshBasicMaterial({ color: css('--plan-route') });
     routeLine = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(32, pts.length * 8), 0.9, 8, false), ink);
     scene.add(routeLine);
     const marker = (p, r) => { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 14), ink); m.position.copy(p); scene.add(m); return m; };
@@ -148,6 +154,10 @@ export function mount(canvas, { venue, route, summary, reduceMotion = false }) {
   canvas.addEventListener('webglcontextrestored', contextRestored);
   document.addEventListener('visibilitychange', visible);
   const ro = new ResizeObserver(resize); ro.observe(canvas);
+  // Light ↔ dark while 09 is open: same view, new colours.
+  const scheme = matchMedia('(prefers-color-scheme: dark)');
+  const recolour = () => { const keep = { ...cam, target: cam.target.clone() }; teardown(false); build(); Object.assign(cam, keep); placeCamera(); };
+  scheme.addEventListener?.('change', recolour);
 
   function teardown(loseContext) {
     scene?.traverse(o => { o.geometry?.dispose(); o.material?.dispose?.(); });
@@ -163,7 +173,7 @@ export function mount(canvas, { venue, route, summary, reduceMotion = false }) {
     dispose() {
       cancelAnimationFrame(raf); ro.disconnect();
       canvas.removeEventListener('webglcontextlost', contextLost); canvas.removeEventListener('webglcontextrestored', contextRestored);
-      document.removeEventListener('visibilitychange', visible);
+      document.removeEventListener('visibilitychange', visible); scheme.removeEventListener?.('change', recolour);
       canvas.removeEventListener('pointerdown', down); canvas.removeEventListener('pointermove', move);
       canvas.removeEventListener('pointerup', up); canvas.removeEventListener('pointercancel', up); canvas.removeEventListener('wheel', wheel);
       teardown(true);
