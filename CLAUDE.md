@@ -12,6 +12,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - S0 뼈대: `app/` Vite + React + TS + Tailwind v4, 해시 라우팅 3탭, 가짜 추천 = `contracts/examples/RecommendResponse.chi2026-tuesday.json`
 - S1 온보딩: `#/start/<step>` O-1~O-5 → `#/building` → Today. 계획은 `app/src/state/device.js` 형식으로 localStorage `arc.device`에 저장 (앱 내부 형식, DeviceState 계약 아님)
 - S2 오늘: 시각은 `app/src/clock.ts`(`now()`/`useNow()`)에서만, 샘플 하루는 데모 시계. 카드 규칙 `app/src/today/card.js`, 개최지 시각 변환 `app/src/time.js`
+- S3 바꾸기·예외: 변경은 플래너 입력에 (`app/src/today/edits.js`, `plan.edits`), 프로그램 확인 `app/src/data/programme.ts`(1분, 보일 때만), 오프라인 `app/sw.js`(빌드가 목록 생성)
 - 명령 (Node 26 = Vercel 빌드와 같게, `package.json` engines. 로컬 20.19+도 동작하지만 26 권장. `arc/`에서):
   - `npm run data:fetch [edition...]` : version.json 조회 → 새 리비전만 data/raw에 저장
   - `npm run data:validate` : 공식 스키마 검사 (스키마는 초안이라 chi2025 외 실패가 정상, V0 문서 참고)
@@ -145,3 +146,6 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - S2 오늘 (2026-11-11, stage/S2-today): 추천 → 플래너 → 날짜별 일정, 카드 FIRST STOP/NEXT/LEAVE NOW/NOW/DONE, 03-P 슬라이더로 데모 시계
 - 발표 순서·경과 시간은 데이터의 발표 시각으로 (12분 상수 아님). 시각별 카드 테스트 10개 시점, 헤드리스 Chrome에서 같은 결과
 - 폰 확인 통과(데모 슬라이더). 남은 것: 걷는 시간 가짜(S5), Skip·Edit 동작, 06/09/S6 자리만 (docs/stages/S2-today.md)
+- S3 바꾸기·예외 (2026-11-12, stage/S3-changes): Remove/Swap/Undo, PICK ONE, More for you 3상태, 03-J2/K/L/M, 서비스 워커 오프라인
+- 새 revision은 기기에서 같은 buildEdition으로 정규화 → 내 일정 변경만 알림. 헤드리스 Chrome에서 서버를 끄고도 Today·Undo 동작
+- 남은 것: 폰 확인(비행기 모드), 맞는 추천은 가짜 응답이 작아 화면에서 못 봄, Edit 버튼 (docs/stages/S3-changes.md)
