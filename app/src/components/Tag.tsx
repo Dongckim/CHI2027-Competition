@@ -3,5 +3,5 @@
 const TONES = { plain: 'bg-tag-bg text-text', strong: 'bg-inverse text-on-inverse', 'strong-on-dark': 'bg-on-inverse text-inverse' };
 
 export function Tag({ children, tone = 'plain' }: { children: string; tone?: keyof typeof TONES }) {
-  return <span className={`inline-flex h-5 shrink-0 items-center self-start rounded-tag px-1.5 font-mono text-tag font-medium uppercase ${TONES[tone]}`}>{children}</span>;
+  return <span className={`inline-flex min-h-5 shrink-0 items-center self-start rounded-tag px-1.5 font-mono text-tag font-medium uppercase ${TONES[tone]}`}>{children}</span>;
 }
