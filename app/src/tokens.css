@@ -1,0 +1,44 @@
+/* Design tokens, measured from Figma v3 (UfKtv7eGMTOrCZEzszq9GS, 289:450 + 288:1174). Figma has no variables; values are what the frames use.
+   Dark values are proposed (not in Figma); contrast is measured on devices in S8. */
+:root {
+  --bg: #ffffff;
+  --surface: #f0f0f0;      /* day tabs, chips */
+  --tag-bg: #ededed;
+  --text: #1f1f1f;
+  --text-2: #575757;
+  --text-3: #6b6b6b;       /* lightest text allowed: 5.3:1 on --bg, 4.7:1 on --surface */
+  --border: #e5e5e5;
+  --border-strong: #d0d0d0;
+  --inverse-bg: #1f1f1f;   /* selected day, primary button, "leave now" card */
+  --inverse-text: #ffffff;
+  --inverse-text-2: #cccccc;
+
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif; /* other scripts fall back to the system font */
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --text-tag: 12px;   --text-small: 14px;  --text-link: 15px;
+  --text-body: 16px;  --text-header: 17px; --text-card-title: 18px;
+
+  --space-1: 4px; --space-2: 6px; --space-3: 8px; --space-4: 10px; --space-5: 12px; --space-6: 16px;
+  --gutter: 16px;
+  --radius-tag: 4px; --radius-button: 8px; --radius-row: 10px; --radius-bar: 12px; --radius-card: 14px;
+  --touch: 44px;
+  --header-h: 44px; --day-tab-h: 48px; --row-h: 61px;
+  --card-border: 1.5px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px); /* Figma draws 34px for iPhone; the device supplies the real value */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212;
+    --surface: #1e1e1e;
+    --tag-bg: #2a2a2a;
+    --text: #ededed;
+    --text-2: #b0b0b0;
+    --text-3: #9a9a9a;
+    --border: #333333;
+    --border-strong: #4a4a4a;
+    --inverse-bg: #ededed;
+    --inverse-text: #121212;
+    --inverse-text-2: #3d3d3d;
+  }
+}

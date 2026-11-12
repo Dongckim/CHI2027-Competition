@@ -1,0 +1,39 @@
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
+@import "tailwindcss";
+@import "./tokens.css";
+
+/* Tailwind utilities read the tokens: bg-surface, text-text-3, rounded-card, text-tag, min-h-touch, font-mono ... */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-tag-bg: var(--tag-bg);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-inverse: var(--inverse-bg);
+  --color-on-inverse: var(--inverse-text);
+  --color-on-inverse-2: var(--inverse-text-2);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --text-tag: var(--text-tag);
+  --text-small: var(--text-small);
+  --text-link: var(--text-link);
+  --text-body: var(--text-body);
+  --text-header: var(--text-header);
+  --text-card-title: var(--text-card-title);
+  --radius-tag: var(--radius-tag);
+  --radius-button: var(--radius-button);
+  --radius-row: var(--radius-row);
+  --radius-card: var(--radius-card);
+  --spacing-touch: var(--touch);
+  --spacing-gutter: var(--gutter);
+}
+
+html { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: var(--text-body); -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
