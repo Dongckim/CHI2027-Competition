@@ -38,13 +38,14 @@ const onceBy = <T,>(load: (k: string) => Promise<T>) => {
 // Today: schedule.json + the venue walking graph. Nothing else.
 export const loadSchedule = once(async () => {
   const [schedule, venueMap] = await Promise.all([get(`${base}schedule.json`), get(`/data/venue/${EDITION}.json`)]);
-  const venue = await get(`/data/venue/${venueMap.venue}.json`);
+  // The venue graph (official plan, metres) and the names people see on it (kept by hand), both precached.
+  const [venue, venueLabels] = await Promise.all([get(`/data/venue/${venueMap.venue}.json`), get(`/data/venue/${venueMap.venue}.labels.json`)]);
   const papers = schedule.papers.map((p: { paperKey: string }) => ({ ...p, key: p.paperKey })); // the planner keys papers by `key`
   const { meta, sessions, rooms } = schedule;
   markDataSaved();
   return {
     meta, sessions, index: indexData({ meta, papers, sessions, rooms }), travelMinutes: venueTravelMinutes(venue, venueMap),
-    venue, venueMap, // Today's walking minutes and 09 directions (app/src/venue/)
+    venue, venueMap, venueLabels, // Today's walking minutes and 09 directions (app/src/venue/)
     sessionSlots: sessionSlotsFrom(papers), timing: new Map<string, string>(sessions.map((x: { key: string; timing: string }) => [x.key, x.timing])),
   };
 });

@@ -8,6 +8,7 @@ import { Explore } from './screens/Explore';
 import { Filters } from './screens/Filters';
 import { Talk } from './screens/Talk';
 import { Person } from './screens/Person';
+import { Directions } from './screens/Directions';
 import { Questions } from './screens/Questions';
 import { Onboarding } from './screens/Onboarding';
 import { Building } from './screens/Building';
@@ -32,8 +33,8 @@ export function App() {
   // Today and Questions need a plan (or "Just browse"); without one they send people to where onboarding stopped.
   // Explore, a talk and a person open from anywhere (the magnifier, the sample day).
   const misplaced = !route || (head === 'start' && !STEPS.includes(step as never)) || (!!tab && tab !== 'explore' && !state.builtAt && state.mode !== 'browse')
-    || (head === 'explore' && !!step && step.split('?')[0] !== 'filters') || (['talk', 'person'].includes(head) && !step)
-    || (!tab && !['start', 'building', 'sample', 'more', 'cleared', 'talk', 'person'].includes(head) && !isPlaceholder(head));
+    || (head === 'explore' && !!step && step.split('?')[0] !== 'filters') || (['talk', 'person', 'directions'].includes(head) && !step)
+    || (!tab && !['start', 'building', 'sample', 'more', 'cleared', 'talk', 'person', 'directions'].includes(head) && !isPlaceholder(head));
   useEffect(() => { if (misplaced) go(startRoute(state), { replace: true }); }, [misplaced, state]);
   // The demo clock belongs to the sample day (and the talks opened from it); anywhere else the real clock runs.
   // The demo clock and a simulated programme change belong to the sample day (and screens opened from it).
@@ -44,7 +45,7 @@ export function App() {
     if (loadNote === 'unreadable') go('cleared', { replace: true });
     else if (loadNote === 'none') planWasHere().then(was => { if (was) go('cleared', { replace: true }); });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const screen = head === 'talk' ? 'Talk' : head === 'person' ? 'Author' : step?.startsWith('filters') ? 'Filters' : tab ? TITLES[tab] : 'Plan your days';
+  const screen = head === 'talk' ? 'Talk' : head === 'person' ? 'Author' : head === 'directions' ? (edit === 'from' ? 'Where are you now?' : 'Getting there') : step?.startsWith('filters') ? 'Filters' : tab ? TITLES[tab] : 'Plan your days';
   useEffect(() => { document.title = `${screen} · ARC`; window.scrollTo(0, 0); }, [route, screen]);
 
   if (misplaced) return null;
@@ -56,6 +57,7 @@ export function App() {
   if (head === 'cleared') return <Cleared />;
   if (head === 'talk') return <Talk paperKey={step} />;
   if (head === 'person') return <Person personKey={step} />;
+  if (head === 'directions') return <Directions paperKey={step} sub={edit} />;
   if (head === 'explore' && step?.startsWith('filters')) return <Filters place={new URLSearchParams(step.split('?')[1]).get('place') ?? undefined} />;
   return (
     <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col bg-bg">
