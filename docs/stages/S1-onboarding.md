@@ -94,7 +94,8 @@
 - "Summaries in [언어]"·언어는 저장만 함. 요약 기능이 생길 때 사용
 - 추천은 여전히 가짜: 문장·주제·nearby가 바뀌어도 같은 응답에서 거르기만 함. 직접 추가한 주제(custom)는 거르기에 영향 없음
 - How full 후처리 뒤 `travelFromPrevMin`을 다시 계산하지 않음 (Today가 걷는 시간을 보여 줄 때 planDay에 한도를 넣기, `shortcut:` 주석)
-- 설정(톱니) 버튼이 아직 아무 일도 안 함 → 계획을 다시 고치려면 `#/start/summary` 주소로만 갈 수 있음
+- 설정(톱니) 버튼은 임시로 O-5 Your plan(`#/start/summary`)을 엶. S7에서 17 Settings 화면으로 바꿈 (`Header.tsx`의 `TODO(S7)`)
+- DeviceState 계약은 S7(계획 링크)에서 확정. 그때까지 앱 내부 형식 v1 (`app/src/state/device.js`)
 - Safari는 홈 화면에 추가하지 않은 사이트의 저장소를 7일 동안 안 쓰면 지울 수 있음. 학회 기간에는 매일 쓰므로 영향 작음, 그래도 지워지면 O-1부터 (`none`)
 - 03-P 샘플 하루의 시각 칩
 
