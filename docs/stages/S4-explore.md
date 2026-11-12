@@ -46,7 +46,10 @@
 - + Add: 계획이 있으면 그 계획의 `edits.added`(S3와 같음, 그날이 계획에 없으면 날짜도 추가), 샘플 하루는 메모리, 둘러보기는 기기에 만드는 중인 계획에 저장 (나중에 계획을 만들어도 남음)
 - 토큰 `--highlight` (라이트 #fff0a0 / 다크 #5a4a00, 글자는 --text)
 - 테스트 `tests/app/explore.test.mjs` 5개: 인용(이모지·𝑁 초록, 코드 포인트 위치는 숨김, 글자 가운데 자르기는 숨김), 하이라이트 조각, 검색 순서, 모든 소속 필터, chi2026 실제 데이터로 "CMU"
-- 도구: `node tests/explore/bench.mjs [질의...]` (node 속도), `node --experimental-websocket tests/explore/phone-check.mjs [스크린숏 폴더]` (헤드리스 Chrome 390×844, CPU 4배 느리게)
+- 별칭이 여러 기관을 가리키면 결과 위에 "CMU = Carnegie Mellon University · Other CMUs". Other CMUs → `#/explore/filters?place=CMU` (그 별칭의 후보 목록, 가장 큰 곳이 선택됨). 다른 곳을 고르면 별칭은 검색어에서 빠지고 필터가 됨 ("CMU"를 검색어로 두면 계속 Carnegie Mellon을 뜻해서 결과가 0이 되므로)
+- 오프라인 Explore: Today가 그려진 뒤 한가할 때(`requestIdleCallback`, 없으면 3초 뒤) `people.json`·`institutions.json`·`topics.json`을 서비스 워커를 거쳐 한 번 받아 둠 (`prefetchForExplore`, `app/src/data/offline.ts`). `navigator.connection.saveData`이면 안 함, 이미 캐시에 있으면 안 함. `topics.json`은 요청에 없었지만 Explore가 이것 없이는 열리지 않아서 넣음 (gzip 11 KB)
+- 고친 것: 서비스 워커가 `Vary: Origin`을 붙이는 서버에서는 오프라인일 때 JS·CSS를 못 찾음 (모듈 스크립트 요청에는 Origin이 붙고 미리 저장할 때는 없음). `vite preview`가 그렇고, 이 때문에 처음 오프라인 확인에서 빈 화면. `caches.match(…, { ignoreVary: true })` (이름에 내용 해시가 있어 안전)
+- 도구: `node tests/explore/bench.mjs [질의...]` (node 속도), `node --experimental-websocket tests/explore/phone-check.mjs [스크린숏 폴더]` (헤드리스 Chrome 390×844, CPU 4배 느리게), `node --experimental-websocket tests/explore/offline-check.mjs` (자기 서버를 켜고 끔)
 
 ## ② 통과 기준 결과
 - **"CMU" → Carnegie Mellon 발표 109개** (Talks 109 · People 181). 테스트가 실제 데이터에서 "저자 중 누구든 어느 소속이든 Carnegie Mellon인 발표" 전체와 같은지 확인
@@ -58,10 +61,12 @@
   - 처음 측정은 "CMU" 106–107 ms → 고친 것 2개: 기관 별칭 표(4,536개)를 탭마다 훑던 것을 질의당 한 번으로, 첫 결과 목록이 그려질 때 돌던 플래너 계산을 Explore를 열 때로
 - `npm test` 73/73 · `contracts:check` 5/5 · `tsc` 0 · `npm run build` 성공 · JS gzip 89.5 → 98.0 KB · 서비스 워커 12개 파일 (S3의 피드 정규화 조각 2.8 KB가 본 번들로 들어감: 검색이 `normalizeName`을 씀)
 - 05 No results → Clear filters → 필터 0, 04 Show 1 result → "Filters · 1"
+- 오프라인 (헤드리스 Chrome, 새 프로필): Today(샘플 하루)만 열고 Explore는 안 연 상태에서 세 파일이 103 ms 만에 캐시에 들어감 → 서버를 끄고 `#/explore`를 새로 열어 "CMU" → Talks 109 · People 181 (온라인과 같음) → Other CMUs → 후보 5개 → Chiang Mai → Talks 1
+- `saveData`일 때 안 받는 것은 확인 안 함 (헤드리스 Chrome에서 켤 방법이 없음, 코드만)
 
 ## ③ 결정과 이유
 - **"CMU"는 가장 큰 기관 하나**: 별칭이 여러 기관을 가리킬 때 모두 넣으면 Chiang Mai·Capital Medical 발표가 섞임. 필터 화면에서는 5개를 모두 보여 주고 고르게 함
-- **나라는 저자가 쓴 그대로**: Hong Kong·Macao·China를 묶는 것(결정 004의 "검색 필터에서 묶는다")은 이번에 하지 않음. 묶을지는 사람이 정할 일 (④)
+- **나라는 저자가 쓴 그대로**: v3 필터에 나라 필터가 없어서 Hong Kong·Macao·China 묶기는 보류 (결정 004에 추가). 나라 필터를 넣으면 다시 결정
 - **결과는 맞은 필드 → 프로그램 순서**: 관련도 순서가 아니라서 "Not ranked for you"가 사실이 됨. 제목이 맞은 발표가 저자 이름만 맞은 발표보다 앞
 - **인용 위치는 UTF-16**: 계약 그대로. 파이썬처럼 코드 포인트로 센 위치는 이모지 뒤에서 어긋나므로 숨김 (테스트에 있음). 원준님 모델이 위치를 셀 때 알아야 함 (⑤)
 - **06 요약 자리는 초록 원문**: "Summary · AI" 대신 "Abstract · from the programme". S7에서 바꿈
@@ -69,11 +74,11 @@
 
 ## ④ 남은 문제
 - 폰 실기기 확인 안 함 (헤드리스 Chrome CPU 4배로만)
-- Hong Kong·Macao·China 묶기 여부 (결정 004와 다름, 확인 필요)
 - 06 저자 줄의 "+n"은 버튼이라 Figma처럼 한 줄로 끝나지 않을 수 있음. 07의 "Prepare a question"과 06의 Question은 S6 자리 화면으로 감
 - 검색 상태(검색어·탭·필터)는 메모리에만 있어서 새로고침하면 사라짐. 돌아올 때 스크롤 위치도 맨 위
 - 의장만 하는 사람은 07에서 "No talks of their own" (세션 의장 일정은 앱 데이터에 없음)
-- 오프라인: `institutions.json`·`people.json`은 미리 저장 목록에 없음 (한 번 열면 서비스 워커가 저장). 처음부터 오프라인이면 Explore가 안 열림
+- 오프라인: 06의 초록(`abstracts/<날짜>.json`)은 미리 받지 않음. 연 적 없는 발표는 오프라인에서 "No abstract in the programme."로 보임 (문구가 원인과 다름)
+- 폰 실기기에서 비행기 모드 Explore는 확인 안 함 (S3처럼 Safari 사생활 보호 탭에서는 서비스 워커가 없어 안 됨)
 
 ## ⑤ 다음 단계가 알아야 할 것
 - 추천 API로 바꾸면(TODO(recsys)) 06은 응답의 `reasons`를 그대로 씀. 위치가 틀린 이유는 화면에서 조용히 빠지므로, `contracts:check`의 인용 규칙을 통과하는지 먼저 볼 것
