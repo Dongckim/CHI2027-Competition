@@ -42,6 +42,12 @@ result.cmuMs = await ev(`new Promise(res => {
   const check = () => document.body.innerText.includes('includes people at Carnegie Mellon') ? res(Math.round(performance.now() - t)) : requestAnimationFrame(check);
   check();
 })`);
+// Tabs show no counts (Figma v3): the rows of each tab, "30+" = more behind "Show 30 more".
+result.cmuRows = await ev(`(async () => { const out = []; const btns = [...document.querySelectorAll('[aria-label=Show] button')]; if (!btns.length) return ['no tabs'];
+  const was = btns.find(b => b.getAttribute('aria-pressed') === 'true');
+  for (const b of btns) { b.click(); await new Promise(r => setTimeout(r, 150)); const rows = document.querySelectorAll('main ul > li').length; const more = [...document.querySelectorAll('main button')].some(x => /^Show \\d+ more$/.test(x.innerText));
+    out.push(\`\${b.innerText.trim()} \${rows}\${more ? '+' : ''}\`); }
+  was?.click(); await new Promise(r => setTimeout(r, 150)); return out; })()`);
 result.cmu = await ev(`({ tabs: [...document.querySelectorAll('[aria-label=Show] button')].map(b => b.innerText.replace(/\\s+/g, ' ')),
   first: [...document.querySelectorAll('main li a')].slice(0, 3).map(a => a.innerText.replace(/\\n/g, ' | ')) })`);
 await shot('05-explore-cmu');

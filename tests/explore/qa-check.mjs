@@ -47,7 +47,7 @@ try {
   const href = await ev(`[...document.querySelectorAll('a[href^="#/talk/"]')].find(a => a.innerText.includes(${JSON.stringify(title ?? '???')}))?.getAttribute('href')`);
   if (href) await ev(`location.hash = ${JSON.stringify(href)}`);
   await waitFor(`!!document.querySelector('main h1') && !document.body.innerText.includes('Loading…')`);
-  const detailRooms = await ev(`[...document.querySelectorAll('main p.font-mono')].map(p => p.innerText)`) ?? [];
+  const detailRooms = await ev(`[...document.querySelectorAll('main p')].map(p => p.innerText).filter(t => /~\\d\\d:\\d\\d · /.test(t))`) ?? []; // the time · room line(s)
   check('4 same revision', !!room && detailRooms.some(t => t.includes(room)), { todayRoom: room ?? null, talk: href ?? null, detail: detailRooms });
 
   // 11: on that 06, author links and the "+n" button.

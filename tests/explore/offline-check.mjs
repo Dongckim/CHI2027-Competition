@@ -32,7 +32,12 @@ const send = (method, params = {}) => new Promise(r => { const i = ++id; pending
 const ev = async expr => { const r = await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true }); if (r.result.exceptionDetails) throw new Error(JSON.stringify(r.result.exceptionDetails)); return r.result.result.value; };
 const waitFor = async (expr, ms = 20000) => { const t = Date.now(); while (Date.now() - t < ms) { if (await ev(expr)) return Date.now() - t; await sleep(100); } throw new Error('timeout: ' + expr); };
 const type = (sel, text) => ev(`(() => { const i = document.querySelector(${JSON.stringify(sel)}); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, ${JSON.stringify(text)}); i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
-const tabs = () => ev(`[...document.querySelectorAll('[aria-label=Show] button')].map(b => b.innerText.replace(/\\s+/g, ' '))`);
+// Tabs show no counts (Figma v3): the rows of each tab, "30+" = more behind "Show 30 more".
+const tabs = () => ev(`(async () => { const out = []; const btns = [...document.querySelectorAll('[aria-label=Show] button')]; if (!btns.length) return ['no tabs'];
+  const was = btns.find(b => b.getAttribute('aria-pressed') === 'true');
+  for (const b of btns) { b.click(); await new Promise(r => setTimeout(r, 150)); const rows = document.querySelectorAll('main ul > li').length; const more = [...document.querySelectorAll('main button')].some(x => /^Show \\d+ more$/.test(x.innerText));
+    out.push(\`\${b.innerText.trim()} \${rows}\${more ? '+' : ''}\`); }
+  was?.click(); await new Promise(r => setTimeout(r, 150)); return out; })()`);
 const out = {};
 const abstractText = () => ev(`[...document.querySelectorAll('main section')].find(x => x.innerText.startsWith('Abstract'))?.innerText.split('\\n').slice(1).join(' ').slice(0, 80) ?? null`);
 try {
