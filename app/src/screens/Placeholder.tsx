@@ -8,6 +8,7 @@ const SCREENS = {
   directions: { title: 'Directions', later: '09 Directions come in S5.' },
   catchup: { title: 'Catch up', later: 'Catch up comes in S6.' },
   question: { title: 'Question', later: 'The question helper comes in S6.' },
+  planlink: { title: 'Plan link', later: 'Opening your plan from a link comes in S7.' },
 } as const;
 export type PlaceholderKind = keyof typeof SCREENS;
 

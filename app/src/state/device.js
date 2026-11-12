@@ -24,7 +24,8 @@ export const HOW_FULL = { light: 4, balanced: 6, full: 8 }; // about this many s
 /** @typedef {{ stepFree: boolean, fewerRoomChanges: boolean, breaks: boolean, largerText: boolean, summaries: boolean }} Needs */
 /** @typedef {{ version: number, edition: string, mode: null | 'plan' | 'browse', step: string, builtAt: number | null,
  *   plan: { query: string, topicsFor: string | null, topics: Topic[], nearbyAdded: { conceptId: string, label: string }[],
- *     days: string[], needs: Needs, language: string, see: string[], howFull: string } }} DeviceState */
+ *     days: string[], needs: Needs, language: string, see: string[], howFull: string,
+ *     edits?: { removed: string[], passed: string[], added: string[] } } }} DeviceState */
 
 /** @param {{ edition: string, days?: string[], language?: string }} defaults @returns {DeviceState} */
 export function freshState({ edition, days = [], language = 'en' }) {
@@ -120,6 +121,12 @@ export const setLanguage = (state, language) => withPlan(state, { language });
 export const setHowFull = (state, howFull) => withPlan(state, { howFull });
 // A day can be built only from a sentence and at least one topic or nearby field (RecommendRequest.query needs text).
 export const canBuild = state => !!state.plan.query.trim() && (state.plan.topics.some(t => t.on) || state.plan.nearbyAdded.length > 0);
+
+// Remove / Pick / Swap / Add on top of the planner (today/edits.js). Missing in plans saved before S3 = no edits.
+const NONE = Object.freeze({ removed: [], passed: [], added: [] }); // one object, so screens do not re-plan on every render
+export const editsOf = plan => plan.edits ?? NONE;
+export const updateEdits = (state, change) => withPlan(state, { edits: change(editsOf(state.plan)) });
+export const addDay = (state, day) => (state.plan.days.includes(day) ? state : withPlan(state, { days: [...state.plan.days, day].sort() }));
 
 export const atStep = (state, step) => (state.builtAt || state.step === step ? state : { ...state, step });
 

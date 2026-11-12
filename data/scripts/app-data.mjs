@@ -1,5 +1,5 @@
 // App-sized slices of data/build/<edition>/ so the phone downloads only what a screen needs.
-// Output: data/build/app-data/<edition>/r<revision>-<hash>/{schedule.json, abstracts/<day>.json, people.json}
+// Output: data/build/app-data/<edition>/r<revision>-<hash>/{schedule.json, abstracts/<day>.json, people.json, topics.json}
 //         data/build/app-data/<edition>/current.json  → { edition, revision, path, days } (the app bundles it at build time)
 // The path changes when the feed revision or any file's content changes, so the files can be cached forever.
 import { createHash } from 'node:crypto';
@@ -13,7 +13,7 @@ export function abstractDay(paper, timeZone) {
   return starts.length ? localDay(Math.min(...starts), timeZone) : 'unscheduled';
 }
 
-export function buildAppData({ meta, papers, sessions, rooms, people, aliases }) {
+export function buildAppData({ meta, papers, sessions, rooms, people, aliases, topics = [] }) {
   const tz = meta.timeZone;
   const schedule = {
     meta: { edition: meta.edition, revision: meta.revision, publicationVersion: meta.publicationVersion, timeZone: tz, attribution: meta.attribution },
@@ -45,7 +45,9 @@ export function buildAppData({ meta, papers, sessions, rooms, people, aliases })
     peopleOut[person.key] = { name: person.name, affiliations };
   }
 
-  const files = { 'schedule.json': schedule, 'people.json': peopleOut };
+  // Session topics for the on-device baseline recommender (concepts and topic labels).
+  const topicsOut = topics.map(({ key, label, contentKeys }) => ({ key, label, contentKeys }));
+  const files = { 'schedule.json': schedule, 'people.json': peopleOut, 'topics.json': topicsOut };
   for (const day of Object.keys(abstracts).sort()) files[`abstracts/${day}.json`] = abstracts[day];
   const text = Object.fromEntries(Object.entries(files).map(([f, v]) => [f, JSON.stringify(v)]));
   const hash = createHash('sha256');
