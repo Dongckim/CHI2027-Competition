@@ -78,7 +78,8 @@ function landmark(venue, node, skip) {
 export const stopsText = stops =>
   stops.map(s => (s.kind === 'elevator' || s.kind === 'escalator' ? `${s.kind[0].toUpperCase()}${s.kind.slice(1)} ${s.from}→${s.to}` : s.name)).join(' → ');
 
-// Returns { from, to, wheelchair, metres, minutes: [low, high], levels, via, stops, path } or null when there is no route.
+// Returns { from, to, wheelchair, metres, minutes: [low, high], levels, via, stops, path, edges } or null when there is no route.
+// edges[i]: the venue edge from path[i] to path[i + 1] (directions.js reads its kind).
 // Walking (default) takes escalators between levels and falls back to elevators only where nothing else connects
 // (the plans mark no stairs). wheelchair: elevators only, at wheelchair speed.
 // stops: what to look for, in order — { kind: 'room' | 'landmark', name, level, node } or { kind: 'elevator' | 'escalator', from, to, node }.
@@ -147,5 +148,6 @@ export function route(venue, from, to, { wheelchair = false } = {}) {
     via,
     stops,
     path,
+    edges: steps.map(s => s.e),
   };
 }
