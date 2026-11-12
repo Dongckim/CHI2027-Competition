@@ -47,7 +47,10 @@
 - 토큰 `--highlight` (라이트 #fff0a0 / 다크 #5a4a00, 글자는 --text)
 - 테스트 `tests/app/explore.test.mjs` 5개: 인용(이모지·𝑁 초록, 코드 포인트 위치는 숨김, 글자 가운데 자르기는 숨김), 하이라이트 조각, 검색 순서, 모든 소속 필터, chi2026 실제 데이터로 "CMU"
 - 별칭이 여러 기관을 가리키면 결과 위에 "CMU = Carnegie Mellon University · Other CMUs". Other CMUs → `#/explore/filters?place=CMU` (그 별칭의 후보 목록, 가장 큰 곳이 선택됨). 다른 곳을 고르면 별칭은 검색어에서 빠지고 필터가 됨 ("CMU"를 검색어로 두면 계속 Carnegie Mellon을 뜻해서 결과가 0이 되므로)
-- 오프라인 Explore: Today가 그려진 뒤 한가할 때(`requestIdleCallback`, 없으면 3초 뒤) `people.json`·`institutions.json`·`topics.json`을 서비스 워커를 거쳐 한 번 받아 둠 (`prefetchForExplore`, `app/src/data/offline.ts`). `navigator.connection.saveData`이면 안 함, 이미 캐시에 있으면 안 함. `topics.json`은 요청에 없었지만 Explore가 이것 없이는 열리지 않아서 넣음 (gzip 11 KB)
+- 오프라인 Explore: Today가 그려진 뒤 한가할 때(`requestIdleCallback`, 없으면 3초 뒤) `people.json`·`institutions.json`·`topics.json`을 서비스 워커를 거쳐 한 번 받아 둠 (`prefetchWhenIdle`, `app/src/data/offline.ts`). `navigator.connection.saveData`이면 안 함, 이미 캐시에 있으면 안 함. `topics.json`은 요청에 없었지만 Explore가 이것 없이는 열리지 않아서 넣음 (gzip 11 KB)
+- 오프라인 06: 같은 방식으로 계획한 날짜의 `abstracts/<날짜>.json`(샘플 하루는 그날)과 계획에 든 발표의 초록 파일(첫 슬롯 날짜가 다른 날일 수 있음)도 미리 받음. 하루 파일 gzip 129–218 KB
+- 06 초록 문구: 초록이 원래 없으면 "No abstract in the programme.", 그날 파일을 못 받았는데 오프라인이면 "Abstract not saved on this phone yet. Connect to load it.", 온라인인데 실패하면 "Could not load the abstract. Try again in a moment." 다시 온라인이 되면 다시 받음
+- simulate 규칙을 `app/src/today/simulate.js`로 분리 (`simulateRequested`, `keepsSample`). Today와 App이 이것을 씀. 값도 확인함: `?simulate=room-change`만 (전에는 `?simulate`에 무슨 값이든)
 - 고친 것: 서비스 워커가 `Vary: Origin`을 붙이는 서버에서는 오프라인일 때 JS·CSS를 못 찾음 (모듈 스크립트 요청에는 Origin이 붙고 미리 저장할 때는 없음). `vite preview`가 그렇고, 이 때문에 처음 오프라인 확인에서 빈 화면. `caches.match(…, { ignoreVary: true })` (이름에 내용 해시가 있어 안전)
 - 도구: `node tests/explore/bench.mjs [질의...]` (node 속도), `node --experimental-websocket tests/explore/phone-check.mjs [스크린숏 폴더]` (헤드리스 Chrome 390×844, CPU 4배 느리게), `node --experimental-websocket tests/explore/offline-check.mjs` (자기 서버를 켜고 끔)
 
@@ -59,9 +62,12 @@
   - 처음 Explore를 열 때 데이터 받기 + 인덱스 만들기 331–393 ms (로컬 서버)
   - node: 인덱스 76–83 ms, 질의 중앙값 1.5–2 ms
   - 처음 측정은 "CMU" 106–107 ms → 고친 것 2개: 기관 별칭 표(4,536개)를 탭마다 훑던 것을 질의당 한 번으로, 첫 결과 목록이 그려질 때 돌던 플래너 계산을 Explore를 열 때로
-- `npm test` 73/73 · `contracts:check` 5/5 · `tsc` 0 · `npm run build` 성공 · JS gzip 89.5 → 98.0 KB · 서비스 워커 12개 파일 (S3의 피드 정규화 조각 2.8 KB가 본 번들로 들어감: 검색이 `normalizeName`을 씀)
+- `npm test` 74/74 · `contracts:check` 5/5 · `build:deploy` 성공 (마무리 시점)
+- 처음 S4: `npm test` 73/73 · `contracts:check` 5/5 · `tsc` 0 · `npm run build` 성공 · JS gzip 89.5 → 98.0 KB · 서비스 워커 12개 파일 (S3의 피드 정규화 조각 2.8 KB가 본 번들로 들어감: 검색이 `normalizeName`을 씀)
 - 05 No results → Clear filters → 필터 0, 04 Show 1 result → "Filters · 1"
 - 오프라인 (헤드리스 Chrome, 새 프로필): Today(샘플 하루)만 열고 Explore는 안 연 상태에서 세 파일이 103 ms 만에 캐시에 들어감 → 서버를 끄고 `#/explore`를 새로 열어 "CMU" → Talks 109 · People 181 (온라인과 같음) → Other CMUs → 후보 5개 → Chiang Mai → Talks 1
+- 오프라인 06 (같은 확인, 서버를 끄고 브라우저도 오프라인 `navigator.onLine = false`): 샘플 하루(4월 14일)의 계획한 발표는 초록이 보임. 미리 받지 않은 4월 16일 발표는 "Abstract not saved on this phone yet. Connect to load it.", 초록이 없는 발표(chi2026:251828, 온라인)는 "No abstract in the programme."
+- simulate: `tests/app/changes.test.mjs`의 규칙 테스트 (샘플 하루만 true, 계획·계획 없음·다른 값은 false, 샘플 하루를 떠나면 지움). 헤드리스 Chrome: `?simulate=room-change#/sample` → "Programme updated", 같은 주소로 계획 모드 Today → 알림 없음
 - `saveData`일 때 안 받는 것은 확인 안 함 (헤드리스 Chrome에서 켤 방법이 없음, 코드만)
 
 ## ③ 결정과 이유
@@ -77,7 +83,8 @@
 - 06 저자 줄의 "+n"은 버튼이라 Figma처럼 한 줄로 끝나지 않을 수 있음. 07의 "Prepare a question"과 06의 Question은 S6 자리 화면으로 감
 - 검색 상태(검색어·탭·필터)는 메모리에만 있어서 새로고침하면 사라짐. 돌아올 때 스크롤 위치도 맨 위
 - 의장만 하는 사람은 07에서 "No talks of their own" (세션 의장 일정은 앱 데이터에 없음)
-- 오프라인: 06의 초록(`abstracts/<날짜>.json`)은 미리 받지 않음. 연 적 없는 발표는 오프라인에서 "No abstract in the programme."로 보임 (문구가 원인과 다름)
+- 오프라인: 계획하지 않은 날의 초록은 미리 받지 않음 (그 발표를 오프라인에서 열면 "not saved on this phone yet")
+- simulate의 자동 테스트는 규칙 함수만 (Today를 node에서 그리지는 않음). 화면 동작은 헤드리스 확인으로만
 - 폰 실기기에서 비행기 모드 Explore는 확인 안 함 (S3처럼 Safari 사생활 보호 탭에서는 서비스 워커가 없어 안 됨)
 
 ## ⑤ 다음 단계가 알아야 할 것
