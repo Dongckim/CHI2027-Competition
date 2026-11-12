@@ -31,10 +31,11 @@ export function registerServiceWorker() {
   if (import.meta.env.PROD && 'serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
 
-// Explore offline (05): after Today is drawn, when the phone is idle (or a few seconds later where there is no
-// requestIdleCallback), fetch the search files once through the service worker, which keeps /app-data/ (cache first).
-// Not with Save-Data on, and not again once they are in the cache. → a cancel function for the effect cleanup.
-export function prefetchForExplore(urls: string[]) {
+// Offline after one visit: after Today is drawn, when the phone is idle (or a few seconds later where there is no
+// requestIdleCallback), fetch files once through the service worker, which keeps /app-data/ (cache first): Explore's
+// search files (05) and the abstracts of the planned days (06). Not with Save-Data on, not again once in the cache.
+// → a cancel function for the effect cleanup.
+export function prefetchWhenIdle(urls: string[]) {
   const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
   if (!import.meta.env.PROD || saveData || !('serviceWorker' in navigator) || !('caches' in window)) return () => {};
   let cancelled = false;

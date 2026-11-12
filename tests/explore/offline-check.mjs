@@ -4,6 +4,15 @@
 // npm run build && node --experimental-websocket tests/explore/offline-check.mjs   (starts and stops its own vite preview)
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
+import { readFileSync } from 'node:fs';
+// Talks for the abstract checks, from the built app data: the sample day's planned talk (Tue 14), a talk whose
+// abstract file is another day (not prefetched), and a talk with no abstract in the programme.
+const appData = new URL('../../data/build/app-data/chi2026/', import.meta.url);
+const { path: dataPath } = JSON.parse(readFileSync(new URL('current.json', appData)));
+const abstractsOf = day => JSON.parse(readFileSync(new URL(`${dataPath}abstracts/${day}.json`, appData)));
+const PLANNED = 'chi2026:221879'; // first item of the sample day's recommendations, on 2026-04-14
+const OTHER_DAY = Object.keys(abstractsOf('2026-04-16')).find(k => abstractsOf('2026-04-16')[k]);
+const NO_ABSTRACT = Object.entries(abstractsOf('2026-04-13')).find(([, a]) => !a)[0];
 const PORT = 4318, BASE = `http://localhost:${PORT}/`;
 const CHROME = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -25,6 +34,7 @@ const waitFor = async (expr, ms = 20000) => { const t = Date.now(); while (Date.
 const type = (sel, text) => ev(`(() => { const i = document.querySelector(${JSON.stringify(sel)}); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, ${JSON.stringify(text)}); i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
 const tabs = () => ev(`[...document.querySelectorAll('[aria-label=Show] button')].map(b => b.innerText.replace(/\\s+/g, ' '))`);
 const out = {};
+const abstractText = () => ev(`[...document.querySelectorAll('main section')].find(x => x.innerText.startsWith('Abstract'))?.innerText.split('\\n').slice(1).join(' ').slice(0, 80) ?? null`);
 try {
   await send('Page.enable'); await send('Runtime.enable'); await send('Log.enable');
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
@@ -39,10 +49,20 @@ try {
     if (!path) return false;
     return (await Promise.all(['people.json', 'institutions.json', 'topics.json'].map(f => caches.match(path + f)))).every(Boolean); })()`, 30000);
 
+  out.abstractPrefetched = await waitFor(`(async () => { const path = [...performance.getEntriesByType('resource')].map(e => e.name).find(n => n.includes('/schedule.json'))?.replace(/schedule\\.json$/, '');
+    return !!(await caches.match(path + 'abstracts/2026-04-14.json', { ignoreVary: true })) && !(await caches.match(path + 'abstracts/2026-04-16.json', { ignoreVary: true })); })()`, 30000).then(() => true, () => false);
+  // Online: a talk with no abstract in the programme.
+  await send('Page.navigate', { url: BASE + '#/talk/' + NO_ABSTRACT });
+  await waitFor(`document.body.innerText.includes('Abstract · from the programme') && !document.querySelector('main section:last-of-type')?.innerText.includes('Loading')`);
+  out.noAbstract = { key: NO_ABSTRACT, text: await abstractText() };
+
   // Airplane mode: no server any more. A real reload on Explore, then search.
   process.kill(-server.pid); server = null;
   await sleep(500);
   out.serverDown = await fetch(BASE).then(() => false, () => true);
+  // …and the browser itself offline, as in airplane mode (navigator.onLine = false).
+  await send('Network.enable');
+  await send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
   await send('Page.navigate', { url: BASE + '?airplane#/explore' }); // another URL, so this is a real page load
   await waitFor(`!!document.querySelector('input[type=search]')`);
   await waitFor(`!document.body.innerText.includes('Loading the programme')`);
@@ -50,6 +70,18 @@ try {
   await type('input[type=search]', 'CMU');
   await waitFor(`document.body.innerText.includes('Other CMUs')`);
   out.offlineCmu = { tabs: await tabs(), first: await ev(`document.querySelector('main li a')?.innerText.replace(/\\n/g, ' | ') ?? null`) };
+
+  // Still offline: the planned talk shows its abstract; a talk of a day that was not prefetched says so.
+  await send('Page.navigate', { url: BASE + '?airplane#/talk/' + PLANNED });
+  await waitFor(`document.body.innerText.includes('Abstract · from the programme') && !document.querySelector('main section:last-of-type')?.innerText.includes('Loading')`);
+  out.offlinePlannedAbstract = { key: PLANNED, text: await abstractText(), online: await ev('navigator.onLine') };
+  await send('Page.navigate', { url: BASE + '?airplane#/talk/' + OTHER_DAY });
+  await waitFor(`document.body.innerText.includes('Abstract · from the programme') && !document.querySelector('main section:last-of-type')?.innerText.includes('Loading')`);
+  out.offlineOtherDayAbstract = { key: OTHER_DAY, text: await abstractText() };
+  await send('Page.navigate', { url: BASE + '?airplane#/explore' });
+  await waitFor(`!!document.querySelector('input[type=search]') && !document.body.innerText.includes('Loading the programme')`);
+  await type('input[type=search]', 'CMU');
+  await waitFor(`document.body.innerText.includes('Other CMUs')`);
 
   // Still offline: "CMU = Carnegie Mellon University · Other CMUs" → the filter list → pick Chiang Mai.
   out.banner = await ev(`[...document.querySelectorAll('p')].map(p => p.innerText).find(t => t.includes('Other CMUs'))`);
