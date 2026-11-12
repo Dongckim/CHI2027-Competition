@@ -70,7 +70,8 @@ export function buildSearchIndex({ schedule, people, topics = [], aliases }) {
       countries: new Set(affs.map(a => fold(a.country)).filter(Boolean)),
     };
   });
-  const peopleList = Object.entries(people).map(([key, p]) => ({
+  // People without a name in the programme are not listed (there is nothing to show for them).
+  const peopleList = Object.entries(people).filter(([, p]) => p.name?.trim()).map(([key, p]) => ({
     key, name: p.name, words: words(p.name),
     institutions: new Set(p.affiliations.map(a => a.institutionKey).filter(Boolean)),
     countries: new Set(p.affiliations.map(a => fold(a.country)).filter(Boolean)),

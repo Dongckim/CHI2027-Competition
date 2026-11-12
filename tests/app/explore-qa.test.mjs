@@ -107,3 +107,13 @@ test('QA 14: a new revision gives the app the same paper and people shape as the
   assert.deepEqual(updatedPeople(deploy, null), deploy);
 });
 
+test('QA 15: authors without a name are left out of the list and counted in "+n"', async () => {
+  const { authorLine } = await import('../../app/src/explore/authors.js');
+  const names = { a: 'Ann', b: 'Bo', c: '', d: 'Di', e: 'Ed', f: '  ' };
+  const nameOf = k => names[k];
+  assert.deepEqual(authorLine(['a', 'b', 'c', 'd', 'e', 'f', 'x'], nameOf, false), { shown: ['a', 'b', 'd'], more: 4, canExpand: true });
+  assert.deepEqual(authorLine(['a', 'b', 'c', 'd', 'e', 'f', 'x'], nameOf, true), { shown: ['a', 'b', 'd', 'e'], more: 3, canExpand: true });
+  assert.deepEqual(authorLine(['a', 'c', 'x'], nameOf, false), { shown: ['a'], more: 2, canExpand: false }); // "+2", nothing to open
+  assert.deepEqual(authorLine(['c'], nameOf, false), { shown: [], more: 1, canExpand: false });
+  assert.deepEqual(authorLine(['a', 'b'], nameOf, false), { shown: ['a', 'b'], more: 0, canExpand: false });
+});

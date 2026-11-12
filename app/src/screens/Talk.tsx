@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { loadAbstracts } from '../data/load';
 import { talkPosition } from '../today/card.js';
 import { highlightSegments, verifiedReasons } from '../explore/quotes.js';
+import { authorLine } from '../explore/authors.js';
 import { useExploreData, useMyDay } from '../explore/useExplore';
 import { TYPE_TAG, dateOf, clockOf, weekdayOf, firstSlot, abstractFileDay } from '../explore/format';
 import { useOnline } from '../data/offline';
@@ -45,7 +46,8 @@ export function Talk({ paperKey }: { paperKey: string }) {
 
   const { index, sessionSlots, timing } = data.schedule;
   const authors: string[] = p.authors;
-  const shownAuthors = allAuthors ? authors : authors.slice(0, 3);
+  const line = authorLine(authors, k => data.people[k]?.name, allAuthors); // unnamed authors only count in "+n"
+  const shownAuthors = line.shown;
   const slots = p.slots.filter((s: { start: number | null }) => s.start != null).sort((a: { start: number }, b: { start: number }) => a.start - b.start);
   const item = response?.items.find(i => i.paperKey === paperKey);
   const reasons: Reason[] = abstract ? verifiedReasons(item?.reasons, abstract) : [];
@@ -63,11 +65,13 @@ export function Talk({ paperKey }: { paperKey: string }) {
         <ul aria-label="Authors" className="-my-2 flex flex-wrap items-center gap-x-1 text-small text-text-2">
           {shownAuthors.map((k, i) => (
             <li key={k} className="flex items-center">
-              <a href={`#/person/${k}`} className="inline-flex min-h-touch items-center underline">{data.people[k]?.name ?? k}</a>{i < shownAuthors.length - 1 && ','}
+              <a href={`#/person/${k}`} className="inline-flex min-h-touch items-center underline">{data.people[k].name}</a>{i < shownAuthors.length - 1 && ','}
             </li>
           ))}
-          {authors.length > 3 && <li><button type="button" onClick={() => setAllAuthors(a => !a)} aria-expanded={allAuthors}
-            className="inline-flex min-h-touch min-w-touch items-center justify-center px-1 font-semibold underline">{allAuthors ? 'fewer' : `+${authors.length - 3}`}</button></li>}
+          {line.canExpand ? (
+            <li><button type="button" onClick={() => setAllAuthors(a => !a)} aria-expanded={allAuthors}
+              className="inline-flex min-h-touch min-w-touch items-center justify-center px-1 font-semibold underline">{allAuthors ? (line.more ? `fewer · +${line.more}` : 'fewer') : `+${line.more}`}</button></li>
+          ) : line.more > 0 && <li className="inline-flex min-h-touch items-center px-1">+{line.more}</li>}
         </ul>
         <div className="flex flex-col gap-1">
           {slots.length ? slots.map((s: { start: number; roomKey: string; sessionKey: string }) => {
