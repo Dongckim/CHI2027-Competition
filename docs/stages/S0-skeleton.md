@@ -47,6 +47,7 @@
 | (참고) 원본 `papers.json` | 8,180,694 | 1,822,078 | 앱은 안 받음 |
 | (참고) 원본 `people.json` | 4,151,941 | 454,257 | 앱은 안 받음 |
 
+- 갱신 (2026-11-11, S2 뒤 교차 검증 때 다시 잼): `schedule.json` 1,284,764 / 219,361 (S2에서 세션 `timing` 추가, 경로 `r1-831bd150`), JS gzip 82,767, CSS 3,892 → 첫 화면 401,819 B. 아래 줄은 S0 당시 값
 - 첫 화면 전체 (gzip, woff2는 그대로): 전 2,021,924 B (코드·글꼴·venue 173,896 + papers·sessions·rooms·meta 1,848,028) → 후 **393,094 B** (173,896 + schedule 219,198). 원본 크기로는 8.8 MB → 1.7 MB
 - Vercel 미리보기 (`arc-nkxaiepii-dongckims-projects.vercel.app`, `942849f`): `build:deploy` 성공 (피드 11.9 MB 받음 → app-data 경로·해시와 JS 파일 이름이 로컬 빌드와 같음)
   - 응답 헤더: `/`·`/index.html` no-cache · `/assets/*`·`/app-data/*` public, max-age=31536000, immutable · `/data/*` max-age=300 · `/tests/` Vercel 기본값
