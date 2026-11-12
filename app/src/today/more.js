@@ -26,7 +26,17 @@ export function dayBounds(sessions, day, timeZone) {
 }
 
 // → [{ paperKey, slot, gap }] sorted by relevance, then time. `only` = one gap (Free time view), else every gap of the day.
-export function moreForYou({ index, travelMinutes, timeZone }, candidates, edits, dayPlan, bounds, only = null) {
+/** @typedef {{ start: number, end: number, before: { roomKey: string } | null, after: { roomKey: string } | null }} Gap */
+/**
+ * @param {{ index: { papers: Map<string, any>, rooms: Map<string, any> }, travelMinutes: Function, timeZone: string }} ctx
+ * @param {{ paperKey: string, relevance: number }[]} candidates
+ * @param {{ removed?: string[] } | null} edits
+ * @param {{ day: string, wheelchair: boolean, stops: { paperKey: string, roomKey: string, start: number, end: number }[] }} dayPlan
+ * @param {{ start: number, end: number } | null} bounds
+ * @param {Gap | null} [only]
+ */
+export function moreForYou(ctx, candidates, edits, dayPlan, bounds, only = null) {
+  const { index, travelMinutes, timeZone } = ctx;
   if (!bounds) return [];
   const planned = new Set(dayPlan.stops.map(s => s.paperKey));
   const removed = new Set(edits?.removed ?? []);

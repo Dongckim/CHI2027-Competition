@@ -123,7 +123,8 @@ export const setHowFull = (state, howFull) => withPlan(state, { howFull });
 export const canBuild = state => !!state.plan.query.trim() && (state.plan.topics.some(t => t.on) || state.plan.nearbyAdded.length > 0);
 
 // Remove / Pick / Swap / Add on top of the planner (today/edits.js). Missing in plans saved before S3 = no edits.
-export const editsOf = plan => plan.edits ?? { removed: [], passed: [], added: [] };
+const NONE = Object.freeze({ removed: [], passed: [], added: [] }); // one object, so screens do not re-plan on every render
+export const editsOf = plan => plan.edits ?? NONE;
 export const updateEdits = (state, change) => withPlan(state, { edits: change(editsOf(state.plan)) });
 export const addDay = (state, day) => (state.plan.days.includes(day) ? state : withPlan(state, { days: [...state.plan.days, day].sort() }));
 

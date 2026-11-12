@@ -106,3 +106,11 @@ test('More for you: a talk fits a gap only with the walk to it and from it; remo
   const morning = freeGaps(stops, bounds.start, bounds.end)[0]; // 09:00–10:00: none of them
   assert.deepEqual(moreForYou(ctx, cands, NO_EDITS, dayPlan, bounds, morning), []);
 });
+
+test('offline line: only when offline, with the time the data was saved (venue time)', async () => {
+  const { offlineNote } = await import('../../app/src/today/offline.js');
+  const savedAt = Date.UTC(2026, 3, 14, 6, 40); // 08:40 in Madrid (UTC+2)
+  assert.equal(offlineNote(true, savedAt, 'Europe/Madrid'), null);
+  assert.equal(offlineNote(false, savedAt, 'Europe/Madrid'), 'Offline · saved at 08:40');
+  assert.equal(offlineNote(false, null, 'Europe/Madrid'), 'Offline · showing what is on this phone');
+});

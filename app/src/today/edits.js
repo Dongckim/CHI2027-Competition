@@ -3,6 +3,8 @@
 //   removed: taken out with Remove (never suggested again)
 //   passed:  the other talks of a PICK ONE (kept out of the plan, still offered in More for you)
 //   added:   put in with Pick, Swap or More for you (kept by the planner and by How full)
+/** @typedef {{ removed: string[], passed: string[], added: string[] }} Edits */
+/** @type {Edits} */
 export const NO_EDITS = Object.freeze({ removed: [], passed: [], added: [] });
 export const ADDED_BOOST = 10; // relevance is 0..1, so an added talk always outweighs what it overlaps
 
