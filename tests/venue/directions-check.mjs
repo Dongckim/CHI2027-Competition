@@ -87,6 +87,25 @@ try {
   await ev(`[...document.querySelectorAll('[aria-label="What the plan shows"] button')].find(b => b.innerText === 'Whole').click()`); await sleep(600);
   check('Whole: back to no step', (await ev(cur)) === -1 && (await ev(card)) === null, {});
 
+  // Two fingers, as in map apps: a clockwise twist turns the view (theta up), both fingers up tilt it (phi up); a step or
+  // Whole comes back to the plans' angle (0.785, 0.950).
+  const viewNow = `document.querySelector('section[aria-label="Floor plan"] canvas').dataset.view`;
+  const twoFinger = (a0, a1, lift) => ev(`(() => { const c = document.querySelector('section[aria-label="Floor plan"] canvas'), r = c.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2, R = 60;
+    const at = (id, ang, dy, t) => c.dispatchEvent(new PointerEvent(t, { pointerId: id, clientX: cx + Math.cos(ang + (id === 2 ? Math.PI : 0)) * R, clientY: cy + Math.sin(ang + (id === 2 ? Math.PI : 0)) * R + dy, bubbles: true, pointerType: 'touch' }));
+    at(1, ${a0}, 0, 'pointerdown'); at(2, ${a0}, 0, 'pointerdown');
+    for (let k = 1; k <= 6; k++) { const ang = ${a0} + (${a1} - ${a0}) * k / 6, dy = -${lift} * k / 6; at(1, ang, dy, 'pointermove'); at(2, ang, dy, 'pointermove'); }
+    at(1, ${a1}, -${lift}, 'pointerup'); at(2, ${a1}, -${lift}, 'pointerup'); })()`);
+  const v0 = await ev(viewNow);
+  await twoFinger(0, 0.5, 40); await sleep(300);
+  const v1 = await ev(viewNow);
+  await shot('s5-09-twisted');
+  const [t0, p0] = v0.split(',').map(Number), [t1, p1] = v1.split(',').map(Number);
+  await ev(`[...document.querySelectorAll('[aria-label="What the plan shows"] button')].find(b => b.innerText === 'Whole').click()`);
+  await waitFor(`${viewNow} === '0.785,0.950'`, 5000); // the glide back
+  const vBack = await ev(viewNow);
+  check('two fingers: twist turns, lift tilts; Whole back to the plans angle', Math.abs(t1 - t0 - 0.5) < 0.05 && p1 > p0 + 0.1 && vBack === '0.785,0.950', { before: v0, after: v1, afterWhole: vBack, stepsUnchanged: await ev(cur) });
+
   // Turn the phone sideways: the plan takes the screen with the card, the bar and the step buttons; upright again: back.
   await press('Show step 1'); await sleep(400);
   await send('Emulation.setDeviceMetricsOverride', { width: 844, height: 390, deviceScaleFactor: 2, mobile: true, screenOrientation: { type: 'landscapePrimary', angle: 90 } });

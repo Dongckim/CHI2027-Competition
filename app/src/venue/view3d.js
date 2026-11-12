@@ -238,6 +238,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     const { theta, phi, radius, target } = cam;
     camera.position.set(target.x + radius * Math.sin(phi) * Math.sin(theta), target.y + radius * Math.cos(phi), target.z + radius * Math.sin(phi) * Math.cos(theta));
     camera.lookAt(target);
+    canvas.dataset.view = `${theta.toFixed(3)},${phi.toFixed(3)}`; // for the phone check
     needs = true;
   }
   function resize() {
@@ -282,17 +283,28 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     moveTo({ ...ORIGINAL, target: p.clone().add(ahead).add(far), radius }, now);
   }
 
-  // One finger: a quick sideways swipe goes to the next or previous step. Two fingers (or the wheel): zoom.
+  // Touch, as in map apps. One finger: a quick sideways swipe goes to the next or previous step. Two fingers: twist to
+  // turn the view, move both up or down to tilt it, spread or pinch to zoom. (Wheel: zoom.) Whole, Route and the steps
+  // come back to the plans' angle.
   const pointers = new Map(); let pinch = null, swipe = null;
+  const twoFingers = () => { const [a, b] = [...pointers.values()]; return { d: Math.hypot(a.x - b.x, a.y - b.y), angle: Math.atan2(b.y - a.y, b.x - a.x), y: (a.y + b.y) / 2 }; };
   const down = e => {
     try { canvas.setPointerCapture?.(e.pointerId); } catch { /* not a live pointer */ } pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.size === 1) swipe = { x: e.clientX, y: e.clientY, t: performance.now() };
-    if (pointers.size === 2) { swipe = null; goal = null; const [a, b] = [...pointers.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), r: cam.radius }; }
+    if (pointers.size === 2) { swipe = null; goal = null; pinch = { ...twoFingers(), r: cam.radius, theta: cam.theta, phi: cam.phi }; }
   };
   const move = e => {
     if (!pointers.has(e.pointerId)) return;
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (pointers.size === 2 && pinch) { const [a, b] = [...pointers.values()]; cam.radius = clampR(pinch.r * pinch.d / Math.max(1, Math.hypot(a.x - b.x, a.y - b.y))); placeCamera(); }
+    if (pointers.size !== 2 || !pinch) return;
+    const now = twoFingers();
+    cam.radius = clampR(pinch.r * pinch.d / Math.max(1, now.d));
+    // Screen y points down, so a clockwise twist raises the angle; the camera then orbits the same way and the plan turns
+    // with the fingers.
+    let da = now.angle - pinch.angle; if (da > Math.PI) da -= 2 * Math.PI; if (da < -Math.PI) da += 2 * Math.PI;
+    cam.theta = pinch.theta + da;
+    cam.phi = Math.min(1.35, Math.max(0.25, pinch.phi + (pinch.y - now.y) * 0.006)); // both fingers up: tilt toward the horizon
+    placeCamera();
   };
   const up = e => {
     const p = pointers.get(e.pointerId); pointers.delete(e.pointerId);
@@ -318,7 +330,10 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       const k = 1 - Math.pow(0.002, dt);
       cam.theta += (goal.theta - cam.theta) * k; cam.phi += (goal.phi - cam.phi) * k; cam.radius += (goal.radius - cam.radius) * k;
       cam.target.lerp(goal.target, k);
-      if (Math.abs(goal.radius - cam.radius) < 0.3 && cam.target.distanceTo(goal.target) < 0.2) goal = null;
+      // Close enough: land exactly on the view asked for (so Whole and the steps are the plans' angle, not near it).
+      if (Math.abs(goal.radius - cam.radius) < 0.3 && cam.target.distanceTo(goal.target) < 0.2 && Math.abs(goal.theta - cam.theta) < 0.003 && Math.abs(goal.phi - cam.phi) < 0.003) {
+        Object.assign(cam, { theta: goal.theta, phi: goal.phi, radius: goal.radius, target: goal.target.clone() }); goal = null;
+      }
       placeCamera();
     }
     if (needs) { renderer.render(scene, camera); needs = false; canvas.dataset.frames = String(++frames); } // frames: for the phone check
