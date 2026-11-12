@@ -8,6 +8,8 @@ import { Explore } from './screens/Explore';
 import { Questions } from './screens/Questions';
 import { Onboarding } from './screens/Onboarding';
 import { Building } from './screens/Building';
+import { Placeholder, isPlaceholder } from './screens/Placeholder';
+import { setDemoNow, isDemo } from './clock';
 
 const TITLES = { today: 'Today', explore: 'Explore', questions: 'Questions' };
 const STEPS = ['research', 'topics', 'days', 'needs', 'summary', 'see', 'language', 'howfull'] as const;
@@ -20,14 +22,17 @@ export function App() {
   // Opening the app: a built plan → Today, browsing → Explore, otherwise back to the onboarding step that was left.
   // Tabs need a plan (or "Just browse"); without one they send people to where onboarding stopped.
   const misplaced = !route || (head === 'start' && !STEPS.includes(step as never)) || (!!tab && !state.builtAt && state.mode !== 'browse')
-    || (!tab && !['start', 'building', 'sample'].includes(head));
+    || (!tab && !['start', 'building', 'sample'].includes(head) && !isPlaceholder(head));
   useEffect(() => { if (misplaced) go(startRoute(state), { replace: true }); }, [misplaced, state]);
+  // The demo clock belongs to the sample day (and the talks opened from it); anywhere else the real clock runs.
+  useEffect(() => { if (head !== 'sample' && !isPlaceholder(head) && isDemo()) setDemoNow(null); }, [head]);
   useEffect(() => { document.title = `${tab ? TITLES[tab] : 'Plan your days'} · ARC`; window.scrollTo(0, 0); }, [route, tab]);
 
   if (misplaced) return null;
   if (head === 'start') return <Onboarding step={step as (typeof STEPS)[number]} edit={edit === 'edit'} />;
   if (head === 'building') return <Building />;
   if (head === 'sample') return <Today mode="sample" />;
+  if (isPlaceholder(head)) return <Placeholder kind={head} paperKey={step} />;
   return (
     <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col bg-bg">
       <main className="flex-1 pb-[calc(var(--touch)+var(--safe-bottom)+16px)]">

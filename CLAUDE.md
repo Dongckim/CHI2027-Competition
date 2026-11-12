@@ -11,6 +11,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - V2 진행 중: 플래너 `app/src/planner/plan.js`(내부 입력). contracts/는 RecommendRequest·RecommendResponse 0.1.0만 확정, 나머지는 사용자가 설계 중 → 임의로 계약 필드를 만들지 말 것. recsys/는 비어 있음
 - S0 뼈대: `app/` Vite + React + TS + Tailwind v4, 해시 라우팅 3탭, 가짜 추천 = `contracts/examples/RecommendResponse.chi2026-tuesday.json`
 - S1 온보딩: `#/start/<step>` O-1~O-5 → `#/building` → Today. 계획은 `app/src/state/device.js` 형식으로 localStorage `arc.device`에 저장 (앱 내부 형식, DeviceState 계약 아님)
+- S2 오늘: 시각은 `app/src/clock.ts`(`now()`/`useNow()`)에서만, 샘플 하루는 데모 시계. 카드 규칙 `app/src/today/card.js`, 개최지 시각 변환 `app/src/time.js`
 - 명령 (Node 26 = Vercel 빌드와 같게, `package.json` engines. 로컬 20.19+도 동작하지만 26 권장. `arc/`에서):
   - `npm run data:fetch [edition...]` : version.json 조회 → 새 리비전만 data/raw에 저장
   - `npm run data:validate` : 공식 스키마 검사 (스키마는 초안이라 chi2025 외 실패가 정상, V0 문서 참고)
@@ -141,3 +142,6 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - S1 온보딩 (2026-11-11, stage/S1-onboarding): O-1~O-5·수정 3화면·03-1, 계획을 localStorage에 저장, 다시 열면 Today 또는 멈춘 화면
 - Larger text는 앱 전체 글씨 한 단계 위, step-free·fewer room changes·How full은 Today 계산에 반영. 헤드리스 Chrome으로 끄고 다시 열기 통과
 - 남은 것: 폰 확인, breaks·요약 언어는 저장만, 설정 버튼, 추천은 아직 가짜 (docs/stages/S1-onboarding.md)
+- S2 오늘 (2026-11-11, stage/S2-today): 추천 → 플래너 → 날짜별 일정, 카드 FIRST STOP/NEXT/LEAVE NOW/NOW/DONE, 03-P 슬라이더로 데모 시계
+- 발표 순서·경과 시간은 데이터의 발표 시각으로 (12분 상수 아님). 시각별 카드 테스트 10개 시점, 헤드리스 Chrome에서 같은 결과
+- 남은 것: 폰 확인, 걷는 시간 가짜(S5), Skip·Edit 동작, 06/09/S6 자리만 (docs/stages/S2-today.md)
