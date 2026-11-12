@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { searchTalks, searchPeople, searchSessions, placeOf, filterCount, NO_FILTERS } from '../../../data/scripts/search.mjs';
-import { explore, useExploreData, useMyDay, type ExploreState, type Loaded } from '../explore/useExplore';
+import { explore, openFilters, useExploreData, useMyDay, type ExploreState, type Loaded } from '../explore/useExplore';
 import { TYPE_TAG, weekdayOf, clockOf, firstSlot } from '../explore/format';
 import { go } from '../router';
 import { Header } from '../components/Header';
@@ -44,7 +44,7 @@ export function Explore() {
             <input type="search" value={s.query} onChange={e => set({ query: e.target.value })} placeholder="Search talks, people, topics"
               aria-label="Search talks, people, topics" enterKeyHint="search" className="min-w-0 flex-1 bg-transparent text-body text-text outline-none placeholder:text-text-3" />
           </label>
-          <a href="#/explore/filters" className="inline-flex min-h-12 items-center rounded-row border border-border-strong px-4 text-body font-medium">
+          <a href="#/explore/filters" onClick={openFilters} className="inline-flex min-h-12 items-center rounded-row border border-border-strong px-4 text-body font-medium">
             {count ? `Filters · ${count}` : 'Filters'}
           </a>
         </div>
@@ -74,7 +74,7 @@ export function Explore() {
             // "CMU" names more than one institution: say which one the results use, and offer the others in the filter screen.
             <p className="text-small text-text-2">
               {query.trim()} = {results.place.label} ·{' '}
-              <a href={`#/explore/filters?place=${encodeURIComponent(query.trim())}`} className="inline-flex min-h-touch items-center font-semibold underline">Other {query.trim()}s</a>
+              <a href={`#/explore/filters?place=${encodeURIComponent(query.trim())}`} onClick={openFilters} className="inline-flex min-h-touch items-center font-semibold underline">Other {query.trim()}s</a>
             </p>
           )}
           <p className="text-small text-text-3">
