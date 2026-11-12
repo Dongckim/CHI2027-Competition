@@ -24,11 +24,11 @@ const fixture = () => ({
 test('app data: schedule fields, abstracts by first slot day, people with all affiliations', () => {
   const { text, path, current } = buildAppData(fixture());
   const schedule = JSON.parse(text['schedule.json']);
-  assert.deepEqual(schedule.papers[0], { paperKey: 'chi2026:1', title: 'A', type: 'poster', feedType: 'Posters', scheduled: true, video: true,
+  assert.deepEqual(schedule.papers[0], { paperKey: 'chi2026:1', title: 'A', type: 'poster', feedType: 'Posters', scheduled: true, video: true, doi: null,
     slots: fixture().papers[0].slots.map(({ order, ...s }) => s), authors: ['chi2026:p1'] });
   assert.equal(schedule.papers[1].type, 'other');
   assert.equal(abstractDay(fixture().papers[0], 'Europe/Madrid'), '2026-04-14');
-  assert.deepEqual(Object.keys(text).sort(), ['abstracts/2026-04-14.json', 'abstracts/unscheduled.json', 'people.json', 'schedule.json', 'topics.json']);
+  assert.deepEqual(Object.keys(text).sort(), ['abstracts/2026-04-14.json', 'abstracts/unscheduled.json', 'institutions.json', 'people.json', 'schedule.json', 'topics.json']);
   assert.deepEqual(JSON.parse(text['abstracts/unscheduled.json']), { 'chi2026:2': 'abs 2' });
   const people = JSON.parse(text['people.json']);
   assert.deepEqual(people['chi2026:p1'].affiliations.map(a => a.institutionKey), ['inst:a', 'inst:b']);

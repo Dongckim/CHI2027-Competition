@@ -1,5 +1,5 @@
 // App-sized slices of data/build/<edition>/ so the phone downloads only what a screen needs.
-// Output: data/build/app-data/<edition>/r<revision>-<hash>/{schedule.json, abstracts/<day>.json, people.json, topics.json}
+// Output: data/build/app-data/<edition>/r<revision>-<hash>/{schedule.json, abstracts/<day>.json, people.json, topics.json, institutions.json}
 //         data/build/app-data/<edition>/current.json  → { edition, revision, path, days } (the app bundles it at build time)
 // The path changes when the feed revision or any file's content changes, so the files can be cached forever.
 import { createHash } from 'node:crypto';
@@ -21,7 +21,7 @@ export function buildAppData({ meta, papers, sessions, rooms, people, aliases, t
     sessions: sessions.map(({ key, name, start, end, timing }) => ({ key, name, start, end, timing })), // timing: talks | block | none
     // scheduled and video are what the planner needs on top of the listed fields.
     papers: papers.map(p => ({
-      paperKey: p.key, title: p.title, type: TYPE[p.type] ?? 'other', feedType: p.type, scheduled: p.scheduled, video: !!p.video,
+      paperKey: p.key, title: p.title, type: TYPE[p.type] ?? 'other', feedType: p.type, scheduled: p.scheduled, video: !!p.video, doi: p.doi ?? null,
       slots: p.slots.map(({ start, end, roomKey, sessionKey }) => ({ start, end, roomKey, sessionKey })),
       authors: p.authors.map(a => a.personKey),
     })),
@@ -47,7 +47,9 @@ export function buildAppData({ meta, papers, sessions, rooms, people, aliases, t
 
   // Session topics for the on-device baseline recommender (concepts and topic labels).
   const topicsOut = topics.map(({ key, label, contentKeys }) => ({ key, label, contentKeys }));
-  const files = { 'schedule.json': schedule, 'people.json': peopleOut, 'topics.json': topicsOut };
+  // Explore (04 Institution, "CMU" → Carnegie Mellon): the alias table without the spelling variants the build used.
+  const institutionsOut = { institutions: aliases.institutions.map(({ key, name, authorCount }) => ({ key, name, authorCount })), lookup: aliases.lookup ?? {} };
+  const files = { 'schedule.json': schedule, 'people.json': peopleOut, 'topics.json': topicsOut, 'institutions.json': institutionsOut };
   for (const day of Object.keys(abstracts).sort()) files[`abstracts/${day}.json`] = abstracts[day];
   const text = Object.fromEntries(Object.entries(files).map(([f, v]) => [f, JSON.stringify(v)]));
   const hash = createHash('sha256');
