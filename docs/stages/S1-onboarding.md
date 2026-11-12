@@ -74,8 +74,8 @@
   - Today 결과: 화요일 3곳 (Light). 끈 주제(Human-AI Decision Making)에만 걸린 발표 "More Isn't Always Better"가 빠짐. PICK ONE·TRY NEW 유지
   - 도중에 닫기: O-3에서 끄고 다시 열면 O-3
   - Just browse → Explore, 다시 열어도 Explore. Try a sample day → 띠가 있는 Today, 저장 없음
-- 폰 실기기: 확인 안 함 (완료 기준: 폰에서 Build my day까지 간 뒤 브라우저를 닫았다 열어도 계획 유지)
-- 판정: 조건부 통과 (폰 확인 남음)
+- 폰 실기기 (2026-11-11, 정식 배포 `main` `350f1db`, 사용자 확인, 기종·브라우저는 기록 안 함): 문장 → Build my day → 브라우저를 닫았다 열어도 계획 유지. 완료 기준 충족
+- 판정: 통과
 
 ## ③ 결정과 이유
 - localStorage: 작은 JSON, 동기 읽기로 첫 화면 결정. 실패해도 앱은 메모리로 계속 동작
@@ -89,7 +89,7 @@
 - How full은 계획 뒤 가장 가치 높은 N곳만 남김 (플래너 입력이 아니라 후처리)
 
 ## ④ 남은 문제
-- 폰 실기기 확인
+- ~~폰 실기기 확인~~ → 확인함 (②)
 - "Breaks between talks"는 저장만 함. 플래너에 쉬는 시간 기능이 없음 (contracts/README "지금 플래너가 못 하는 것")
 - "Summaries in [언어]"·언어는 저장만 함. 요약 기능이 생길 때 사용
 - 추천은 여전히 가짜: 문장·주제·nearby가 바뀌어도 같은 응답에서 거르기만 함. 직접 추가한 주제(custom)는 거르기에 영향 없음
