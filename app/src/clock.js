@@ -2,15 +2,18 @@ import { useSyncExternalStore } from 'react';
 
 // The only place ARC reads the time. Real clock by default; the sample day (03-P slider) sets a demo instant.
 // Everything time-dependent calls now() or useNow(), so the demo moves the whole app at once.
-let demo: number | null = null;
+/** @type {number | null} */
+let demo = null;
 let snapshot = Date.now();
-const listeners = new Set<() => void>();
+/** @type {Set<() => void>} */
+const listeners = new Set();
 const tick = () => { snapshot = demo ?? Date.now(); listeners.forEach(l => l()); };
 
 export const now = () => demo ?? Date.now();
 // Wall time for records and timers that must not follow the demo (saved at, built at, version checks).
 export const realNow = () => Date.now();
-export function setDemoNow(ms: number | null) { demo = ms; tick(); }
+/** @param {number | null} ms */
+export function setDemoNow(ms) { demo = ms; tick(); }
 export const isDemo = () => demo != null;
 
 // Re-renders on a demo change, every 30 s on the real clock (card states change on the minute scale), and when the
@@ -20,10 +23,12 @@ export const isDemo = () => demo != null;
 const STALE_MS = 30_000;
 const fresh = () => { if (demo == null && Date.now() - snapshot >= STALE_MS) snapshot = Date.now(); return snapshot; };
 const onVisible = () => { if (document.visibilityState === 'visible' && demo == null) tick(); };
-function subscribeNow(cb: () => void) {
+/** @param {() => void} cb */
+function subscribeNow(cb) {
   listeners.add(cb);
   const timer = setInterval(() => { if (demo == null) tick(); }, STALE_MS);
   document.addEventListener('visibilitychange', onVisible);
   return () => { listeners.delete(cb); clearInterval(timer); document.removeEventListener('visibilitychange', onVisible); };
 }
+/** @returns {number} */
 export const useNow = () => useSyncExternalStore(subscribeNow, fresh);
