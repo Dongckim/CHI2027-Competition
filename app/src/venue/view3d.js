@@ -32,7 +32,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   const height = level => Math.max(0, LEVELS.indexOf(level)) * STOREY;
   const at = (x, y, level, lift = 0) => new THREE.Vector3(x - cx, height(level) + lift, y - cz);
 
-  let renderer, scene, camera, groups, routeLine, comet, curve, raf = 0, needs = true, lost = false, frames = 0;
+  let renderer, scene, camera, groups, routeLine, walkLine, comet, curve, raf = 0, needs = true, lost = false, frames = 0;
   const routeLevels = new Set(route.levels);
   let onlyRouteFloors = false;
   const cam = { theta: ORIGINAL.theta, phi: ORIGINAL.phi, radius: 260, target: new THREE.Vector3(0, height('P1'), 0) };
@@ -84,6 +84,9 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     const ink = new THREE.MeshBasicMaterial({ color: css('--plan-route') });
     routeLine = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(32, pts.length * 8), 0.9, 8, false), ink);
     scene.add(routeLine);
+    // In first person the full tube would fill the view right under your eyes: a thin one runs ahead instead.
+    walkLine = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(32, pts.length * 8), 0.3, 6, false), ink);
+    walkLine.visible = walker.on; routeLine.visible = !walker.on; scene.add(walkLine);
     const marker = (p, r) => { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 14), ink); m.position.copy(p); scene.add(m); return m; };
     marker(pts[0], 2.4);
     marker(pts.at(-1), 2.4);
@@ -147,11 +150,13 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       walker.on = true; walker.t = 0;
       camera.fov = 62; camera.updateProjectionMatrix();
       if (comet) comet.visible = false;
+      routeLine.visible = false; walkLine.visible = true;
     }
     if (!on && walker.on) {
       walker.on = false; walker.playing = false;
       camera.fov = 36; camera.updateProjectionMatrix();
       if (comet) comet.visible = true;
+      routeLine.visible = true; walkLine.visible = false;
       apply('original', true);
       return false;
     }
@@ -196,7 +201,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     return { target: box.getCenter(new THREE.Vector3()), radius: span * (camera.aspect < 1 ? 2.1 : 1.5) };
   }
   function apply(m, now = false) {
-    if (walker.on && m !== 'floors') { walker.on = false; walker.playing = false; camera.fov = 36; camera.updateProjectionMatrix(); if (comet) comet.visible = true; }
+    if (walker.on && m !== 'floors') { walker.on = false; walker.playing = false; camera.fov = 36; camera.updateProjectionMatrix(); if (comet) comet.visible = true; routeLine.visible = true; walkLine.visible = false; }
     if (m === 'floors') onlyRouteFloors = !onlyRouteFloors;
     for (const [level, g] of groups) g.visible = !onlyRouteFloors || routeLevels.has(level);
     if (m === 'original') {

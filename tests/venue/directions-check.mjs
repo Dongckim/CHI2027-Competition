@@ -71,20 +71,43 @@ try {
   check('tap a step: selected', out.tapStep3.current === 2 && /^Step 3 of /.test(out.tapStep3.live ?? ''), out.tapStep3);
   await ev(`[...document.querySelectorAll('button')].find(b => b.innerText === 'Original angle').click()`); await sleep(1200);
   await shot('s5-09-steps');
-  // First person: Walk the route → frames keep coming, the step advances by itself; Pause stops.
+  // First person, full screen: Walk the route → a layer over the whole window (dialog), frames keep coming, the step
+  // advances by itself; Pause stops. Controls: [Close, Previous, Play/Pause, Next].
+  const play = `[...document.querySelectorAll('[role=dialog] button')][2]`;
   await ev(`[...document.querySelectorAll('button')].find(b => b.innerText === 'Walk the route').click()`);
-  await sleep(400);
+  await sleep(600);
+  out.immersive = await ev(`(() => { const d = document.querySelector('[role=dialog]'); const c = d?.querySelector('canvas'); const r = d?.getBoundingClientRect();
+    return d && { cover: [Math.round(r.width), Math.round(r.height)], canvas: [c.clientWidth, c.clientHeight], viewport: [innerWidth, innerHeight], focus: document.activeElement?.getAttribute('aria-label'),
+      hint: d.innerText.includes('Turn your phone sideways') }; })()`);
+  check('first person fills the screen', !!out.immersive && out.immersive.cover.join() === out.immersive.viewport.join() && out.immersive.canvas.join() === out.immersive.viewport.join()
+    && out.immersive.focus === 'Close' && out.immersive.hint, out.immersive ?? {});
+  await shot('s5-09-first-person-portrait');
   const w0 = { f: await ev(framesNow), step: await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step')`) };
   await shot('s5-09-first-person-start');
   // It reaches the next step by itself (within 10 s at the preview speed); step 1 is current from the door.
   const reachedIn = await waitFor(`[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step') > ${w0.step}`, 10000);
-  const w1 = { f: await ev(framesNow), step: await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step')`), label: await ev(`[...document.querySelectorAll('[aria-label="Walk the route"] button')][1].innerText`) };
-  await shot('s5-09-first-person');
+  const w1 = { f: await ev(framesNow), step: await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step')`), label: await ev(`${play}.innerText`) };
   check('first person walks on', w0.step === 0 && reachedIn != null && w1.f - w0.f > 60 && w1.label === 'Pause', { start: w0, nextStepInMs: reachedIn, then: w1 });
-  await ev(`[...document.querySelectorAll('[aria-label="Walk the route"] button')][1].click()`); await sleep(300);
+  await ev(`${play}.click()`); await sleep(300);
   const p0 = await ev(framesNow); await sleep(1000); const p1 = await ev(framesNow);
-  check('Pause stops', p1 === p0 && (await ev(`[...document.querySelectorAll('[aria-label="Walk the route"] button')][1].innerText`)) === 'Walk on', { framesIn1s: p1 - p0 });
-  await ev(`[...document.querySelectorAll('button')].find(b => b.innerText === 'Original angle').click()`); await sleep(600);
+  check('Pause stops', p1 === p0 && (await ev(`${play}.innerText`)) === 'Walk on', { framesIn1s: p1 - p0 });
+  // Turn the phone: landscape → the 3D fills the wide screen, no hint.
+  await send('Emulation.setDeviceMetricsOverride', { width: 844, height: 390, deviceScaleFactor: 2, mobile: true, screenOrientation: { type: 'landscapePrimary', angle: 90 } });
+  await ev(`${play}.click()`); await sleep(1200); await ev(`${play}.click()`); await sleep(300);
+  out.landscape = await ev(`(() => { const c = document.querySelector('[role=dialog] canvas'); return { canvas: [c.clientWidth, c.clientHeight], hint: document.querySelector('[role=dialog]').innerText.includes('Turn your phone sideways') }; })()`);
+  check('landscape: 3D fills the wide screen', out.landscape.canvas.join() === '844,390' && !out.landscape.hint, out.landscape);
+  await shot('s5-09-first-person-landscape');
+  await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true, screenOrientation: { type: 'portraitPrimary', angle: 0 } });
+  // Back (Android) closes the walk and stays on 09.
+  await ev('history.back()'); await sleep(600);
+  out.afterBack = { dialog: await ev(`!!document.querySelector('[role=dialog]')`), hash: await ev('location.hash'), focus: await ev(`document.activeElement?.innerText`) };
+  check('Back closes the walk, stays on 09', !out.afterBack.dialog && out.afterBack.hash === href && out.afterBack.focus === 'Walk the route', out.afterBack);
+  // Close leaves no extra history entry: open, Close, then one Back leaves 09 for the sample day.
+  const lenBefore = await ev('history.length');
+  await ev(`[...document.querySelectorAll('button')].find(b => b.innerText === 'Walk the route').click()`); await sleep(500);
+  await ev(`document.querySelector('[role=dialog] button[aria-label=Close]').click()`); await sleep(600);
+  out.afterClose = { dialog: await ev(`!!document.querySelector('[role=dialog]')`), hash: await ev('location.hash'), lengthGrew: (await ev('history.length')) - lenBefore };
+  check('Close returns to 09', !out.afterClose.dialog && out.afterClose.hash === href, out.afterClose);
 
   // Buttons: Fit route, Route floors only.
   await ev(`[...document.querySelectorAll('button')].find(b => b.innerText === 'Fit route').click()`); await sleep(900);
@@ -132,7 +155,7 @@ try {
   // Reduced motion, first person: no gliding; it stands at step 1, Next step goes to step 2, and then nothing moves.
   await ev(`[...document.querySelectorAll('button')].find(b => b.innerText === 'Walk the route').click()`); await sleep(400);
   const r0 = await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step')`);
-  await ev(`[...document.querySelectorAll('[aria-label="Walk the route"] button')][1].click()`); await sleep(400);
+  await ev(`${play}.click()`); await sleep(400);
   const r1 = await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step')`);
   const g0 = await ev(framesNow); await sleep(1200); const g1 = await ev(framesNow);
   check('reduced motion: first person jumps step to step', r0 === 0 && r1 === 1 && g1 === g0, { first: r0, afterNext: r1, framesIn1200ms: g1 - g0 });

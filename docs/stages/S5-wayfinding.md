@@ -79,6 +79,9 @@
   - 글 안내의 각 줄이 버튼(44 px): 누르면 3D가 그 단계로. 3D가 보여 주는 단계는 목록에서 번호가 채워짐(`aria-current="step"`), "Step 3 of 5: …"를 `aria-live`로
   - Walk the route: 눈높이 1인칭으로 경로를 따라감 (미리보기 속도 8 m/s, 앞 14 m를 내려다봄). 닿은 단계가 목록에 표시, Pause / Walk on, 화면을 만지면 멈춤, 이전·다음 단계 버튼
   - 동작 줄이기: 미끄러지듯 움직이지 않고 1단계에 선 뒤 Next step으로 한 단계씩
+  - Walk the route는 전체 화면: 같은 canvas가 화면 전체를 덮는 층(dialog)으로 옮겨감 (다시 만들지 않음). 안드로이드 Chrome은 Fullscreen API + `screen.orientation.lock('landscape')`, 아이폰 Safari는 둘 다 없어서 창 전체를 덮고 세로면 "Turn your phone sideways for a wider view." 돌리면 넓은 화면에 맞춰 다시 그림
+  - 전체 화면 위: 닫기(X, 처음 포커스), 지금 단계 문장(aria-live), 밝은 판 위의 이전·Pause·다음. 안전 영역(노치) 비움. 1인칭에서는 얇은 경로(지름 0.6 m)로 바꿔 그림
+  - 뒤로(안드로이드)·Esc·닫기·시스템에서 전체 화면 끄기 → 1인칭만 닫고 09에 남음, 포커스는 Walk the route로. 열 때 기록을 하나 넣고 닫을 때 빼서 남는 기록 없음
 - 방향 소리 `app/src/venue/sound.js`: Hear the turns를 눌러야 AudioContext, HRTF PannerNode, `navigator.audioSession.type = "playback"` 시도, 끝나면 닫음. 화면에 지금 신호를 `aria-live`로
 - 화면 `app/src/screens/Directions.tsx`
   - 09 `#/directions/<paperKey>`: "From …" + Change, 32 px 시간, "to … · 층 · step-free", 번호 목록, 3D, 3개 보기 버튼, Hear the turns, 하단 I'm here (Today 또는 샘플 하루로)
@@ -98,6 +101,7 @@
 - 3D는 09에서만: Today에서는 `view3d-*.js` 요청 0, 09를 열면 1. 09를 연 뒤 83 ms에 첫 그림
 - WebGL context 잃음 → 복구 → 108 ms 뒤 다시 그림. 동작 줄이기: 멈춘 뒤 1.5초에 0장
 - Change → 09-1 → Room 133 → 09 "From Room 133", 뒤로 한 번에 샘플 하루. 이미 고른 줄을 다시 눌러도 09로
+- 전체 화면 1인칭 (헤드리스): 세로 390×844 창 전체를 덮음(canvas 390×844, 포커스 Close, 돌리라는 안내), 가로로 돌리면 canvas 844×390·안내 없음, 뒤로 → 1인칭만 닫고 09, 닫기 → 09·남는 기록 없음
 - 단계 번호·1인칭 (헤드리스): 단계 5개 = 경로 위 번호 5개, 3번을 누르면 목록·3D가 3번, Walk the route → 1단계에서 시작해 6.3초 뒤 스스로 2단계, Pause면 1초에 0장, 동작 줄이기면 1단계 → Next → 2단계, 그 사이 0장
 - `npm test` 93/93 · `contracts:check` 5/5 · `tsc` 0 · `data:venue:check` 7개 층·방 43개 · `build:deploy` 성공 · 첫 화면 JS gzip 99.9 → 106.2 KB (+ 3D 조각 137 KB는 09에서만) · 서비스 워커 14개 파일 (+ 이름 파일)
 
@@ -117,6 +121,7 @@
 - 전체 보기에서는 가까운 단계(예: 에스컬레이터 앞뒤)의 번호가 겹침. 지금 단계가 맨 위에 오고, Fit route나 단계를 누르면 펼쳐 보임
 - 1인칭은 방 상자가 낮아(1.6 m) 벽 사이를 걷는 느낌은 아님. 엘리베이터·에스컬레이터 구간은 위아래로 곧게 움직임
 - 1인칭 중 CPU 4배 프레임 측정은 안 함 (전체 보기에서만 p95 16.8 ms)
+- 아이폰은 가로 고정·진짜 전체 화면이 안 됨 (Safari 제한): 창을 덮고 돌려 달라고만 함. 실제 폰에서 주소창·노치 확인 안 함
 - Registration 위치는 추정 (Entrance Hall)
 - 폰 실기기: 3D 끊김·소리·아이폰 무음 스위치 확인 안 함
 - "Scan a room sign"은 자리 화면만 (프로토타입은 `reference/`라 배포 안 됨)

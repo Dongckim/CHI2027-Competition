@@ -152,11 +152,75 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
   const walk = () => { const p = view.current?.walk(true) ?? false; setWalking(true); setPlaying(p); };
   const near = (d: number) => goStep.current(Math.min(lines.length - 1, Math.max(0, (step < 0 ? 0 : step + d))));
   const walkLabel = !walking ? 'Walk the route' : reduceMotion ? 'Next step' : playing ? 'Pause' : 'Walk on';
+
+  // First person fills the screen: the same canvas moves into a full-screen layer (no remount). Where the browser
+  // allows it (Android Chrome) the layer goes fullscreen and turns to landscape; elsewhere (iPhone Safari has neither for
+  // a page) it covers the window and asks to turn the phone. Back (Android) or Close returns to 09.
+  const [immersive, setImmersive] = useState(false);
+  const open = useRef(false);
+  const stage = useRef<HTMLDivElement>(null), closeBtn = useRef<HTMLButtonElement>(null), walkBtn = useRef<HTMLButtonElement>(null);
+  const [portrait, setPortrait] = useState(false);
+  const leave = (fromHistory: boolean) => {
+    if (!open.current) return;
+    open.current = false; setImmersive(false);
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+    try { (screen.orientation as ScreenOrientation & { unlock?: () => void })?.unlock?.(); } catch { /* not locked */ }
+    pick('original');
+    if (!fromHistory) history.back(); // drop the entry added on opening
+    walkBtn.current?.focus();
+  };
+  const enter = () => {
+    open.current = true; setImmersive(true);
+    history.pushState({ arcWalk: true }, ''); // so Back closes the walk instead of leaving 09
+    const el = stage.current as (HTMLDivElement & { webkitRequestFullscreen?: () => void }) | null;
+    el?.requestFullscreen?.({ navigationUI: 'hide' })
+      .then(() => (screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> })?.lock?.('landscape'))
+      .catch(() => { /* no fullscreen or no lock here: the layer still covers the window */ });
+    walk();
+  };
+  useEffect(() => {
+    if (!immersive) return;
+    closeBtn.current?.focus();
+    const pop = () => leave(true);
+    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') leave(false); };
+    const fs = () => { if (!document.fullscreenElement) leave(false); }; // left fullscreen from the system UI
+    const orient = () => setPortrait(innerHeight > innerWidth);
+    orient();
+    const scroll = document.body.style.overflow; document.body.style.overflow = 'hidden';
+    addEventListener('popstate', pop); addEventListener('keydown', key); addEventListener('resize', orient);
+    // Listen for leaving fullscreen only once it has started (the request above resolves a moment later, or never).
+    const fsTimer = setTimeout(() => { if (document.fullscreenElement) document.addEventListener('fullscreenchange', fs); }, 400);
+    return () => {
+      document.body.style.overflow = scroll; clearTimeout(fsTimer);
+      removeEventListener('popstate', pop); removeEventListener('keydown', key); removeEventListener('resize', orient);
+      document.removeEventListener('fullscreenchange', fs);
+    };
+  }, [immersive]); // eslint-disable-line react-hooks/exhaustive-deps -- leave() reads refs
+  useEffect(() => () => { if (open.current) { open.current = false; if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {}); } }, []);
+
   return (
     <section aria-label="Floor plan" className="flex flex-1 flex-col gap-2">
-      <div className="relative min-h-[140px] flex-1 overflow-hidden rounded-bar bg-surface">
+      <div ref={stage} role={immersive ? 'dialog' : undefined} aria-modal={immersive || undefined} aria-label={immersive ? 'Walk the route' : undefined}
+        className={immersive ? 'fixed inset-0 z-50 bg-[var(--plan-bg)]' : 'relative min-h-[140px] flex-1 overflow-hidden rounded-bar bg-surface'}>
         <canvas ref={canvas} className="absolute inset-0 size-full touch-none" />
         {state !== 'ready' && <p className="absolute inset-0 grid place-items-center text-small text-text-2">{state === 'loading' ? 'Floor plan' : 'The 3D plan cannot be shown here. The steps above are complete.'}</p>}
+        {immersive && (<>
+          <div className="absolute inset-x-0 top-0 flex items-start gap-2 pt-[max(8px,env(safe-area-inset-top))] pr-[max(12px,env(safe-area-inset-right))] pl-[max(4px,env(safe-area-inset-left))]">
+            <button ref={closeBtn} type="button" aria-label="Close" onClick={() => leave(false)} className="grid size-touch shrink-0 place-items-center rounded-full bg-bg text-text shadow">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6L12 12M12 12L6 18M12 12L6 6M12 12L18 18" /></svg>
+            </button>
+            <p aria-live="polite" className="mt-1 max-w-[560px] rounded-bar bg-bg px-3 py-2 text-body shadow">{step >= 0 ? `${step + 1} of ${lines.length} · ${lines[step].text}` : 'Walking the route'}</p>
+          </div>
+          {portrait && <p className="absolute inset-x-0 top-[calc(max(8px,env(safe-area-inset-top))+64px)] mx-auto w-fit rounded-bar bg-bg px-3 py-2 text-small shadow">Turn your phone sideways for a wider view.</p>}
+          {/* On a light panel, so the buttons stay visible over the (dark) route line. */}
+          <div className="absolute inset-x-0 bottom-0 flex justify-center px-[max(12px,env(safe-area-inset-left))] pb-[max(12px,env(safe-area-inset-bottom))]">
+            <div className="flex gap-2 rounded-bar bg-bg p-2 shadow">
+              <Button aria-label="Previous step" className="w-touch px-0" variant="outline" disabled={step <= 0} onClick={() => near(-1)}>‹</Button>
+              <Button className="min-w-40" onClick={walk}>{walkLabel}</Button>
+              <Button aria-label="Next step" className="w-touch px-0" variant="outline" disabled={step >= lines.length - 1} onClick={() => near(1)}>›</Button>
+            </div>
+          </div>
+        </>)}
       </div>
       {state === 'ready' && (
         <div className="flex flex-wrap gap-2" role="group" aria-label="3D view">
@@ -169,7 +233,7 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
         // First person: walk the route at eye height; the step reached shows in the list above and here.
         <div className="flex gap-2" role="group" aria-label="Walk the route">
           <Button variant="outline" aria-label="Previous step" className="w-touch px-0" disabled={step <= 0} onClick={() => near(-1)}>‹</Button>
-          <Button variant="outline" className="flex-1" aria-pressed={walking} onClick={walk}>{walkLabel}</Button>
+          <Button ref={walkBtn} variant="outline" className="flex-1" onClick={enter}>Walk the route</Button>
           <Button variant="outline" aria-label="Next step" className="w-touch px-0" disabled={step >= lines.length - 1} onClick={() => near(1)}>›</Button>
         </div>
       )}
