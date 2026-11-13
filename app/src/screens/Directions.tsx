@@ -110,7 +110,7 @@ function GettingThere({ paperKey, schedule, toKey, lastStop, stepFree }: Start) 
                   </li>
                 ))}
               </ol>
-              <Plan3D venue={schedule.venue} r={result.r} summary={result.d.summary} cues={result.d.cues} lines={result.d.lines as Line[]} onStep={setStep} goStep={goStep} />
+              <Plan3D venue={schedule.venue} r={result.r} summary={result.d.summary} cues={result.d.cues} lines={result.d.lines as Line[]} onStep={setStep} goStep={goStep} onDone={() => go(isDemo() ? 'sample' : 'today')} />
             </>)}
         </>)}
       </main>
@@ -134,9 +134,9 @@ const ICON: Record<string, string> = { // 24px, stroke 2: which way to go
 // Phones held sideways: the plan takes the whole screen by itself (no button needed), and goes back when turned upright.
 const SIDEWAYS = '(orientation: landscape) and (max-height: 540px)';
 
-function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
+function Plan3D({ venue, r, summary, cues, lines, onStep, goStep, onDone }: {
   venue: Venue; r: ReturnType<typeof findRoute>; summary: string; cues: { text: string }[]; lines: Line[];
-  onStep: (i: number) => void; goStep: { current: (i: number) => void };
+  onStep: (i: number) => void; goStep: { current: (i: number) => void }; onDone: () => void;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const view = useRef<View | null>(null);
@@ -200,13 +200,14 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
   }, [big]); // eslint-disable-line react-hooks/exhaustive-deps -- close() reads refs
   useEffect(() => () => { if (openedRef.current && document.fullscreenElement) document.exitFullscreen?.().catch(() => {}); }, []);
 
+  // One big forward button and a small back one. The last step ends the way with I'm here.
+  const last = step >= 0 && step + 1 >= lines.length;
   const nav = (cls = '') => (
     <div className={`flex gap-2 ${cls}`} role="group" aria-label="Steps on the plan">
       <Button variant="outline" aria-label="Previous step" className="w-touch bg-bg px-0" disabled={step < 0} onClick={() => go(step - 1)}>‹</Button>
-      <Button className="min-w-0 flex-1" onClick={() => go(step + 1 >= lines.length ? -1 : step + 1)}>
-        {step < 0 ? 'Show step 1' : step + 1 >= lines.length ? 'Whole plan' : `Next: step ${step + 2}`}
+      <Button className="min-w-0 flex-1" onClick={() => (last ? onDone() : go(step + 1))}>
+        {step < 0 ? 'Show step 1' : last ? "I'm here" : `Next: step ${step + 2}`}
       </Button>
-      <Button variant="outline" aria-label="Next step" className="w-touch bg-bg px-0" disabled={step >= lines.length - 1} onClick={() => go(step + 1)}>›</Button>
     </div>
   );
   // The view slides the step into the part of the plan the card and the bars leave free.

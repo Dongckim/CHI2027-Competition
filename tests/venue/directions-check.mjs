@@ -101,7 +101,9 @@ try {
     await ev(`document.querySelectorAll('ol[aria-label=Steps] li button')[${i}].click()`); await sleep(1800);
     area.push(await ev(`(({ inArea, overlaps }) => ({ inArea, overlaps: +overlaps }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`));
   }
+  const lastButton = await ev(`[...document.querySelectorAll('[aria-label="Steps on the plan"] button')].map(b => b.getAttribute('aria-label') || b.innerText)`);
   check('every step inside the free area, no overlaps', area.every(a => a.inArea === 'true' && a.overlaps === 0), { area });
+  check("step buttons: back and one big Next, I'm here on the last", JSON.stringify(lastButton) === JSON.stringify(['Previous step', "I'm here"]), { lastButton });
   await ev(`document.querySelectorAll('ol[aria-label=Steps] li button')[2].click()`); await sleep(1500);
   check('steps: Show step 1, Next, swipe', s1.list === 0 && s2.list === 1 && s3.list === 2 && /^1\./.test(s1.card ?? '') && /^3\./.test(s3.card ?? ''), { s1, s2, s3 });
   await ev(`[...document.querySelectorAll('[aria-label="What the plan shows"] button')].find(b => b.innerText === 'Whole').click()`); await sleep(600);
