@@ -21,7 +21,8 @@ import { ChoiceRow } from '../components/ChoiceRow';
 type Venue = Schedule['venue'];
 type Place = { key: string; name: string; area: string; hint?: string };
 
-// The start picked in 09-1, per talk, kept while 09 and 09-1 are open (not saved: it is only about now).
+// The start picked in 09-1, per talk, kept while 09 and 09-1 are open (not saved: it is only about now). Leaving them
+// (I'm here, back, another tab) forgets it: next time 09 starts from the stop before, or Registration.
 const picked = new Map<string, string>();
 let fromDirections = false; // 09-1 opened from 09's Change: go back to it instead of stacking another 09
 
@@ -62,6 +63,7 @@ const areaOf = (schedule: Schedule, key: string) => (key.startsWith('place:')
 
 export function Directions({ paperKey, sub }: { paperKey: string; sub?: string }) {
   const start = useStart(paperKey);
+  useEffect(() => () => { picked.delete(paperKey); }, [paperKey]); // 09 ↔ 09-1 keep this mounted; leaving does not
   if (sub === 'from') return <WhereNow paperKey={paperKey} {...start} />;
   return <GettingThere paperKey={paperKey} {...start} />;
 }

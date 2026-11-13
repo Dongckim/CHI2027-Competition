@@ -177,6 +177,22 @@ try {
   check('tapping the picked start goes back', backAgain != null, {});
   await ev('history.back()'); await sleep(500);
   check('Change picks a start, one step back', fromNow && (await ev('location.hash')) === '#/sample', { after: await ev('location.hash'), historyGrew: (await ev('history.length')) - len0 });
+  // The picked start is only for now: leaving 09, or I'm here, forgets it; 09 opens again from the usual start.
+  const fromLine = `document.querySelector('main a[href$="/from"]')?.parentElement?.innerText.split('\\n')[0] ?? null`;
+  await ev(`location.hash = ${JSON.stringify(href)}`); await waitFor(`!!document.querySelector('ol[aria-label=Steps] li')`);
+  const afterLeaving = await ev(fromLine);
+  await ev(`[...document.querySelectorAll('a')].find(a => a.innerText === 'Change').click()`);
+  await waitFor(`location.hash.endsWith('/from') && !!document.querySelector('input[type=search]')`);
+  await ev(`(() => { const i = document.querySelector('input[type=search]'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, '133'); i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+  await sleep(300);
+  await ev(`[...document.querySelectorAll('[role=radiogroup] label')].find(l => l.innerText.startsWith('Room 133')).querySelector('input').click()`);
+  await waitFor(`location.hash === ${JSON.stringify(href)} && document.body.innerText.includes('From Room 133')`);
+  await ev(`[...document.querySelectorAll('button')].find(b => b.innerText === "I'm here").click()`);
+  await waitFor(`location.hash === '#/sample'`);
+  await ev(`location.hash = ${JSON.stringify(href)}`); await waitFor(`!!document.querySelector('ol[aria-label=Steps] li')`);
+  const afterImHere = await ev(fromLine);
+  check('picked start forgotten after leaving 09 and after I\'m here', afterLeaving !== 'From Room 133' && afterImHere !== 'From Room 133' && !!afterLeaving, { afterLeaving, afterImHere });
+  await ev(`location.hash = '#/sample'`); await sleep(300);
 
   // Reduced motion: no moving dot; once the view is still it stops drawing frames.
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }, { name: 'prefers-color-scheme', value: 'dark' }] });
