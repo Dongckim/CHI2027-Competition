@@ -152,3 +152,26 @@ test('every route: no left, right or "pass" where the plan has no coordinates', 
   }
   assert.ok(n > 40, `${n} routes through places without coordinates`);
 });
+
+// "pass …" names something you can see on the way: a room number, WC, Escalators. The plan's own corridor names ("Foyer
+// 0" is the P0 concourse you are walking along) are not that, so they are never passed.
+test('never "pass" a corridor by its plan name', () => {
+  const corridorNames = new Set(Object.values(venue.nodes).filter(n => n.kind === 'corridor' && n.name).map(n => n.name));
+  const areas = [...new Set(Object.values(edition.rooms))].filter(a => venue.areas[a]?.doors?.length).concat(['P0-entrance-hall']);
+  let passes = 0;
+  for (const a of areas) for (const b of areas) {
+    if (a === b) continue;
+    for (const wheelchair of [false, true]) {
+      const r = route(venue, a, b, { wheelchair });
+      if (!r) continue;
+      for (const l of directions(venue, labels, r).lines) {
+        const m = l.text.match(/, pass (.*)$/);
+        if (!m) continue;
+        passes++;
+        assert.ok(!corridorNames.has(m[1]), `${a} → ${b}: ${l.text}`);
+      }
+    }
+  }
+  assert.ok(passes > 1000, `${passes} lines still pass something`);
+  assert.equal(lines('P1-127', 'AUD-auditorium', { wheelchair: true })[3], 'Walk along the P0 concourse');
+});

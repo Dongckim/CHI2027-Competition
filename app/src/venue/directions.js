@@ -42,8 +42,10 @@ export function directions(venue, labels, r, { fromName, toName } = {}) {
     if (last && last.type === type) last.to = i + 1;
     else legs.push({ type, from: i, to: i + 1 });
   });
-  // What to pass on a walk: the landmarks route() picked (rooms, WC, escalators), by the node they sit at.
-  const stopAt = new Map(r.stops.filter(s => s.kind === 'room' || s.kind === 'landmark').map(s => [s.node, s.name]));
+  // What to pass on a walk: the landmarks route() picked (rooms, WC, escalators), by the node they sit at. Not the plan's
+  // own corridor names ("Foyer 0" is the concourse you walk along): nobody sees those as something to pass.
+  const corridorNames = new Set(Object.values(N).filter(n => n.kind === 'corridor' && n.name).map(n => n.name));
+  const stopAt = new Map(r.stops.filter(s => (s.kind === 'room' || s.kind === 'landmark') && !corridorNames.has(s.name)).map(s => [s.node, s.name]));
 
   const lines = [], cues = [];
   let facing = null; // the way you face, for the sound: out of a door you face the corridor
