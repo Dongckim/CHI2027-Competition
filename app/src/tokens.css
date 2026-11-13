@@ -6,7 +6,7 @@
   --tag-bg: #ededed;
   --highlight: #fff0a0;   /* quoted reason in an abstract (06); text stays --text */
   /* 09 3D plan (not text colours): the route ≥ 4.3:1 on rooms and floors, the destination ≥ 3.3:1 on the background */
-  --plan-bg: #f0f0f0; --plan-floor: #d6d6d6; --plan-room: #ffffff; --plan-line: #8a8a8a; --plan-dest: #a67c00; --plan-route: #1f1f1f;
+  --plan-bg: #f0f0f0; --plan-floor: #d6d6d6; --plan-room: #ffffff; --plan-line: #8a8a8a; --plan-dest: #a67c00; --plan-route: #1f1f1f; --plan-passed: #3d3d3d; --plan-casing: #ffffff;
   --text: #1f1f1f;
   --text-2: #575757;
   --text-3: #6b6b6b;       /* lightest text allowed: 5.3:1 on --bg, 4.7:1 on --surface */
@@ -45,7 +45,7 @@
     --surface: #1e1e1e;
     --tag-bg: #2a2a2a;
     --highlight: #5a4a00;
-    --plan-bg: #1e1e1e; --plan-floor: #333333; --plan-room: #6b6b6b; --plan-line: #9a9a9a; --plan-dest: #c9a227; --plan-route: #ffffff;
+    --plan-bg: #1e1e1e; --plan-floor: #333333; --plan-room: #6b6b6b; --plan-line: #9a9a9a; --plan-dest: #c9a227; --plan-route: #ffffff; --plan-passed: #666666; --plan-casing: #1c1c1c;
     --text: #ededed;
     --text-2: #b0b0b0;
     --text-3: #9a9a9a;

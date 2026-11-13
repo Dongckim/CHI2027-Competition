@@ -39,5 +39,7 @@
 }
 
 html { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: var(--text-body); -webkit-text-size-adjust: 100%; }
-body { margin: 0; }
+body { margin: 0; padding-top: env(safe-area-inset-top, 0px); }
+/* With viewport-fit=cover the page runs under the status bar; this strip keeps scrolled text from showing through it. */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 40; pointer-events: none; }
 :focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }

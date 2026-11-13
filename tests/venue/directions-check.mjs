@@ -5,7 +5,7 @@
 //   - frame times while the route dot moves, CPU slowed 4x (the "no stutter" check)
 //   - reduced motion: the view stops drawing once still; WebGL context lost → restored → drawn again
 //   - Change → 09-1 → Registration → back on 09 "From Registration", one history step
-// Exit code 1 when a check fails.
+// Exit code 1 when a check fails; a run that stops partway prints FAIL with where it stopped (never PASS).
 import { spawn } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -71,11 +71,14 @@ try {
   const card = `document.querySelector('section[aria-label="Floor plan"] .shadow p')?.innerText ?? null`;
   const press = label => ev(`[...document.querySelectorAll('section[aria-label="Floor plan"] button')].find(b => b.innerText === ${JSON.stringify(label)}).click()`);
   check('step numbers on the route', (await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.steps`)) === String(nLines), { lines: nLines });
+  const marks = await ev(`(({ chevronDot, badgeGap }) => ({ chevronDot: +chevronDot, badgeGap: +badgeGap }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`);
+  check('direction marks point the way you walk (dot > 0)', marks.chevronDot > 0, marks);
+  check('step numbers sit where you act (< 2 m)', marks.badgeGap < 2, marks);
   await press('Show step 1'); await sleep(1500);
-  const s1 = { list: await ev(cur), card: await ev(card), levels: await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.levels`) };
+  const s1 = { list: await ev(cur), card: await ev(card), levels: await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.levels`), tidy: await ev(`(({ overlaps, currentShown, labels }) => ({ overlaps: +overlaps, currentShown, labels: +labels }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`) };
   await shot('s5-09-step1');
   await press('Next: step 2'); await sleep(1500);
-  const s2 = { list: await ev(cur), card: await ev(card) };
+  const s2 = { list: await ev(cur), card: await ev(card), tidy: await ev(`(({ overlaps, currentShown, labels }) => ({ overlaps: +overlaps, currentShown, labels: +labels }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`) };
   await shot('s5-09-step2');
   const swipeLeft = `(() => { const c = document.querySelector('section[aria-label="Floor plan"] canvas'), r = c.getBoundingClientRect(), y = r.top + r.height / 2;
     const ev = (t, x) => c.dispatchEvent(new PointerEvent(t, { pointerId: 7, clientX: x, clientY: y, bubbles: true, pointerType: 'touch', isPrimary: true }));
@@ -83,6 +86,25 @@ try {
   await ev(swipeLeft); await sleep(1500);
   const s3 = { list: await ev(cur), card: await ev(card) };
   await shot('s5-09-step3');
+  const s3tidy = await ev(`(({ overlaps, currentShown, labels }) => ({ overlaps: +overlaps, currentShown, labels: +labels }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`);
+  check('labels: no overlaps, this step\'s number shows', [s1.tidy, s2.tidy, s3tidy].every(t => t.overlaps === 0 && t.currentShown === 'true' && t.labels > 1), { s1: s1.tidy, s2: s2.tidy, s3: s3tidy });
+  // Frames at CPU 4x while gliding to a step and placing its labels (declutter runs on every camera move).
+  await send('Emulation.setCPUThrottlingRate', { rate: 4 });
+  const glide = await ev(`new Promise(res => { const d = []; let last = performance.now(); const t0 = last; const f = now => { d.push(now - last); last = now; if (now - t0 < 3000) requestAnimationFrame(f); else res(d); };
+    requestAnimationFrame(f); setTimeout(() => [...document.querySelectorAll('ol[aria-label=Steps] li button')][0].click(), 100); setTimeout(() => [...document.querySelectorAll('ol[aria-label=Steps] li button')][2].click(), 1500); })`);
+  await send('Emulation.setCPUThrottlingRate', { rate: 1 });
+  const gs = [...glide].sort((a, b) => a - b), gp = q => +gs[Math.floor(q * (gs.length - 1))].toFixed(1);
+  check('smooth at CPU 4x while moving between steps', gp(0.95) < 34 && glide.filter(x => x > 50).length <= 3, { frames: glide.length, medianMs: gp(0.5), p95Ms: gp(0.95), over50ms: glide.filter(x => x > 50).length });
+  // Every step: its spot and big number inside the part the card and bars leave free; the last step ends with I'm here.
+  const area = [];
+  for (let i = 0; i < nLines; i++) {
+    await ev(`document.querySelectorAll('ol[aria-label=Steps] li button')[${i}].click()`); await sleep(1800);
+    area.push(await ev(`(({ inArea, overlaps }) => ({ inArea, overlaps: +overlaps }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`));
+  }
+  const lastButton = await ev(`(() => { const g = document.querySelector('[aria-label="Steps on the plan"]'); return { buttons: [...g.querySelectorAll('button')].map(b => b.getAttribute('aria-label') || b.innerText), text: g.innerText.replace(/\\s+/g, ' ').trim(), imHere: [...document.querySelectorAll('button')].filter(b => b.innerText === "I'm here").length }; })()`);
+  check('every step inside the free area, no overlaps', area.every(a => a.inArea === 'true' && a.overlaps === 0), { area });
+  check("last step: back button and You've arrived, one I'm here (the page's)", JSON.stringify(lastButton.buttons) === JSON.stringify(['Previous step']) && /You've arrived$/.test(lastButton.text) && lastButton.imHere === 1, { lastButton });
+  await ev(`document.querySelectorAll('ol[aria-label=Steps] li button')[2].click()`); await sleep(1500);
   check('steps: Show step 1, Next, swipe', s1.list === 0 && s2.list === 1 && s3.list === 2 && /^1\./.test(s1.card ?? '') && /^3\./.test(s3.card ?? ''), { s1, s2, s3 });
   await ev(`[...document.querySelectorAll('[aria-label="What the plan shows"] button')].find(b => b.innerText === 'Whole').click()`); await sleep(600);
   const wholeLevels = await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.levels`);
@@ -155,6 +177,22 @@ try {
   check('tapping the picked start goes back', backAgain != null, {});
   await ev('history.back()'); await sleep(500);
   check('Change picks a start, one step back', fromNow && (await ev('location.hash')) === '#/sample', { after: await ev('location.hash'), historyGrew: (await ev('history.length')) - len0 });
+  // The picked start is only for now: leaving 09, or I'm here, forgets it; 09 opens again from the usual start.
+  const fromLine = `document.querySelector('main a[href$="/from"]')?.parentElement?.innerText.split('\\n')[0] ?? null`;
+  await ev(`location.hash = ${JSON.stringify(href)}`); await waitFor(`!!document.querySelector('ol[aria-label=Steps] li')`);
+  const afterLeaving = await ev(fromLine);
+  await ev(`[...document.querySelectorAll('a')].find(a => a.innerText === 'Change').click()`);
+  await waitFor(`location.hash.endsWith('/from') && !!document.querySelector('input[type=search]')`);
+  await ev(`(() => { const i = document.querySelector('input[type=search]'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, '133'); i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+  await sleep(300);
+  await ev(`[...document.querySelectorAll('[role=radiogroup] label')].find(l => l.innerText.startsWith('Room 133')).querySelector('input').click()`);
+  await waitFor(`location.hash === ${JSON.stringify(href)} && document.body.innerText.includes('From Room 133')`);
+  await ev(`[...document.querySelectorAll('button')].find(b => b.innerText === "I'm here").click()`);
+  await waitFor(`location.hash === '#/sample'`);
+  await ev(`location.hash = ${JSON.stringify(href)}`); await waitFor(`!!document.querySelector('ol[aria-label=Steps] li')`);
+  const afterImHere = await ev(fromLine);
+  check('picked start forgotten after leaving 09 and after I\'m here', afterLeaving !== 'From Room 133' && afterImHere !== 'From Room 133' && !!afterLeaving, { afterLeaving, afterImHere });
+  await ev(`location.hash = '#/sample'`); await sleep(300);
 
   // Reduced motion: no moving dot; once the view is still it stops drawing frames.
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }, { name: 'prefers-color-scheme', value: 'dark' }] });
@@ -169,8 +207,21 @@ try {
   const g0 = await ev(framesNow); await sleep(1200); const g1 = await ev(framesNow);
   check('reduced motion: steps jump', (await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step')`)) === 0 && g1 === g0, { framesIn1200ms: g1 - g0 });
   await shot('s5-09-dark-reduced');
+  // A place the plan has no coordinates for (the keynote in the Auditorium): no left or right on the walkway, and the
+  // 3D view says so on that step instead of showing an empty plan.
+  await send('Page.navigate', { url: BASE + '#/directions/chi2026:214894' }); await send('Page.reload'); // a fresh page (a route changing in place: revision-check.mjs)
+  await waitFor(`[...document.querySelectorAll('ol[aria-label=Steps] li')].some(li => / entrance$/.test(li.innerText))`, 20000);
+  const audLines = await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li')].map(li => li.innerText.replace(/\\s+/g, ' ').replace(/^\\d+ /, ''))`);
+  await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li button')].at(-1).click()`); await sleep(800);
+  const audPlan = await ev(`document.querySelector('section[aria-label="Floor plan"]').innerText`);
+  check('Auditorium: walkway by name, no plan shown as such', audLines?.some(t => /^Take the Connecting Walkway to the Auditorium · about \d+ m$/.test(t)) && /No floor plan for the Auditorium/.test(audPlan ?? ''), { audLines });
+  await shot('s5-09-auditorium');
   out.pageErrors = errors;
   if (errors.length) fails.push('page errors');
+} catch (e) {
+  // stopped partway: say so, with the checks that did not run counted as failed
+  out.stoppedAt = String(e?.message ?? e).slice(0, 300);
+  fails.push(`stopped: ${out.stoppedAt}`);
 } finally {
   console.log(JSON.stringify(out, null, 2));
   console.log(fails.length ? `FAIL: ${fails.join(', ')}` : 'PASS: all checks');

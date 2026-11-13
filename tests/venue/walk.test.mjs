@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { walkMinutes, REGISTRATION } from '../../app/src/venue/walk.js';
-import { dayCard, LEAVE_BUFFER_MIN } from '../../app/src/today/card.js';
+import { dayCard, LEAVE_BUFFER_MIN, walkNote } from '../../app/src/today/card.js';
 
 const venue = JSON.parse(readFileSync(new URL('../../data/venue/ccib.json', import.meta.url)));
 const edition = JSON.parse(readFileSync(new URL('../../data/venue/chi2026.json', import.meta.url)));
@@ -33,4 +33,22 @@ test('Leave now comes earlier for a step-free plan', () => {
   // no walk function (or null): the old guesses, first stop 3–5 min → leave 10 min before
   assert.equal(dayCard(stops, (100 - 11) * MIN).kind, 'first');
   assert.equal(dayCard(stops, (100 - 10) * MIN, () => null).kind, 'leave');
+});
+
+test('planner walking time to the Auditorium counts the Connecting Walkway', async () => {
+  const { venueTravelMinutes } = await import('../../app/src/planner/plan.js');
+  const { route } = await import('../../app/src/venue/route.js');
+  const toAud = route(venue, 'P1-111', 'AUD-auditorium'), toAccess = route(venue, 'P1-111', 'P0-access-a');
+  assert.ok(toAud.metres - toAccess.metres >= 116, `${toAud.metres} vs ${toAccess.metres}`); // the walkway is 116.8 m
+  assert.equal(venueTravelMinutes(venue, edition)({ key: key('P1-111') }, { key: key('AUD-auditorium') }), toAud.minutes[1]);
+});
+
+test('card walk note: same room or same area instead of "0–0 min walk", and then no Directions', () => {
+  assert.deepEqual(walkNote([2, 4], { first: false }), { text: '2–4 min walk', directions: true });
+  assert.deepEqual(walkNote([3, 5], { first: true }), { text: '3–5 min from Registration', directions: true });
+  assert.deepEqual(walkNote([0, 0], { first: false, sameRoom: true }), { text: 'Same room', directions: false });
+  assert.deepEqual(walkNote([0, 0], { first: false, sameRoom: false }), { text: 'Same area', directions: false });
+  // two programme rooms on one venue area (P0 Areas 1+2+3): the venue says 0 minutes
+  const [a, b] = Object.keys(edition.rooms).filter(k => edition.rooms[k] === 'P0-areas-1+2+3');
+  assert.deepEqual(walkMinutes(venue, edition, a, b), [0, 0]);
 });

@@ -23,7 +23,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
   - `node data/scripts/report.mjs` : V0 측정값 JSON 출력
   - `npm run data:venue -- <CCIB 평면도 PDF>` : data/venue/ccib.json 다시 생성 (python3 + pdfplumber, PDF는 커밋 안 함)
   - `node tests/venue/try.mjs 111 211 [--wheelchair]` : 방 사이 거리·시간 (app/src/venue/route.js)
-  - `npm run data:venue:check [edition]` : 피드 floors[].roomIds가 data/venue 파일과 맞는지 / `node --experimental-websocket tests/venue/directions-check.mjs` : 헤드리스 Chrome으로 09·09-1·3D 확인 (빌드 먼저, 서버를 스스로 켜고 끔)
+  - `npm run data:venue:check [edition]` : 피드 floors[].roomIds가 data/venue 파일과 맞는지 / `node --experimental-websocket tests/venue/directions-check.mjs` : 헤드리스 Chrome으로 09·09-1·3D 확인 (빌드 먼저, 서버를 스스로 켜고 끔) / `tests/venue/revision-check.mjs` : 09를 연 채 경로·revision이 바뀔 때 3D (같은 방식)
   - `npm run contracts:check` : 계약 스키마와 examples 검사
   - `node tests/planner/bench.mjs` : 플래너 하루 계산 시간 (data/build 필요)
   - `node tests/planner/try.mjs <후보.json> [--day YYYY-MM-DD] [--wheelchair]` : 후보 목록으로 루트를 눈으로 확인 (예: tests/planner/examples/accessibility.json). 추천은 recsys/ 몫, 플래너·도구에 추천 로직 넣지 말 것
