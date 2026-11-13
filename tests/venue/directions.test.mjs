@@ -175,3 +175,11 @@ test('never "pass" a corridor by its plan name', () => {
   assert.ok(passes > 1000, `${passes} lines still pass something`);
   assert.equal(lines('P1-127', 'AUD-auditorium', { wheelchair: true })[3], 'Walk along the P0 concourse');
 });
+
+test('time in words: "1 min" when both ends agree, in the route summary (the 3D view\'s label) too', async () => {
+  const { minutesText } = await import('../../app/src/venue/directions.js');
+  assert.equal(minutesText([1, 1]), '1 min');
+  assert.equal(minutesText([2, 4]), '2–4 min');
+  const d = directions(venue, labels, route(venue, 'P1-111', 'P1-112'));
+  assert.match(d.summary, /about 1 min, /);
+});

@@ -20,6 +20,9 @@ export const sideWord = (u, v) => (cross(u, v) > 0 ? 'right' : 'left');
 export const signedAngle = (u, v) => Math.atan2(cross(u, v), dot(u, v));
 
 const levelRank = l => LEVEL_ORDER.indexOf(l);
+/** A time range in words, the one place that writes it (09, the 3D view's label, Today's cards): "2–4 min", or "1 min"
+ * when both ends are the same. @param {number[]} range */
+export const minutesText = ([a, b]) => (a === b ? `${a} min` : `${a}–${b} min`);
 // "127" → "Room 127", "M215+M216" → "Room M215+M216"; named spaces ("Entrance Hall", "Areas 1+2+3") stay as they are.
 export const placeName = name => (/^[A-Z]?\d/.test(name) ? `Room ${name}` : name);
 
@@ -152,7 +155,7 @@ export function directions(venue, labels, r, { fromName, toName } = {}) {
       }
     }
   }
-  const summary = `Route from ${start} to ${end}, about ${r.minutes[0]}–${r.minutes[1]} min, ${r.metres} m${r.levels.length > 1 ? `, ${r.levels.join(' to ')}` : `, ${r.levels[0]}`}${r.wheelchair ? ', step-free' : ''}.`;
+  const summary = `Route from ${start} to ${end}, about ${minutesText(r.minutes)}, ${r.metres} m${r.levels.length > 1 ? `, ${r.levels.join(' to ')}` : `, ${r.levels[0]}`}${r.wheelchair ? ', step-free' : ''}.`;
   // icon: right | left | straight | up | down | arrive (the step card) · dir: plan direction to walk after this step, inDir:
   // the direction you come from (the floor arrow bends from inDir to dir; arrival: from the corridor into the door)
   // card: the card's line where it differs from the list (arrival: "Room 127 · on your right").

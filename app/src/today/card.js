@@ -11,13 +11,14 @@
 // leaveAt = start − walk (slow end) − buffer. walk(stop, i) → [low, high] minutes from the stop before (the first from
 // Registration), step-free when the plan is: app/src/venue/walk.js. null (a room the venue file does not know) → the guesses below.
 
+import { minutesText } from '../venue/directions.js';
+export { minutesText }; // one function for every time range (app/src/venue/directions.js)
+
 export const WALK_MIN = [2, 4];
 export const FIRST_WALK_MIN = [3, 5]; // from registration to the first room
 export const LEAVE_BUFFER_MIN = 5;
 const MIN = 60_000;
 
-/** "2–4 min", or "1 min" when both ends are the same. @param {number[]} range */
-export const minutesText = ([a, b]) => (a === b ? `${a} min` : `${a}–${b} min`);
 
 /** The card's walk line. Back to back in one room (or one venue area: 0 minutes) there is no walk and nothing to direct
  * to. @param {number[]} minutes [low, high] @param {{ first: boolean, sameRoom?: boolean }} o */

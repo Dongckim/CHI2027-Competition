@@ -1,8 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { loadSchedule, type Schedule } from '../data/load';
 import { route as findRoute } from '../venue/route.js';
-import { directions } from '../venue/directions.js';
-import { minutesText } from '../today/card.js';
+import { directions, minutesText } from '../venue/directions.js';
 import { playCues } from '../venue/sound.js';
 import { REGISTRATION } from '../venue/walk.js';
 import { placeTargets, routeToNearest } from '../venue/places.js';
