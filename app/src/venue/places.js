@@ -41,19 +41,33 @@ export function routeToNearest(venue, labels, from, place, options = {}) {
   return { r: best, name: n ? (labels.elevator ?? 'Elevator {n}').replace('{n}', n) : place.name };
 }
 
-/** Places for a search: a facility by its words, a fixed place or a programme room by its name. rooms: [{ key, name }]
- * (programme names, e.g. "P1 - Room 127"). → [{ id, name, hint }] */
-export function searchPlaces(venue, edition, rooms, query, limit = 5) {
+/** Places for a search → [{ id, name, hint }]. A facility by its words ("toilet", "wc", "lift"); a fixed place or a
+ * programme room by its name, every word of the query matching a word of the name ("Room 127", "Entrance Hall"): words by
+ * their start, numbers only whole ("12" is not Room 127). Three letters at least, so a short topic ("AR") finds none.
+ * Programme rooms on one venue area are one row, named by labels.areas ("Exhibit Hall (Areas 1–3)"). rooms: [{ key, name }]
+ * with the programme's names ("P1 - Room 127"). */
+export function searchPlaces(venue, labels, edition, rooms, query, limit = 5) {
   const q = query.trim().toLowerCase();
-  if (q.length < 2) return [];
   const out = [];
   for (const [id, f] of Object.entries(FACILITIES)) if (f.words.includes(q)) out.push({ id, name: f.name, hint: 'Nearest' });
-  for (const p of edition.places ?? []) if (p.name.toLowerCase().startsWith(q)) out.push({ id: p.id, name: p.name });
-  const label = name => name.replace(/^[A-Z]\d - /, '');
+  if (q.length < 3) return out;
+  const words = text => text.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+  const qs = words(q);
+  const matches = text => { const ws = words(text); return qs.every(t => (/\d/.test(t) ? ws.includes(t) : ws.some(w => w.startsWith(t)))); };
+  for (const p of edition.places ?? []) if (matches(p.name)) out.push({ id: p.id, name: p.name });
+  const label = name => name.replace(/^[A-Z]\d - /, ''); // "P1 - Room 127" → "Room 127"
+  const byArea = new Map(); // one row per venue area: its programme rooms' names all count
   for (const r of rooms) {
-    if (out.length >= limit) break;
     const area = edition.rooms?.[r.key];
-    if (area && venue.areas[area]?.doors?.length && label(r.name).toLowerCase().split(/\s+/).some(w => w.startsWith(q))) out.push({ id: r.key, name: label(r.name), hint: area.split('-')[0] });
+    if (!area || !venue.areas[area]?.doors?.length) continue;
+    if (!byArea.has(area)) byArea.set(area, { id: r.key, names: [] });
+    byArea.get(area).names.push(label(r.name));
+  }
+  for (const [area, g] of byArea) {
+    if (out.length >= limit) break;
+    const name = labels.areas?.[area] ?? (g.names.length === 1 ? g.names[0] : null);
+    if (!name || ![name, ...g.names].some(matches)) continue;
+    out.push({ id: g.id, name, hint: venue.areas[area].level });
   }
   return out.slice(0, limit);
 }

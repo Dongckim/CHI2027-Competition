@@ -30,7 +30,7 @@ export function Explore() {
       sessions: empty ? [] : searchSessions(data.index, query, filters),
       place: placeOf(data.index, query),
       // rooms and facilities on the venue plan ("127", "toilet", "lift", "Registration"): each with Directions (S5b)
-      spots: empty ? [] : searchPlaces(data.schedule.venue, data.schedule.venueMap, [...data.schedule.index.rooms.values()], query),
+      spots: empty ? [] : searchPlaces(data.schedule.venue, data.schedule.venueLabels, data.schedule.venueMap, [...data.schedule.index.rooms.values()], query),
       empty,
     };
   }, [data, query, filters, count]);

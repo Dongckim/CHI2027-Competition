@@ -11,7 +11,7 @@ const venue = JSON.parse(readFileSync(new URL('../../data/venue/ccib.json', impo
 const labels = JSON.parse(readFileSync(new URL('../../data/venue/ccib.labels.json', import.meta.url)));
 const edition = JSON.parse(readFileSync(new URL('../../data/venue/chi2026.json', import.meta.url)));
 const roomKey = area => Object.keys(edition.rooms).find(k => edition.rooms[k] === area);
-const rooms = Object.keys(edition.rooms).map(key => ({ key, name: `P1 - Room ${edition.rooms[key].split('-').at(-1)}` }));
+const rooms = JSON.parse(readFileSync(new URL('../../data/build/chi2026/rooms.json', import.meta.url))); // the programme's room names (data:build)
 
 test('a route can end at a point of the plan (a WC or an elevator), not only at a room', () => {
   const r = route(venue, 'P1-117', 'P1/wc2');
@@ -50,12 +50,20 @@ test('nearest, from every room on every level: the quickest by seconds; a tie go
   assert.deepEqual(routeToNearest(venue, labels, 'P1-127', placeTargets(venue, labels, edition, roomKey('P1-127'))), { same: true });
 });
 
-test('search: room numbers, Registration and facilities by the words people use', () => {
-  const ids = q => searchPlaces(venue, edition, rooms, q).map(p => p.id);
+test('search: room numbers, names of more than one word, Registration and facilities by the words people use', () => {
+  const ids = q => searchPlaces(venue, labels, edition, rooms, q).map(p => p.id);
+  const rows = q => searchPlaces(venue, labels, edition, rooms, q).map(p => `${p.name}${p.hint ? ` · ${p.hint}` : ''}`);
   assert.deepEqual(ids('toilet'), ['wc']);
-  assert.deepEqual(ids('WC'), ['wc']);
+  assert.deepEqual(ids('WC'), ['wc']); // a facility word may be short
   assert.deepEqual(ids('lift'), ['elevator']);
   assert.deepEqual(ids('registration'), ['registration']);
-  assert.ok(ids('127').includes(roomKey('P1-127')));
+  assert.deepEqual(ids('127'), [roomKey('P1-127')]);
+  assert.deepEqual(ids('Room 127'), [roomKey('P1-127')]); // more than one word
+  assert.deepEqual(ids('room 127'), [roomKey('P1-127')]);
+  assert.ok(ids('Entrance Hall').includes(roomKey('P0-entrance-hall')));
+  assert.deepEqual(ids('12'), []); // a number matches a whole room number only
+  assert.deepEqual(ids('AR'), []); // three letters at least ("AR" is augmented reality, not Areas 1–3)
+  assert.deepEqual(rows('posters'), ['Exhibit Hall (Areas 1–3) · P0']); // the programme's six "Area 1 + 2 + 3: …" rooms are one hall
+  assert.deepEqual(rows('area'), ['Exhibit Hall (Areas 1–3) · P0']);
   assert.deepEqual(ids('virtual reality'), []); // a talk search: no places
 });
