@@ -27,7 +27,7 @@ const STEPS = ['research', 'topics', 'days', 'needs', 'summary', 'see', 'languag
 export function App() {
   const route = useRoute();
   const state = useDevice();
-  const [head, step, edit] = route.split('/');
+  const [head, step, edit, more] = route.split('/');
   const tab = tabOf(route);
   // Opening the app: a built plan → Today, browsing → Explore, otherwise back to the onboarding step that was left.
   // Today and Questions need a plan (or "Just browse"); without one they send people to where onboarding stopped.
@@ -57,7 +57,8 @@ export function App() {
   if (head === 'cleared') return <Cleared />;
   if (head === 'talk') return <Talk paperKey={step} />;
   if (head === 'person') return <Person personKey={step} />;
-  if (head === 'directions') return <Directions paperKey={step} sub={edit} />;
+  // 09 for a talk (#/directions/<paperKey>[/from]) or for a place (#/directions/place/<id>[/from], S5b)
+  if (head === 'directions') return step === 'place' ? <Directions target={`place/${edit ?? ''}`} sub={more} /> : <Directions target={step} sub={edit} />;
   if (head === 'explore' && step?.startsWith('filters')) return <Filters place={new URLSearchParams(step.split('?')[1]).get('place') ?? undefined} />;
   return (
     <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col bg-bg">

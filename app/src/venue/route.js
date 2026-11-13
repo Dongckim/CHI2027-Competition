@@ -1,6 +1,7 @@
 // Walking route between two areas of a venue. Runs on the phone: pure, synchronous, no I/O.
 // venue: data/venue/<venue>.json (e.g. ccib.json). Distances there are already metres; nothing is converted here.
-// from, to: area ids (e.g. 'P1-111'); data/venue/<edition>.json maps the feed's room keys to them.
+// from, to: area ids (e.g. 'P1-111'; data/venue/<edition>.json maps the feed's room keys to them), or a point of the plan
+// itself (e.g. 'P1/wc2', a WC or an elevator: app/src/venue/places.js).
 
 // shortcut: speeds and vertical times are rule-of-thumb guesses, not measured at CCIB; replace with timed walks (V6, #7).
 export const WALK_MPS = [1.3, 0.9]; // [brisk, crowded]: the low and high end of the time range
@@ -78,14 +79,16 @@ function landmark(venue, node, skip) {
 export const stopsText = stops =>
   stops.map(s => (s.kind === 'elevator' || s.kind === 'escalator' ? `${s.kind[0].toUpperCase()}${s.kind.slice(1)} ${s.from}→${s.to}` : s.name)).join(' → ');
 
-// Returns { from, to, wheelchair, metres, minutes: [low, high], levels, via, stops, path, edges } or null when there is no route.
+// Returns { from, to, wheelchair, metres, minutes: [low, high], seconds: [low, high], levels, via, stops, path, edges } or null when there is no route.
 // edges[i]: the venue edge from path[i] to path[i + 1] (directions.js reads its kind).
 // Walking (default) takes escalators between levels and falls back to elevators only where nothing else connects
 // (the plans mark no stairs). wheelchair: elevators only, at wheelchair speed.
 // stops: what to look for, in order — { kind: 'room' | 'landmark', name, level, node } or { kind: 'elevator' | 'escalator', from, to, node }.
 export function route(venue, from, to, { wheelchair = false } = {}) {
-  const starts = venue.areas[from]?.doors;
-  const ends = new Set(venue.areas[to]?.doors);
+  const doors = k => venue.areas[k]?.doors ?? (venue.nodes[k] ? [k] : undefined);
+  const nameOf = k => venue.areas[k]?.name ?? venue.nodes[k]?.name ?? venue.nodes[k]?.kind;
+  const starts = doors(from);
+  const ends = new Set(doors(to));
   if (!starts) throw new Error(`unknown or doorless area: ${from}`);
   if (!ends.size) throw new Error(`unknown or doorless area: ${to}`);
   const speeds = wheelchair ? WHEELCHAIR_MPS : WALK_MPS;
@@ -108,7 +111,7 @@ export function route(venue, from, to, { wheelchair = false } = {}) {
   // landmarks: at every turn, and something on the way at least every LANDMARK_EVERY_M metres
   const { doorRoom } = prepared(venue);
   const skip = new Set([...starts, ...ends]);
-  const stops = [{ kind: 'room', name: venue.areas[from].name, level: level(path[0]), node: path[0] }];
+  const stops = [{ kind: 'room', name: nameOf(from), level: level(path[0]), node: path[0] }];
   let since = 0;
   for (let i = 1; i < path.length - 1; i++) {
     const n = N[path[i]], e = steps[i - 1].e;
@@ -132,7 +135,7 @@ export function route(venue, from, to, { wheelchair = false } = {}) {
       since = 0;
     }
   }
-  stops.push({ kind: 'room', name: venue.areas[to].name, level: level(path.at(-1)), node: path.at(-1) });
+  stops.push({ kind: 'room', name: nameOf(to), level: level(path.at(-1)), node: path.at(-1) });
   // a landmark right next to another stop adds nothing (and overlaps it on the map)
   const apart = (a, b) => N[a.node].level !== N[b.node].level || N[a.node].x == null || N[b.node].x == null ||
     Math.hypot(N[a.node].x - N[b.node].x, N[a.node].y - N[b.node].y) >= LANDMARK_GAP_M;
@@ -144,6 +147,7 @@ export function route(venue, from, to, { wheelchair = false } = {}) {
     from, to, wheelchair,
     metres: Math.round(steps.reduce((t, s) => t + s.e.m, 0)),
     minutes: [Math.max(1, Math.round(sum(0) / 60)), Math.max(1, Math.ceil(sum(1) / 60))],
+    seconds: [Math.round(sum(0)), Math.round(sum(1))], // unrounded, to compare routes (minutes are for people)
     levels: path.map(level).filter((l, i, all) => i === 0 || l !== all[i - 1]),
     via,
     stops,

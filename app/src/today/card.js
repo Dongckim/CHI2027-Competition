@@ -11,16 +11,28 @@
 // leaveAt = start − walk (slow end) − buffer. walk(stop, i) → [low, high] minutes from the stop before (the first from
 // Registration), step-free when the plan is: app/src/venue/walk.js. null (a room the venue file does not know) → the guesses below.
 
+import { minutesText } from '../venue/directions.js';
+export { minutesText }; // one function for every time range (app/src/venue/directions.js)
+
 export const WALK_MIN = [2, 4];
 export const FIRST_WALK_MIN = [3, 5]; // from registration to the first room
 export const LEAVE_BUFFER_MIN = 5;
 const MIN = 60_000;
 
+
 /** The card's walk line. Back to back in one room (or one venue area: 0 minutes) there is no walk and nothing to direct
  * to. @param {number[]} minutes [low, high] @param {{ first: boolean, sameRoom?: boolean }} o */
 export function walkNote([a, b], { first, sameRoom = false }) {
   if (!first && b === 0) return { text: sameRoom ? 'Same room' : 'Same area', directions: false };
-  return { text: first ? `${a}–${b} min from Registration` : `${a}–${b} min walk`, directions: true };
+  return { text: first ? `${minutesText([a, b])} from Registration` : `${minutesText([a, b])} walk`, directions: true };
+}
+
+/** Where you are now, for directions to a place (09 by place): the room of the talk on now, else of the one that just
+ * ended, else null (before the first talk: the caller starts at Registration). Stops in time order. */
+export function roomNow(stops, now) {
+  let room = null;
+  for (const s of stops) { if (s.start > now) break; room = s.roomKey; }
+  return room;
 }
 
 export const leaveAt = (stop, walkMax = WALK_MIN[1]) => stop.start - (walkMax + LEAVE_BUFFER_MIN) * MIN;

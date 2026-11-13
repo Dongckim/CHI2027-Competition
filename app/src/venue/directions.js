@@ -20,6 +20,9 @@ export const sideWord = (u, v) => (cross(u, v) > 0 ? 'right' : 'left');
 export const signedAngle = (u, v) => Math.atan2(cross(u, v), dot(u, v));
 
 const levelRank = l => LEVEL_ORDER.indexOf(l);
+/** A time range in words, the one place that writes it (09, the 3D view's label, Today's cards): "2–4 min", or "1 min"
+ * when both ends are the same. @param {number[]} range */
+export const minutesText = ([a, b]) => (a === b ? `${a} min` : `${a}–${b} min`);
 // "127" → "Room 127", "M215+M216" → "Room M215+M216"; named spaces ("Entrance Hall", "Areas 1+2+3") stay as they are.
 export const placeName = name => (/^[A-Z]?\d/.test(name) ? `Room ${name}` : name);
 
@@ -42,8 +45,10 @@ export function directions(venue, labels, r, { fromName, toName } = {}) {
     if (last && last.type === type) last.to = i + 1;
     else legs.push({ type, from: i, to: i + 1 });
   });
-  // What to pass on a walk: the landmarks route() picked (rooms, WC, escalators), by the node they sit at.
-  const stopAt = new Map(r.stops.filter(s => s.kind === 'room' || s.kind === 'landmark').map(s => [s.node, s.name]));
+  // What to pass on a walk: the landmarks route() picked (rooms, WC, escalators), by the node they sit at. Not the plan's
+  // own corridor names ("Foyer 0" is the concourse you walk along): nobody sees those as something to pass.
+  const corridorNames = new Set(Object.values(N).filter(n => n.kind === 'corridor' && n.name).map(n => n.name));
+  const stopAt = new Map(r.stops.filter(s => (s.kind === 'room' || s.kind === 'landmark') && !corridorNames.has(s.name)).map(s => [s.node, s.name]));
 
   const lines = [], cues = [];
   let facing = null; // the way you face, for the sound: out of a door you face the corridor
@@ -150,7 +155,7 @@ export function directions(venue, labels, r, { fromName, toName } = {}) {
       }
     }
   }
-  const summary = `Route from ${start} to ${end}, about ${r.minutes[0]}–${r.minutes[1]} min, ${r.metres} m${r.levels.length > 1 ? `, ${r.levels.join(' to ')}` : `, ${r.levels[0]}`}${r.wheelchair ? ', step-free' : ''}.`;
+  const summary = `Route from ${start} to ${end}, about ${minutesText(r.minutes)}, ${r.metres} m${r.levels.length > 1 ? `, ${r.levels.join(' to ')}` : `, ${r.levels[0]}`}${r.wheelchair ? ', step-free' : ''}.`;
   // icon: right | left | straight | up | down | arrive (the step card) · dir: plan direction to walk after this step, inDir:
   // the direction you come from (the floor arrow bends from inDir to dir; arrival: from the corridor into the door)
   // card: the card's line where it differs from the list (arrival: "Room 127 · on your right").

@@ -189,6 +189,8 @@ function PlannedToday({ mode }: { mode: 'plan' | 'sample' }) {
                   return (
                     <RouteRow key={s.paperKey} time={at(s.start)} tag={r?.tag ?? 'TALK'} href={`#/talk/${s.paperKey}`} title={title(s.paperKey)} note={movedNote(s.paperKey)}
                       onMore={() => setOpen(open === s.paperKey ? null : s.paperKey)} actionsOpen={open === s.paperKey}>
+                      {/* any stop, any day (not only the one on the top card): from the stop before it, or Registration */}
+                      <ButtonLink variant="secondary" href={`#/directions/${s.paperKey}`}>Directions</ButtonLink>
                       <div className="flex gap-2">
                         <Button variant="secondary" className="flex-1" onClick={() => remove(s.paperKey)}>Remove</Button>
                         <ButtonLink variant="secondary" className="flex-1" href={swapHref(s.paperKey)}>Swap</ButtonLink>

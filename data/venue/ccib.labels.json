@@ -1,5 +1,5 @@
 {
-  "_note": "Names people see, kept by hand on top of ccib.json (generated from the CCIB PDF, do not edit that one). Directions use these instead of the plan's internal names. Coordinates and distances stay in ccib.json.",
+  "_note": "Names people see, kept by hand on top of ccib.json (generated from the CCIB PDF, do not edit that one). Directions use these instead of the plan's internal names. Coordinates and distances stay in ccib.json. areas: one name for a venue area the programme splits into several rooms (05 search shows it as one row).",
   "corridors": {
     "Foyer 0": "the P0 concourse",
     "Foyer 2": "the corridor to Rooms 118–134",
@@ -9,5 +9,8 @@
   "escalator": "Escalator",
   "places": {
     "Auditorium": "the Auditorium"
+  },
+  "areas": {
+    "P0-areas-1+2+3": "Exhibit Hall (Areas 1–3)"
   }
 }

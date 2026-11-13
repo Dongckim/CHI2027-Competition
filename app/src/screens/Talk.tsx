@@ -84,6 +84,8 @@ export function Talk({ paperKey }: { paperKey: string }) {
             );
           }) : <p className="text-body">Not presented in a room · online only</p>}
         </div>
+        {/* to the talk's room from the stop before it in your day (or Registration), on any day */}
+        {slots.length > 0 && <ButtonLink href={`#/directions/${paperKey}`} variant="outline" className="self-start">Directions</ButtonLink>}
         <p className="text-small font-semibold">{p.video ? 'Can catch later · video' : 'Only here now · no video'}</p>
         {p.doi && <a href={p.doi} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-touch items-center self-start text-small underline">Paper in the ACM Digital Library</a>}
         {why.length > 0 && (
