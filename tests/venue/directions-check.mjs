@@ -7,7 +7,7 @@
 //   - Change → 09-1 → Registration → back on 09 "From Registration", one history step
 // Exit code 1 when a check fails; a run that stops partway prints FAIL with where it stopped (never PASS).
 import { spawn } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 const OUT = (process.argv[2] ?? tmpdir()).replace(/\/?$/, '/');
 const PORT = 4321, BASE = `http://localhost:${PORT}/`;
@@ -259,6 +259,20 @@ try {
     return { card: s.querySelector('.shadow p')?.innerText ?? null, noPlan: /No floor plan/.test(s.innerText), sign: c.dataset.sign, inArea: c.dataset.inArea, overlaps: +c.dataset.overlaps }; })()`);
   check('from the Auditorium: shown where you come out', /^1\. Leave the Auditorium · take the Connecting Walkway to Access A/.test(fromAud?.card ?? '') && !fromAud.noPlan && fromAud.sign === 'out' && fromAud.inArea === 'true' && fromAud.overlaps === 0, { fromAud, search: out.searchAuditorium });
   await shot('s5-09-from-auditorium');
+  // 09 by place, not by talk (S5b): the nearest WC, a programme room by its key, Registration (where the walk starts).
+  const edition = JSON.parse(readFileSync(new URL('../../data/venue/chi2026.json', import.meta.url)));
+  const room127 = Object.keys(edition.rooms).find(k => edition.rooms[k] === 'P1-127');
+  const openPlace = async id => {
+    await send('Page.navigate', { url: `${BASE}#/directions/place/${id}` }); await send('Page.reload');
+    await waitFor(`!!document.querySelector('ol[aria-label=Steps] li') || /already there|No such place/.test(document.body.innerText)`, 20000);
+    await waitFor(`!document.querySelector('ol[aria-label=Steps]') || ${framesNow} > 0`, 20000);
+    return ev(`({ to: [...document.querySelectorAll('main p')].map(p => p.innerText).find(t => t.startsWith('to ')) ?? null,
+      last: [...document.querySelectorAll('ol[aria-label=Steps] li')].at(-1)?.innerText.replace(/^\\d+\\s*/, '') ?? null,
+      frames: ${framesNow}, text: document.querySelector('main').innerText.slice(0, 200) })`);
+  };
+  const wc = await openPlace('wc'), room = await openPlace(encodeURIComponent(room127)), reg = await openPlace('registration'), none = await openPlace('nowhere');
+  check('09 by place: nearest WC, a room, Registration, an unknown place', /^to WC · /.test(wc.to ?? '') && /^WC on your (left|right)$/.test(wc.last ?? '') && wc.frames > 0
+    && /^to Room 127 · P1/.test(room.to ?? '') && /^Room 127 on your (left|right)$/.test(room.last ?? '') && /already there/.test(reg.text) && /No such place/.test(none.text), { wc, room, reg, none });
   out.pageErrors = errors;
   if (errors.length) fails.push('page errors');
 } catch (e) {

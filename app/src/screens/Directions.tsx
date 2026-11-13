@@ -4,6 +4,7 @@ import { route as findRoute } from '../venue/route.js';
 import { directions } from '../venue/directions.js';
 import { playCues } from '../venue/sound.js';
 import { REGISTRATION } from '../venue/walk.js';
+import { placeTargets, routeToNearest } from '../venue/places.js';
 import { useDayPlans } from '../today/useDayPlans';
 import { firstSlot } from '../explore/format';
 import { useDevice } from '../state/useDevice';
@@ -13,7 +14,8 @@ import { Header } from '../components/Header';
 import { Button, ButtonLink } from '../components/Button';
 import { ChoiceRow } from '../components/ChoiceRow';
 
-// 09 Getting there (Figma 292:646) and 09-1 Where are you now (292:683): #/directions/<paperKey>[/from].
+// 09 Getting there (Figma 292:646) and 09-1 Where are you now (292:683): #/directions/<paperKey>[/from], or for a place
+// that is not a talk #/directions/place/<id>[/from] (a programme room key, 'registration', 'wc', 'elevator': places.js).
 // From the stop before this one (or Registration, or a room or place picked in 09-1) to the talk's room, on the official
 // venue plan. The written steps are the directions; the 3D view below them only helps, and loads when this screen opens.
 // No location tracking: the app does not know where you are, you say it.
@@ -21,14 +23,17 @@ import { ChoiceRow } from '../components/ChoiceRow';
 type Venue = Schedule['venue'];
 type Place = { key: string; name: string; area: string; hint?: string };
 
-// The start picked in 09-1, per talk, kept while 09 and 09-1 are open (not saved: it is only about now). Leaving them
+// The start picked in 09-1, per talk or place, kept while 09 and 09-1 are open (not saved: it is only about now). Leaving them
 // (I'm here, back, another tab) forgets it: next time 09 starts from the stop before, or Registration.
 const picked = new Map<string, string>();
 let fromDirections = false; // 09-1 opened from 09's Change: go back to it instead of stacking another 09
 
 const roomLabel = (name: string) => name.replace(/^[A-Z]\d - /, ''); // "P1 - Room 117" → "Room 117"
 
-function useStart(paperKey: string) {
+type Dest = { name: string; targets: string[]; facility?: string };
+function useStart(target: string) {
+  const placeId = target.startsWith('place/') ? decodeURIComponent(target.slice(6)) : null;
+  const paperKey = placeId ? '' : target;
   const state = useDevice();
   const mode = state.builtAt ? 'plan' : isDemo() ? 'sample' : null;
   const { data, view } = useDayPlans(mode ?? 'plan', !!mode);
@@ -42,8 +47,10 @@ function useStart(paperKey: string) {
     if (i >= 0) { stop = p.stops[i]; before = i > 0 ? p.stops[i - 1] : null; break; }
   }
   const paper = schedule?.index.papers.get(paperKey);
-  const toKey: string | null = stop?.roomKey ?? (paper ? firstSlot(paper.slots)?.roomKey ?? null : null);
-  return { schedule, paper, toKey, lastStop: before?.roomKey ?? null, stepFree: !!(state.builtAt && state.plan.needs.stepFree) };
+  const toKey: string | null = placeId ?? stop?.roomKey ?? (paper ? firstSlot(paper.slots)?.roomKey ?? null : null);
+  // Where to: the talk's room, or the place (the nearest WC or elevator: any of them, the quickest wins).
+  const dest: Dest | null = schedule && toKey ? placeTargets(schedule.venue, schedule.venueLabels, schedule.venueMap, toKey, k => nameOf(schedule, k)) : null;
+  return { schedule, paper, toKey, dest, isPlace: !!placeId, lastStop: before?.roomKey ?? null, stepFree: !!(state.builtAt && state.plan.needs.stepFree) };
 }
 
 function places(schedule: Schedule, lastStop: string | null): Place[] {
@@ -61,29 +68,30 @@ const areaOf = (schedule: Schedule, key: string) => (key.startsWith('place:')
   ? schedule.venueMap.places?.find((p: { id: string }) => `place:${p.id}` === key)?.area
   : schedule.venueMap.rooms?.[key]);
 
-export function Directions({ paperKey, sub }: { paperKey: string; sub?: string }) {
-  const start = useStart(paperKey);
-  useEffect(() => () => { picked.delete(paperKey); }, [paperKey]); // 09 ↔ 09-1 keep this mounted; leaving does not
-  if (sub === 'from') return <WhereNow paperKey={paperKey} {...start} />;
-  return <GettingThere paperKey={paperKey} {...start} />;
+export function Directions({ target, sub }: { target: string; sub?: string }) {
+  const start = useStart(target);
+  useEffect(() => () => { picked.delete(target); }, [target]); // 09 ↔ 09-1 keep this mounted; leaving does not
+  if (sub === 'from') return <WhereNow paperKey={target} {...start} />;
+  return <GettingThere paperKey={target} {...start} />;
 }
 
+// paperKey here: what 09 is for — a talk's key, or "place/<id>" (also the start picked in 09-1 is kept under it)
 type Start = ReturnType<typeof useStart> & { paperKey: string };
 
-function GettingThere({ paperKey, schedule, toKey, lastStop, stepFree }: Start) {
+function GettingThere({ paperKey, schedule, toKey, dest, isPlace, lastStop, stepFree }: Start) {
   const fromKey = picked.get(paperKey) ?? lastStop ?? REGISTRATION;
   const back = () => history.back();
   const [step, setStep] = useState(-1); // the step the 3D plan shows (−1: none)
   const goStep = useRef<(i: number) => void>(() => {});
   const result = useMemo(() => {
     if (!schedule || !toKey) return null;
-    const a = areaOf(schedule, fromKey), b = schedule.venueMap.rooms?.[toKey];
-    if (!a || !b || !schedule.venue.areas[a] || !schedule.venue.areas[b]) return { missing: true as const };
-    if (a === b) return { same: true as const };
-    const r = findRoute(schedule.venue, a, b, { wheelchair: stepFree });
-    if (!r) return { missing: true as const };
-    return { r, d: directions(schedule.venue, schedule.venueLabels, r, { fromName: nameOf(schedule, fromKey), toName: nameOf(schedule, toKey) }) };
-  }, [schedule, toKey, fromKey, stepFree]);
+    const a = areaOf(schedule, fromKey);
+    if (!dest || !a || !schedule.venue.areas[a]) return { missing: true as const };
+    const near = routeToNearest(schedule.venue, schedule.venueLabels, a, dest, { wheelchair: stepFree });
+    if (!near) return { missing: true as const };
+    if ('same' in near) return { same: true as const };
+    return { r: near.r, d: directions(schedule.venue, schedule.venueLabels, near.r, { fromName: nameOf(schedule, fromKey), toName: near.name }) };
+  }, [schedule, toKey, dest, fromKey, stepFree]);
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col bg-bg">
@@ -91,7 +99,7 @@ function GettingThere({ paperKey, schedule, toKey, lastStop, stepFree }: Start) 
       <main className="flex flex-1 flex-col gap-4 px-gutter pt-2 pb-28">
         {!schedule ? <p className="text-body text-text-3">Loading…</p> : !toKey ? (
           <p className="text-body">This talk has no room in the programme.</p>
-        ) : (<>
+        ) : isPlace && !dest ? <p className="text-body">No such place on the venue plan.</p> : (<>
           <div className="flex min-h-touch items-center gap-2 rounded-bar bg-surface py-2.5 pr-1 pl-4">
             <p className="flex-1 text-small">From {nameOf(schedule, fromKey)}</p>
             <a href={`#/directions/${paperKey}/from`} onClick={() => { fromDirections = true; }} className="inline-flex min-h-touch items-center px-3 text-small font-semibold underline">Change</a>
