@@ -162,4 +162,4 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - Today 카드 걷는 시간 = 경로 시간(step-free면 더 일찍 Leave now). 남은 것: 프로토타입과 다른 3가지 확인, 폰 실기기 (docs/stages/S5-wayfinding.md)
 - S5b 진입점 (2026-11-13, stage/S5b-directions-entry): 하루 목록 모든 정차 ⋯·06·05 검색에서 Directions, 학회 날이 아니어도. 장소 키 09(방·Registration·가장 가까운 WC·엘리베이터)
 - route()가 평면도 지점도 받음, 05에 Rooms and places 줄. "pass Foyer 0" 같은 복도 이름 pass 없앰, "1 min". 직접 만든 계획(실제 시계) 헤드리스 entry-check 통과
-- 남은 것: 장소 출발점은 Registration부터, 실기기 확인 (docs/stages/S5b-directions-entry.md)
+- 교차 검토 6건 고침(가장 가까운 WC는 초 단위·같은 층, 검색 여러 단어·한 구역 한 줄, 깨진 id, 시간 문구 하나), 장소 출발점은 지금 있는 방. 남은 것: 실기기 (docs/stages/S5b-directions-entry.md)
