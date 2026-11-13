@@ -14,6 +14,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - S2 오늘: 시각은 `app/src/clock.ts`(`now()`/`useNow()`)에서만, 샘플 하루는 데모 시계. 카드 규칙 `app/src/today/card.js`, 개최지 시각 변환 `app/src/time.js`
 - S3 바꾸기·예외: 변경은 플래너 입력에 (`app/src/today/edits.js`, `plan.edits`), 프로그램 확인 `app/src/data/programme.ts`(1분, 보일 때만), 오프라인 `app/sw.js`(빌드가 목록 생성)
 - S4 찾기: 검색 `data/scripts/search.mjs`(폰·node 공용, 추천 점수 안 씀), 인용 검사·하이라이트 `app/src/explore/quotes.js`, 내 하루·+ Add `app/src/explore/useExplore.ts`의 `useMyDay`
+- S5b 진입점: 09는 발표(`#/directions/<paperKey>`)와 장소(`#/directions/place/<id>`, `app/src/venue/places.js`)로 열림, 하루 목록 ⋯·06·05에서
 - S5 길 안내: 공식 평면도 ccib.json + 보이는 이름 `data/venue/ccib.labels.json` (결정 005), 문장 `app/src/venue/directions.js`, Today 걷는 시간 `app/src/venue/walk.js`, 3D `app/src/venue/view3d.js`(09에서 import()로만, three 0.186.1 고정), 소리 `app/src/venue/sound.js`
 - 명령 (Node 26 = Vercel 빌드와 같게, `package.json` engines. 로컬 20.19+도 동작하지만 26 권장. `arc/`에서):
   - `npm run data:fetch [edition...]` : version.json 조회 → 새 리비전만 data/raw에 저장
@@ -23,7 +24,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
   - `node data/scripts/report.mjs` : V0 측정값 JSON 출력
   - `npm run data:venue -- <CCIB 평면도 PDF>` : data/venue/ccib.json 다시 생성 (python3 + pdfplumber, PDF는 커밋 안 함)
   - `node tests/venue/try.mjs 111 211 [--wheelchair]` : 방 사이 거리·시간 (app/src/venue/route.js)
-  - `npm run data:venue:check [edition]` : 피드 floors[].roomIds가 data/venue 파일과 맞는지 / `node --experimental-websocket tests/venue/directions-check.mjs` : 헤드리스 Chrome으로 09·09-1·3D 확인 (빌드 먼저, 서버를 스스로 켜고 끔) / `tests/venue/revision-check.mjs` : 09를 연 채 경로·revision이 바뀔 때 3D (같은 방식)
+  - `npm run data:venue:check [edition]` : 피드 floors[].roomIds가 data/venue 파일과 맞는지 / `node --experimental-websocket tests/venue/directions-check.mjs` : 헤드리스 Chrome으로 09·09-1·3D 확인 (빌드 먼저, 서버를 스스로 켜고 끔) / `tests/venue/revision-check.mjs` : 09를 연 채 경로·revision이 바뀔 때 3D (같은 방식) / `tests/venue/entry-check.mjs` : 직접 만든 계획(실제 시계)에서 하루 목록·06·05 → 09 (같은 방식)
   - `npm run contracts:check` : 계약 스키마와 examples 검사
   - `node tests/planner/bench.mjs` : 플래너 하루 계산 시간 (data/build 필요)
   - `node tests/planner/try.mjs <후보.json> [--day YYYY-MM-DD] [--wheelchair]` : 후보 목록으로 루트를 눈으로 확인 (예: tests/planner/examples/accessibility.json). 추천은 recsys/ 몫, 플래너·도구에 추천 로직 넣지 말 것
@@ -159,3 +160,6 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - S5 길 안내 (2026-11-12, stage/S5-wayfinding): 09(Figma 순서: 짧은 단계 줄 → 3D 평면도 → I'm here), 09-1(검색·Your last stop·Registration, 위치 추적 없음), Hear the turns(HRTF)
 - 공식 평면도 기준 경로 테스트 4개 통과(133→111 좌우·계단·엘리베이터 번호는 프로토타입과 다름, 결정 005). CPU 4배에서 3D p95 16.8 ms, context lost 복구, 동작 줄이기면 정지
 - Today 카드 걷는 시간 = 경로 시간(step-free면 더 일찍 Leave now). 남은 것: 프로토타입과 다른 3가지 확인, 폰 실기기 (docs/stages/S5-wayfinding.md)
+- S5b 진입점 (2026-11-13, stage/S5b-directions-entry): 하루 목록 모든 정차 ⋯·06·05 검색에서 Directions, 학회 날이 아니어도. 장소 키 09(방·Registration·가장 가까운 WC·엘리베이터)
+- route()가 평면도 지점도 받음, 05에 Rooms and places 줄. "pass Foyer 0" 같은 복도 이름 pass 없앰, "1 min". 직접 만든 계획(실제 시계) 헤드리스 entry-check 통과
+- 남은 것: 장소 출발점은 Registration부터, 실기기 확인 (docs/stages/S5b-directions-entry.md)
