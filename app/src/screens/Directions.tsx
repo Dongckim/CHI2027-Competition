@@ -2,10 +2,10 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { loadSchedule, type Schedule } from '../data/load';
 import { route as findRoute } from '../venue/route.js';
 import { directions } from '../venue/directions.js';
+import { minutesText } from '../today/card.js';
 import { playCues } from '../venue/sound.js';
 import { REGISTRATION } from '../venue/walk.js';
 import { placeTargets, routeToNearest } from '../venue/places.js';
-import { minutesText } from '../today/card.js';
 import { useDayPlans } from '../today/useDayPlans';
 import { firstSlot } from '../explore/format';
 import { useDevice } from '../state/useDevice';
@@ -33,7 +33,8 @@ const roomLabel = (name: string) => name.replace(/^[A-Z]\d - /, ''); // "P1 - Ro
 
 type Dest = { name: string; targets: string[]; facility?: string };
 function useStart(target: string) {
-  const placeId = target.startsWith('place/') ? decodeURIComponent(target.slice(6)) : null;
+  // a place id from the address bar: a malformed one ("%E0%A4%A") is no place, not an error that blanks the app
+  const placeId = target.startsWith('place/') ? (() => { try { return decodeURIComponent(target.slice(6)); } catch { return ''; } })() : null;
   const paperKey = placeId ? '' : target;
   const state = useDevice();
   const mode = state.builtAt ? 'plan' : isDemo() ? 'sample' : null;
@@ -51,7 +52,7 @@ function useStart(target: string) {
   const toKey: string | null = placeId ?? stop?.roomKey ?? (paper ? firstSlot(paper.slots)?.roomKey ?? null : null);
   // Where to: the talk's room, or the place (the nearest WC or elevator: any of them, the quickest wins).
   const dest: Dest | null = schedule && toKey ? placeTargets(schedule.venue, schedule.venueLabels, schedule.venueMap, toKey, k => nameOf(schedule, k)) : null;
-  return { schedule, paper, toKey, dest, isPlace: !!placeId, lastStop: before?.roomKey ?? null, stepFree: !!(state.builtAt && state.plan.needs.stepFree) };
+  return { schedule, paper, toKey, dest, isPlace: placeId !== null, lastStop: before?.roomKey ?? null, stepFree: !!(state.builtAt && state.plan.needs.stepFree) };
 }
 
 function places(schedule: Schedule, lastStop: string | null): Place[] {
@@ -98,9 +99,9 @@ function GettingThere({ paperKey, schedule, toKey, dest, isPlace, lastStop, step
     <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col bg-bg">
       <Header back={back} title="Getting there" />
       <main className="flex flex-1 flex-col gap-4 px-gutter pt-2 pb-28">
-        {!schedule ? <p className="text-body text-text-3">Loading…</p> : !toKey ? (
+        {!schedule ? <p className="text-body text-text-3">Loading…</p> : isPlace && !dest ? <p className="text-body">No such place on the venue plan.</p> : !toKey ? (
           <p className="text-body">This talk has no room in the programme.</p>
-        ) : isPlace && !dest ? <p className="text-body">No such place on the venue plan.</p> : (<>
+        ) : (<>
           <div className="flex min-h-touch items-center gap-2 rounded-bar bg-surface py-2.5 pr-1 pl-4">
             <p className="flex-1 text-small">From {nameOf(schedule, fromKey)}</p>
             <a href={`#/directions/${paperKey}/from`} onClick={() => { fromDirections = true; }} className="inline-flex min-h-touch items-center px-3 text-small font-semibold underline">Change</a>
