@@ -71,6 +71,9 @@ try {
   const card = `document.querySelector('section[aria-label="Floor plan"] .shadow p')?.innerText ?? null`;
   const press = label => ev(`[...document.querySelectorAll('section[aria-label="Floor plan"] button')].find(b => b.innerText === ${JSON.stringify(label)}).click()`);
   check('step numbers on the route', (await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.steps`)) === String(nLines), { lines: nLines });
+  const marks = await ev(`(({ chevronDot, badgeGap }) => ({ chevronDot: +chevronDot, badgeGap: +badgeGap }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`);
+  check('direction marks point the way you walk (dot > 0)', marks.chevronDot > 0, marks);
+  check('step numbers sit where you act (< 2 m)', marks.badgeGap < 2, marks);
   await press('Show step 1'); await sleep(1500);
   const s1 = { list: await ev(cur), card: await ev(card), levels: await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.levels`) };
   await shot('s5-09-step1');

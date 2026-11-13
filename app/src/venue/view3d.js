@@ -41,7 +41,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   const routeLevels = new Set(route.levels);
 
   let renderer, scene, camera, groups, rides, raf = 0, needs = true, lost = false, frames = 0, onlyRouteFloors = false;
-  let badges = [], current = -1;
+  let badges = [], signs = [], current = -1;
   const cam = { theta: ORIGINAL.theta, phi: ORIGINAL.phi, radius: 260, target: new THREE.Vector3(0, height('P1'), 0) };
   let goal = null;
   const stepPoint = i => { const n = venue.nodes[steps[i]?.node]; return n?.x != null ? at(n.x, n.y, n.level) : null; };
@@ -138,6 +138,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     }
     const mark = new THREE.MeshBasicMaterial({ color: css('--plan-bg'), depthTest: false });
     const chevron = new THREE.Shape([new THREE.Vector2(-0.9, -0.6), new THREE.Vector2(0, 0.5), new THREE.Vector2(0.9, -0.6), new THREE.Vector2(0, -0.2)]);
+    let worstDot = 1;
     for (const piece of pieces.filter(p => p.length > 1)) {
       const level = piece[0].level;
       const curve = new THREE.CatmullRomCurve3(piece.map(n => at(n.x, n.y, level, LINE)), false, 'catmullrom', 0.05);
@@ -147,17 +148,29 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       for (let d = 6; d < len - 4; d += 9) {
         const t = d / len, p = curve.getPointAt(t), tan = curve.getTangentAt(t);
         const m = new THREE.Mesh(new THREE.ShapeGeometry(chevron), mark);
-        m.rotation.x = -Math.PI / 2; m.rotation.z = Math.atan2(-tan.x, -tan.z) + Math.PI; m.position.copy(p).add(new THREE.Vector3(0, 0.6, 0)); m.renderOrder = 5;
+        // the chevron's tip is its +y; laid flat (x −90°) that is −z, so turning it by atan2(−x, −z) points it along tan
+        m.rotation.x = -Math.PI / 2; m.rotation.z = Math.atan2(-tan.x, -tan.z); m.position.copy(p).add(new THREE.Vector3(0, 0.6, 0)); m.renderOrder = 5;
+        worstDot = Math.min(worstDot, new THREE.Vector3(0, 1, 0).applyEuler(m.rotation).dot(tan));
         onLevel(level, m);
       }
     }
-    const start = new THREE.Mesh(new THREE.SphereGeometry(1.8, 20, 14), ink); start.position.copy(pts[0]); onLevel(nodes[0].level, start);
+    canvas.dataset.chevronDot = worstDot.toFixed(2); // for the phone check: every mark points the way you walk (> 0)
+    // The start: a pin on a ring, as in the prototype, so it reads as "you start here" and not as a hole in the floor.
+    const start = new THREE.Group();
+    const ring = new THREE.Mesh(new THREE.RingGeometry(2.2, 3.2, 40), new THREE.MeshBasicMaterial({ color: css('--plan-route'), side: THREE.DoubleSide }));
+    ring.rotation.x = -Math.PI / 2; ring.position.y = 0.2;
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 6, 12), ink); stem.position.y = 3;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(1.6, 20, 14), ink); head.position.y = 6.8;
+    const dot = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 10), new THREE.MeshBasicMaterial({ color: css('--plan-bg'), depthTest: false })); dot.position.y = 6.8; dot.renderOrder = 1;
+    start.add(ring, stem, head, dot); start.position.copy(at(nodes[0].x, nodes[0].y, nodes[0].level)); onLevel(nodes[0].level, start);
     // A bent arrow on the floor at each step, like a road sign: from the way you come (inDir) to the way you go (dir).
-    // At the arrival it bends from the corridor into the door. The step's number sits at the arrow's tail, clear of the head.
+    // At the arrival it bends from the corridor into the door. The step's number sits where you act: the corner, the lift or escalator, the door.
     const gold = new THREE.MeshBasicMaterial({ color: css('--plan-dest'), depthTest: false, side: THREE.DoubleSide });
+    signs = [];
+    let worstGap = 0;
     badges = steps.map((st, i) => {
       const n = venue.nodes[st.node];
-      let tail = n?.x != null ? at(n.x, n.y, n.level) : pts[0];
+      const spot = n?.x != null ? at(n.x, n.y, n.level) : pts[0];
       if (n?.x != null && st.dir) {
         const c = { x: n.x, y: n.y }, out = st.dir, inn = st.inDir;
         // arrival: the corner is in the corridor, a few metres before the door
@@ -166,19 +179,23 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
         const tip = st.icon === 'arrive' ? { x: c.x + out.x * 1.5, y: c.y + out.y * 1.5 } : { x: corner.x + out.x * 11, y: corner.y + out.y * 11 };
         const m = new THREE.Mesh(new THREE.ShapeGeometry(bentArrow([from, corner, tip], 1.3, 4.2, 3.4)), gold);
         m.rotation.x = -Math.PI / 2; m.position.y = height(n.level) + LINE + 0.7; m.renderOrder = 6; onLevel(n.level, m);
-        tail = at(from.x - (inn ?? out).x * 3, from.y - (inn ?? out).y * 3, n.level);
       }
-      // A ride: a big sign at the lift or escalator, "↑ To P1", on the level you leave (only that level shows on this step).
+      // A ride: a sign at the lift or escalator, "↑ To P1", on the level you leave (only that level shows on this step).
+      // Screen-sized like the number and pinned to the same point, just to its right.
       if (n?.x != null && (st.icon === 'up' || st.icon === 'down')) {
-        const sign = sprite(rideCanvas(st.icon === 'up', st.level), 12); // a ride's level is where it arrives
-        sign.center.set(0.5, -0.6); sign.renderOrder = 11; // floats above the step badge, not under it
-        sign.position.copy(at(n.x, n.y, n.level, BLOCK + 6)); groups.get(n.level)?.userData.detail.add(sign);
+        const t = new THREE.CanvasTexture(rideCanvas(st.icon === 'up', st.level)); t.colorSpace = THREE.SRGBColorSpace; // a ride's level is where it arrives
+        const sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, sizeAttenuation: false }));
+        sign.center.set(-0.24, 0.5); sign.renderOrder = 11;
+        sign.position.copy(spot).add(new THREE.Vector3(0, 3, 0)); groups.get(n.level)?.userData.detail.add(sign); signs.push(sign);
       }
       const b = new THREE.Sprite(new THREE.SpriteMaterial({ map: badgeTexture(i + 1, i === current), depthTest: false, sizeAttenuation: false }));
-      b.position.copy(tail).add(new THREE.Vector3(0, 3, 0)); b.renderOrder = 10; onLevel(n?.level, b);
+      b.position.copy(spot).add(new THREE.Vector3(0, 3, 0)); b.renderOrder = 10; onLevel(n?.level, b);
+      if (n?.x != null) worstGap = Math.max(worstGap, Math.hypot(b.position.x - (n.x - cx), b.position.z - (n.y - cz)));
       return b;
     });
+    canvas.dataset.badgeGap = worstGap.toFixed(1); // for the phone check: metres from each number to where you act (< 2)
     canvas.dataset.steps = String(badges.length); // for the phone check
+    sizeBadges();
   }
 
   // A flat arrow along plan points [from, corner, tip]: a band of half-width w, ending in a head (length headL, half-width
@@ -267,6 +284,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   function sizeBadges() {
     const h = canvas.clientHeight || 300;
     badges.forEach((b, j) => { const s = (j === current ? 30 : 22) / h; b.scale.set(s, s, 1); b.renderOrder = j === current ? 20 : 10; });
+    signs.forEach(s => s.scale.set(84 / h, 38.5 / h, 1));
   }
 
   function placeCamera() {
