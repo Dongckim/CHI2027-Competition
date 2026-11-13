@@ -41,7 +41,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   const routeLevels = new Set(route.levels);
 
   let renderer, scene, camera, groups, rides, raf = 0, needs = true, lost = false, frames = 0, onlyRouteFloors = false;
-  let badges = [], signs = [], segs = [], chevrons = [], current = -1;
+  let badges = [], signs = [], segs = [], chevrons = [], current = -1, layoutDirty = true;
   const cam = { theta: ORIGINAL.theta, phi: ORIGINAL.phi, radius: 260, target: new THREE.Vector3(0, height('P1'), 0) };
   let goal = null;
   const stepPoint = i => { const n = venue.nodes[steps[i]?.node]; return n?.x != null ? at(n.x, n.y, n.level) : null; };
@@ -208,7 +208,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     // A bent arrow on the floor at each step, like a road sign: from the way you come (inDir) to the way you go (dir).
     // At the arrival it bends from the corridor into the door. Only the step you are on shows its arrow.
     const gold = new THREE.MeshBasicMaterial({ color: css('--plan-dest'), depthTest: false, side: THREE.DoubleSide });
-    const stalk = new THREE.LineBasicMaterial({ color: css('--plan-route'), depthTest: false });
+    const leadTex = (() => { const c = document.createElement('canvas'); c.width = 8; c.height = 64; const g = c.getContext('2d'); g.fillStyle = css('--plan-route'); g.fillRect(0, 0, 8, 64); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; })();
     signs = [];
     let worstGap = 0;
     badges = steps.map((st, i) => {
@@ -230,20 +230,19 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
         aside = ol > 0.3 ? { x: o.x / ol, y: o.y / ol } : { x: -out.y, y: out.x };
       }
       // A ride: a sign at the lift or escalator, "↑ To P1", on the level you leave (only that level shows on this step).
-      // Screen-sized like the number, to the right of the lifted number, on the same stalk.
+      // Screen-sized like the number, just right of the lifted number (layout() places both).
+      let sign = null;
       if (n?.x != null && (st.icon === 'up' || st.icon === 'down')) {
         const t = new THREE.CanvasTexture(rideCanvas(st.icon === 'up', st.level)); t.colorSpace = THREE.SRGBColorSpace; // a ride's level is where it arrives
-        const sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, sizeAttenuation: false }));
-        sign.center.set(-0.24, 0.5); sign.renderOrder = 115;
-        sign.position.copy(spot).add(new THREE.Vector3(0, 10, 0)); groups.get(n.level)?.userData.detail.add(sign); signs.push(sign);
+        sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, sizeAttenuation: false }));
+        sign.renderOrder = 115; sign.position.copy(spot); groups.get(n.level)?.userData.detail.add(sign); signs.push(sign);
       }
       const b = new THREE.Sprite(new THREE.SpriteMaterial({ map: badgeTexture(i + 1, 'number'), depthTest: false, sizeAttenuation: false }));
       b.position.copy(spot); onLevel(n?.level, b);
-      // the big number's place: 6 m aside and 6 m up, on a stalk from the spot
-      const up = aside.x || aside.y ? 6 : 10; // a ride's number stands straight up, high enough for its stalk to show
-      const lifted = spot.clone().add(new THREE.Vector3(aside.x * 6, up, aside.y * 6));
-      const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([spot, lifted]), stalk); line.renderOrder = 105; line.visible = false; onLevel(n?.level, line);
-      b.userData = { spot, lifted, line, arrow, level: n?.level, state: 'number' };
+      // the big number's stalk: a screen-sized bar from the spot (layout() turns it and sets its length in pixels)
+      const lead = new THREE.Sprite(new THREE.SpriteMaterial({ map: leadTex, depthTest: false, sizeAttenuation: false }));
+      lead.center.set(0.5, 0); lead.position.copy(spot); lead.renderOrder = 105; lead.visible = false; onLevel(n?.level, lead);
+      b.userData = { spot, aside, lead, sign, arrow, level: n?.level, state: 'number' };
       if (n?.x != null) worstGap = Math.max(worstGap, Math.hypot(spot.x - (n.x - cx), spot.z - (n.y - cz)));
       return b;
     });
@@ -341,7 +340,8 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       const state = current < 0 ? 'number' : j === current ? 'on' : j < current ? 'done' : 'next';
       if (b.userData.state !== state) { b.material.map?.dispose(); b.material.map = badgeTexture(j + 1, state); b.material.needsUpdate = true; b.userData.state = state; }
       const on = state === 'on';
-      b.position.copy(on ? b.userData.lifted : b.userData.spot); b.userData.line.visible = on;
+      if (!on) b.center.set(0.5, 0.5);
+      b.userData.lead.visible = on;
       if (b.userData.arrow) b.userData.arrow.m.visible = on;
     });
     segs.forEach((sg, j) => {
@@ -356,13 +356,40 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     for (const c of chevrons) c.m.visible = !(current >= 0 && c.seg < current) && !(arrow && c.level === arrow.level && near(c, arrow.points) < 4);
     sizeBadges(); needs = true;
   }
+  // Screen-sized things, in CSS pixels: a sprite without size attenuation is `scale` × (canvas height / 2 / tan(fov/2)) px.
+  const PX = { on: 46, number: 34, done: 18, next: 18 }, LEAD = 36, SIGN = [116, 53];
+  const px = n => n * 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / (canvas.clientHeight || 300);
   function sizeBadges() {
-    const h = canvas.clientHeight || 300;
-    badges.forEach((b, j) => {
-      const st = b.userData.state, s = (st === 'on' ? 32 : st === 'number' ? 22 : 12) / h;
+    badges.forEach(b => {
+      const st = b.userData.state, s = px(PX[st]);
       b.scale.set(s, s, 1); b.renderOrder = st === 'on' ? 120 : 110;
+      b.userData.lead.scale.set(px(3), px(LEAD), 1);
     });
-    signs.forEach(s => s.scale.set(84 / h, 38.5 / h, 1));
+    signs.forEach(s => s.scale.set(px(SIGN[0]), px(SIGN[1]), 1));
+    layoutDirty = true;
+  }
+
+  // Where things go on screen, worked out again only when the view changes (camera, step, size). The step you are on:
+  // its number stands LEAD px from the spot, outside the bend (a ride: straight up), with the "To P1" sign to its right.
+  function layout() {
+    layoutDirty = false;
+    const W = canvas.clientWidth, H = canvas.clientHeight;
+    if (!W || !H || !camera) return;
+    camera.updateMatrixWorld();
+    const screen = v => { const p = v.clone().project(camera); return { x: (p.x + 1) / 2 * W, y: (1 - p.y) / 2 * H }; };
+    const b = badges[current];
+    if (!b) return;
+    const u = b.userData, s = screen(u.spot);
+    let d = { x: 0, y: -1 }; // screen direction, y down: up
+    if (u.aside.x || u.aside.y) {
+      const a = screen(u.spot.clone().add(new THREE.Vector3(u.aside.x * 5, 0, u.aside.y * 5)));
+      const l = Math.hypot(a.x - s.x, a.y - s.y);
+      if (l > 1) d = { x: (a.x - s.x) / l, y: (a.y - s.y) / l };
+    }
+    const size = PX.on, off = LEAD + size / 2;
+    b.center.set(0.5 - d.x * off / size, 0.5 + d.y * off / size); // a sprite's centre is in its own units, y up
+    u.lead.material.rotation = Math.atan2(-d.x, -d.y);
+    if (u.sign) { const ox = d.x * off + size / 2 + 8 + SIGN[0] / 2, oy = d.y * off; u.sign.center.set(0.5 - ox / SIGN[0], 0.5 + oy / SIGN[1]); }
   }
 
   function placeCamera() {
@@ -370,7 +397,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     camera.position.set(target.x + radius * Math.sin(phi) * Math.sin(theta), target.y + radius * Math.cos(phi), target.z + radius * Math.sin(phi) * Math.cos(theta));
     camera.lookAt(target);
     canvas.dataset.view = `${theta.toFixed(3)},${phi.toFixed(3)}`; // for the phone check
-    needs = true;
+    needs = true; layoutDirty = true;
   }
   function resize() {
     const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -397,7 +424,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     }
     if (rides) rides.visible = !stepLevel;
     canvas.dataset.levels = [...groups].filter(([, g]) => g.visible).map(([l]) => l).join(' '); // for the phone check
-    needs = true;
+    needs = true; layoutDirty = true;
   }
   function apply(m, now = false) {
     if (m === 'floors') onlyRouteFloors = !onlyRouteFloors;
@@ -479,6 +506,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       }
       placeCamera();
     }
+    if (layoutDirty) layout();
     if (needs) { renderer.render(scene, camera); needs = false; canvas.dataset.frames = String(++frames); } // frames: for the phone check
   }
 
