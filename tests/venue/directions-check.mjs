@@ -5,7 +5,7 @@
 //   - frame times while the route dot moves, CPU slowed 4x (the "no stutter" check)
 //   - reduced motion: the view stops drawing once still; WebGL context lost → restored → drawn again
 //   - Change → 09-1 → Registration → back on 09 "From Registration", one history step
-// Exit code 1 when a check fails.
+// Exit code 1 when a check fails; a run that stops partway prints FAIL with where it stopped (never PASS).
 import { spawn } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -218,6 +218,10 @@ try {
   await shot('s5-09-auditorium');
   out.pageErrors = errors;
   if (errors.length) fails.push('page errors');
+} catch (e) {
+  // stopped partway: say so, with the checks that did not run counted as failed
+  out.stoppedAt = String(e?.message ?? e).slice(0, 300);
+  fails.push(`stopped: ${out.stoppedAt}`);
 } finally {
   console.log(JSON.stringify(out, null, 2));
   console.log(fails.length ? `FAIL: ${fails.join(', ')}` : 'PASS: all checks');
