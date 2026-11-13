@@ -27,6 +27,14 @@ export function walkNote([a, b], { first, sameRoom = false }) {
   return { text: first ? `${minutesText([a, b])} from Registration` : `${minutesText([a, b])} walk`, directions: true };
 }
 
+/** Where you are now, for directions to a place (09 by place): the room of the talk on now, else of the one that just
+ * ended, else null (before the first talk: the caller starts at Registration). Stops in time order. */
+export function roomNow(stops, now) {
+  let room = null;
+  for (const s of stops) { if (s.start > now) break; room = s.roomKey; }
+  return room;
+}
+
 export const leaveAt = (stop, walkMax = WALK_MIN[1]) => stop.start - (walkMax + LEAVE_BUFFER_MIN) * MIN;
 
 /** @param {(stop: any, i: number) => number[] | null} [walk] */

@@ -8,7 +8,9 @@ import { placeTargets, routeToNearest } from '../venue/places.js';
 import { useDayPlans } from '../today/useDayPlans';
 import { firstSlot } from '../explore/format';
 import { useDevice } from '../state/useDevice';
-import { isDemo } from '../clock';
+import { isDemo, useNow } from '../clock';
+import { roomNow } from '../today/card.js';
+import { localDay } from '../planner/plan.js';
 import { go } from '../router';
 import { Header } from '../components/Header';
 import { Button, ButtonLink } from '../components/Button';
@@ -46,6 +48,15 @@ function useStart(target: string) {
   for (const p of view?.plans ?? []) {
     const i = p.stops.findIndex((s: { paperKey: string }) => s.paperKey === paperKey);
     if (i >= 0) { stop = p.stops[i]; before = i > 0 ? p.stops[i - 1] : null; break; }
+  }
+  // A place (not a talk): on a conference day with a plan (the sample day: its demo clock), from the room you are in — the
+  // talk on now, or the one just over. Otherwise (no plan, another day, before the first talk) from Registration.
+  const now = useNow();
+  if (placeId !== null && view) {
+    const today = mode === 'sample' ? view.firstWithStops : localDay(now, view.tz);
+    const plan = view.chosen.includes(today) ? view.plans[view.days.indexOf(today)] : null;
+    const room = plan ? roomNow(plan.stops, now) : null;
+    before = room ? { roomKey: room } : null;
   }
   const paper = schedule?.index.papers.get(paperKey);
   const toKey: string | null = placeId ?? stop?.roomKey ?? (paper ? firstSlot(paper.slots)?.roomKey ?? null : null);

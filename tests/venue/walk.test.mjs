@@ -58,3 +58,14 @@ test('a range of one minute is "1 min", not "1–1 min"', () => {
   assert.equal(minutesText([2, 4]), '2–4 min');
   assert.deepEqual(walkNote([1, 1], { first: false }), { text: '1 min walk', directions: true });
 });
+
+test('where you are now, for directions to a place: the talk on now, else the one just over, else none', async () => {
+  const { roomNow } = await import('../../app/src/today/card.js');
+  const stops = [{ roomKey: 'a', start: 100 * MIN, end: 120 * MIN }, { roomKey: 'b', start: 200 * MIN, end: 220 * MIN }];
+  assert.equal(roomNow(stops, 90 * MIN), null); // before the day's first talk: Registration
+  assert.equal(roomNow(stops, 110 * MIN), 'a'); // in a talk
+  assert.equal(roomNow(stops, 150 * MIN), 'a'); // between talks: the room just left
+  assert.equal(roomNow(stops, 210 * MIN), 'b');
+  assert.equal(roomNow(stops, 300 * MIN), 'b'); // after the last
+  assert.equal(roomNow([], 110 * MIN), null);
+});

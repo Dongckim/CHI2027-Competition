@@ -96,6 +96,22 @@ try {
   check('05 search: Directions for a talk, a room number and a facility', /^#\/directions\/chi2026:/.test(talkRow ?? '') && fromSearchTalk?.frames > 0
     && /^to Room 127 · P1/.test(fromSearchRoom?.to ?? '') && /^#\/directions\/place\//.test(fromSearchRoom?.hash ?? '') && /^to WC · /.test(fromSearchWc?.to ?? ''),
     { talkRow, roomRow, fromSearchRoom, fromSearchWc });
+  // A place on a conference day with a plan: start in the room you are in. The sample day (demo clock) at 11:20: the
+  // talk on now → its room; "toilet" → the quickest WC, on that room's level.
+  await ev(`localStorage.removeItem('arc.device')`);
+  await send('Page.navigate', { url: BASE + '?sample#/sample' }); await waitFor(`!!document.querySelector('input[aria-label="Time of day"]')`, 30000);
+  await ev(`(() => { const i = document.querySelector('input[aria-label="Time of day"]'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, String(11 * 60 + 20)); i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+  await waitFor(`document.querySelector('input[aria-label="Time of day"]')?.getAttribute('aria-valuetext') === '11:20'`);
+  await sleep(500);
+  const nowHref = await ev(`[...document.querySelectorAll('a[href^="#/talk/"]')].find(a => /\\bNOW\\b/.test(a.closest('section, div')?.innerText ?? ''))?.getAttribute('href') ?? null`);
+  await ev(`location.hash = ${JSON.stringify(nowHref ?? '#/talk/none')}`); await waitFor(`/Add to my day|In your day/.test(document.body.innerText)`);
+  const nowRoom = await ev(`(document.body.innerText.match(/· [A-Z]\\d - (Room [^\\n·]+)/) ?? [])[1]?.trim() ?? null`);
+  const nowLevel = await ev(`(document.body.innerText.match(/· ([A-Z]\\d) - Room/) ?? [])[1] ?? null`);
+  await search('toilet');
+  await ev(`[...document.querySelectorAll('main a[aria-label^="Directions to "]')].find(a => /WC/.test(a.getAttribute('aria-label')))?.click()`);
+  const wcNow = await open09().catch(() => null);
+  check('a place on the sample day at 11:20: from the room of the talk on now, the quickest WC on its level', !!nowRoom && wcNow?.from === `From ${nowRoom}` && wcNow?.to === `to WC · ${nowLevel}`,
+    { nowHref, nowRoom, nowLevel, wcNow });
   out.pageErrors = errors;
   if (errors.length) fails.push('page errors');
 } catch (e) {
