@@ -5,6 +5,7 @@ import { directions } from '../venue/directions.js';
 import { playCues } from '../venue/sound.js';
 import { REGISTRATION } from '../venue/walk.js';
 import { placeTargets, routeToNearest } from '../venue/places.js';
+import { minutesText } from '../today/card.js';
 import { useDayPlans } from '../today/useDayPlans';
 import { firstSlot } from '../explore/format';
 import { useDevice } from '../state/useDevice';
@@ -107,7 +108,7 @@ function GettingThere({ paperKey, schedule, toKey, dest, isPlace, lastStop, step
           {result && 'same' in result ? <p className="text-body">You are already there.</p>
             : result && 'missing' in result ? <p className="text-body">No route on the venue plan for this room yet.</p>
             : result && (<>
-              <p className="text-display leading-[1.3] font-semibold">{result.r.minutes[0]}–{result.r.minutes[1]} min</p>
+              <p className="text-display leading-[1.3] font-semibold">{minutesText(result.r.minutes)}</p>
               <p className="text-body leading-6">to {result.d.to} · {result.r.levels.at(-1)}{stepFree ? ' · step-free' : ''}</p>
               {/* Each step is a 44px row: tapping it shows that step on the plan. The step the plan is at is filled. */}
               <ol className="flex flex-col" aria-label="Steps">

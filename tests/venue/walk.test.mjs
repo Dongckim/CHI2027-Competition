@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { walkMinutes, REGISTRATION } from '../../app/src/venue/walk.js';
-import { dayCard, LEAVE_BUFFER_MIN, walkNote } from '../../app/src/today/card.js';
+import { dayCard, LEAVE_BUFFER_MIN, walkNote, minutesText } from '../../app/src/today/card.js';
 
 const venue = JSON.parse(readFileSync(new URL('../../data/venue/ccib.json', import.meta.url)));
 const edition = JSON.parse(readFileSync(new URL('../../data/venue/chi2026.json', import.meta.url)));
@@ -51,4 +51,10 @@ test('card walk note: same room or same area instead of "0–0 min walk", and th
   // two programme rooms on one venue area (P0 Areas 1+2+3): the venue says 0 minutes
   const [a, b] = Object.keys(edition.rooms).filter(k => edition.rooms[k] === 'P0-areas-1+2+3');
   assert.deepEqual(walkMinutes(venue, edition, a, b), [0, 0]);
+});
+
+test('a range of one minute is "1 min", not "1–1 min"', () => {
+  assert.equal(minutesText([1, 1]), '1 min');
+  assert.equal(minutesText([2, 4]), '2–4 min');
+  assert.deepEqual(walkNote([1, 1], { first: false }), { text: '1 min walk', directions: true });
 });
