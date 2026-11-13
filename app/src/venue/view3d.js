@@ -489,7 +489,8 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     const clash = (p, it) => !(p.frame && it.dest) && !(it.frame && p.rank <= it.rank) && !(p.frame && it.rank <= p.rank) && hit(p.r, it.r);
     const placed = [];
     for (const it of items) {
-      const ok = it.keep || (it.r && !placed.some(p => clash(p, it)));
+      const under = it.r && !it.frame && (it.r[1] < pads.top || it.r[3] > H - pads.bottom); // behind the card or the bars
+      const ok = it.keep || (it.r && !under && !placed.some(p => clash(p, it)));
       it.o.userData.to = ok ? 1 : 0;
       if (ok && it.r) placed.push(it);
     }
