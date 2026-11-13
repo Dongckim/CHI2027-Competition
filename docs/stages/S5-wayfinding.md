@@ -114,7 +114,15 @@
 - 두 손가락 (헤드리스): 시계 방향 0.5 rad 비틀기 → 보기 0.5 rad 돎(평면도도 시계 방향, 스크린숏 확인), 같이 올리기 → 기울기 0.95 → 1.19, Whole → 0.785, 0.950 (원본 각도)
 - 큰 화면 (헤드리스): 가로 844×390으로 돌리면 3D가 화면 전체(카드·보기 막대·단계 버튼), 세로로 돌리면 09로. Larger plan → 390×844, 뒤로 → 09
 - 117 → 127 세 장면(출발·Foyer 2로 꺾기·도착)과 가로 화면을 원본 P1 이미지와 나란히 확인 (사용자 확인용 스크린숏)
+- (교차 검토 수정 후) `npm test` 99/99 · 헤드리스 전체 통과(CPU 4배 p95 16.8 / 16.7 ms) · revision-check 2/2 · 첫 화면 JS gzip 109.0 KB, 3D 조각 150.6 KB
 - `npm test` 94/94 · `contracts:check` 5/5 · `tsc` 0 · `data:venue:check` 7개 층·방 43개 · `build:deploy` 성공 · 첫 화면 JS gzip 99.9 → 106.2 KB (+ 3D 조각 137 KB는 09에서만) · 서비스 워커 14개 파일 (+ 이름 파일)
+
+- 교차 검토(결론을 모르는 새 에이전트, 재현한 것만) 5건 모두 고침, 테스트를 먼저 넣어 실패를 확인한 뒤:
+  - 좌표 없는 곳(오디토리움·Connecting Walkway): 왼쪽/오른쪽·pass 없이 "Take the Connecting Walkway to the Auditorium · about 120 m" → "Auditorium entrance", 3D는 "No floor plan for the Auditorium". 좌표 없는 곳을 지나는 모든 경로에서 방향 단어 0 (테스트). 플래너 걷는 시간은 이미 통로 116.8 m 포함 (테스트로 고정)
+  - 09를 연 채 경로가 바뀌거나 새 revision이 와도 3D가 다시 그림 (경로마다 새 canvas). `tests/venue/revision-check.mjs`(가짜 revision 2): 고치기 전 2개 실패 → 통과
+  - 09-1에서 고른 출발점은 09를 떠나면(I'm here 포함) 지움: 다시 열면 From Registration (헤드리스)
+  - 같은 방은 "Same room", 같은 구역은 "Same area", Directions 버튼 숨김 (`walkNote`, 테스트)
+  - `directions-check.mjs`가 중간에 멈추면 "FAIL: stopped: …" (전에는 PASS 출력)
 
 ## ③ 결정과 이유
 - 원천은 공식 평면도 (결정 005). 프로토타입 배치를 쓰면 P0이 추정이고 4개 층이 없음
@@ -136,19 +144,14 @@
 - 스와이프와 페이지 스크롤이 폰에서 헷갈리지 않는지 실기기 확인 안 함
 - Registration 위치는 추정 (Entrance Hall)
 - 폰 실기기: 3D 끊김·소리·아이폰 무음 스위치 확인 안 함
-- 교차 검토(새 에이전트, 재현한 것만, 고치지 않음):
-  - 오디토리움(AUD, 기조연설 장소)은 평면도에 좌표가 없는데(x·y null) 원점 기준으로 왼쪽/오른쪽을 만들어 냄. Entrance Hall → Auditorium = "Exit right into the P0 concourse …" / "Auditorium on your left", 3D 도착 단계는 보이는 층 없음. 모든 쌍 테스트는 문장 모양만 봐서 통과
-  - 09를 연 채 새 프로그램 revision이 오면 3D가 다시 mount되는데, 앞의 dispose가 같은 canvas의 WebGL context를 강제로 잃게 해서 "cannot be shown"으로 멈춤
-  - 09-1에서 고른 출발점이 모듈 Map에 남아 다음에 09를 열어도 그 출발점 (주석은 "09·09-1이 열려 있는 동안")
-  - 같은 구역 연속 정차는 Today 카드에 "0–0 min walk"
-  - `directions-check.mjs`가 중간에 예외로 멈춰도 "PASS: all checks"를 출력(종료 코드는 1)
 - "Scan a room sign"은 자리 화면만 (프로토타입은 `reference/`라 배포 안 됨)
 
 ## ⑤ 다음 단계가 알아야 할 것
 - 학회장이 바뀌면 데이터 3개만: `<venue>.json`(PDF), `<venue>.labels.json`(이름), `<edition>.json`(방·층·장소). `npm run data:venue:check <edition>`
 - 안내 문장은 `directions(venue, labels, route(...))`. 화면 밖(S6 등)에서도 같은 함수
 - 3D를 다른 화면에서 쓰려면 `import('../venue/view3d.js')`의 `mount(canvas, { venue, route, summary, reduceMotion })`, 꼭 `dispose()`
-- 헤드리스 확인: `npm run build && node --experimental-websocket tests/venue/directions-check.mjs [스크린숏 폴더]` (WebGL은 SwiftShader)
+- 헤드리스 확인: `npm run build && node --experimental-websocket tests/venue/directions-check.mjs [스크린숏 폴더]` (WebGL은 SwiftShader), 09를 연 채 경로·revision이 바뀌는 경우는 `tests/venue/revision-check.mjs`
+- 좌표 없는 장소(예: 2027 학회장의 별관)는 평면도 그래프에 이름 있는 연결과 거리만 있으면 됨: directions가 그 구간을 한 줄로, 3D는 "No floor plan for …"
 
 ## ⑥ 비용·토큰
 - 외부 API 없음 (경로·소리·3D 모두 폰 안)
