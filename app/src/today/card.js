@@ -16,6 +16,13 @@ export const FIRST_WALK_MIN = [3, 5]; // from registration to the first room
 export const LEAVE_BUFFER_MIN = 5;
 const MIN = 60_000;
 
+/** The card's walk line. Back to back in one room (or one venue area: 0 minutes) there is no walk and nothing to direct
+ * to. @param {number[]} minutes [low, high] @param {{ first: boolean, sameRoom?: boolean }} o */
+export function walkNote([a, b], { first, sameRoom = false }) {
+  if (!first && b === 0) return { text: sameRoom ? 'Same room' : 'Same area', directions: false };
+  return { text: first ? `${a}–${b} min from Registration` : `${a}–${b} min walk`, directions: true };
+}
+
 export const leaveAt = (stop, walkMax = WALK_MIN[1]) => stop.start - (walkMax + LEAVE_BUFFER_MIN) * MIN;
 
 /** @param {(stop: any, i: number) => number[] | null} [walk] */

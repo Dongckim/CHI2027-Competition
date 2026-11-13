@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { localDay } from '../planner/plan.js';
 import { todayRows } from '../today/rows.js';
-import { dayCard, laterStops, talkPosition, WALK_MIN, FIRST_WALK_MIN } from '../today/card.js';
+import { dayCard, laterStops, talkPosition, walkNote, WALK_MIN, FIRST_WALK_MIN } from '../today/card.js';
 import { walkMinutes, REGISTRATION } from '../venue/walk.js';
 import { removeStop, pickOne } from '../today/edits.js';
 import { freeGaps, dayBounds } from '../today/more.js';
@@ -33,7 +33,6 @@ import { Toast, type ToastValue } from '../components/Toast';
 //   a slider sets the demo clock, edits kept in memory only · none = "Just browse", no plan yet (03-J).
 
 export const SLIDER = { min: 8 * 60 + 30, max: 18 * 60 + 30, step: 5, start: 8 * 60 + 40 }; // minutes of the venue day
-const range = ([a, b]: number[]) => `${a}–${b} min`;
 const weekday = (d: string, o: Intl.DateTimeFormatOptions = { weekday: 'long' }) => new Intl.DateTimeFormat('en', { timeZone: 'UTC', ...o }).format(new Date(`${d}T12:00:00Z`));
 const shortDay = (d: string) => `${weekday(d, { weekday: 'short' })} ${weekday(d, { day: 'numeric' })}`;
 
@@ -225,10 +224,10 @@ function TopCard({ card, plan, data, walkOf, at, title, room, weekday, short, on
   const href = `#/talk/${s.paperKey}`;
   const i = plan.stops.indexOf(s), isFirst = i === 0;
   const minutes = walkOf(s, i) ?? (isFirst ? FIRST_WALK_MIN : WALK_MIN);
-  const walk = isFirst ? `${range(minutes)} from Registration` : `${range(minutes)} walk`;
+  const { text: walk, directions } = walkNote(minutes, { first: isFirst, sameRoom: !isFirst && plan.stops[i - 1]?.roomKey === s.roomKey });
   const buttons = (dark = false) => (
-    <><ButtonLink href={`#/directions/${s.paperKey}`} className="flex-1" onDark={dark}>Directions</ButtonLink>
-      <Button variant="secondary" className="w-[104px]" onDark={dark} onClick={() => onSkip(s.paperKey)}>Skip</Button></>
+    <>{directions && <ButtonLink href={`#/directions/${s.paperKey}`} className="flex-1" onDark={dark}>Directions</ButtonLink>}
+      <Button variant="secondary" className={directions ? 'w-[104px]' : 'flex-1'} onDark={dark} onClick={() => onSkip(s.paperKey)}>Skip</Button></>
   );
   if (card.kind === 'now') {
     const pos = talkPosition(s, data.sessionSlots, data.timing.get(s.sessionKey));
