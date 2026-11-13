@@ -216,6 +216,13 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
     <button type="button" aria-pressed={pressed} onClick={onClick}
       className={`min-h-touch rounded-full px-3 text-small font-semibold ${pressed ? 'bg-inverse text-on-inverse' : 'text-text'}`}>{label}</button>
   );
+  const bar = (
+    <div role="group" aria-label="What the plan shows" className={`flex rounded-full p-0.5 ${big ? 'bg-bg/95 shadow' : 'self-start bg-surface'}`}>
+      {seg('Whole', step < 0 && shown === 'whole', () => { setShown('whole'); view.current?.mode('original'); })}
+      {seg('Route', step < 0 && shown === 'route', () => { setShown('route'); view.current?.mode('fit'); })}
+      {seg('Floors', floorsOnly, () => setFloorsOnly(!!view.current?.mode('floors')))}
+    </div>
+  );
   return (
     <section aria-label="Floor plan" className="flex flex-1 flex-col gap-2">
       {/* At least 300 px (Figma's box is 140 px): the step card sits on top and the plan around the step needs room. */}
@@ -241,17 +248,17 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
               </svg>
             </button>
           </div>
-          {/* bottom: what the view shows, one compact bar on the plan (and, large, the step buttons) */}
-          <div ref={bottomRef} className={`absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-2 ${big ? 'pr-[max(8px,env(safe-area-inset-right))] pb-[max(8px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))]' : 'p-2'}`}>
-            <div role="group" aria-label="What the plan shows" className="flex rounded-full bg-bg/95 p-0.5 shadow">
-              {seg('Whole', step < 0 && shown === 'whole', () => { setShown('whole'); view.current?.mode('original'); })}
-              {seg('Route', step < 0 && shown === 'route', () => { setShown('route'); view.current?.mode('fit'); })}
-              {seg('Floors', floorsOnly, () => setFloorsOnly(!!view.current?.mode('floors')))}
+          {/* large: what the view shows and the step buttons, over the plan (there is no room around it) */}
+          {big && (
+            <div ref={bottomRef} className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-2 pr-[max(8px,env(safe-area-inset-right))] pb-[max(8px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))]">
+              {bar}
+              {nav('w-full max-w-[420px] rounded-bar bg-bg/95 p-2 shadow')}
             </div>
-            {big && nav('w-full max-w-[420px] rounded-bar bg-bg/95 p-2 shadow')}
-          </div>
+          )}
         </>)}
       </div>
+      {/* in the page: the view bar under the plan, not on it, then the step buttons */}
+      {state === 'ready' && !big && bar}
       {state === 'ready' && !big && nav()}
       {state === 'ready' && <p aria-live={big ? undefined : 'polite'} className="min-h-6 text-small">{line ? `Step ${step + 1} of ${lines.length}: ${line.card}` : 'Swipe the plan or press Show step 1 to go step by step. Two fingers turn, tilt and zoom it; Whole goes back. Turn the phone sideways for a larger plan.'}</p>}
       <Button variant="outline" aria-pressed={cue >= 0} onClick={() => {
