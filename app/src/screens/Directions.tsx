@@ -260,7 +260,8 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
       {/* in the page: the view bar under the plan, not on it, then the step buttons */}
       {state === 'ready' && !big && bar}
       {state === 'ready' && !big && nav()}
-      {state === 'ready' && <p aria-live={big ? undefined : 'polite'} className="min-h-6 text-small">{line ? `Step ${step + 1} of ${lines.length}: ${line.card}` : 'Swipe the plan or press Show step 1 to go step by step. Two fingers turn, tilt and zoom it; Whole goes back. Turn the phone sideways for a larger plan.'}</p>}
+      {/* the step line is the card on the plan; screen readers hear it here */}
+      {state === 'ready' && <p aria-live={big ? undefined : 'polite'} className={line ? 'sr-only' : 'min-h-6 text-small'}>{line ? `Step ${step + 1} of ${lines.length}: ${line.card}` : 'Swipe the plan or press Show step 1 to go step by step. Two fingers turn, tilt and zoom it; Whole goes back. Turn the phone sideways for a larger plan.'}</p>}
       <Button variant="outline" aria-pressed={cue >= 0} onClick={() => {
         if (stop.current) { stop.current(); stop.current = null; return; }
         stop.current = playCues(cues as never, (i: number) => { setCue(i); if (i < 0) stop.current = null; });
