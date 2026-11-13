@@ -3,6 +3,7 @@ import { searchTalks, searchPeople, searchSessions, placeOf, filterCount, hasWor
 import { explore, openFilters, useExploreData, useMyDay, type ExploreState, type Loaded } from '../explore/useExplore';
 import { TYPE_TAG, weekdayOf, clockOf, firstSlot } from '../explore/format';
 import { go } from '../router';
+import { searchPlaces } from '../venue/places.js';
 import { Header } from '../components/Header';
 import { Button } from '../components/Button';
 import { Toast, type ToastValue } from '../components/Toast';
@@ -28,11 +29,13 @@ export function Explore() {
       people: empty ? [] : searchPeople(data.index, query, filters),
       sessions: empty ? [] : searchSessions(data.index, query, filters),
       place: placeOf(data.index, query),
+      // rooms and facilities on the venue plan ("127", "toilet", "lift", "Registration"): each with Directions (S5b)
+      spots: empty ? [] : searchPlaces(data.schedule.venue, data.schedule.venueMap, [...data.schedule.index.rooms.values()], query),
       empty,
     };
   }, [data, query, filters, count]);
   const peopleOnlyFilters = peopleFilterOnly(query, filters);
-  const nothingAnywhere = !!results && !results.empty && !peopleOnlyFilters && !results.talks.length && !results.people.length && !results.sessions.length;
+  const nothingAnywhere = !!results && !results.empty && !peopleOnlyFilters && !results.talks.length && !results.people.length && !results.sessions.length && !results.spots.length;
   const set = (change: Partial<ExploreState>) => setS(x => ({ ...x, shown: PAGE, ...change }));
 
   return (
@@ -65,6 +68,17 @@ export function Explore() {
         {error && <p role="alert" className="text-body">Could not load the programme. {error}</p>}
         {!error && !results && <p className="text-body text-text-3">Loading the programme…</p>}
         {results && results.empty && <p className="text-body text-text-2">Type a title, a name, a topic or a place, like CMU.</p>}
+        {results && results.spots.length > 0 && (
+          <section aria-label="Rooms and places" className="flex flex-col">
+            {results.spots.map((p: { id: string; name: string; hint?: string }) => (
+              <div key={p.id} className="flex items-center gap-3 border-b border-border py-2">
+                <p className="flex-1 text-body">{p.name}{p.hint && <span className="text-small text-text-3"> · {p.hint}</span>}</p>
+                <a href={`#/directions/place/${encodeURIComponent(p.id)}`} aria-label={`Directions to ${p.name}`}
+                  className="inline-flex min-h-touch items-center rounded-button border border-border-strong px-4 text-small font-semibold">Directions</a>
+              </div>
+            ))}
+          </section>
+        )}
         {results && !results.empty && s.tab === 'people' && peopleOnlyFilters ? (
           // Day and type are about talks; people have neither, so this is not "no matches".
           <p className="py-16 text-center text-body text-text-2">{filters.days.length && filters.types.length ? 'Day and type filters' : filters.days.length ? 'Day filters' : 'Type filters'} apply to talks only. Type a name to find people.</p>
@@ -123,6 +137,9 @@ function TalkResults({ data, results, myDay }: { data: Loaded; results: { key: s
                 <span className="text-body leading-[22px]">{p.title}</span>
                 {why.field !== 'title' && <span className="text-small text-text-3">{WHY[why.field]} {why.text}</span>}
               </a>
+              {slot && <a href={`#/directions/${key}`} aria-label={`Directions to ${p.title}`} className="grid size-touch shrink-0 place-items-center text-text-2">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11ZM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" /></svg>
+              </a>}
               {slot && (planned.has(key)
                 ? <span className="inline-flex min-h-touch items-center px-2 text-small text-text-2">Added</span>
                 : <Button variant="outline" aria-label={`Add ${p.title}`} onClick={() => {
