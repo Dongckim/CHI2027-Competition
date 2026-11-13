@@ -98,6 +98,17 @@ try {
   check('one finger drags the plan; the step stays, tapping it frames it again', dragged.list === 2 && dragged.target !== target0 && dragged.view === '0.785,0.950' && reframed.target === target0 && reframed.inArea === 'true', { target0, dragged, reframed });
   const s3tidy = await ev(`(({ overlaps, currentShown, labels }) => ({ overlaps: +overlaps, currentShown, labels: +labels }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`);
   check('labels: no overlaps, this step\'s number shows', [s1.tidy, s2.tidy, s3tidy].every(t => t.overlaps === 0 && t.currentShown === 'true' && t.labels > 1), { s1: s1.tidy, s2: s2.tidy, s3: s3tidy });
+  // Step to step, the view runs along the route (a dot on the line, the view following it): step 1 → 3 goes up the
+  // escalator, so the floor shown changes from P0 to P1 on the way, and it ends framed on step 3.
+  await ev(`document.querySelectorAll('ol[aria-label=Steps] li button')[0].click()`); await sleep(3000);
+  const run = await ev(`new Promise(res => { const c = document.querySelector('section[aria-label="Floor plan"] canvas'), seen = [];
+    document.querySelectorAll('ol[aria-label=Steps] li button')[2].click();
+    const t0 = performance.now(); const tick = () => { seen.push({ t: Math.round(performance.now() - t0), travel: c.dataset.travel, levels: c.dataset.levels, target: c.dataset.target });
+      if (performance.now() - t0 < 3200) setTimeout(tick, 60); else res(seen); }; tick(); })`);
+  const during = run.filter(r => r.travel === '1'), levelsSeen = [...new Set(during.map(r => r.levels))];
+  const ends = await ev(`(({ travel, inArea, levels }) => ({ travel, inArea, levels }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`);
+  check('step to step: runs along the route (P0 → P1 on the escalator), then frames the step', during.length > 5 && levelsSeen[0] === 'P0' && levelsSeen.includes('P1') && new Set(during.map(r => r.target)).size > 5 && ends.travel === '' && ends.inArea === 'true' && ends.levels === 'P1',
+    { samplesRunning: during.length, msRunning: during.at(-1)?.t, levelsSeen, ends });
   // Frames at CPU 4x while gliding to a step and placing its labels (declutter runs on every camera move).
   await send('Emulation.setCPUThrottlingRate', { rate: 4 });
   const glide = await ev(`new Promise(res => { const d = []; let last = performance.now(); const t0 = last; const f = now => { d.push(now - last); last = now; if (now - t0 < 3000) requestAnimationFrame(f); else res(d); };
@@ -108,7 +119,7 @@ try {
   // Every step: its spot and big number inside the part the card and bars leave free; the last step ends with I'm here.
   const area = [];
   for (let i = 0; i < nLines; i++) {
-    await ev(`document.querySelectorAll('ol[aria-label=Steps] li button')[${i}].click()`); await sleep(1800);
+    await ev(`document.querySelectorAll('ol[aria-label=Steps] li button')[${i}].click()`); await sleep(3000); // after the run along the route
     area.push(await ev(`(({ inArea, overlaps }) => ({ inArea, overlaps: +overlaps }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`));
   }
   const lastButton = await ev(`(() => { const g = document.querySelector('[aria-label="Steps on the plan"]'); return { buttons: [...g.querySelectorAll('button')].map(b => b.getAttribute('aria-label') || b.innerText), text: g.innerText.replace(/\\s+/g, ' ').trim(), imHere: [...document.querySelectorAll('button')].filter(b => b.innerText === "I'm here").length }; })()`);
