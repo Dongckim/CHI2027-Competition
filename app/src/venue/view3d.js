@@ -16,6 +16,7 @@ const STOREY = 9; // metres between levels in the view (mezzanines included)
 const ORIGINAL = { theta: Math.PI / 4, phi: 0.95 }; // the official P1 image: 117 → 111 runs to the front right
 const BLOCK = 1.6; // room blocks, low like the printed plans (not wall heights: the plan has none)
 const LINE = 0.9; // the route floats this high over the floor, under the room tops
+const TILT = { min: 0.05, max: 1.5 }; // two-finger tilt range, radians from straight down
 const STEP_RADIUS = { wide: 85, tall: 110 }; // how close a step's stop is (by canvas shape): near enough to read numbers, wide enough to see where you are
 
 const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888';
@@ -44,7 +45,9 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   let renderer, scene, camera, groups, rides, raf = 0, needs = true, lost = false, frames = 0, onlyRouteFloors = false;
   let badges = [], signs = [], segs = [], chevrons = [], labels = [], startPin = null, destFrame = null, current = -1, layoutDirty = true;
   let pads = { top: 0, bottom: 0 };
-  let held = null, lastShift = { dx: 0, dy: 0 }; // the picture's shift, kept while the plan is being dragged by hand (null: keep the step centred) // px of the canvas covered by the step card (top) and the bars (bottom)
+  let held = null, lastShift = { dx: 0, dy: 0 };
+  // Going from one step to the next: a dot runs along the route between them and the view follows it (not a cut).
+  let travel = null, travelLevel = null, runner = null, routePts = [], stepK = []; // the picture's shift, kept while the plan is being dragged by hand (null: keep the step centred) // px of the canvas covered by the step card (top) and the bars (bottom)
   const cam = { theta: ORIGINAL.theta, phi: ORIGINAL.phi, radius: 260, target: new THREE.Vector3(0, height('P1'), 0) };
   let goal = null;
   const stepPoint = i => { const n = venue.nodes[steps[i]?.node]; return n?.x != null ? at(n.x, n.y, n.level) : null; };
@@ -140,6 +143,10 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     rides = new THREE.Group(); scene.add(rides);
     // Where each step's stretch starts on the path: its node (the first one after the previous step's). The arrival owns
     // the last few metres into the door.
+    routePts = nodes.map(n => ({ p: at(n.x, n.y, n.level, LINE), level: n.level }));
+    stepK = []; steps.forEach((st, i) => { const k = ids.indexOf(st.node, i ? Math.max(0, stepK[i - 1]) : 0); stepK.push(k); });
+    runner = new THREE.Sprite(new THREE.SpriteMaterial({ map: dotTexture(), depthTest: false, sizeAttenuation: false }));
+    runner.renderOrder = 125; runner.visible = false; scene.add(runner);
     const starts = [];
     steps.forEach((st, i) => { const from = i ? starts[i - 1] : 0; const k = ids.indexOf(st.node, from); starts.push(k < 0 ? from : k); });
     if (steps.at(-1)?.icon === 'arrive' && starts.length > 1) starts[starts.length - 1] = Math.max(starts.at(-2), ids.length - 2);
@@ -349,6 +356,12 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     return s;
   }
   // state: 'on' (the step you are on: gold, number) · 'number' (whole view) · 'done' / 'next' (small dots, grey / dark)
+  function dotTexture() {
+    const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+    g.fillStyle = css('--plan-dest'); g.beginPath(); g.arc(32, 32, 26, 0, Math.PI * 2); g.fill();
+    g.lineWidth = 8; g.strokeStyle = css('--plan-casing'); g.stroke();
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  }
   function badgeTexture(n, state) {
     const c = document.createElement('canvas'); c.width = c.height = 96;
     const g = c.getContext('2d');
@@ -396,6 +409,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       b.userData.lead.scale.set(px(3), px(LEAD), 1);
     });
     signs.forEach(s => { const [w, h] = s.userData.size; s.scale.set(px(w), px(h), 1); });
+    if (runner) runner.scale.set(px(20), px(20), 1);
     layoutDirty = true;
   }
 
@@ -473,6 +487,11 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     const placedStep = badges[current] && !badges[current].userData.noPlan ? place(badges[current], screen, must, rather, [safe[2] - safe[0], safe[3] - safe[1]]) : null;
     let dx = 0, dy = (safe[1] + safe[3]) / 2 - H / 2;
     if (placedStep) { const [x0, y0, x1, y1] = placedStep; dx = (safe[0] + safe[2]) / 2 - (x0 + x1) / 2; dy = (safe[1] + safe[3]) / 2 - (y0 + y1) / 2; }
+    if (travel) { // ease from where the picture was, through "the dot in the middle", to the new step framed
+      const mid = { dx: 0, dy: (safe[1] + safe[3]) / 2 - H / 2 }, u = travel.e;
+      const a = u < 0.25 ? travel.shift : mid, b = u < 0.25 ? mid : u > 0.75 ? { dx, dy } : mid, k = u < 0.25 ? u / 0.25 : u > 0.75 ? (u - 0.75) / 0.25 : 0;
+      dx = a.dx + (b.dx - a.dx) * k; dy = a.dy + (b.dy - a.dy) * k;
+    }
     if (held) ({ dx, dy } = held); else lastShift = { dx, dy }; // dragged by hand: the plan stays where the finger put it
     camera.setViewOffset(W, H, -dx, -dy, W, H);
     // for the phone check: the step's spot and number lie inside the free area
@@ -567,7 +586,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   // What shows: on a step, only that step's level, with its room numbers, pictograms and ride sign; on the whole view
   // every level (or only the route's, with Floors), the rides between them, and no labels (they would pile up).
   function layers() {
-    const stepLevel = current >= 0 ? venue.nodes[steps[current]?.node]?.level : null;
+    const stepLevel = travelLevel ?? (current >= 0 ? venue.nodes[steps[current]?.node]?.level : null);
     for (const [level, g] of groups) {
       g.visible = stepLevel ? level === stepLevel : !onlyRouteFloors || routeLevels.has(level);
       g.userData.detail.visible = !!stepLevel;
@@ -578,7 +597,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   }
   function apply(m, now = false) {
     if (m === 'floors') onlyRouteFloors = !onlyRouteFloors;
-    if (m !== 'floors') held = null; // Whole and Route: back to the framed view
+    if (m !== 'floors') { held = null; if (travel) endTravel(false); } // Whole and Route: back to the framed view
     if (m === 'original' || m === 'fit') { if (current !== -1) { current = -1; onStep(-1); } highlight(); }
     layers();
     if (m === 'original') {
@@ -594,14 +613,50 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   // Stop at step i: the same angle as the plans, close enough to read the room numbers around it.
   function show(i, now = false) {
     if (i < 0 || i >= steps.length) { apply('original', now); onStep(-1); return; }
-    held = null; current = i; highlight(); layers(); onStep(i);
+    const previous = current;
+    held = null; current = i; highlight(); if (!travel) layers(); onStep(i);
     const p = stepPoint(i) ?? cam.target;
     if (steps[i].icon === 'arrive' && steps[i].dir) p.add(new THREE.Vector3(-steps[i].dir.x * 4, 0, -steps[i].dir.y * 4)); // the bend before the door
     const radius = camera.aspect < 1 ? STEP_RADIUS.tall : STEP_RADIUS.wide;
     // Look a little the way you go; the step sits in the middle, between the card on top and the view bar below.
     const ahead = steps[i].dir ? new THREE.Vector3(steps[i].dir.x * 6, 0, steps[i].dir.y * 6) : new THREE.Vector3();
     const far = new THREE.Vector3(-Math.sin(ORIGINAL.theta), 0, -Math.cos(ORIGINAL.theta)).multiplyScalar(radius * 0.04);
-    moveTo({ ...ORIGINAL, target: p.clone().add(ahead).add(far), radius }, now);
+    const final = { ...ORIGINAL, target: p.clone().add(ahead).add(far), radius };
+    const from = travel ? travel.to : previous, a = stepK[from], b = stepK[i];
+    if (!reduceMotion && !now && from >= 0 && from !== i && a >= 0 && b >= 0 && routePts.length > 1) {
+      const pts = (a < b ? routePts.slice(a, b + 1) : routePts.slice(b, a + 1).reverse());
+      const cum = [0]; for (let k = 1; k < pts.length; k++) cum.push(cum[k - 1] + pts[k].p.distanceTo(pts[k - 1].p));
+      const total = cum.at(-1);
+      if (total > 1) {
+        goal = null;
+        travel = { pts, cum, total, t: 0, dur: Math.min(2.6, Math.max(0.9, total / 45)), e: 0, to: i, final, shift: { ...lastShift },
+          start: { theta: cam.theta, phi: cam.phi, radius: cam.radius }, startOff: cam.target.clone().sub(pts[0].p), endOff: final.target.clone().sub(pts.at(-1).p) };
+        return;
+      }
+    }
+    travel = null; travelLevel = null; if (runner) runner.visible = false;
+    moveTo(final, now);
+  }
+  // One frame of the run between two steps: the dot's place on the route (eased), the view following it.
+  function runTravel(dt) {
+    const tr = travel; tr.t += dt;
+    const u = Math.min(1, tr.t / tr.dur), e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2; tr.e = e;
+    const d = e * tr.total; let k = 1; while (k < tr.cum.length - 1 && tr.cum[k] < d) k++;
+    const seg = tr.cum[k] - tr.cum[k - 1] || 1, f = Math.min(1, Math.max(0, (d - tr.cum[k - 1]) / seg));
+    const pos = tr.pts[k - 1].p.clone().lerp(tr.pts[k].p, f);
+    const level = f < 0.5 ? tr.pts[k - 1].level : tr.pts[k].level; // a ride: the floor switches halfway up
+    if (level !== travelLevel) { travelLevel = level; layers(); }
+    runner.position.copy(pos); runner.visible = true;
+    cam.target.copy(pos).add(tr.startOff.clone().lerp(tr.endOff, e));
+    cam.theta = tr.start.theta + (tr.final.theta - tr.start.theta) * e; cam.phi = tr.start.phi + (tr.final.phi - tr.start.phi) * e;
+    cam.radius = tr.start.radius + (tr.final.radius - tr.start.radius) * e;
+    canvas.dataset.travel = '1'; // for the phone check
+    if (u >= 1) endTravel(true); else placeCamera();
+  }
+  function endTravel(land) {
+    if (land) Object.assign(cam, { theta: travel.final.theta, phi: travel.final.phi, radius: travel.final.radius, target: travel.final.target.clone() });
+    travel = null; travelLevel = null; runner.visible = false; canvas.dataset.travel = '';
+    layers(); placeCamera();
   }
 
   // Touch, as in map apps. One finger: drag the plan (it slides under the finger). Two fingers: twist to turn the view,
@@ -612,6 +667,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   const startDrag = p => { drag = { x: p.x, y: p.y, target: cam.target.clone(), moving: false }; };
   const down = e => {
     try { canvas.setPointerCapture?.(e.pointerId); } catch { /* not a live pointer */ } pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (travel) endTravel(false); // a finger on the plan stops the run where it is
     if (pointers.size === 1) startDrag(pointers.get(e.pointerId));
     if (pointers.size === 2) { drag = null; goal = null; pinch = { ...twoFingers(), r: cam.radius, theta: cam.theta, phi: cam.phi }; }
   };
@@ -640,7 +696,8 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     // with the fingers.
     let da = now.angle - pinch.angle; if (da > Math.PI) da -= 2 * Math.PI; if (da < -Math.PI) da += 2 * Math.PI;
     cam.theta = pinch.theta + da;
-    cam.phi = Math.min(1.35, Math.max(0.25, pinch.phi + (pinch.y - now.y) * 0.006)); // both fingers up: tilt toward the horizon
+    // both fingers up: tilt toward the horizon, nearly side-on (86°) so stacked levels show their routes; down: straight from above
+    cam.phi = Math.min(TILT.max, Math.max(TILT.min, pinch.phi + (pinch.y - now.y) * 0.006));
     placeCamera();
   };
   const up = e => {
@@ -660,7 +717,8 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     raf = requestAnimationFrame(loop);
     if (lost || document.hidden) return;
     const dt = Math.min(0.05, (now - t0) / 1000); t0 = now;
-    if (goal) {
+    if (travel) runTravel(dt);
+    else if (goal) {
       const k = 1 - Math.pow(0.002, dt);
       cam.theta += (goal.theta - cam.theta) * k; cam.phi += (goal.phi - cam.phi) * k; cam.radius += (goal.radius - cam.radius) * k;
       cam.target.lerp(goal.target, k);
