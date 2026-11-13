@@ -16,6 +16,7 @@ const STOREY = 9; // metres between levels in the view (mezzanines included)
 const ORIGINAL = { theta: Math.PI / 4, phi: 0.95 }; // the official P1 image: 117 → 111 runs to the front right
 const BLOCK = 1.6; // room blocks, low like the printed plans (not wall heights: the plan has none)
 const LINE = 0.9; // the route floats this high over the floor, under the room tops
+const TILT = { min: 0.05, max: 1.5 }; // two-finger tilt range, radians from straight down
 const STEP_RADIUS = { wide: 85, tall: 110 }; // how close a step's stop is (by canvas shape): near enough to read numbers, wide enough to see where you are
 
 const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888';
@@ -695,7 +696,8 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     // with the fingers.
     let da = now.angle - pinch.angle; if (da > Math.PI) da -= 2 * Math.PI; if (da < -Math.PI) da += 2 * Math.PI;
     cam.theta = pinch.theta + da;
-    cam.phi = Math.min(1.35, Math.max(0.25, pinch.phi + (pinch.y - now.y) * 0.006)); // both fingers up: tilt toward the horizon
+    // both fingers up: tilt toward the horizon, nearly side-on (86°) so stacked levels show their routes; down: straight from above
+    cam.phi = Math.min(TILT.max, Math.max(TILT.min, pinch.phi + (pinch.y - now.y) * 0.006));
     placeCamera();
   };
   const up = e => {

@@ -150,6 +150,13 @@ try {
   await waitFor(`${viewNow} === '0.785,0.950'`, 5000); // the glide back
   const vBack = await ev(viewNow);
   check('two fingers: twist turns, lift tilts; Whole back to the plans angle', Math.abs(t1 - t0 - 0.5) < 0.05 && p1 > p0 + 0.1 && vBack === '0.785,0.950', { before: v0, after: v1, afterWhole: vBack, stepsUnchanged: await ev(cur) });
+  // On the whole view, tilt far enough to see the stacked levels from the side (lower levels' routes not hidden).
+  await twoFinger(0, 0, 160); await sleep(300); await twoFinger(0, 0, 160); await sleep(300);
+  const side = Number((await ev(viewNow)).split(',')[1]);
+  await shot('s5-09-whole-tilted');
+  check('two fingers tilt the whole view nearly side-on', side >= 1.45, { phi: side });
+  await ev(`[...document.querySelectorAll('[aria-label="What the plan shows"] button')].find(b => b.innerText === 'Whole').click()`);
+  await waitFor(`${viewNow} === '0.785,0.950'`, 5000);
 
   // Turn the phone sideways: the plan takes the screen with the card, the bar and the step buttons; upright again: back.
   await press('Show step 1'); await sleep(400);
