@@ -5,7 +5,7 @@
 //
 // venue: data/venue/<venue>.json (official plan, metres; x to the right, y down) · route: route() result
 // steps: directions().lines ({ node, level, icon, dir }) — the same steps as the written list
-// mount(canvas, { venue, route, summary, steps, onStep, onSwipe, reduceMotion }) → { show(i), mode(m), pad({ top, bottom }), dispose() }
+// mount(canvas, { venue, route, summary, steps, onStep, reduceMotion }) → { show(i), mode(m), pad({ top, bottom }), dispose() }
 //   show(i): stop at step i (−1: the whole venue) · mode: 'original' | 'fit' | 'floors' (only the route's levels)
 // Drawn only from the plan: room blocks (low, as on the printed plans), corridors, room numbers at measured doors, and
 // lifts, escalators and toilets at measured points. Nothing marked `estimate` in the plan file is drawn as a label.
@@ -22,8 +22,8 @@ const css = name => getComputedStyle(document.documentElement).getPropertyValue(
 
 /** @param {HTMLCanvasElement} canvas
  * @param {{ venue: any, route: any, summary: string, steps?: { node: string, level: string, icon?: string, dir?: { x: number, y: number } | null }[],
- *   onStep?: (i: number) => void, onSwipe?: (d: number) => void, reduceMotion?: boolean }} options */
-export function mount(canvas, { venue, route, summary, steps = [], onStep = () => {}, onSwipe = () => {}, reduceMotion = false }) {
+ *   onStep?: (i: number) => void, reduceMotion?: boolean }} options */
+export function mount(canvas, { venue, route, summary, steps = [], onStep = () => {}, reduceMotion = false }) {
   canvas.setAttribute('role', 'img');
   canvas.setAttribute('aria-label', `3D view. ${summary} The steps are listed above.`);
 
@@ -39,10 +39,12 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   const height = level => Math.max(0, LEVELS.indexOf(level)) * STOREY;
   const at = (x, y, level, lift = 0) => new THREE.Vector3(x - cx, height(level) + lift, y - cz);
   const routeLevels = new Set(route.levels);
+  const bounds = { x0: Math.min(...xs) - cx, x1: Math.max(...xs) - cx, z0: Math.min(...ys) - cz, z1: Math.max(...ys) - cz }; // a drag stays over the venue
 
   let renderer, scene, camera, groups, rides, raf = 0, needs = true, lost = false, frames = 0, onlyRouteFloors = false;
   let badges = [], signs = [], segs = [], chevrons = [], labels = [], startPin = null, destFrame = null, current = -1, layoutDirty = true;
-  let pads = { top: 0, bottom: 0 }; // px of the canvas covered by the step card (top) and the bars (bottom)
+  let pads = { top: 0, bottom: 0 };
+  let held = null, lastShift = { dx: 0, dy: 0 }; // the picture's shift, kept while the plan is being dragged by hand (null: keep the step centred) // px of the canvas covered by the step card (top) and the bars (bottom)
   const cam = { theta: ORIGINAL.theta, phi: ORIGINAL.phi, radius: 260, target: new THREE.Vector3(0, height('P1'), 0) };
   let goal = null;
   const stepPoint = i => { const n = venue.nodes[steps[i]?.node]; return n?.x != null ? at(n.x, n.y, n.level) : null; };
@@ -471,6 +473,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     const placedStep = badges[current] && !badges[current].userData.noPlan ? place(badges[current], screen, must, rather, [safe[2] - safe[0], safe[3] - safe[1]]) : null;
     let dx = 0, dy = (safe[1] + safe[3]) / 2 - H / 2;
     if (placedStep) { const [x0, y0, x1, y1] = placedStep; dx = (safe[0] + safe[2]) / 2 - (x0 + x1) / 2; dy = (safe[1] + safe[3]) / 2 - (y0 + y1) / 2; }
+    if (held) ({ dx, dy } = held); else lastShift = { dx, dy }; // dragged by hand: the plan stays where the finger put it
     camera.setViewOffset(W, H, -dx, -dy, W, H);
     // for the phone check: the step's spot and number lie inside the free area
     canvas.dataset.inArea = placedStep ? String(placedStep[0] + dx >= safe[0] - 0.5 && placedStep[2] + dx <= safe[2] + 0.5 && placedStep[1] + dy >= safe[1] - 0.5 && placedStep[3] + dy <= safe[3] + 0.5) : '';
@@ -543,6 +546,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     camera.position.set(target.x + radius * Math.sin(phi) * Math.sin(theta), target.y + radius * Math.cos(phi), target.z + radius * Math.sin(phi) * Math.cos(theta));
     camera.lookAt(target);
     canvas.dataset.view = `${theta.toFixed(3)},${phi.toFixed(3)}`; // for the phone check
+    canvas.dataset.target = `${target.x.toFixed(1)},${target.z.toFixed(1)}`;
     needs = true; layoutDirty = true;
   }
   function resize() {
@@ -574,6 +578,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   }
   function apply(m, now = false) {
     if (m === 'floors') onlyRouteFloors = !onlyRouteFloors;
+    if (m !== 'floors') held = null; // Whole and Route: back to the framed view
     if (m === 'original' || m === 'fit') { if (current !== -1) { current = -1; onStep(-1); } highlight(); }
     layers();
     if (m === 'original') {
@@ -589,7 +594,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   // Stop at step i: the same angle as the plans, close enough to read the room numbers around it.
   function show(i, now = false) {
     if (i < 0 || i >= steps.length) { apply('original', now); onStep(-1); return; }
-    current = i; highlight(); layers(); onStep(i);
+    held = null; current = i; highlight(); layers(); onStep(i);
     const p = stepPoint(i) ?? cam.target;
     if (steps[i].icon === 'arrive' && steps[i].dir) p.add(new THREE.Vector3(-steps[i].dir.x * 4, 0, -steps[i].dir.y * 4)); // the bend before the door
     const radius = camera.aspect < 1 ? STEP_RADIUS.tall : STEP_RADIUS.wide;
@@ -599,19 +604,35 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     moveTo({ ...ORIGINAL, target: p.clone().add(ahead).add(far), radius }, now);
   }
 
-  // Touch, as in map apps. One finger: a quick sideways swipe goes to the next or previous step. Two fingers: twist to
-  // turn the view, move both up or down to tilt it, spread or pinch to zoom. (Wheel: zoom.) Whole, Route and the steps
-  // come back to the plans' angle.
-  const pointers = new Map(); let pinch = null, swipe = null;
+  // Touch, as in map apps. One finger: drag the plan (it slides under the finger). Two fingers: twist to turn the view,
+  // move both up or down to tilt it, spread or pinch to zoom. (Wheel: zoom.) After a drag the step stays where it was
+  // put; Next, a step in the list, Whole or Route frame it again, at the plans' angle.
+  const pointers = new Map(); let pinch = null, drag = null;
   const twoFingers = () => { const [a, b] = [...pointers.values()]; return { d: Math.hypot(a.x - b.x, a.y - b.y), angle: Math.atan2(b.y - a.y, b.x - a.x), y: (a.y + b.y) / 2 }; };
+  const startDrag = p => { drag = { x: p.x, y: p.y, target: cam.target.clone(), moving: false }; };
   const down = e => {
     try { canvas.setPointerCapture?.(e.pointerId); } catch { /* not a live pointer */ } pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (pointers.size === 1) swipe = { x: e.clientX, y: e.clientY, t: performance.now() };
-    if (pointers.size === 2) { swipe = null; goal = null; pinch = { ...twoFingers(), r: cam.radius, theta: cam.theta, phi: cam.phi }; }
+    if (pointers.size === 1) startDrag(pointers.get(e.pointerId));
+    if (pointers.size === 2) { drag = null; goal = null; pinch = { ...twoFingers(), r: cam.radius, theta: cam.theta, phi: cam.phi }; }
+  };
+  // Metres on the floor per screen pixel at the target: across the screen, and up it (foreshortened by the tilt).
+  const slide = (dxPx, dyPx, from) => {
+    const mpp = 2 * cam.radius * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / (canvas.clientHeight || 300);
+    const right = new THREE.Vector3(Math.cos(cam.theta), 0, -Math.sin(cam.theta)), away = new THREE.Vector3(-Math.sin(cam.theta), 0, -Math.cos(cam.theta));
+    const t = from.clone().addScaledVector(right, -dxPx * mpp).addScaledVector(away, dyPx * mpp / Math.max(0.3, Math.cos(cam.phi)));
+    t.x = Math.min(bounds.x1, Math.max(bounds.x0, t.x)); t.z = Math.min(bounds.z1, Math.max(bounds.z0, t.z)); // not off the venue
+    return t;
   };
   const move = e => {
     if (!pointers.has(e.pointerId)) return;
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.size === 1 && drag) {
+      const p = pointers.get(e.pointerId), dx = p.x - drag.x, dy = p.y - drag.y;
+      if (!drag.moving && Math.hypot(dx, dy) < 4) return; // a tap is not a drag
+      if (!drag.moving) { drag.moving = true; goal = null; held = { ...lastShift }; }
+      cam.target.copy(slide(dx, dy, drag.target)); placeCamera();
+      return;
+    }
     if (pointers.size !== 2 || !pinch) return;
     const now = twoFingers();
     cam.radius = clampR(pinch.r * pinch.d / Math.max(1, now.d));
@@ -623,13 +644,10 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     placeCamera();
   };
   const up = e => {
-    const p = pointers.get(e.pointerId); pointers.delete(e.pointerId);
+    pointers.delete(e.pointerId);
     if (pointers.size < 2) pinch = null;
-    if (swipe && p && e.type === 'pointerup') {
-      const dx = p.x - swipe.x, dy = p.y - swipe.y;
-      if (Math.abs(dx) > 50 && Math.abs(dx) > 2 * Math.abs(dy) && performance.now() - swipe.t < 600) onSwipe(dx < 0 ? 1 : -1);
-    }
-    swipe = null;
+    // one finger left of two: it drags from where it is now
+    drag = null; if (pointers.size === 1) startDrag([...pointers.values()][0]);
   };
   const wheel = e => { e.preventDefault(); goal = null; cam.radius = clampR(cam.radius * (1 + Math.sign(e.deltaY) * 0.09)); placeCamera(); };
   const clampR = r => Math.min(900, Math.max(30, r));

@@ -123,9 +123,9 @@ function GettingThere({ paperKey, schedule, toKey, lastStop, stepFree }: Start) 
   );
 }
 
-// The 3D view (three.js, loaded now): the venue at the angle of the official plans. Previous / Next (or a sideways
-// swipe) stop at each step, with a card on top: a big direction icon and the step's line. The steps above are complete
-// on their own; if WebGL is missing the box says so.
+// The 3D view (three.js, loaded now): the venue at the angle of the official plans. Previous / Next (or a row of the
+// list) stop at each step, with a card on top: a big direction icon and the step's line. One finger drags the plan, two
+// turn, tilt and zoom it. The steps above are complete on their own; if WebGL is missing the box says so.
 type Line = { text: string; card: string; node: string; level: string; icon: string; dir: { x: number; y: number } | null; noPlan: string | null };
 type View = { show: (i: number) => void; mode: (m: string) => boolean; pad: (p: { top: number; bottom: number }) => void; dispose: () => void };
 const ICON: Record<string, string> = { // 24px, stroke 2: which way to go
@@ -157,10 +157,9 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
     stepRef.current = -1; setStepHere(-1); onStep(-1); setState('loading'); // a new route starts from the whole plan
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const reached = (i: number) => { stepRef.current = i; setStepHere(i); onStep(i); if (i >= 0) setShown('whole'); };
-    const swipe = (d: number) => go(stepRef.current + d);
     import('../venue/view3d.js').then(({ mount }) => {
       if (cancelled || !canvas.current) return;
-      try { view.current = mount(canvas.current, { venue, route: r, summary, steps: lines, onStep: reached, onSwipe: swipe, reduceMotion }); setState('ready'); } catch { setState('failed'); }
+      try { view.current = mount(canvas.current, { venue, route: r, summary, steps: lines, onStep: reached, reduceMotion }); setState('ready'); } catch { setState('failed'); }
     }, () => setState('failed'));
     return () => { cancelled = true; view.current?.dispose(); view.current = null; stop.current?.(); };
   }, [venue, r, summary]); // eslint-disable-line react-hooks/exhaustive-deps -- lines and onStep follow the route
@@ -268,7 +267,7 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
       {state === 'ready' && !big && bar}
       {state === 'ready' && !big && nav()}
       {/* the step line is the card on the plan; screen readers hear it here */}
-      {state === 'ready' && <p aria-live={big ? undefined : 'polite'} className={line ? 'sr-only' : 'min-h-6 text-small'}>{line ? `Step ${step + 1} of ${lines.length}: ${line.card}` : 'Swipe the plan or press Show step 1 to go step by step. Two fingers turn, tilt and zoom it; Whole goes back. Turn the phone sideways for a larger plan.'}</p>}
+      {state === 'ready' && <p aria-live={big ? undefined : 'polite'} className={line ? 'sr-only' : 'min-h-6 text-small'}>{line ? `Step ${step + 1} of ${lines.length}: ${line.card}` : 'Press Show step 1 to go step by step. Drag the plan to move it; two fingers turn, tilt and zoom it; Whole goes back. Turn the phone sideways for a larger plan.'}</p>}
       <Button variant="outline" aria-pressed={cue >= 0} onClick={() => {
         if (stop.current) { stop.current(); stop.current = null; return; }
         stop.current = playCues(cues as never, (i: number) => { setCue(i); if (i < 0) stop.current = null; });
