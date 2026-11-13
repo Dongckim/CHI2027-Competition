@@ -141,7 +141,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       const k0 = starts[i], k1 = i + 1 < starts.length ? starts[i + 1] : ids.length - 1;
       const line = new THREE.MeshBasicMaterial({ color: css('--plan-route'), depthTest: false });
       const edge = new THREE.MeshBasicMaterial({ color: css('--plan-casing'), depthTest: false });
-      const tubes = [], edges = [];
+      const tubes = [], edges = [], dashes = [];
       let run = [nodes[k0]];
       const flush = () => {
         if (run.length < 2) return;
@@ -151,6 +151,13 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
         const e = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(8, run.length * 8), 1.0, 8, false), edge);
         t.renderOrder = over(level, 3); e.renderOrder = over(level, 2); e.visible = false;
         onLevel(level, e); onLevel(level, t); tubes.push(t); edges.push(e);
+        // the same stretch as dashes, for when it is behind you: "walked" without relying on colour
+        const len = curve.getLength();
+        for (let d = 0; d < len - 0.5; d += 3.6) {
+          const a = curve.getPointAt(d / len), b = curve.getPointAt(Math.min(len, d + 2.2) / len);
+          const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(a, b), 1, 0.55, 8, false), line);
+          m.renderOrder = over(level, 3); m.visible = false; onLevel(level, m); dashes.push(m);
+        }
       };
       for (let k = k0 + 1; k <= k1; k++) {
         const n = nodes[k];
@@ -161,7 +168,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
         run = [n];
       }
       flush();
-      return { line, tubes, edges };
+      return { line, tubes, edges, dashes, k0, k1 };
     });
     // Chevrons every 9 m along each level's part of the route.
     const mark = new THREE.MeshBasicMaterial({ color: css('--plan-bg'), depthTest: false });
@@ -180,7 +187,11 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
         // the chevron's tip is its +y; laid flat (x −90°) that is −z, so turning it by atan2(−x, −z) points it along tan
         m.rotation.x = -Math.PI / 2; m.rotation.z = Math.atan2(-tan.x, -tan.z); m.position.copy(p).add(new THREE.Vector3(0, 0.6, 0)); m.renderOrder = over(level, 4);
         worstDot = Math.min(worstDot, new THREE.Vector3(0, 1, 0).applyEuler(m.rotation).dot(tan));
-        onLevel(level, m); chevrons.push({ m, x: p.x + cx, y: p.z + cz, level });
+        // which step's stretch it is on: the nearest path node on this level
+        let best = 0, bd = Infinity;
+        nodes.forEach((q, k) => { if (q.level !== level) return; const dd = Math.hypot(q.x - (p.x + cx), q.y - (p.z + cz)); if (dd < bd) { bd = dd; best = k; } });
+        const seg = Math.max(0, segs.findIndex(sg => best >= sg.k0 && best < sg.k1));
+        onLevel(level, m); chevrons.push({ m, x: p.x + cx, y: p.z + cz, level, seg });
       }
     }
     canvas.dataset.chevronDot = worstDot.toFixed(2); // for the phone check: every mark points the way you walk (> 0)
@@ -334,12 +345,15 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       if (b.userData.arrow) b.userData.arrow.m.visible = on;
     });
     segs.forEach((sg, j) => {
-      sg.line.color.set(css(current < 0 || j > current ? '--plan-route' : j === current ? '--plan-dest' : '--plan-passed'));
+      const passed = current >= 0 && j < current;
+      sg.line.color.set(css(!passed && (current < 0 || j > current) ? '--plan-route' : j === current ? '--plan-dest' : '--plan-passed'));
       sg.edges.forEach(e => { e.visible = j === current; });
+      sg.tubes.forEach(t => { t.visible = !passed; }); sg.dashes.forEach(d => { d.visible = passed; });
       sg.tubes.forEach(t => { t.renderOrder = t.renderOrder - (t.renderOrder % 10) + (j === current ? 3.5 : 3); });
     });
     const arrow = badges[current]?.userData.arrow;
-    for (const c of chevrons) c.m.visible = !(arrow && c.level === arrow.level && near(c, arrow.points) < 4);
+    // chevrons: not behind you (the dashes are), not under this step's big arrow
+    for (const c of chevrons) c.m.visible = !(current >= 0 && c.seg < current) && !(arrow && c.level === arrow.level && near(c, arrow.points) < 4);
     sizeBadges(); needs = true;
   }
   function sizeBadges() {
