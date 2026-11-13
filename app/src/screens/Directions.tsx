@@ -133,6 +133,7 @@ const ICON: Record<string, string> = { // 24px, stroke 2: which way to go
 
 // Phones held sideways: the plan takes the whole screen by itself (no button needed), and goes back when turned upright.
 const SIDEWAYS = '(orientation: landscape) and (max-height: 540px)';
+let mounts = 0; // each route gets its own canvas: a disposed view has given its WebGL context back for good
 
 function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
   venue: Venue; r: ReturnType<typeof findRoute>; summary: string; cues: { text: string }[]; lines: Line[];
@@ -148,8 +149,10 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
   const [cue, setCue] = useState(-1);
   const stop = useRef<(() => void) | null>(null);
   const go = (i: number) => view.current?.show(Math.min(lines.length - 1, Math.max(-1, i)));
+  const mountId = useMemo(() => ++mounts, [venue, r, summary]);
   useEffect(() => {
     let cancelled = false;
+    stepRef.current = -1; setStepHere(-1); onStep(-1); setState('loading'); // a new route starts from the whole plan
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const reached = (i: number) => { stepRef.current = i; setStepHere(i); onStep(i); if (i >= 0) setShown('whole'); };
     const swipe = (d: number) => go(stepRef.current + d);
@@ -229,7 +232,7 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
       {/* At least 300 px (Figma's box is 140 px): the step card sits on top and the plan around the step needs room. */}
       <div role={big ? 'dialog' : undefined} aria-modal={big || undefined} aria-label={big ? 'Floor plan, large' : undefined}
         className={big ? 'fixed inset-0 z-50 bg-[var(--plan-bg)]' : 'relative min-h-[300px] flex-1 overflow-hidden rounded-bar bg-surface'}>
-        <canvas ref={canvas} className="absolute inset-0 size-full touch-none" />
+        <canvas key={mountId} ref={canvas} className="absolute inset-0 size-full touch-none" />
         {state !== 'ready' && <p className="absolute inset-0 grid place-items-center text-small text-text-2">{state === 'loading' ? 'Floor plan' : 'The 3D plan cannot be shown here. The steps above are complete.'}</p>}
         {state === 'ready' && line?.noPlan && <p className="absolute inset-0 grid place-items-center px-6 text-center text-body text-text-2">No floor plan for the {line.noPlan}</p>}
         {state === 'ready' && (<>
