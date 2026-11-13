@@ -243,7 +243,14 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       if (n?.x != null && (st.icon === 'up' || st.icon === 'down')) {
         const t = new THREE.CanvasTexture(rideCanvas(st.icon === 'up', st.level)); t.colorSpace = THREE.SRGBColorSpace; // a ride's level is where it arrives
         sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, sizeAttenuation: false }));
-        sign.renderOrder = 115; sign.position.copy(spot); groups.get(n.level)?.userData.detail.add(sign); signs.push(sign);
+        sign.renderOrder = 115; sign.position.copy(spot); sign.userData.size = SIGN; groups.get(n.level)?.userData.detail.add(sign); signs.push(sign);
+      }
+      // Starting off the plan (the Auditorium): the step's spot is where the way comes out onto it. Say so there.
+      if (n?.x != null && st.outHere) {
+        const c = outCanvas('You come out here'), t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+        sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, sizeAttenuation: false }));
+        sign.renderOrder = 115; sign.position.copy(spot); sign.userData.size = [Math.round(c.width * 32 / c.height), 32]; sign.userData.kind = 'out';
+        groups.get(n.level)?.userData.detail.add(sign); signs.push(sign);
       }
       const b = new THREE.Sprite(new THREE.SpriteMaterial({ map: badgeTexture(i + 1, 'number'), depthTest: false, sizeAttenuation: false }));
       b.position.copy(spot); onLevel(n?.level, b);
@@ -300,6 +307,13 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   }
 
   // Canvas-drawn labels: crisp at any size, coloured from the tokens.
+  function outCanvas(text) {
+    const c = document.createElement('canvas'), g = c.getContext('2d'), font = '600 48px "IBM Plex Sans", system-ui, sans-serif';
+    g.font = font; c.width = Math.ceil(g.measureText(text).width) + 48; c.height = 96;
+    g.fillStyle = css('--plan-route'); roundRect(g, 0, 0, c.width, c.height, 22); g.fill();
+    g.fillStyle = css('--plan-bg'); g.font = font; g.textBaseline = 'middle'; g.fillText(text, 24, 50);
+    return c;
+  }
   function textCanvas(text, strong) {
     const c = document.createElement('canvas'), g = c.getContext('2d');
     g.font = '600 56px "IBM Plex Sans", system-ui, sans-serif';
@@ -379,7 +393,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       b.scale.set(s, s, 1); b.renderOrder = st === 'on' ? 120 : 110;
       b.userData.lead.scale.set(px(3), px(LEAD), 1);
     });
-    signs.forEach(s => s.scale.set(px(SIGN[0]), px(SIGN[1]), 1));
+    signs.forEach(s => { const [w, h] = s.userData.size; s.scale.set(px(w), px(h), 1); });
     layoutDirty = true;
   }
 
@@ -400,7 +414,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   function boxes(s, d, u) {
     const size = PX.on, off = LEAD + size / 2, c = { x: s.x + d.x * off, y: s.y + d.y * off };
     const r = [[c.x - size / 2, c.y - size / 2, c.x + size / 2, c.y + size / 2]];
-    if (u.sign) r.push([c.x + size / 2 + 8, c.y - SIGN[1] / 2, c.x + size / 2 + 8 + SIGN[0], c.y + SIGN[1] / 2]);
+    if (u.sign) { const [w, h] = u.sign.userData.size; r.push([c.x + size / 2 + 8, c.y - h / 2, c.x + size / 2 + 8 + w, c.y + h / 2]); }
     return r;
   }
   // Outside the bend first (a ride: up); if that covers something that outranks it, the next free direction round.
@@ -423,7 +437,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     const size = PX.on, off = LEAD + size / 2;
     b.center.set(0.5 - d.x * off / size, 0.5 + d.y * off / size); // a sprite's centre is in its own units, y up
     u.lead.material.rotation = Math.atan2(-d.x, -d.y);
-    if (u.sign) { const ox = d.x * off + size / 2 + 8 + SIGN[0] / 2, oy = d.y * off; u.sign.center.set(0.5 - ox / SIGN[0], 0.5 + oy / SIGN[1]); }
+    if (u.sign) { const [w, h] = u.sign.userData.size, ox = d.x * off + size / 2 + 8 + w / 2, oy = d.y * off; u.sign.center.set(0.5 - ox / w, 0.5 + oy / h); }
     return around(d);
   }
   // Labels by rank, in screen space: the step you are on (number, sign) → the destination → the other steps' dots →
@@ -473,7 +487,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       if (u.sign) u.sign.userData.to = 0; // only the step you are on shows its ride sign
       if (!shown(b) || u.noPlan) { u.to = 0; return; }
       items.push({ o: b, rank: on ? 0 : 2, r: rect(b, size, size), keep: on });
-      if (on && u.sign) items.push({ o: u.sign, rank: 0, r: rect(u.sign, SIGN[0], SIGN[1]), keep: true });
+      if (on && u.sign) items.push({ o: u.sign, rank: 0, r: rect(u.sign, ...u.sign.userData.size), keep: true });
     });
     for (const l of labels) {
       if (!shown(l.obj)) { l.obj.userData.to = 0; continue; }
@@ -500,6 +514,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     canvas.dataset.overlaps = String(overlaps);
     canvas.dataset.labels = String(placed.length);
     canvas.dataset.currentShown = current < 0 ? '' : String(badges[current]?.userData.to === 1);
+    const sg = badges[current]?.userData.sign; canvas.dataset.sign = sg && sg.userData.to === 1 ? sg.userData.kind ?? 'ride' : ''; // for the phone check
     needs = true;
   }
   // Labels fade in and out over 150 ms (at once with reduced motion). True while something is still fading.

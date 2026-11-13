@@ -118,7 +118,7 @@
 - `npm test` 94/94 · `contracts:check` 5/5 · `tsc` 0 · `data:venue:check` 7개 층·방 43개 · `build:deploy` 성공 · 첫 화면 JS gzip 99.9 → 106.2 KB (+ 3D 조각 137 KB는 09에서만) · 서비스 워커 14개 파일 (+ 이름 파일)
 
 - 교차 검토(결론을 모르는 새 에이전트, 재현한 것만) 5건 모두 고침, 테스트를 먼저 넣어 실패를 확인한 뒤:
-  - 좌표 없는 곳(오디토리움·Connecting Walkway): 왼쪽/오른쪽·pass 없이 "Take the Connecting Walkway to the Auditorium · about 120 m" → "Auditorium entrance", 3D는 "No floor plan for the Auditorium". 좌표 없는 곳을 지나는 모든 경로에서 방향 단어 0 (테스트). 플래너 걷는 시간은 이미 통로 116.8 m 포함 (테스트로 고정)
+  - 좌표 없는 곳(오디토리움·Connecting Walkway): 왼쪽/오른쪽·pass 없이 "Take the Connecting Walkway to the Auditorium · about 120 m" → "Auditorium entrance", 3D는 "No floor plan for the Auditorium". 오디토리움에서 시작하면 출구 기준 "Leave the Auditorium · take the Connecting Walkway to Access A · about 120 m", 3D는 Access A에 "You come out here". 좌표 없는 곳을 지나는 모든 경로에서 방향 단어 0 (테스트). 플래너 걷는 시간은 이미 통로 116.8 m 포함 (테스트로 고정)
   - 09를 연 채 경로가 바뀌거나 새 revision이 와도 3D가 다시 그림 (경로마다 새 canvas). `tests/venue/revision-check.mjs`(가짜 revision 2): 고치기 전 2개 실패 → 통과
   - 09-1에서 고른 출발점은 09를 떠나면(I'm here 포함) 지움: 다시 열면 From Registration (헤드리스)
   - 같은 방은 "Same room", 같은 구역은 "Same area", Directions 버튼 숨김 (`walkNote`, 테스트)

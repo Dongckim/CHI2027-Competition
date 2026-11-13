@@ -216,6 +216,21 @@ try {
   const audPlan = await ev(`document.querySelector('section[aria-label="Floor plan"]').innerText`);
   check('Auditorium: walkway by name, no plan shown as such', audLines?.some(t => /^Take the Connecting Walkway to the Auditorium · about \d+ m$/.test(t)) && /No floor plan for the Auditorium/.test(audPlan ?? ''), { audLines });
   await shot('s5-09-auditorium');
+  // From the Auditorium (picked in 09-1) to the first stop's room: step 1 is shown where the walkway comes out, with
+  // "You come out here".
+  await ev(`location.hash = ${JSON.stringify(href)}`); await waitFor(`!!document.querySelector('ol[aria-label=Steps] li')`);
+  await ev(`[...document.querySelectorAll('a')].find(a => a.innerText === 'Change').click()`);
+  await waitFor(`location.hash.endsWith('/from') && !!document.querySelector('input[type=search]')`);
+  await ev(`(() => { const i = document.querySelector('input[type=search]'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, 'Auditorium'); i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+  await sleep(300);
+  out.searchAuditorium = await ev(`[...document.querySelectorAll('[role=radiogroup] label')].map(l => l.innerText.split('\\n')[0])`);
+  await ev(`[...document.querySelectorAll('[role=radiogroup] label')].find(l => l.innerText.startsWith('Auditorium'))?.querySelector('input').click()`);
+  await waitFor(`document.body.innerText.includes('From Auditorium')`, 10000);
+  await ev(`document.querySelectorAll('ol[aria-label=Steps] li button')[0].click()`); await sleep(1500);
+  const fromAud = await ev(`(() => { const s = document.querySelector('section[aria-label="Floor plan"]'), c = s.querySelector('canvas');
+    return { card: s.querySelector('.shadow p')?.innerText ?? null, noPlan: /No floor plan/.test(s.innerText), sign: c.dataset.sign, inArea: c.dataset.inArea, overlaps: +c.dataset.overlaps }; })()`);
+  check('from the Auditorium: shown where you come out', /^1\. Leave the Auditorium · take the Connecting Walkway to Access A/.test(fromAud?.card ?? '') && !fromAud.noPlan && fromAud.sign === 'out' && fromAud.inArea === 'true' && fromAud.overlaps === 0, { fromAud, search: out.searchAuditorium });
+  await shot('s5-09-from-auditorium');
   out.pageErrors = errors;
   if (errors.length) fails.push('page errors');
 } catch (e) {
