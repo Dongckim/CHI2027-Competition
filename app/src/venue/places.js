@@ -23,14 +23,18 @@ export function placeTargets(venue, labels, edition, id, roomName = key => key) 
   return area && venue.areas[area]?.doors?.length ? { name: roomName(id), targets: [area] } : null;
 }
 
-/** The quickest route from an area to any of the place's targets → { r, name } (an elevator by its number), { same }
+/** The quickest route (by seconds) from an area to any of the place's targets → { r, name } (an elevator by its number), { same }
  * when you are already there, or null. */
 export function routeToNearest(venue, labels, from, place, options = {}) {
   if (place.targets.includes(from)) return { same: true };
+  // Compare by seconds, not the rounded minutes: a ride adds time but no metres, so minutes tie and a lift down to another
+  // level would win on metres. A tie in seconds: your own level first, then fewer metres.
+  const level = venue.areas[from]?.level ?? venue.nodes[from]?.level;
+  const better = (r, b) => r.seconds[1] - b.seconds[1] || (venue.nodes[b.to]?.level === level) - (venue.nodes[r.to]?.level === level) || r.metres - b.metres;
   let best = null;
   for (const t of place.targets) {
     const r = route(venue, from, t, options);
-    if (r && (!best || r.minutes[1] < best.minutes[1] || (r.minutes[1] === best.minutes[1] && r.metres < best.metres))) best = r;
+    if (r && (!best || better(r, best) < 0)) best = r;
   }
   if (!best) return null;
   const n = place.facility === 'elevator' ? best.to.match(/elevator(\d+)/)?.[1] : null;

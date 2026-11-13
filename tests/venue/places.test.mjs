@@ -29,16 +29,24 @@ test('place ids: Registration, a programme room, the nearest WC or elevator', ()
   assert.equal(placeTargets(venue, labels, edition, 'nowhere'), null);
 });
 
-test('nearest: the WC with the shortest walk from where you are; the elevator named by its number', () => {
-  const near = routeToNearest(venue, labels, 'P1-117', placeTargets(venue, labels, edition, 'wc'));
-  for (const t of placeTargets(venue, labels, edition, 'wc').targets) {
-    const r = route(venue, 'P1-117', t);
-    if (r) assert.ok(near.r.minutes[1] <= r.minutes[1], `${t} is quicker than ${near.r.to}`);
+test('nearest, from every room on every level: the quickest by seconds; a tie goes to your own level, then fewer metres', () => {
+  const areas = [...new Set(Object.values(edition.rooms))].filter(a => venue.areas[a]?.doors?.length).concat(['P0-entrance-hall']);
+  let n = 0;
+  for (const a of areas) for (const id of ['wc', 'elevator']) for (const wheelchair of [false, true]) {
+    const place = placeTargets(venue, labels, edition, id), near = routeToNearest(venue, labels, a, place, { wheelchair });
+    if (!near) continue;
+    const all = place.targets.map(t => route(venue, a, t, { wheelchair })).filter(Boolean);
+    const best = Math.min(...all.map(r => r.seconds[1]));
+    assert.equal(near.r.seconds[1], best, `${a} → ${id}${wheelchair ? ' step-free' : ''}: ${near.r.to} is not the quickest`);
+    const level = venue.areas[a].level;
+    if (venue.nodes[near.r.to].level !== level)
+      assert.ok(!all.some(r => venue.nodes[r.to].level === level && r.seconds[1] <= near.r.seconds[1]), `${a} → ${id}: ${near.r.to} on another level`);
+    n++;
   }
-  assert.equal(near.name, 'WC');
-  const lift = routeToNearest(venue, labels, 'P0-entrance-hall', placeTargets(venue, labels, edition, 'elevator'), { wheelchair: true });
+  assert.ok(n > 150, `${n} cases`);
+  const lift = routeToNearest(venue, labels, 'P1-112', placeTargets(venue, labels, edition, 'elevator'), { wheelchair: true });
+  assert.equal(lift.r.to, 'P1/elevator3'); // the review's case: not a ride down to P0
   assert.match(lift.name, /^Elevator \d$/);
-  assert.equal(lift.r.path.at(-1).split('/')[0], 'P0'); // the one on your own level, not a ride up to another
   assert.deepEqual(routeToNearest(venue, labels, 'P1-127', placeTargets(venue, labels, edition, roomKey('P1-127'))), { same: true });
 });
 
