@@ -1,5 +1,5 @@
 // Phone check of S5 (09 Getting there, 09-1 Where are you now) in headless Chrome, 390x844. Starts and stops its own
-// (steps on the plan: Show step 1 / Next / swipe, the view bar, the large plan sideways or from its button)
+// (steps on the plan: Show step 1 / Next, one-finger drag, the view bar, the large plan sideways or from its button)
 // vite preview. npm run build && node --experimental-websocket tests/venue/directions-check.mjs [screenshot dir]
 //   - the 3D view (three.js) downloads only when 09 opens, and draws (canvas pixels, not blank)
 //   - frame times while the route dot moves, CPU slowed 4x (the "no stutter" check)
@@ -64,7 +64,7 @@ try {
   const sorted = [...frames].sort((a, b) => a - b), p = q => +sorted[Math.floor(q * (sorted.length - 1))].toFixed(1);
   check('smooth at CPU 4x', p(0.95) < 34 && frames.filter(x => x > 50).length <= 3, { frames: frames.length, medianMs: p(0.5), p95Ms: p(0.95), over50ms: frames.filter(x => x > 50).length });
 
-  // Steps on the plan: numbers = written steps; Show step 1 / Next / a sideways swipe stop at each step, the card and
+  // Steps on the plan: numbers = written steps; Show step 1 / Next stop at each step, the card and
   // the list follow; the bar's Whole goes back to no step.
   const nLines = (out.steps ?? []).length;
   const cur = `[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step')`;
@@ -80,12 +80,22 @@ try {
   await press('Next: step 2'); await sleep(1500);
   const s2 = { list: await ev(cur), card: await ev(card), tidy: await ev(`(({ overlaps, currentShown, labels }) => ({ overlaps: +overlaps, currentShown, labels: +labels }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`) };
   await shot('s5-09-step2');
-  const swipeLeft = `(() => { const c = document.querySelector('section[aria-label="Floor plan"] canvas'), r = c.getBoundingClientRect(), y = r.top + r.height / 2;
-    const ev = (t, x) => c.dispatchEvent(new PointerEvent(t, { pointerId: 7, clientX: x, clientY: y, bubbles: true, pointerType: 'touch', isPrimary: true }));
-    ev('pointerdown', r.right - 40); ev('pointermove', r.left + 120); ev('pointerup', r.left + 60); })()`;
-  await ev(swipeLeft); await sleep(1500);
+  await press('Next: step 3'); await sleep(1500);
   const s3 = { list: await ev(cur), card: await ev(card) };
   await shot('s5-09-step3');
+  // One finger drags the plan (as in map apps): the picture follows the finger, the step stays; tapping the step again
+  // frames it.
+  const canvasData = `document.querySelector('section[aria-label="Floor plan"] canvas').dataset`;
+  const target0 = await ev(`${canvasData}.target`);
+  await ev(`(() => { const c = document.querySelector('section[aria-label="Floor plan"] canvas'), r = c.getBoundingClientRect(), y = r.top + r.height / 2, x0 = r.left + r.width / 2;
+    const p = (t, x) => c.dispatchEvent(new PointerEvent(t, { pointerId: 7, clientX: x, clientY: y, bubbles: true, pointerType: 'touch', isPrimary: true }));
+    p('pointerdown', x0); for (let k = 1; k <= 8; k++) p('pointermove', x0 - k * 15); p('pointerup', x0 - 120); })()`);
+  await sleep(600);
+  const dragged = { list: await ev(cur), target: await ev(`${canvasData}.target`), view: await ev(`${canvasData}.view`) };
+  await shot('s5-09-dragged');
+  await ev(`document.querySelectorAll('ol[aria-label=Steps] li button')[2].click()`); await sleep(1800);
+  const reframed = { target: await ev(`${canvasData}.target`), inArea: await ev(`${canvasData}.inArea`) };
+  check('one finger drags the plan; the step stays, tapping it frames it again', dragged.list === 2 && dragged.target !== target0 && dragged.view === '0.785,0.950' && reframed.target === target0 && reframed.inArea === 'true', { target0, dragged, reframed });
   const s3tidy = await ev(`(({ overlaps, currentShown, labels }) => ({ overlaps: +overlaps, currentShown, labels: +labels }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`);
   check('labels: no overlaps, this step\'s number shows', [s1.tidy, s2.tidy, s3tidy].every(t => t.overlaps === 0 && t.currentShown === 'true' && t.labels > 1), { s1: s1.tidy, s2: s2.tidy, s3: s3tidy });
   // Frames at CPU 4x while gliding to a step and placing its labels (declutter runs on every camera move).
@@ -105,7 +115,7 @@ try {
   check('every step inside the free area, no overlaps', area.every(a => a.inArea === 'true' && a.overlaps === 0), { area });
   check("last step: back button and You've arrived, one I'm here (the page's)", JSON.stringify(lastButton.buttons) === JSON.stringify(['Previous step']) && /You've arrived$/.test(lastButton.text) && lastButton.imHere === 1, { lastButton });
   await ev(`document.querySelectorAll('ol[aria-label=Steps] li button')[2].click()`); await sleep(1500);
-  check('steps: Show step 1, Next, swipe', s1.list === 0 && s2.list === 1 && s3.list === 2 && /^1\./.test(s1.card ?? '') && /^3\./.test(s3.card ?? ''), { s1, s2, s3 });
+  check('steps: Show step 1, Next, Next', s1.list === 0 && s2.list === 1 && s3.list === 2 && /^1\./.test(s1.card ?? '') && /^3\./.test(s3.card ?? ''), { s1, s2, s3 });
   await ev(`[...document.querySelectorAll('[aria-label="What the plan shows"] button')].find(b => b.innerText === 'Whole').click()`); await sleep(600);
   const wholeLevels = await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.levels`);
   check('Whole: back to no step', (await ev(cur)) === -1 && (await ev(card)) === null, {});
