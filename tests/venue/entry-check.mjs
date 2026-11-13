@@ -46,22 +46,33 @@ try {
       needs: { stepFree: false, fewerRoomChanges: false, breaks: false, largerText: false, summaries: false }, language: 'en', see: ['papers', 'posters', 'demos'], howFull: 'balanced' } }))`);
   await send('Page.navigate', { url: BASE + '?plan#/today' }); // another URL: a real load with the plan
   await waitFor(`document.querySelectorAll('main li button[aria-label^="Change "]').length > 1`, 30000);
-  out.today = { topCard: await ev(`!!document.querySelector('a[href^="#/directions/"]') && !document.querySelector('li a[href^="#/directions/"]')`), rows: await ev(`document.querySelectorAll('main li button[aria-label^="Change "]').length`) };
+  // Not a conference day: no top card, so no Directions anywhere until a stop's ⋯ is opened.
+  const today = { directionsLinks: await ev(`document.querySelectorAll('a[href^="#/directions/"]').length`), cardStatus: await ev(`/(FIRST STOP|NEXT|LEAVE NOW|NOW)\\b/.test(document.querySelector('main')?.innerText.split('\\n').slice(0, 8).join(' ') ?? '')`), rows: await ev(`document.querySelectorAll('main li button[aria-label^="Change "]').length`) };
+  check('Today on a non-conference day: no top card (the old only way in)', today.directionsLinks === 0 && !today.cardStatus && today.rows > 1, today);
 
-  // Day list: the second stop's ⋯ → Directions; it starts at the first stop's room.
-  const rows = await ev(`[...document.querySelectorAll('main li')].filter(li => li.querySelector('button[aria-label^="Change "]')).map(li => ({ title: li.querySelector('a')?.innerText.split('\\n').at(-1), href: li.querySelector('a')?.getAttribute('href') }))`);
-  await ev(`[...document.querySelectorAll('main li button[aria-label^="Change "]')][1].click()`); await sleep(300);
-  const second = await clickText('main li a', 'Directions');
-  const fromList = second === 'missing' ? null : await open09();
-  check('day list: a stop\'s ⋯ → Directions → 09, from the stop before', !!fromList && fromList.steps > 0 && fromList.frames > 0 && !!fromList.from && fromList.from !== 'From Registration', { rows: rows?.length, fromList });
-  await ev('history.back()'); await waitFor(`document.querySelectorAll('main li button[aria-label^="Change "]').length > 1`);
-  await ev(`[...document.querySelectorAll('main li button[aria-label^="Change "]')][0].click()`); await sleep(300);
-  const first = await clickText('main li a', 'Directions');
-  const fromFirst = first === 'missing' ? null : await open09();
-  check('day list: the first stop starts at Registration', fromFirst?.from === 'From Registration' && fromFirst.frames > 0, { fromFirst });
+  // Day list: the first stop's ⋯ → Directions starts at Registration. Two stops next to each other (a PICK ONE between
+  // would be the stop before): the later one's Directions starts in the earlier one's room.
+  const rows = await ev(`[...document.querySelectorAll('main li')].map(li => ({ more: !!li.querySelector('button[aria-label^="Change "]'), href: li.querySelector('a')?.getAttribute('href') ?? null }))`);
+  const nth = i => rows.slice(0, i).filter(r => r.more).length; // which ⋯ button a row has
+  const viaMore = async i => { // open row i's ⋯ → Directions → 09
+    await waitFor(`document.querySelectorAll('main li button[aria-label^="Change "]').length > ${nth(i)}`);
+    await ev(`[...document.querySelectorAll('main li button[aria-label^="Change "]')][${nth(i)}].click()`); await sleep(300);
+    return (await clickText('main li a', 'Directions')) === 'missing' ? null : open09();
+  };
+  const fromFirst = await viaMore(0);
+  check('day list: the first stop starts at Registration', rows[0]?.more && fromFirst?.from === 'From Registration' && fromFirst.frames > 0, { fromFirst });
+  await ev('history.back()');
+  const pair = rows.findIndex((r, i) => i > 0 && r.more && rows[i - 1].more);
+  const earlier = pair > 0 ? await viaMore(pair - 1) : null;
+  if (earlier) await ev('history.back()');
+  const later = pair > 0 ? await viaMore(pair) : null;
+  const earlierRoom = earlier?.to?.replace(/^to /, '').replace(/ · .*$/, ''); // "to Room 130 · P1" → "Room 130"
+  check('day list: a stop\'s ⋯ → Directions → 09, from the stop before (its room)', !!earlierRoom && later?.from === `From ${earlierRoom}` && later.steps > 0 && later.frames > 0,
+    { rows: rows.length, pairAt: pair, earlierRoom, later });
+  await ev('history.back()');
+  const talkHref = rows.find(r => r.more)?.href;
 
   // 06 Talk → Directions.
-  const talkHref = rows?.[0]?.href;
   await ev(`location.hash = ${JSON.stringify(talkHref ?? '#/talk/none')}`); await waitFor(`/Add to my day|In your day/.test(document.body.innerText)`);
   const t = await clickText('main a', 'Directions');
   const fromTalk = t === 'missing' ? null : await open09();
