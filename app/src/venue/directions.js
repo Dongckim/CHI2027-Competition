@@ -70,10 +70,15 @@ export function directions(venue, labels, r, { fromName, toName } = {}) {
       let m = 0;
       for (let e = e0; e < e1; e++) if (![P[e], P[e + 1]].some(q => !placed(q) && q.kind === 'door')) m += r.edges[e].m;
       const off = nodes.slice(pc.from, pc.to + 1), way = off.find(q => q.kind === 'corridor' && q.name);
-      const next = nodes[pc.to + 1], enter = pc.from > 0 ? nodes[pc.from - 1] : off[0];
+      const next = nodes[pc.to + 1], enter = pc.from > 0 ? nodes[pc.from - 1] : null;
       const to = !next ? placeLabel(end) : next.kind === 'door' ? placeLabel(doorArea.get(next.id) ?? end) : corridorLabel(next.name ?? '');
-      const text = way ? `Take ${corridorLabel(way.name)} to ${to} · ${aboutMetres(m)}` : `Walk on to ${to} · ${aboutMetres(m)}`;
-      lines.push({ kind: 'take', text, node: enter.id, level: enter.level, icon: 'straight' });
+      const go = way ? `take ${corridorLabel(way.name)} to ${to} · ${aboutMetres(m)}` : `walk on to ${to} · ${aboutMetres(m)}`;
+      // Coming from the plan: the step is where you leave it. Starting off the plan (in the Auditorium): it is said from
+      // the way out, and shown where you come out onto the plan.
+      const outHere = !enter && !!next;
+      const at = enter ?? next ?? off[0];
+      const text = outHere ? `Leave ${placeLabel(start)} · ${go}` : go[0].toUpperCase() + go.slice(1);
+      lines.push({ kind: 'take', text, node: at.id, level: at.level, icon: 'straight', outHere });
       cues.push({ kind: 'walk', angle: 0, text: way ? `Take ${corridorLabel(way.name)}` : 'Walk on' });
       facing = null; // the plan does not say which way you face at the other end
       if (lastPiece) {
@@ -151,7 +156,8 @@ export function directions(venue, labels, r, { fromName, toName } = {}) {
   // card: the card's line where it differs from the list (arrival: "Room 127 · on your right").
   // The card is one line: what to do, without the "pass …" landmark (the list keeps it).
   // noPlan: the place's name when the plan has no coordinates for this step's spot (09 says "No floor plan for …").
-  return { lines: lines.map(({ kind, text, node, level, icon, dir, inDir, card }) => ({ kind, text, card: card ?? text.replace(/, pass .*$/, ''), node, level, icon, dir: dir ?? null, inDir: inDir ?? null,
+  // outHere: the step starts off the plan and its spot is where you come out onto it (3D: "You come out here").
+  return { lines: lines.map(({ kind, text, node, level, icon, dir, inDir, card, outHere }) => ({ kind, text, card: card ?? text.replace(/, pass .*$/, ''), node, level, icon, dir: dir ?? null, inDir: inDir ?? null, outHere: !!outHere,
     noPlan: N[node] && !placed(N[node]) ? where({ id: node, ...N[node] }) : null })), cues, summary, from: start, to: end };
 }
 

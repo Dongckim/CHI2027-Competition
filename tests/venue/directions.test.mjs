@@ -124,10 +124,14 @@ test('Entrance Hall → Auditorium: the walkway by name and length, then the ent
   assert.ok(d.cues.slice(1).every(c => c.angle === 0 && !/left|right/i.test(c.text)), JSON.stringify(d.cues));
 });
 
-test('Auditorium → Room 111: out by the walkway to Access A, then turn by turn on the plan', () => {
+test('Auditorium → Room 111: out by the walkway, the step shown where you come out (Access A)', () => {
   const d = directions(venue, labels, route(venue, 'AUD-auditorium', 'P1-111'));
-  assert.equal(d.lines[0].text, 'Take the Connecting Walkway to Access A · about 120 m');
-  assert.equal(d.lines[0].noPlan, 'Auditorium');
+  assert.equal(d.lines[0].text, 'Leave the Auditorium · take the Connecting Walkway to Access A · about 120 m');
+  assert.equal(d.lines[0].card, d.lines[0].text);
+  assert.equal(d.lines[0].node, 'P0-access-a/door'); // on the plan: the 3D view shows it, "You come out here"
+  assert.equal(d.lines[0].noPlan, null);
+  assert.equal(d.lines[0].outHere, true);
+  assert.ok(d.lines.slice(1).every(l => !l.outHere));
   assert.match(d.lines.at(-1).text, /^Room 111 on your (left|right)$/);
 });
 
