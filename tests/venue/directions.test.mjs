@@ -80,7 +80,8 @@ test('every feed room to every feed room: lines end at the room, step-free never
       const r = route(venue, a, b, { wheelchair });
       if (!r) continue;
       const d = directions(venue, labels, r);
-      assert.match(d.lines.at(-1).text, / on your (left|right)$| is right there$/, `${a} → ${b}`);
+      assert.match(d.lines.at(-1).text, / on your (left|right)$| is right there$| entrance$/, `${a} → ${b}`);
+      for (const l of d.lines) if (noXY(l.node)) assert.doesNotMatch(l.text, /\b(left|right)\b|, pass /, `${a} → ${b}: ${l.text}`);
       if (wheelchair) assert.ok(!d.lines.some(l => l.kind === 'escalator'), `${a} → ${b} step-free`);
       assert.ok(d.lines.every(l => !/undefined|null|NaN/.test(l.text)), `${a} → ${b}: ${d.lines.map(l => l.text)}`);
       assert.equal(d.cues.length > 0, true);
@@ -104,4 +105,46 @@ test('steps for the 3D plan: an icon, the way in and out for the floor arrow, a 
   assert.ok(arrive.inDir && arrive.dir); // from the corridor into the door
   const ride = directions(venue, labels, route(venue, 'P1-113', 'P0-areas-1+2+3')).lines.find(l => l.kind === 'escalator');
   assert.equal(ride.icon, 'down');
+});
+
+// Places the plan has no coordinates for (the Auditorium, reached by the Connecting Walkway from Access A): no left or
+// right and no "pass …" there, only the way's name and length; the arrival is the entrance; the 3D view says it has no
+// plan for that place.
+const noXY = id => venue.nodes[id]?.x == null;
+test('Entrance Hall → Auditorium: the walkway by name and length, then the entrance', () => {
+  const d = directions(venue, labels, route(venue, 'P0-entrance-hall', 'AUD-auditorium'));
+  assert.deepEqual(d.lines.map(l => l.text), [
+    'Exit right into the P0 concourse, pass Escalators',
+    'Take the Connecting Walkway to the Auditorium · about 120 m',
+    'Auditorium entrance',
+  ]);
+  assert.equal(d.lines.at(-1).noPlan, 'Auditorium');
+  assert.equal(d.lines[0].noPlan, null);
+  assert.equal(d.cues.length, d.lines.length);
+  assert.ok(d.cues.slice(1).every(c => c.angle === 0 && !/left|right/i.test(c.text)), JSON.stringify(d.cues));
+});
+
+test('Auditorium → Room 111: out by the walkway to Access A, then turn by turn on the plan', () => {
+  const d = directions(venue, labels, route(venue, 'AUD-auditorium', 'P1-111'));
+  assert.equal(d.lines[0].text, 'Take the Connecting Walkway to Access A · about 120 m');
+  assert.equal(d.lines[0].noPlan, 'Auditorium');
+  assert.match(d.lines.at(-1).text, /^Room 111 on your (left|right)$/);
+});
+
+test('every route: no left, right or "pass" where the plan has no coordinates', () => {
+  const areas = [...new Set(Object.values(edition.rooms))].filter(a => venue.areas[a]?.doors?.length);
+  let n = 0;
+  for (const a of areas) for (const b of areas) {
+    if (a === b) continue;
+    const r = route(venue, a, b);
+    if (!r?.path.some(noXY)) continue;
+    const d = directions(venue, labels, r);
+    for (const l of d.lines.filter(l => noXY(l.node) || l.kind === 'take')) {
+      assert.doesNotMatch(l.text, /\b(left|right)\b|, pass /, `${a} → ${b}: ${l.text}`);
+      assert.ok(l.noPlan || !noXY(l.node), `${a} → ${b}: ${l.text} has no noPlan`);
+    }
+    if (noXY(r.path.at(-1))) assert.match(d.lines.at(-1).text, / entrance$/, `${a} → ${b}`);
+    n++;
+  }
+  assert.ok(n > 40, `${n} routes through places without coordinates`);
 });

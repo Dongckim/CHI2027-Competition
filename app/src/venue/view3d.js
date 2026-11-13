@@ -250,7 +250,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       // the big number's stalk: a screen-sized bar from the spot (layout() turns it and sets its length in pixels)
       const lead = new THREE.Sprite(new THREE.SpriteMaterial({ map: leadTex, depthTest: false, sizeAttenuation: false }));
       lead.center.set(0.5, 0); lead.position.copy(spot); lead.renderOrder = 105; lead.visible = false; onLevel(n?.level, lead);
-      b.userData = { spot, aside, lead, sign, arrow, level: n?.level, state: 'number' };
+      b.userData = { spot, aside, lead, sign, arrow, level: n?.level, state: 'number', noPlan: n?.x == null }; // noPlan: no spot to mark
       if (n?.x != null) worstGap = Math.max(worstGap, Math.hypot(spot.x - (n.x - cx), spot.z - (n.y - cz)));
       return b;
     });
@@ -454,7 +454,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     // The free area: between the card on top and the bars below. The step (its spot, number and sign) is slid into its
     // middle (a 2D shift of the picture, so nothing else about the view changes); the whole view is centred in it.
     const safe = [8, pads.top + 8, W - 8, H - pads.bottom - 8];
-    const placedStep = badges[current] ? place(badges[current], screen, must, rather, [safe[2] - safe[0], safe[3] - safe[1]]) : null;
+    const placedStep = badges[current] && !badges[current].userData.noPlan ? place(badges[current], screen, must, rather, [safe[2] - safe[0], safe[3] - safe[1]]) : null;
     let dx = 0, dy = (safe[1] + safe[3]) / 2 - H / 2;
     if (placedStep) { const [x0, y0, x1, y1] = placedStep; dx = (safe[0] + safe[2]) / 2 - (x0 + x1) / 2; dy = (safe[1] + safe[3]) / 2 - (y0 + y1) / 2; }
     camera.setViewOffset(W, H, -dx, -dy, W, H);
@@ -471,7 +471,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     badges.forEach((b, j) => {
       const u = b.userData, on = j === current, size = PX[u.state];
       if (u.sign) u.sign.userData.to = 0; // only the step you are on shows its ride sign
-      if (!shown(b)) { u.to = 0; return; }
+      if (!shown(b) || u.noPlan) { u.to = 0; return; }
       items.push({ o: b, rank: on ? 0 : 2, r: rect(b, size, size), keep: on });
       if (on && u.sign) items.push({ o: u.sign, rank: 0, r: rect(u.sign, SIGN[0], SIGN[1]), keep: true });
     });

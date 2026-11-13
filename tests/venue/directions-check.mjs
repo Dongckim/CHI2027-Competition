@@ -191,6 +191,15 @@ try {
   const g0 = await ev(framesNow); await sleep(1200); const g1 = await ev(framesNow);
   check('reduced motion: steps jump', (await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li')].findIndex(li => li.getAttribute('aria-current') === 'step')`)) === 0 && g1 === g0, { framesIn1200ms: g1 - g0 });
   await shot('s5-09-dark-reduced');
+  // A place the plan has no coordinates for (the keynote in the Auditorium): no left or right on the walkway, and the
+  // 3D view says so on that step instead of showing an empty plan.
+  await send('Page.navigate', { url: BASE + '#/directions/chi2026:214894' }); await send('Page.reload'); // a fresh page (a route changing in place: revision-check.mjs)
+  await waitFor(`[...document.querySelectorAll('ol[aria-label=Steps] li')].some(li => / entrance$/.test(li.innerText))`, 20000);
+  const audLines = await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li')].map(li => li.innerText.replace(/\\s+/g, ' ').replace(/^\\d+ /, ''))`);
+  await ev(`[...document.querySelectorAll('ol[aria-label=Steps] li button')].at(-1).click()`); await sleep(800);
+  const audPlan = await ev(`document.querySelector('section[aria-label="Floor plan"]').innerText`);
+  check('Auditorium: walkway by name, no plan shown as such', audLines?.some(t => /^Take the Connecting Walkway to the Auditorium · about \d+ m$/.test(t)) && /No floor plan for the Auditorium/.test(audPlan ?? ''), { audLines });
+  await shot('s5-09-auditorium');
   out.pageErrors = errors;
   if (errors.length) fails.push('page errors');
 } finally {

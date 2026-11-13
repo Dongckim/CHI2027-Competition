@@ -124,7 +124,7 @@ function GettingThere({ paperKey, schedule, toKey, lastStop, stepFree }: Start) 
 // The 3D view (three.js, loaded now): the venue at the angle of the official plans. Previous / Next (or a sideways
 // swipe) stop at each step, with a card on top: a big direction icon and the step's line. The steps above are complete
 // on their own; if WebGL is missing the box says so.
-type Line = { text: string; card: string; node: string; level: string; icon: string; dir: { x: number; y: number } | null };
+type Line = { text: string; card: string; node: string; level: string; icon: string; dir: { x: number; y: number } | null; noPlan: string | null };
 type View = { show: (i: number) => void; mode: (m: string) => boolean; pad: (p: { top: number; bottom: number }) => void; dispose: () => void };
 const ICON: Record<string, string> = { // 24px, stroke 2: which way to go
   right: 'M5 19V11a4 4 0 0 1 4-4h10M15 3l4 4-4 4', left: 'M19 19V11a4 4 0 0 0-4-4H5M9 3 5 7l4 4', straight: 'M12 21V4M6 10l6-6 6 6',
@@ -231,6 +231,7 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
         className={big ? 'fixed inset-0 z-50 bg-[var(--plan-bg)]' : 'relative min-h-[300px] flex-1 overflow-hidden rounded-bar bg-surface'}>
         <canvas ref={canvas} className="absolute inset-0 size-full touch-none" />
         {state !== 'ready' && <p className="absolute inset-0 grid place-items-center text-small text-text-2">{state === 'loading' ? 'Floor plan' : 'The 3D plan cannot be shown here. The steps above are complete.'}</p>}
+        {state === 'ready' && line?.noPlan && <p className="absolute inset-0 grid place-items-center px-6 text-center text-body text-text-2">No floor plan for the {line.noPlan}</p>}
         {state === 'ready' && (<>
           {/* top: the step card (same step as the list) and the large-view button */}
           <div ref={topRef} className={`absolute inset-x-0 top-0 flex items-start gap-2 ${big ? 'pt-[max(8px,env(safe-area-inset-top))] pr-[max(8px,env(safe-area-inset-right))] pl-[max(8px,env(safe-area-inset-left))]' : 'p-2'}`}>

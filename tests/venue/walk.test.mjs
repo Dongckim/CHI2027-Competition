@@ -34,3 +34,11 @@ test('Leave now comes earlier for a step-free plan', () => {
   assert.equal(dayCard(stops, (100 - 11) * MIN).kind, 'first');
   assert.equal(dayCard(stops, (100 - 10) * MIN, () => null).kind, 'leave');
 });
+
+test('planner walking time to the Auditorium counts the Connecting Walkway', async () => {
+  const { venueTravelMinutes } = await import('../../app/src/planner/plan.js');
+  const { route } = await import('../../app/src/venue/route.js');
+  const toAud = route(venue, 'P1-111', 'AUD-auditorium'), toAccess = route(venue, 'P1-111', 'P0-access-a');
+  assert.ok(toAud.metres - toAccess.metres >= 116, `${toAud.metres} vs ${toAccess.metres}`); // the walkway is 116.8 m
+  assert.equal(venueTravelMinutes(venue, edition)({ key: key('P1-111') }, { key: key('AUD-auditorium') }), toAud.minutes[1]);
+});
