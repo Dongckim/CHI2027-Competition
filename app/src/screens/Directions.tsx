@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { loadSchedule, type Schedule } from '../data/load';
 import { route as findRoute } from '../venue/route.js';
 import { directions } from '../venue/directions.js';
@@ -125,7 +125,7 @@ function GettingThere({ paperKey, schedule, toKey, lastStop, stepFree }: Start) 
 // swipe) stop at each step, with a card on top: a big direction icon and the step's line. The steps above are complete
 // on their own; if WebGL is missing the box says so.
 type Line = { text: string; card: string; node: string; level: string; icon: string; dir: { x: number; y: number } | null };
-type View = { show: (i: number) => void; mode: (m: string) => boolean; dispose: () => void };
+type View = { show: (i: number) => void; mode: (m: string) => boolean; pad: (p: { top: number; bottom: number }) => void; dispose: () => void };
 const ICON: Record<string, string> = { // 24px, stroke 2: which way to go
   right: 'M5 19V11a4 4 0 0 1 4-4h10M15 3l4 4-4 4', left: 'M19 19V11a4 4 0 0 0-4-4H5M9 3 5 7l4 4', straight: 'M12 21V4M6 10l6-6 6 6',
   up: 'M4 20h4l8-14h4M14 6h6v6', down: 'M4 4h4l8 14h4M14 18h6v-6', arrive: 'M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11ZM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z',
@@ -209,6 +209,9 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
       <Button variant="outline" aria-label="Next step" className="w-touch bg-bg px-0" disabled={step >= lines.length - 1} onClick={() => go(step + 1)}>›</Button>
     </div>
   );
+  // The view slides the step into the part of the plan the card and the bars leave free.
+  const topRef = useRef<HTMLDivElement>(null), bottomRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => { view.current?.pad({ top: topRef.current?.offsetHeight ?? 0, bottom: bottomRef.current?.offsetHeight ?? 0 }); });
   const seg = (label: string, pressed: boolean, onClick: () => void) => (
     <button type="button" aria-pressed={pressed} onClick={onClick}
       className={`min-h-touch rounded-full px-3 text-small font-semibold ${pressed ? 'bg-inverse text-on-inverse' : 'text-text'}`}>{label}</button>
@@ -222,7 +225,7 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
         {state !== 'ready' && <p className="absolute inset-0 grid place-items-center text-small text-text-2">{state === 'loading' ? 'Floor plan' : 'The 3D plan cannot be shown here. The steps above are complete.'}</p>}
         {state === 'ready' && (<>
           {/* top: the step card (same step as the list) and the large-view button */}
-          <div className={`absolute inset-x-0 top-0 flex items-start gap-2 ${big ? 'pt-[max(8px,env(safe-area-inset-top))] pr-[max(8px,env(safe-area-inset-right))] pl-[max(8px,env(safe-area-inset-left))]' : 'p-2'}`}>
+          <div ref={topRef} className={`absolute inset-x-0 top-0 flex items-start gap-2 ${big ? 'pt-[max(8px,env(safe-area-inset-top))] pr-[max(8px,env(safe-area-inset-right))] pl-[max(8px,env(safe-area-inset-left))]' : 'p-2'}`}>
             {line ? (
               <div aria-hidden={!big || undefined} aria-live={big ? 'polite' : undefined} className={`flex flex-1 items-center gap-3 rounded-bar bg-bg/95 p-2 pr-3 shadow ${big ? 'max-w-[520px]' : ''}`}>
                 <span className="grid size-11 shrink-0 place-items-center rounded-full bg-inverse text-on-inverse">
@@ -239,7 +242,7 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
             </button>
           </div>
           {/* bottom: what the view shows, one compact bar on the plan (and, large, the step buttons) */}
-          <div className={`absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-2 ${big ? 'pr-[max(8px,env(safe-area-inset-right))] pb-[max(8px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))]' : 'p-2'}`}>
+          <div ref={bottomRef} className={`absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-2 ${big ? 'pr-[max(8px,env(safe-area-inset-right))] pb-[max(8px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))]' : 'p-2'}`}>
             <div role="group" aria-label="What the plan shows" className="flex rounded-full bg-bg/95 p-0.5 shadow">
               {seg('Whole', step < 0 && shown === 'whole', () => { setShown('whole'); view.current?.mode('original'); })}
               {seg('Route', step < 0 && shown === 'route', () => { setShown('route'); view.current?.mode('fit'); })}

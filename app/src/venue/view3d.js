@@ -5,7 +5,7 @@
 //
 // venue: data/venue/<venue>.json (official plan, metres; x to the right, y down) · route: route() result
 // steps: directions().lines ({ node, level, icon, dir }) — the same steps as the written list
-// mount(canvas, { venue, route, summary, steps, onStep, onSwipe, reduceMotion }) → { show(i), mode(m), dispose() }
+// mount(canvas, { venue, route, summary, steps, onStep, onSwipe, reduceMotion }) → { show(i), mode(m), pad({ top, bottom }), dispose() }
 //   show(i): stop at step i (−1: the whole venue) · mode: 'original' | 'fit' | 'floors' (only the route's levels)
 // Drawn only from the plan: room blocks (low, as on the printed plans), corridors, room numbers at measured doors, and
 // lifts, escalators and toilets at measured points. Nothing marked `estimate` in the plan file is drawn as a label.
@@ -42,6 +42,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
 
   let renderer, scene, camera, groups, rides, raf = 0, needs = true, lost = false, frames = 0, onlyRouteFloors = false;
   let badges = [], signs = [], segs = [], chevrons = [], labels = [], startPin = null, destFrame = null, current = -1, layoutDirty = true;
+  let pads = { top: 0, bottom: 0 }; // px of the canvas covered by the step card (top) and the bars (bottom)
   const cam = { theta: ORIGINAL.theta, phi: ORIGINAL.phi, radius: 260, target: new THREE.Vector3(0, height('P1'), 0) };
   let goal = null;
   const stepPoint = i => { const n = venue.nodes[steps[i]?.node]; return n?.x != null ? at(n.x, n.y, n.level) : null; };
@@ -389,6 +390,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     const W = canvas.clientWidth, H = canvas.clientHeight;
     if (!W || !H || !camera) return;
     camera.updateMatrixWorld();
+    camera.clearViewOffset(); // work it out unshifted, then slide the picture into the free area
     const screen = v => { const p = v.clone().project(camera); return { x: (p.x + 1) / 2 * W, y: (1 - p.y) / 2 * H }; };
     declutter(W, H, screen);
   }
@@ -402,7 +404,8 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     return r;
   }
   // Outside the bend first (a ride: up); if that covers something that outranks it, the next free direction round.
-  function place(b, screen, must, rather) {
+  // Returns the screen box around the spot, the number and the sign (unshifted).
+  function place(b, screen, must, rather, room) {
     const u = b.userData, s = screen(u.spot);
     let d0 = { x: 0, y: -1 }; // screen direction, y down: up
     if (u.aside.x || u.aside.y) {
@@ -413,11 +416,15 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     const turns = [0, 1, -1, 2, -2, 3, -3, 4].map(k => k * Math.PI / 4);
     const dirs = turns.map(t => ({ x: d0.x * Math.cos(t) - d0.y * Math.sin(t), y: d0.x * Math.sin(t) + d0.y * Math.cos(t) }));
     const free = avoid => q => !boxes(s, q, u).some(r => avoid.some(a => hit(a, r)));
-    const d = dirs.find(free([...must, ...rather])) ?? dirs.find(free(must)) ?? d0;
+    const around = q => { const r = [[s.x - 6, s.y - 6, s.x + 6, s.y + 6], ...boxes(s, q, u)]; return [Math.min(...r.map(a => a[0])), Math.min(...r.map(a => a[1])), Math.max(...r.map(a => a[2])), Math.max(...r.map(a => a[3]))]; };
+    const fits = q => { const a = around(q); return a[2] - a[0] <= room[0] && a[3] - a[1] <= room[1]; };
+    const both = (f, g) => q => f(q) && g(q);
+    const d = dirs.find(both(free([...must, ...rather]), fits)) ?? dirs.find(both(free(must), fits)) ?? dirs.find(free(must)) ?? d0;
     const size = PX.on, off = LEAD + size / 2;
     b.center.set(0.5 - d.x * off / size, 0.5 + d.y * off / size); // a sprite's centre is in its own units, y up
     u.lead.material.rotation = Math.atan2(-d.x, -d.y);
     if (u.sign) { const ox = d.x * off + size / 2 + 8 + SIGN[0] / 2, oy = d.y * off; u.sign.center.set(0.5 - ox / SIGN[0], 0.5 + oy / SIGN[1]); }
+    return around(d);
   }
   // Labels by rank, in screen space: the step you are on (number, sign) → the destination → the other steps' dots →
   // the lift or escalator this step takes → room numbers by the route → other pictograms → other room numbers. One that
@@ -444,7 +451,16 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     const must = [], rather = [];
     if (current <= 0 && startPin && shown(startPin)) must.push(outline(startPin.userData.corners, screen));
     for (const l of labels) if (l.kind === 'icon' && rides.has(l.id) && shown(l.obj)) { const r = rect(l.obj, ...world(l.obj)); if (r) rather.push(r); }
-    if (badges[current]) place(badges[current], screen, must, rather);
+    // The free area: between the card on top and the bars below. The step (its spot, number and sign) is slid into its
+    // middle (a 2D shift of the picture, so nothing else about the view changes); the whole view is centred in it.
+    const safe = [8, pads.top + 8, W - 8, H - pads.bottom - 8];
+    const placedStep = badges[current] ? place(badges[current], screen, must, rather, [safe[2] - safe[0], safe[3] - safe[1]]) : null;
+    let dx = 0, dy = (safe[1] + safe[3]) / 2 - H / 2;
+    if (placedStep) { const [x0, y0, x1, y1] = placedStep; dx = (safe[0] + safe[2]) / 2 - (x0 + x1) / 2; dy = (safe[1] + safe[3]) / 2 - (y0 + y1) / 2; }
+    camera.setViewOffset(W, H, -dx, -dy, W, H);
+    // for the phone check: the step's spot and number lie inside the free area
+    canvas.dataset.inArea = placedStep ? String(placedStep[0] + dx >= safe[0] - 0.5 && placedStep[2] + dx <= safe[2] + 0.5 && placedStep[1] + dy >= safe[1] - 0.5 && placedStep[3] + dy <= safe[3] + 0.5) : '';
+    canvas.dataset.area = safe.map(Math.round).join(' ');
     const items = [];
     if (startPin) {
       const vis = shown(startPin);
@@ -648,6 +664,8 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   raf = requestAnimationFrame(loop);
   return {
     show: i => show(i),
+    /** @param {{ top: number, bottom: number }} p px of the canvas covered on top and at the bottom */
+    pad(p) { if (p.top !== pads.top || p.bottom !== pads.bottom) { pads = { top: p.top, bottom: p.bottom }; layoutDirty = true; needs = true; } },
     mode: m => apply(m),
     dispose() {
       cancelAnimationFrame(raf); ro.disconnect();

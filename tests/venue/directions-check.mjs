@@ -95,6 +95,14 @@ try {
   await send('Emulation.setCPUThrottlingRate', { rate: 1 });
   const gs = [...glide].sort((a, b) => a - b), gp = q => +gs[Math.floor(q * (gs.length - 1))].toFixed(1);
   check('smooth at CPU 4x while moving between steps', gp(0.95) < 34 && glide.filter(x => x > 50).length <= 3, { frames: glide.length, medianMs: gp(0.5), p95Ms: gp(0.95), over50ms: glide.filter(x => x > 50).length });
+  // Every step: its spot and big number inside the part the card and bars leave free; the last step ends with I'm here.
+  const area = [];
+  for (let i = 0; i < nLines; i++) {
+    await ev(`document.querySelectorAll('ol[aria-label=Steps] li button')[${i}].click()`); await sleep(1800);
+    area.push(await ev(`(({ inArea, overlaps }) => ({ inArea, overlaps: +overlaps }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`));
+  }
+  check('every step inside the free area, no overlaps', area.every(a => a.inArea === 'true' && a.overlaps === 0), { area });
+  await ev(`document.querySelectorAll('ol[aria-label=Steps] li button')[2].click()`); await sleep(1500);
   check('steps: Show step 1, Next, swipe', s1.list === 0 && s2.list === 1 && s3.list === 2 && /^1\./.test(s1.card ?? '') && /^3\./.test(s3.card ?? ''), { s1, s2, s3 });
   await ev(`[...document.querySelectorAll('[aria-label="What the plan shows"] button')].find(b => b.innerText === 'Whole').click()`); await sleep(600);
   const wholeLevels = await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.levels`);
