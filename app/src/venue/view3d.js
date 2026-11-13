@@ -41,7 +41,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   const routeLevels = new Set(route.levels);
 
   let renderer, scene, camera, groups, rides, raf = 0, needs = true, lost = false, frames = 0, onlyRouteFloors = false;
-  let badges = [], signs = [], segs = [], chevrons = [], labels = [], current = -1, layoutDirty = true;
+  let badges = [], signs = [], segs = [], chevrons = [], labels = [], startPin = null, destFrame = null, current = -1, layoutDirty = true;
   const cam = { theta: ORIGINAL.theta, phi: ORIGINAL.phi, radius: 260, target: new THREE.Vector3(0, height('P1'), 0) };
   let goal = null;
   const stepPoint = i => { const n = venue.nodes[steps[i]?.node]; return n?.x != null ? at(n.x, n.y, n.level) : null; };
@@ -115,7 +115,9 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   function destinationFrame() {
     if (!dest?.rect) return;
     const [x0, y0, x1, y1] = dest.rect, w = 0.9, ink = new THREE.MeshBasicMaterial({ color: css('--plan-dest') });
-    const bar = (bx, by, sx, sy) => { const m = new THREE.Mesh(new THREE.BoxGeometry(sx, BLOCK + 0.4, sy), ink); m.position.copy(at(bx, by, dest.level, (BLOCK + 0.4) / 2)); (groups.get(dest.level) ?? scene).add(m); };
+    destFrame = new THREE.Group(); (groups.get(dest.level) ?? scene).add(destFrame);
+    destFrame.userData.corners = [[x0, y0], [x1, y0], [x0, y1], [x1, y1]].map(([x, y]) => at(x, y, dest.level, BLOCK + 0.4));
+    const bar = (bx, by, sx, sy) => { const m = new THREE.Mesh(new THREE.BoxGeometry(sx, BLOCK + 0.4, sy), ink); m.position.copy(at(bx, by, dest.level, (BLOCK + 0.4) / 2)); destFrame.add(m); };
     bar((x0 + x1) / 2, y0, x1 - x0 + w, w); bar((x0 + x1) / 2, y1, x1 - x0 + w, w);
     bar(x0, (y0 + y1) / 2, w, y1 - y0 + w); bar(x1, (y0 + y1) / 2, w, y1 - y0 + w);
   }
@@ -207,6 +209,9 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     const dot = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 10), new THREE.MeshBasicMaterial({ color: css('--plan-bg'), depthTest: false })); dot.position.y = 6.8;
     ring.renderOrder = stem.renderOrder = over(s0.level, 5); head.renderOrder = over(s0.level, 6); dot.renderOrder = over(s0.level, 7);
     start.add(ring, stem, head, dot); start.position.copy(at(s0.x, s0.y, s0.level)); onLevel(s0.level, start);
+    // the pin's outline on screen (ring and head), for declutter()
+    start.userData.corners = [[-3.2, 0, 0], [3.2, 0, 0], [0, 0, -3.2], [0, 0, 3.2], [-1.6, 8.4, 0], [1.6, 8.4, 0]].map(([x, y, z]) => start.position.clone().add(new THREE.Vector3(x, y, z)));
+    startPin = start;
     // A bent arrow on the floor at each step, like a road sign: from the way you come (inDir) to the way you go (dir).
     // At the arrival it bends from the corridor into the door. Only the step you are on shows its arrow.
     const gold = new THREE.MeshBasicMaterial({ color: css('--plan-dest'), depthTest: false, side: THREE.DoubleSide });
@@ -385,18 +390,30 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     if (!W || !H || !camera) return;
     camera.updateMatrixWorld();
     const screen = v => { const p = v.clone().project(camera); return { x: (p.x + 1) / 2 * W, y: (1 - p.y) / 2 * H }; };
-    const b = badges[current];
-    if (b) place(b, screen);
-    declutter(W, H);
+    declutter(W, H, screen);
   }
-  function place(b, screen) {
+  const outline = (points, screen) => { const q = points.map(screen), xs = q.map(p => p.x), ys = q.map(p => p.y); return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]; };
+  const hit = (a, b) => a[0] < b[2] + 2 && b[0] < a[2] + 2 && a[1] < b[3] + 2 && b[1] < a[3] + 2;
+  // The number (and sign) as screen boxes, if it stands off the spot s in screen direction d.
+  function boxes(s, d, u) {
+    const size = PX.on, off = LEAD + size / 2, c = { x: s.x + d.x * off, y: s.y + d.y * off };
+    const r = [[c.x - size / 2, c.y - size / 2, c.x + size / 2, c.y + size / 2]];
+    if (u.sign) r.push([c.x + size / 2 + 8, c.y - SIGN[1] / 2, c.x + size / 2 + 8 + SIGN[0], c.y + SIGN[1] / 2]);
+    return r;
+  }
+  // Outside the bend first (a ride: up); if that covers something that outranks it, the next free direction round.
+  function place(b, screen, must, rather) {
     const u = b.userData, s = screen(u.spot);
-    let d = { x: 0, y: -1 }; // screen direction, y down: up
+    let d0 = { x: 0, y: -1 }; // screen direction, y down: up
     if (u.aside.x || u.aside.y) {
       const a = screen(u.spot.clone().add(new THREE.Vector3(u.aside.x * 5, 0, u.aside.y * 5)));
       const l = Math.hypot(a.x - s.x, a.y - s.y);
-      if (l > 1) d = { x: (a.x - s.x) / l, y: (a.y - s.y) / l };
+      if (l > 1) d0 = { x: (a.x - s.x) / l, y: (a.y - s.y) / l };
     }
+    const turns = [0, 1, -1, 2, -2, 3, -3, 4].map(k => k * Math.PI / 4);
+    const dirs = turns.map(t => ({ x: d0.x * Math.cos(t) - d0.y * Math.sin(t), y: d0.x * Math.sin(t) + d0.y * Math.cos(t) }));
+    const free = avoid => q => !boxes(s, q, u).some(r => avoid.some(a => hit(a, r)));
+    const d = dirs.find(free([...must, ...rather])) ?? dirs.find(free(must)) ?? d0;
     const size = PX.on, off = LEAD + size / 2;
     b.center.set(0.5 - d.x * off / size, 0.5 + d.y * off / size); // a sprite's centre is in its own units, y up
     u.lead.material.rotation = Math.atan2(-d.x, -d.y);
@@ -406,7 +423,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   // the lift or escalator this step takes → room numbers by the route → other pictograms → other room numbers. One that
   // would overlap a label already placed is hidden. On a step, only labels within 25 m of it (and the ride it takes).
   const STEP_LABELS_M = 25;
-  function declutter(W, H) {
+  function declutter(W, H, screen) {
     const f = H / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)); // px per metre at 1 m from the camera
     const rect = (o, wpx, hpx) => {
       const p = o.position.clone().applyMatrix4(o.parent.matrixWorld), v = p.clone().applyMatrix4(camera.matrixWorldInverse);
@@ -419,8 +436,22 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     const world = o => { const v = o.position.clone().applyMatrix4(o.parent.matrixWorld).applyMatrix4(camera.matrixWorldInverse); const k = f / Math.max(1, -v.z); return [o.scale.x * k, o.scale.y * k]; };
     const shown = o => { for (let q = o.parent; q; q = q.parent) if (!q.visible) return false; return true; };
     const st = steps[current], sn = st ? venue.nodes[st.node] : null;
-    const ride = st && (st.icon === 'up' || st.icon === 'down') ? st.node : null;
+    // the lift or escalator this step takes, or the one it starts from (just off it): on the route, by the step's spot
+    const rides = new Set(sn ? route.path.filter(id => { const q = venue.nodes[id];
+      return (q?.kind === 'escalator' || q?.kind === 'elevator') && q.level === sn.level && Math.hypot(q.x - sn.x, q.y - sn.y) < 8; }) : []);
+    // This step's number goes first, clear of what outranks it (the start pin on step 1) and, where it can, of the lift
+    // or escalator it is about.
+    const must = [], rather = [];
+    if (current <= 0 && startPin && shown(startPin)) must.push(outline(startPin.userData.corners, screen));
+    for (const l of labels) if (l.kind === 'icon' && rides.has(l.id) && shown(l.obj)) { const r = rect(l.obj, ...world(l.obj)); if (r) rather.push(r); }
+    if (badges[current]) place(badges[current], screen, must, rather);
     const items = [];
+    if (startPin) {
+      const vis = shown(startPin);
+      if (vis) items.push({ o: startPin, rank: current <= 0 ? -1 : 1.5, r: outline(startPin.userData.corners, screen), keep: current <= 0 });
+      else startPin.userData.to = 0;
+    }
+    if (destFrame && shown(destFrame)) items.push({ o: destFrame, rank: 1, r: outline(destFrame.userData.corners, screen), keep: true, frame: true });
     badges.forEach((b, j) => {
       const u = b.userData, on = j === current, size = PX[u.state];
       if (u.sign) u.sign.userData.to = 0; // only the step you are on shows its ride sign
@@ -430,22 +461,25 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     });
     for (const l of labels) {
       if (!shown(l.obj)) { l.obj.userData.to = 0; continue; }
-      const used = l.kind === 'icon' && l.id === ride;
+      const used = l.kind === 'icon' && rides.has(l.id);
       if (sn && !used && Math.hypot(l.x - sn.x, l.y - sn.y) > STEP_LABELS_M) { l.obj.userData.to = 0; continue; }
       const rank = l.kind === 'dest' ? 1 : used ? 3 : l.kind === 'room' && l.nearRoute ? 4 : l.kind === 'icon' ? 5 : 6;
       const [w, h] = world(l.obj);
-      items.push({ o: l.obj, rank, r: rect(l.obj, w, h) });
+      items.push({ o: l.obj, rank, r: rect(l.obj, w, h), dest: l.kind === 'dest' });
     }
     items.sort((a, b) => a.rank - b.rank);
-    const placed = [], hit = (a, b) => a[0] < b[2] + 2 && b[0] < a[2] + 2 && a[1] < b[3] + 2 && b[1] < a[3] + 2;
+    // The destination's frame is a room-sized outline: what outranks it may sit on it, its own number sits inside it,
+    // and only the labels after it give way to it.
+    const clash = (p, it) => !(p.frame && it.dest) && !(it.frame && p.rank <= it.rank) && !(p.frame && it.rank <= p.rank) && hit(p.r, it.r);
+    const placed = [];
     for (const it of items) {
-      const ok = it.keep || (it.r && !placed.some(p => hit(p, it.r)));
+      const ok = it.keep || (it.r && !placed.some(p => clash(p, it)));
       it.o.userData.to = ok ? 1 : 0;
-      if (ok && it.r) placed.push(it.r);
+      if (ok && it.r) placed.push(it);
     }
     // for the phone check: overlapping pairs among the labels left showing, and whether this step's number is one of them
     let overlaps = 0;
-    for (let i = 0; i < placed.length; i++) for (let j = i + 1; j < placed.length; j++) if (hit(placed[i], placed[j])) overlaps++;
+    for (let i = 0; i < placed.length; i++) for (let j = i + 1; j < placed.length; j++) if (clash(placed[i], placed[j])) overlaps++;
     canvas.dataset.overlaps = String(overlaps);
     canvas.dataset.labels = String(placed.length);
     canvas.dataset.currentShown = current < 0 ? '' : String(badges[current]?.userData.to === 1);
@@ -462,6 +496,12 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     };
     for (const l of labels) step(l.obj);
     for (const s of signs) step(s);
+    if (startPin) { // a group: fade its parts together
+      const to = startPin.userData.to ?? 1, parts = startPin.children, now = parts[0].material.opacity;
+      const next = reduceMotion ? to : now + Math.max(-dt / 0.15, Math.min(dt / 0.15, to - now));
+      if (next !== now) { for (const m of parts) { m.material.transparent = true; m.material.opacity = next; } busy = true; }
+      startPin.visible = next > 0.01;
+    }
     badges.forEach((b, j) => { step(b); const lead = b.userData.lead; lead.visible = j === current && b.visible; lead.material.opacity = b.material.opacity; });
     return busy;
   }
