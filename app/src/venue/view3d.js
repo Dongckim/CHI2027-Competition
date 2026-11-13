@@ -41,7 +41,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   const routeLevels = new Set(route.levels);
 
   let renderer, scene, camera, groups, rides, raf = 0, needs = true, lost = false, frames = 0, onlyRouteFloors = false;
-  let badges = [], signs = [], current = -1;
+  let badges = [], signs = [], segs = [], chevrons = [], current = -1;
   const cam = { theta: ORIGINAL.theta, phi: ORIGINAL.phi, radius: 260, target: new THREE.Vector3(0, height('P1'), 0) };
   let goal = null;
   const stepPoint = i => { const n = venue.nodes[steps[i]?.node]; return n?.x != null ? at(n.x, n.y, n.level) : null; };
@@ -70,16 +70,16 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       if (!areas.length) continue;
       const x0 = Math.min(...areas.map(a => a.rect[0])), x1 = Math.max(...areas.map(a => a.rect[2]));
       const y0 = Math.min(...areas.map(a => a.rect[1])), y1 = Math.max(...areas.map(a => a.rect[3]));
-      const room = mat('--plan-room', level), plate = mat('--plan-floor', level, 0.85);
+      const room = mat('--plan-room', level), plate = mat('--plan-floor', level); // opaque: the route (no depth test) draws over it in order
       const p = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0 + 8, 0.4, y1 - y0 + 8), plate);
-      p.position.copy(at((x0 + x1) / 2, (y0 + y1) / 2, level, -0.2)); g.add(p);
+      p.position.copy(at((x0 + x1) / 2, (y0 + y1) / 2, level, -0.2)); p.renderOrder = LEVELS.indexOf(level) * 10; g.add(p);
       for (const a of areas) {
         const box = new THREE.Mesh(new THREE.BoxGeometry(a.rect[2] - a.rect[0], BLOCK, a.rect[3] - a.rect[1]), room);
-        box.position.copy(at((a.rect[0] + a.rect[2]) / 2, (a.rect[1] + a.rect[3]) / 2, level, BLOCK / 2)); g.add(box);
+        box.position.copy(at((a.rect[0] + a.rect[2]) / 2, (a.rect[1] + a.rect[3]) / 2, level, BLOCK / 2)); box.renderOrder = LEVELS.indexOf(level) * 10; g.add(box);
       }
       const corridor = new THREE.LineBasicMaterial({ color: css('--plan-line'), transparent: faded(level), opacity: faded(level) ? FAINT : 1, depthWrite: !faded(level) });
       for (const c of venue.corridors.filter(c => c.level === level)) {
-        g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(c.points.map(([x, y]) => at(x, y, level, 0.2))), corridor));
+        const ln = new THREE.Line(new THREE.BufferGeometry().setFromPoints(c.points.map(([x, y]) => at(x, y, level, 0.2))), corridor); ln.renderOrder = LEVELS.indexOf(level) * 10; g.add(ln);
       }
       if (routeLevels.has(level)) { roomNumbers(detail, level); landmarks(detail, level); }
     }
@@ -118,59 +118,92 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     bar(x0, (y0 + y1) / 2, w, y1 - y0 + w); bar(x1, (y0 + y1) / 2, w, y1 - y0 + w);
   }
 
-  // The route on the floor, per level (a ride between levels is its own straight piece, shown only on the whole view),
-  // small direction marks along it, a big arrow where each step turns, numbers for the steps.
+  // The route, drawn over its level's rooms (no depth test, drawn after that level's blocks and before the next level up,
+  // so a higher level still covers it on the whole view). One line cut into the steps' stretches: on a step, the stretches
+  // behind are grey, this step's is gold with a white edge, the rest dark. Small chevrons along it say which way; the
+  // step you are on gets a big bent arrow at its corner instead (its chevrons hide). Numbers: the step you are on is a
+  // big number lifted aside on a short stalk, the others small dots; on the whole view every step shows its number.
   function routeAndArrows() {
     const ink = new THREE.MeshBasicMaterial({ color: css('--plan-route') });
     const onLevel = (level, obj) => (groups.get(level) ?? scene).add(obj);
+    const over = (level, k) => LEVELS.indexOf(level) * 10 + k; // draw order within a level: blocks 0, then these
     const nodes = route.path.map(id => venue.nodes[id]).filter(n => n.x != null);
+    const ids = route.path.filter(id => venue.nodes[id]?.x != null);
     const pts = nodes.map(n => at(n.x, n.y, n.level, LINE));
     rides = new THREE.Group(); scene.add(rides);
-    const pieces = [[nodes[0]]];
-    for (const n of nodes.slice(1)) {
-      const last = pieces.at(-1);
-      if (n.level === last.at(-1).level) last.push(n);
-      else { // a ride: straight between the two levels
-        const a = last.at(-1);
+    // Where each step's stretch starts on the path: its node (the first one after the previous step's). The arrival owns
+    // the last few metres into the door.
+    const starts = [];
+    steps.forEach((st, i) => { const from = i ? starts[i - 1] : 0; const k = ids.indexOf(st.node, from); starts.push(k < 0 ? from : k); });
+    if (steps.at(-1)?.icon === 'arrive' && starts.length > 1) starts[starts.length - 1] = Math.max(starts.at(-2), ids.length - 2);
+    if (starts.length) starts[0] = 0; // the way out of the start room belongs to step 1
+    segs = steps.map((_, i) => {
+      const k0 = starts[i], k1 = i + 1 < starts.length ? starts[i + 1] : ids.length - 1;
+      const line = new THREE.MeshBasicMaterial({ color: css('--plan-route'), depthTest: false });
+      const edge = new THREE.MeshBasicMaterial({ color: css('--plan-casing'), depthTest: false });
+      const tubes = [], edges = [];
+      let run = [nodes[k0]];
+      const flush = () => {
+        if (run.length < 2) return;
+        const level = run[0].level;
+        const curve = new THREE.CatmullRomCurve3(run.map(n => at(n.x, n.y, level, LINE)), false, 'catmullrom', 0.05);
+        const t = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(8, run.length * 8), 0.55, 8, false), line);
+        const e = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(8, run.length * 8), 1.0, 8, false), edge);
+        t.renderOrder = over(level, 3); e.renderOrder = over(level, 2); e.visible = false;
+        onLevel(level, e); onLevel(level, t); tubes.push(t); edges.push(e);
+      };
+      for (let k = k0 + 1; k <= k1; k++) {
+        const n = nodes[k];
+        if (n.level === run.at(-1).level) { run.push(n); continue; }
+        flush(); // a ride: straight between the two levels, only on the whole view
+        const a = run.at(-1);
         rides.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(at(a.x, a.y, a.level, LINE), at(n.x, n.y, n.level, LINE)), 4, 0.55, 8, false), ink));
-        pieces.push([n]);
+        run = [n];
       }
-    }
+      flush();
+      return { line, tubes, edges };
+    });
+    // Chevrons every 9 m along each level's part of the route.
     const mark = new THREE.MeshBasicMaterial({ color: css('--plan-bg'), depthTest: false });
     const chevron = new THREE.Shape([new THREE.Vector2(-0.9, -0.6), new THREE.Vector2(0, 0.5), new THREE.Vector2(0.9, -0.6), new THREE.Vector2(0, -0.2)]);
     let worstDot = 1;
+    chevrons = [];
+    const pieces = [[nodes[0]]];
+    for (const n of nodes.slice(1)) { if (n.level === pieces.at(-1).at(-1).level) pieces.at(-1).push(n); else pieces.push([n]); }
     for (const piece of pieces.filter(p => p.length > 1)) {
       const level = piece[0].level;
       const curve = new THREE.CatmullRomCurve3(piece.map(n => at(n.x, n.y, level, LINE)), false, 'catmullrom', 0.05);
-      onLevel(level, new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(16, piece.length * 8), 0.55, 8, false), ink));
-      // Direction marks every 9 m: light chevrons printed on the dark line.
       const len = curve.getLength();
       for (let d = 6; d < len - 4; d += 9) {
         const t = d / len, p = curve.getPointAt(t), tan = curve.getTangentAt(t);
         const m = new THREE.Mesh(new THREE.ShapeGeometry(chevron), mark);
         // the chevron's tip is its +y; laid flat (x −90°) that is −z, so turning it by atan2(−x, −z) points it along tan
-        m.rotation.x = -Math.PI / 2; m.rotation.z = Math.atan2(-tan.x, -tan.z); m.position.copy(p).add(new THREE.Vector3(0, 0.6, 0)); m.renderOrder = 5;
+        m.rotation.x = -Math.PI / 2; m.rotation.z = Math.atan2(-tan.x, -tan.z); m.position.copy(p).add(new THREE.Vector3(0, 0.6, 0)); m.renderOrder = over(level, 4);
         worstDot = Math.min(worstDot, new THREE.Vector3(0, 1, 0).applyEuler(m.rotation).dot(tan));
-        onLevel(level, m);
+        onLevel(level, m); chevrons.push({ m, x: p.x + cx, y: p.z + cz, level });
       }
     }
     canvas.dataset.chevronDot = worstDot.toFixed(2); // for the phone check: every mark points the way you walk (> 0)
     // The start: a pin on a ring, as in the prototype, so it reads as "you start here" and not as a hole in the floor.
+    const s0 = nodes[0], pinInk = new THREE.MeshBasicMaterial({ color: css('--plan-route'), depthTest: false });
     const start = new THREE.Group();
-    const ring = new THREE.Mesh(new THREE.RingGeometry(2.2, 3.2, 40), new THREE.MeshBasicMaterial({ color: css('--plan-route'), side: THREE.DoubleSide }));
-    ring.rotation.x = -Math.PI / 2; ring.position.y = 0.2;
-    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 6, 12), ink); stem.position.y = 3;
-    const head = new THREE.Mesh(new THREE.SphereGeometry(1.6, 20, 14), ink); head.position.y = 6.8;
-    const dot = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 10), new THREE.MeshBasicMaterial({ color: css('--plan-bg'), depthTest: false })); dot.position.y = 6.8; dot.renderOrder = 1;
-    start.add(ring, stem, head, dot); start.position.copy(at(nodes[0].x, nodes[0].y, nodes[0].level)); onLevel(nodes[0].level, start);
+    const ring = new THREE.Mesh(new THREE.RingGeometry(2.2, 3.2, 40), new THREE.MeshBasicMaterial({ color: css('--plan-route'), side: THREE.DoubleSide, depthTest: false }));
+    ring.rotation.x = -Math.PI / 2; ring.position.y = LINE + 0.3;
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 6, 12), pinInk); stem.position.y = 3;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(1.6, 20, 14), pinInk); head.position.y = 6.8;
+    const dot = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 10), new THREE.MeshBasicMaterial({ color: css('--plan-bg'), depthTest: false })); dot.position.y = 6.8;
+    ring.renderOrder = stem.renderOrder = over(s0.level, 5); head.renderOrder = over(s0.level, 6); dot.renderOrder = over(s0.level, 7);
+    start.add(ring, stem, head, dot); start.position.copy(at(s0.x, s0.y, s0.level)); onLevel(s0.level, start);
     // A bent arrow on the floor at each step, like a road sign: from the way you come (inDir) to the way you go (dir).
-    // At the arrival it bends from the corridor into the door. The step's number sits where you act: the corner, the lift or escalator, the door.
+    // At the arrival it bends from the corridor into the door. Only the step you are on shows its arrow.
     const gold = new THREE.MeshBasicMaterial({ color: css('--plan-dest'), depthTest: false, side: THREE.DoubleSide });
+    const stalk = new THREE.LineBasicMaterial({ color: css('--plan-route'), depthTest: false });
     signs = [];
     let worstGap = 0;
     badges = steps.map((st, i) => {
       const n = venue.nodes[st.node];
-      const spot = n?.x != null ? at(n.x, n.y, n.level) : pts[0];
+      const spot = n?.x != null ? at(n.x, n.y, n.level, LINE) : pts[0];
+      let arrow = null, aside = { x: 0, y: 0 }; // plan direction the big number leans to, away from the arrow (a ride: straight up)
       if (n?.x != null && st.dir) {
         const c = { x: n.x, y: n.y }, out = st.dir, inn = st.inDir;
         // arrival: the corner is in the corridor, a few metres before the door
@@ -178,22 +211,32 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
         const from = inn ? { x: corner.x - inn.x * 9, y: corner.y - inn.y * 9 } : { x: corner.x - out.x * 4, y: corner.y - out.y * 4 };
         const tip = st.icon === 'arrive' ? { x: c.x + out.x * 1.5, y: c.y + out.y * 1.5 } : { x: corner.x + out.x * 11, y: corner.y + out.y * 11 };
         const m = new THREE.Mesh(new THREE.ShapeGeometry(bentArrow([from, corner, tip], 1.3, 4.2, 3.4)), gold);
-        m.rotation.x = -Math.PI / 2; m.position.y = height(n.level) + LINE + 0.7; m.renderOrder = 6; onLevel(n.level, m);
+        m.rotation.x = -Math.PI / 2; m.position.y = height(n.level) + LINE + 0.7; m.renderOrder = over(n.level, 5); m.visible = false; onLevel(n.level, m);
+        arrow = { m, points: [from, corner, tip], level: n.level };
+        // outside the bend (from the way in, away from the way out); straight on: to the side
+        const o = inn ? { x: inn.x - out.x, y: inn.y - out.y } : { x: -out.y, y: out.x };
+        const ol = Math.hypot(o.x, o.y);
+        aside = ol > 0.3 ? { x: o.x / ol, y: o.y / ol } : { x: -out.y, y: out.x };
       }
       // A ride: a sign at the lift or escalator, "↑ To P1", on the level you leave (only that level shows on this step).
-      // Screen-sized like the number and pinned to the same point, just to its right.
+      // Screen-sized like the number, to the right of the lifted number, on the same stalk.
       if (n?.x != null && (st.icon === 'up' || st.icon === 'down')) {
         const t = new THREE.CanvasTexture(rideCanvas(st.icon === 'up', st.level)); t.colorSpace = THREE.SRGBColorSpace; // a ride's level is where it arrives
         const sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, sizeAttenuation: false }));
-        sign.center.set(-0.24, 0.5); sign.renderOrder = 11;
-        sign.position.copy(spot).add(new THREE.Vector3(0, 3, 0)); groups.get(n.level)?.userData.detail.add(sign); signs.push(sign);
+        sign.center.set(-0.24, 0.5); sign.renderOrder = 115;
+        sign.position.copy(spot).add(new THREE.Vector3(0, 10, 0)); groups.get(n.level)?.userData.detail.add(sign); signs.push(sign);
       }
-      const b = new THREE.Sprite(new THREE.SpriteMaterial({ map: badgeTexture(i + 1, i === current), depthTest: false, sizeAttenuation: false }));
-      b.position.copy(spot).add(new THREE.Vector3(0, 3, 0)); b.renderOrder = 10; onLevel(n?.level, b);
-      if (n?.x != null) worstGap = Math.max(worstGap, Math.hypot(b.position.x - (n.x - cx), b.position.z - (n.y - cz)));
+      const b = new THREE.Sprite(new THREE.SpriteMaterial({ map: badgeTexture(i + 1, 'number'), depthTest: false, sizeAttenuation: false }));
+      b.position.copy(spot); onLevel(n?.level, b);
+      // the big number's place: 6 m aside and 6 m up, on a stalk from the spot
+      const up = aside.x || aside.y ? 6 : 10; // a ride's number stands straight up, high enough for its stalk to show
+      const lifted = spot.clone().add(new THREE.Vector3(aside.x * 6, up, aside.y * 6));
+      const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([spot, lifted]), stalk); line.renderOrder = 105; line.visible = false; onLevel(n?.level, line);
+      b.userData = { spot, lifted, line, arrow, level: n?.level, state: 'number' };
+      if (n?.x != null) worstGap = Math.max(worstGap, Math.hypot(spot.x - (n.x - cx), spot.z - (n.y - cz)));
       return b;
     });
-    canvas.dataset.badgeGap = worstGap.toFixed(1); // for the phone check: metres from each number to where you act (< 2)
+    canvas.dataset.badgeGap = worstGap.toFixed(1); // for the phone check: metres from each number's foot to where you act (< 2)
     canvas.dataset.steps = String(badges.length); // for the phone check
     sizeBadges();
   }
@@ -262,28 +305,49 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   function sprite(c, worldWidth) {
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false }));
-    s.scale.set(worldWidth, worldWidth * c.height / c.width, 1); s.renderOrder = 8;
+    s.scale.set(worldWidth, worldWidth * c.height / c.width, 1); s.renderOrder = 100;
     return s;
   }
-  function badgeTexture(n, on) {
+  // state: 'on' (the step you are on: gold, number) · 'number' (whole view) · 'done' / 'next' (small dots, grey / dark)
+  function badgeTexture(n, state) {
     const c = document.createElement('canvas'); c.width = c.height = 96;
     const g = c.getContext('2d');
-    g.fillStyle = css(on ? '--plan-dest' : '--plan-route'); g.beginPath(); g.arc(48, 48, 44, 0, Math.PI * 2); g.fill();
-    g.lineWidth = 6; g.strokeStyle = css('--plan-bg'); g.stroke();
-    g.fillStyle = css(on ? '--plan-route' : '--plan-bg'); g.font = '600 52px "IBM Plex Sans", system-ui, sans-serif';
-    g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), 48, 51);
+    const fill = { on: '--plan-dest', number: '--plan-route', done: '--plan-passed', next: '--plan-route' }[state];
+    g.fillStyle = css(fill); g.beginPath(); g.arc(48, 48, 44, 0, Math.PI * 2); g.fill();
+    g.lineWidth = state === 'done' || state === 'next' ? 12 : 6; g.strokeStyle = css('--plan-bg'); g.stroke();
+    if (state === 'on' || state === 'number') {
+      g.fillStyle = css(state === 'on' ? '--plan-route' : '--plan-bg'); g.font = '600 52px "IBM Plex Sans", system-ui, sans-serif';
+      g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), 48, 51);
+    }
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
   }
+  const near = (p, [a, c, t]) => Math.min(...[[a, c], [c, t]].map(([u, v]) => {
+    const dx = v.x - u.x, dy = v.y - u.y, k = Math.max(0, Math.min(1, ((p.x - u.x) * dx + (p.y - u.y) * dy) / (dx * dx + dy * dy || 1)));
+    return Math.hypot(p.x - u.x - dx * k, p.y - u.y - dy * k);
+  }));
   function highlight() {
     badges.forEach((b, j) => {
-      const on = j === current;
-      if (b.userData.on !== on) { b.material.map?.dispose(); b.material.map = badgeTexture(j + 1, on); b.material.needsUpdate = true; b.userData.on = on; }
+      const state = current < 0 ? 'number' : j === current ? 'on' : j < current ? 'done' : 'next';
+      if (b.userData.state !== state) { b.material.map?.dispose(); b.material.map = badgeTexture(j + 1, state); b.material.needsUpdate = true; b.userData.state = state; }
+      const on = state === 'on';
+      b.position.copy(on ? b.userData.lifted : b.userData.spot); b.userData.line.visible = on;
+      if (b.userData.arrow) b.userData.arrow.m.visible = on;
     });
+    segs.forEach((sg, j) => {
+      sg.line.color.set(css(current < 0 || j > current ? '--plan-route' : j === current ? '--plan-dest' : '--plan-passed'));
+      sg.edges.forEach(e => { e.visible = j === current; });
+      sg.tubes.forEach(t => { t.renderOrder = t.renderOrder - (t.renderOrder % 10) + (j === current ? 3.5 : 3); });
+    });
+    const arrow = badges[current]?.userData.arrow;
+    for (const c of chevrons) c.m.visible = !(arrow && c.level === arrow.level && near(c, arrow.points) < 4);
     sizeBadges(); needs = true;
   }
   function sizeBadges() {
     const h = canvas.clientHeight || 300;
-    badges.forEach((b, j) => { const s = (j === current ? 30 : 22) / h; b.scale.set(s, s, 1); b.renderOrder = j === current ? 20 : 10; });
+    badges.forEach((b, j) => {
+      const st = b.userData.state, s = (st === 'on' ? 32 : st === 'number' ? 22 : 12) / h;
+      b.scale.set(s, s, 1); b.renderOrder = st === 'on' ? 120 : 110;
+    });
     signs.forEach(s => s.scale.set(84 / h, 38.5 / h, 1));
   }
 
