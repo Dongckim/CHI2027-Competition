@@ -41,7 +41,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
   const routeLevels = new Set(route.levels);
 
   let renderer, scene, camera, groups, rides, raf = 0, needs = true, lost = false, frames = 0, onlyRouteFloors = false;
-  let badges = [], signs = [], segs = [], chevrons = [], current = -1, layoutDirty = true;
+  let badges = [], signs = [], segs = [], chevrons = [], labels = [], current = -1, layoutDirty = true;
   const cam = { theta: ORIGINAL.theta, phi: ORIGINAL.phi, radius: 260, target: new THREE.Vector3(0, height('P1'), 0) };
   let goal = null;
   const stepPoint = i => { const n = venue.nodes[steps[i]?.node]; return n?.x != null ? at(n.x, n.y, n.level) : null; };
@@ -60,7 +60,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     const faded = level => !routeLevels.has(level);
     const mat = (token, level, opacity = 1) => new THREE.MeshLambertMaterial({ color: css(token), transparent: faded(level) || opacity < 1,
       opacity: faded(level) ? FAINT : opacity, depthWrite: !faded(level) });
-    groups = new Map();
+    groups = new Map(); labels = [];
     for (const level of LEVELS) {
       // Each level: its floor, rooms and corridors, its part of the route, and `detail` (room numbers, pictograms, ride
       // signs) shown only when a step stops on that level.
@@ -99,15 +99,17 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       const d = Math.hypot(mid.x - door.x, mid.y - door.y) || 1, inset = Math.min(4, d * 0.5);
       const label = sprite(textCanvas(a.name, a === dest), a.name.length > 4 ? 9 : 6);
       label.position.copy(at(door.x + (mid.x - door.x) / d * inset, door.y + (mid.y - door.y) / d * inset, level, BLOCK + 1.6));
-      g.add(label);
+      label.material.opacity = 0; g.add(label); // layout() fades it in if there is room
+      labels.push({ obj: label, kind: a === dest ? 'dest' : 'room', level, x: door.x, y: door.y });
     }
   }
   // Lifts, escalators and toilets: pictograms at their measured points.
   function landmarks(g, level) {
-    for (const n of Object.values(venue.nodes)) {
+    for (const [id, n] of Object.entries(venue.nodes)) {
       if (n.level !== level || n.estimate || n.x == null || !['elevator', 'escalator', 'wc'].includes(n.kind)) continue;
       const s = sprite(iconCanvas(n.kind), 5);
-      s.position.copy(at(n.x, n.y, level, BLOCK + 3)); g.add(s);
+      s.position.copy(at(n.x, n.y, level, BLOCK + 3)); s.material.opacity = 0; g.add(s);
+      labels.push({ obj: s, kind: 'icon', id, level, x: n.x, y: n.y });
     }
   }
   function destinationFrame() {
@@ -246,6 +248,12 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       if (n?.x != null) worstGap = Math.max(worstGap, Math.hypot(spot.x - (n.x - cx), spot.z - (n.y - cz)));
       return b;
     });
+    // labels next to the route rank above the others
+    for (const l of labels) {
+      let m = Infinity;
+      for (let k = 1; k < nodes.length; k++) if (nodes[k].level === l.level && nodes[k - 1].level === l.level) m = Math.min(m, near(l, [nodes[k - 1], nodes[k], nodes[k]]));
+      l.nearRoute = m < 12;
+    }
     canvas.dataset.badgeGap = worstGap.toFixed(1); // for the phone check: metres from each number's foot to where you act (< 2)
     canvas.dataset.steps = String(badges.length); // for the phone check
     sizeBadges();
@@ -378,7 +386,10 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     camera.updateMatrixWorld();
     const screen = v => { const p = v.clone().project(camera); return { x: (p.x + 1) / 2 * W, y: (1 - p.y) / 2 * H }; };
     const b = badges[current];
-    if (!b) return;
+    if (b) place(b, screen);
+    declutter(W, H);
+  }
+  function place(b, screen) {
     const u = b.userData, s = screen(u.spot);
     let d = { x: 0, y: -1 }; // screen direction, y down: up
     if (u.aside.x || u.aside.y) {
@@ -390,6 +401,69 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
     b.center.set(0.5 - d.x * off / size, 0.5 + d.y * off / size); // a sprite's centre is in its own units, y up
     u.lead.material.rotation = Math.atan2(-d.x, -d.y);
     if (u.sign) { const ox = d.x * off + size / 2 + 8 + SIGN[0] / 2, oy = d.y * off; u.sign.center.set(0.5 - ox / SIGN[0], 0.5 + oy / SIGN[1]); }
+  }
+  // Labels by rank, in screen space: the step you are on (number, sign) → the destination → the other steps' dots →
+  // the lift or escalator this step takes → room numbers by the route → other pictograms → other room numbers. One that
+  // would overlap a label already placed is hidden. On a step, only labels within 25 m of it (and the ride it takes).
+  const STEP_LABELS_M = 25;
+  function declutter(W, H) {
+    const f = H / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)); // px per metre at 1 m from the camera
+    const rect = (o, wpx, hpx) => {
+      const p = o.position.clone().applyMatrix4(o.parent.matrixWorld), v = p.clone().applyMatrix4(camera.matrixWorldInverse);
+      if (v.z >= -camera.near) return null;
+      const q = p.project(camera), x = (q.x + 1) / 2 * W, y = (1 - q.y) / 2 * H;
+      const x0 = x - o.center.x * wpx, y1 = y + o.center.y * hpx; // centre in the sprite's units, y up
+      const r = [x0, y1 - hpx, x0 + wpx, y1];
+      return r[2] < 0 || r[0] > W || r[3] < 0 || r[1] > H ? null : r;
+    };
+    const world = o => { const v = o.position.clone().applyMatrix4(o.parent.matrixWorld).applyMatrix4(camera.matrixWorldInverse); const k = f / Math.max(1, -v.z); return [o.scale.x * k, o.scale.y * k]; };
+    const shown = o => { for (let q = o.parent; q; q = q.parent) if (!q.visible) return false; return true; };
+    const st = steps[current], sn = st ? venue.nodes[st.node] : null;
+    const ride = st && (st.icon === 'up' || st.icon === 'down') ? st.node : null;
+    const items = [];
+    badges.forEach((b, j) => {
+      const u = b.userData, on = j === current, size = PX[u.state];
+      if (u.sign) u.sign.userData.to = 0; // only the step you are on shows its ride sign
+      if (!shown(b)) { u.to = 0; return; }
+      items.push({ o: b, rank: on ? 0 : 2, r: rect(b, size, size), keep: on });
+      if (on && u.sign) items.push({ o: u.sign, rank: 0, r: rect(u.sign, SIGN[0], SIGN[1]), keep: true });
+    });
+    for (const l of labels) {
+      if (!shown(l.obj)) { l.obj.userData.to = 0; continue; }
+      const used = l.kind === 'icon' && l.id === ride;
+      if (sn && !used && Math.hypot(l.x - sn.x, l.y - sn.y) > STEP_LABELS_M) { l.obj.userData.to = 0; continue; }
+      const rank = l.kind === 'dest' ? 1 : used ? 3 : l.kind === 'room' && l.nearRoute ? 4 : l.kind === 'icon' ? 5 : 6;
+      const [w, h] = world(l.obj);
+      items.push({ o: l.obj, rank, r: rect(l.obj, w, h) });
+    }
+    items.sort((a, b) => a.rank - b.rank);
+    const placed = [], hit = (a, b) => a[0] < b[2] + 2 && b[0] < a[2] + 2 && a[1] < b[3] + 2 && b[1] < a[3] + 2;
+    for (const it of items) {
+      const ok = it.keep || (it.r && !placed.some(p => hit(p, it.r)));
+      it.o.userData.to = ok ? 1 : 0;
+      if (ok && it.r) placed.push(it.r);
+    }
+    // for the phone check: overlapping pairs among the labels left showing, and whether this step's number is one of them
+    let overlaps = 0;
+    for (let i = 0; i < placed.length; i++) for (let j = i + 1; j < placed.length; j++) if (hit(placed[i], placed[j])) overlaps++;
+    canvas.dataset.overlaps = String(overlaps);
+    canvas.dataset.labels = String(placed.length);
+    canvas.dataset.currentShown = current < 0 ? '' : String(badges[current]?.userData.to === 1);
+    needs = true;
+  }
+  // Labels fade in and out over 150 ms (at once with reduced motion). True while something is still fading.
+  function fade(dt) {
+    let busy = false;
+    const step = o => {
+      const to = o.userData.to ?? 1, now = o.material.opacity;
+      const next = reduceMotion ? to : now + Math.max(-dt / 0.15, Math.min(dt / 0.15, to - now));
+      if (next !== now) { o.material.opacity = next; busy = true; }
+      o.visible = next > 0.01;
+    };
+    for (const l of labels) step(l.obj);
+    for (const s of signs) step(s);
+    badges.forEach((b, j) => { step(b); const lead = b.userData.lead; lead.visible = j === current && b.visible; lead.material.opacity = b.material.opacity; });
+    return busy;
   }
 
   function placeCamera() {
@@ -507,6 +581,7 @@ export function mount(canvas, { venue, route, summary, steps = [], onStep = () =
       placeCamera();
     }
     if (layoutDirty) layout();
+    if (fade(dt)) needs = true;
     if (needs) { renderer.render(scene, camera); needs = false; canvas.dataset.frames = String(++frames); } // frames: for the phone check
   }
 

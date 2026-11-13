@@ -75,10 +75,10 @@ try {
   check('direction marks point the way you walk (dot > 0)', marks.chevronDot > 0, marks);
   check('step numbers sit where you act (< 2 m)', marks.badgeGap < 2, marks);
   await press('Show step 1'); await sleep(1500);
-  const s1 = { list: await ev(cur), card: await ev(card), levels: await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.levels`) };
+  const s1 = { list: await ev(cur), card: await ev(card), levels: await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.levels`), tidy: await ev(`(({ overlaps, currentShown, labels }) => ({ overlaps: +overlaps, currentShown, labels: +labels }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`) };
   await shot('s5-09-step1');
   await press('Next: step 2'); await sleep(1500);
-  const s2 = { list: await ev(cur), card: await ev(card) };
+  const s2 = { list: await ev(cur), card: await ev(card), tidy: await ev(`(({ overlaps, currentShown, labels }) => ({ overlaps: +overlaps, currentShown, labels: +labels }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`) };
   await shot('s5-09-step2');
   const swipeLeft = `(() => { const c = document.querySelector('section[aria-label="Floor plan"] canvas'), r = c.getBoundingClientRect(), y = r.top + r.height / 2;
     const ev = (t, x) => c.dispatchEvent(new PointerEvent(t, { pointerId: 7, clientX: x, clientY: y, bubbles: true, pointerType: 'touch', isPrimary: true }));
@@ -86,6 +86,15 @@ try {
   await ev(swipeLeft); await sleep(1500);
   const s3 = { list: await ev(cur), card: await ev(card) };
   await shot('s5-09-step3');
+  const s3tidy = await ev(`(({ overlaps, currentShown, labels }) => ({ overlaps: +overlaps, currentShown, labels: +labels }))(document.querySelector('section[aria-label="Floor plan"] canvas').dataset)`);
+  check('labels: no overlaps, this step\'s number shows', [s1.tidy, s2.tidy, s3tidy].every(t => t.overlaps === 0 && t.currentShown === 'true' && t.labels > 1), { s1: s1.tidy, s2: s2.tidy, s3: s3tidy });
+  // Frames at CPU 4x while gliding to a step and placing its labels (declutter runs on every camera move).
+  await send('Emulation.setCPUThrottlingRate', { rate: 4 });
+  const glide = await ev(`new Promise(res => { const d = []; let last = performance.now(); const t0 = last; const f = now => { d.push(now - last); last = now; if (now - t0 < 3000) requestAnimationFrame(f); else res(d); };
+    requestAnimationFrame(f); setTimeout(() => [...document.querySelectorAll('ol[aria-label=Steps] li button')][0].click(), 100); setTimeout(() => [...document.querySelectorAll('ol[aria-label=Steps] li button')][2].click(), 1500); })`);
+  await send('Emulation.setCPUThrottlingRate', { rate: 1 });
+  const gs = [...glide].sort((a, b) => a - b), gp = q => +gs[Math.floor(q * (gs.length - 1))].toFixed(1);
+  check('smooth at CPU 4x while moving between steps', gp(0.95) < 34 && glide.filter(x => x > 50).length <= 3, { frames: glide.length, medianMs: gp(0.5), p95Ms: gp(0.95), over50ms: glide.filter(x => x > 50).length });
   check('steps: Show step 1, Next, swipe', s1.list === 0 && s2.list === 1 && s3.list === 2 && /^1\./.test(s1.card ?? '') && /^3\./.test(s3.card ?? ''), { s1, s2, s3 });
   await ev(`[...document.querySelectorAll('[aria-label="What the plan shows"] button')].find(b => b.innerText === 'Whole').click()`); await sleep(600);
   const wholeLevels = await ev(`document.querySelector('section[aria-label="Floor plan"] canvas').dataset.levels`);
