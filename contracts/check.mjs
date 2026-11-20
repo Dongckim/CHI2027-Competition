@@ -5,6 +5,7 @@ import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
+import { verifiedReasons } from '../app/src/explore/quotes.js';
 
 export async function checkContracts(dir) {
   const ajv = new Ajv2020({ allErrors: true, strict: true });
@@ -32,6 +33,7 @@ export async function checkContracts(dir) {
     const ok = validate(data);
     let errors = ok ? [] : validate.errors.map(e => `${e.instancePath || '/'} ${e.message}`);
     if (ok && name === 'RecommendResponse') errors = await recommendResponseErrors(data, dir);
+    if (ok && name === 'Arc') errors = await withPapers(data.edition, dir, papers => arcRuleErrors(data, papers));
     results.push({ file: `examples/${f}`, ok: !errors.length, errors: errors.length ? errors : undefined });
   }
   return results;
@@ -60,12 +62,34 @@ export function responseRuleErrors(res, papers) {
   return errors;
 }
 
-async function recommendResponseErrors(res, dir) {
-  const file = new URL(`../data/build/${res.dataVersion.edition}/papers.json`, dir);
-  if (!existsSync(file)) { console.log(`note: data/build/${res.dataVersion.edition} not built, quote/offset rules skipped`); return []; }
-  const papers = new Map(JSON.parse(await readFile(file)).map(p => [p.key, p]));
-  return responseRuleErrors(res, papers);
+// Arc rules JSON Schema cannot express: real keys of the Arc's edition, each once; evidence is the abstract at its place
+// (the same check 06/14 use to show a quote); tension 'found' exactly when there is a T node.
+export function arcRuleErrors(arc, papers) {
+  const errors = [];
+  const seen = new Set();
+  arc.nodes.forEach((n, i) => {
+    const at = `/nodes/${i}`;
+    if (seen.has(n.key)) errors.push(`${at} duplicate key ${n.key}`);
+    seen.add(n.key);
+    if (!n.key.startsWith(`${arc.edition}:`)) errors.push(`${at} key ${n.key} is not from ${arc.edition}`);
+    const p = papers.get(n.key);
+    if (!p) { errors.push(`${at} unknown key ${n.key}`); return; }
+    const e = n.evidence;
+    if (e && !verifiedReasons([{ quote: e.sentence, start: e.start, end: e.end }], p.abstract).length)
+      errors.push(`${at}/evidence is not abstract.slice(${e.start}, ${e.end})`);
+  });
+  const hasT = arc.nodes.some(n => n.angle === 'T');
+  if ((arc.tension === 'found') !== hasT) errors.push(`/tension "${arc.tension}" but ${hasT ? 'there are' : 'there are no'} T nodes`);
+  return errors;
 }
+
+async function withPapers(edition, dir, rules) {
+  const file = new URL(`../data/build/${edition}/papers.json`, dir);
+  if (!existsSync(file)) { console.log(`note: data/build/${edition} not built, quote/offset rules skipped`); return []; }
+  return rules(new Map(JSON.parse(await readFile(file)).map(p => [p.key, p])));
+}
+
+const recommendResponseErrors = (res, dir) => withPapers(res.dataVersion.edition, dir, papers => responseRuleErrors(res, papers));
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const results = await checkContracts(new URL('./', import.meta.url));

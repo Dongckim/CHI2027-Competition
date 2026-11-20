@@ -36,3 +36,16 @@ test('RecommendResponse rules: quote offsets, sorted keys, clusters, bridge step
   bad.bridge = { path: ['chi2026:1', 'chi2026:2'], via: [] };
   assert.equal(responseRuleErrors(bad, papers).length, 7);
 });
+
+test('Arc rules: real keys of its edition once, evidence at its place, tension found only with T nodes', async () => {
+  const { arcRuleErrors } = await import('../../contracts/check.mjs');
+  const papers = new Map([['chi2026:1', { key: 'chi2026:1', abstract: 'We study maps. Maps help.' }]]);
+  const node = (key, angle, evidence) => ({ key, angle, label: 'Maps', evidence, debut: false });
+  const arc = { edition: 'chi2026', tension: 'found', nodes: [node('chi2026:1', 'T', { sentence: 'Maps help.', start: 15, end: 25 })] };
+  assert.deepEqual(arcRuleErrors(arc, papers), []);
+  const bad = { edition: 'chi2026', tension: 'none', nodes: [
+    node('chi2026:1', 'T', { sentence: 'Maps help.', start: 14, end: 24 }), node('chi2026:1', 'S', null), node('chi2025:1', 'S', null), node('chi2026:2', 'R', null)] };
+  // shifted evidence, duplicate, other edition (+ unknown), unknown, tension none with a T node
+  assert.equal(arcRuleErrors(bad, papers).length, 6);
+  assert.deepEqual(arcRuleErrors({ edition: 'chi2026', tension: 'off', nodes: [node('chi2026:1', 'S', null)] }, papers), []);
+});

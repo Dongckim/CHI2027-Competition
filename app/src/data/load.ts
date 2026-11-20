@@ -67,3 +67,6 @@ export const abstractsUrl = (day: string) => `${base}abstracts/${day}.json`;
 export const loadTopics = once<{ key: string; label: string; contentKeys: string[] }[]>(() => get(`${base}topics.json`));
 export const loadInstitutions = once<{ institutions: { key: string; name: string; authorCount: number }[]; lookup: Record<string, string[]> }>(
   () => get(`${base}institutions.json`));
+
+// 14 "✦ New to CHI": person keys with no author of the same name in the three earlier editions (data/scripts/debut.mjs).
+export const loadDebut = once<string[]>(() => get(`${base}debut.json`).catch(() => []));

@@ -1,0 +1,94 @@
+{
+  "schema_version": "0.1.0",
+  "id": "example-notension-0001",
+  "edition": "chi2026",
+  "query": "privacy of smart home devices",
+  "tribe": "society",
+  "nodes": [
+    {
+      "key": "chi2026:225686",
+      "angle": "S",
+      "label": "Bystander Privacy in Sm…",
+      "evidence": {
+        "sentence": "Smart home devices, such as security cameras and voice assistants, have seen widespread adoption due to the utility and convenience they offer to users.",
+        "start": 0,
+        "end": 152
+      },
+      "debut": false
+    },
+    {
+      "key": "chi2026:229765",
+      "angle": "S",
+      "label": "Building a Private Smar…",
+      "evidence": {
+        "sentence": "Using reflexive thematic analysis, we developed three themes: (1) privacy is a driver for abandoning smart home components, (2) making the smart home private is not an end in itself, and (3) there are recurring strategies for setting up and maintaining a private smart home.",
+        "start": 422,
+        "end": 696
+      },
+      "debut": true
+    },
+    {
+      "key": "chi2026:221906",
+      "angle": "S",
+      "label": "Control in Context",
+      "evidence": {
+        "sentence": "A homeowner controls their smart home devices along a spectrum of approaches, ranging from physical device control to various proxy-based control modalities.",
+        "start": 0,
+        "end": 157
+      },
+      "debut": true
+    },
+    {
+      "key": "chi2026:222168",
+      "angle": "S",
+      "label": "Investigating How Types…",
+      "evidence": {
+        "sentence": "Such Smart Home Devices (SHDs) may receive data directly from users, observe their surroundings with sensors, or infer/predict information through computation.",
+        "start": 98,
+        "end": 257
+      },
+      "debut": true
+    },
+    {
+      "key": "chi2026:222886",
+      "angle": "R",
+      "label": "Misalignments between P…",
+      "evidence": {
+        "sentence": "We present a content analysis of the privacy policy documentation and product descriptions from 146 smart sex toys across fourteen brands.",
+        "start": 0,
+        "end": 138
+      },
+      "debut": true
+    },
+    {
+      "key": "chi2026:230068",
+      "angle": "R",
+      "label": "Conversational Successe…",
+      "evidence": {
+        "sentence": "Non-Display Smart Glasses hold the potential to support everyday activities by combining continuous environmental sensing with voice-only interaction powered by large language models (LLMs).",
+        "start": 0,
+        "end": 190
+      },
+      "debut": false
+    },
+    {
+      "key": "chi2026:223181",
+      "angle": "R",
+      "label": "Good Fences Make Good N…",
+      "evidence": {
+        "sentence": "The popularization of video security devices promises to improve security in and outside people’s home, yet they also expose their owners, neighbors and visitors to privacy risks.",
+        "start": 0,
+        "end": 179
+      },
+      "debut": true
+    }
+  ],
+  "tension": "none",
+  "filters": {
+    "days": [],
+    "types": []
+  },
+  "source": "mine",
+  "engine": "mock@0.1",
+  "createdAt": 1795176000000
+}
