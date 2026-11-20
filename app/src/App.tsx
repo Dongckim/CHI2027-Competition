@@ -14,10 +14,11 @@ const Building = named(() => import('./screens/arc/Building'), 'Building');
 const Hood = named(() => import('./screens/arc/Hood'), 'Hood');
 const Home = named(() => import('./screens/arc/Home'), 'Home');
 const ArcMap = named(() => import('./screens/arc/ArcMap'), 'ArcMap');
+const TalkDetail = named(() => import('./screens/arc/TalkDetail'), 'TalkDetail');
 const Legacy = named(() => import('./Legacy'), 'Legacy');
 
 const TITLES: Record<string, string> = { start: 'Welcome', ask: 'Ask', angles: 'Choose your angles', when: 'When and what', building: 'Building your Arc',
-  hood: 'Your neighborhood', home: 'My Arcs', arc: 'My Arc' };
+  hood: 'Your neighborhood', home: 'My Arcs', arc: 'My Arc', talk: 'Talk' };
 
 export function App() {
   const route = useRoute();
@@ -39,6 +40,7 @@ export function App() {
       case 'hood': return step ? <Hood id={step} /> : <Home />;
       case 'home': return <Home />;
       case 'arc': return step ? <ArcMap id={step} /> : <Home />;
+      case 'talk': return step ? <TalkDetail paperKey={step} /> : <Home />; // 14 (the planner's 06 is replaced)
       default: return <Legacy />;
     }
   })();

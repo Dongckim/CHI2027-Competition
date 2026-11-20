@@ -24,3 +24,8 @@ export function useTribe(tribe: TribeId | null | undefined) {
 let preview: TribeId | null = null;
 export const setPreviewTribe = (t: TribeId | null) => { preview = t; };
 export const previewTribe = () => preview;
+
+// The Arc last opened on 12, so 14 (#/talk/<key>) can show that Arc's angle and evidence for the talk.
+let currentArc: string | null = null;
+export const setCurrentArc = (id: string | null) => { currentArc = id; };
+export const currentArcId = () => currentArc;
