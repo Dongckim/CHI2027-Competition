@@ -13,7 +13,7 @@
 
 ## 단계 (stages/)
 **Arc (지금)**
-- [A0 계약·엔진](stages/A0-arc-contract.md) · [A1 만들기 화면](stages/A1-create.md) · [A2 지도·목록·상세·편집](stages/A2-arc.md) · [A3 공유·받기·Q&A](stages/A3-share.md)
+- [A0 계약·엔진](stages/A0-arc-contract.md) · [A1 만들기 화면](stages/A1-create.md) · [A2 지도·목록·상세·편집](stages/A2-arc.md) · [A3 공유·받기·Q&A](stages/A3-share.md) · [A4 미리보기 그림·오프라인·접근성](stages/A4-ship.md)
 
 **기능 검증 (V 단계 정리)**
 - [00 데이터](stages/00-data.md) · [02 플래너](stages/02-planner.md) · [04 자막](stages/04-captions.md) · [06 학회장](stages/06-venue.md)
