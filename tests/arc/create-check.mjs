@@ -92,21 +92,24 @@ try {
   await click('See my Arc');
   const arcMs = await waitFor(`location.hash.startsWith('#/arc/') && document.querySelector('h1')?.textContent === 'Does VR fidelity raise presence?'`);
   const arcHash = await hash();
-  await waitFor(`document.querySelectorAll('main button[aria-label*=" · "]').length >= 3`, 15000);
-  const nodes = await ev(`['Supports', 'Reframes', 'Challenges'].map(a => [...document.querySelectorAll('main button[aria-label*=" · "]')].filter(b => b.getAttribute('aria-label').startsWith(a + ' · ')).length)`);
+  const NODE = `[...document.querySelectorAll('main button[aria-description]')].filter(b => /^(Supports|Reframes|Challenges) · /.test(b.textContent.trim()))`;
+  await waitFor(`${NODE}.length >= 3`, 15000);
+  const nodes = await ev(`['Supports', 'Reframes', 'Challenges'].map(a => ${NODE}.filter(b => b.textContent.trim().startsWith(a + ' · ')).length)`);
   const stored = await ev(`new Promise(r => { const q = indexedDB.open('arc'); q.onsuccess = () => { const g = q.result.transaction('arcs').objectStore('arcs').getAll(); g.onsuccess = () => r(g.result.length); }; })`);
   check('12 reached by clicks only, with talks round the question, saved once', arcMs != null && nodes?.reduce((a, b) => a + b, 0) >= 3 && stored === 1, { hash: arcHash, nodesPerAngle: nodes, storedArcs: stored });
   await shot('12');
   // 12 → 14: every node is a button named "<angle> · <title> · <time>"; the first opens 14 with its title and evidence
-  const node = await ev(`(() => { const b = [...document.querySelectorAll('main button[aria-label*=" · "]')]; const f = b[0];
-    return { count: b.length, named: b.every(x => /^(Supports|Reframes|Challenges) · .+ · .+/.test(x.getAttribute('aria-label') ?? '')), label: f?.getAttribute('aria-label') }; })()`);
-  await ev(`document.querySelector('main button[aria-label*=" · "]').click()`);
-  const want = JSON.stringify(node.label?.split(' · ')[1] ?? '');
+  // a node's name is its own text: "<angle> · <title> <time · room>" (WCAG 2.5.3), the title in its two-line span
+  const node = await ev(`(() => { const b = ${NODE}; const f = b[0];
+    return { count: b.length, named: b.every(x => /^(Supports|Reframes|Challenges) · .+ \\d\\d:\\d\\d/.test(x.innerText.replace(/\\s+/g, ' ').trim())), label: f?.innerText.replace(/\\s+/g, ' ').trim(),
+      title: f?.querySelector('.line-clamp-2')?.textContent.replace(/^✦ /, '').trim() }; })()`);
+  await ev(`${NODE}[0].click()`);
+  const want = JSON.stringify(node.title ?? '');
   // 14 is its own chunk: wait for its title (not the 12 still on screen) and for the abstract
   const talkMs = await waitFor(`location.hash.startsWith('#/talk/chi2026:') && document.querySelector('h1')?.innerText === ${want} && !/Loading/.test(document.querySelector('main').innerText)`, 30000);
   const talk = await ev(`({ title: document.querySelector('h1')?.innerText, angle: document.querySelector('main p')?.innerText, mark: document.querySelector('main mark')?.textContent ?? null, when: [...document.querySelectorAll('main p')].map(p => p.innerText).find(t => t.includes(' · ~')) ?? [...document.querySelectorAll('main li')].map(l => l.innerText).find(t => t.includes(' · ~')) ?? null })`);
   await shot('14');
-  check('12 node opens 14 with title, angle, time and the evidence highlighted', talkMs != null && node.named && node.label?.split(' · ')[1] === talk?.title && !!talk?.mark && !!talk.when,
+  check('12 node opens 14 with title, angle, time and the evidence highlighted', talkMs != null && node.named && node.title === talk?.title && !!talk?.mark && !!talk.when,
     { nodes: node.count, label: node.label, talk });
   await send('Runtime.evaluate', { expression: 'history.back()' });
   await waitFor(`location.hash.startsWith('#/arc/')`);

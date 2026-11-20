@@ -1,4 +1,4 @@
-// Deploy check (A3/A4): a real Vercel deploy, not vite preview. /s/<payload> → share page tags → 18 in headless Chrome,
+// Deploy check (A3/A4): a real Vercel deploy, not vite preview. /s/<payload> → share page tags, /api/og picture, → 18 in headless Chrome,
 // and a Q&A round trip (ask → list → vote → delete) on a test paper key nobody sees (chi2026:0).
 //   VERCEL_BYPASS_TOKEN=… node --experimental-websocket tests/arc/preview-check.mjs <deploy url> [--expect-upstash]
 //   node --experimental-websocket tests/arc/preview-check.mjs <production url> --public [--expect-upstash]
@@ -35,7 +35,12 @@ try {
   // 2. the share page messengers read
   const s = await fetch(`${BASE}/s/${PAYLOAD}`, { headers, redirect: 'manual' });
   const html = s.status === 200 ? await s.text() : '';
-  check('/s/<payload> → share page with preview tags', html.includes('<meta property="og:title" content="Does VR fidelity raise presence?">') && html.includes(`/#/r/${PAYLOAD}`), { status: s.status });
+  check('/s/<payload> → share page with preview tags', html.includes('<meta property="og:title" content="Does VR fidelity raise presence?">') && html.includes(`/#/r/${PAYLOAD}`) && html.includes(`/api/og?d=${PAYLOAD}`), { status: s.status });
+
+  // 2b. the preview picture (its wasm, fonts and SVGs come from vercel.json includeFiles: only a deploy can prove them)
+  const og = await fetch(`${BASE}/api/og?d=${PAYLOAD}`, { headers, redirect: 'manual' });
+  const png = og.status === 200 ? Buffer.from(await og.arrayBuffer()) : Buffer.alloc(0);
+  check('/api/og → 1200×630 PNG', og.headers.get('content-type') === 'image/png' && png.subarray(1, 4).toString() === 'PNG' && png.readUInt32BE(16) === 1200, { status: og.status, bytes: png.length });
 
   // 3. Q&A round trip on chi2026:0 (no talk has that id), deleted at the end
   const device = `deploycheck${Math.random().toString(36).slice(2, 14).padEnd(12, '0')}`;

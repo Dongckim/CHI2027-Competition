@@ -1,7 +1,7 @@
 // GET /s/<payload> (vercel.json rewrites it to /api/share?d=<payload>) → a tiny page with the link preview tags that
 // messengers read (title = the question, description = the angle counts), which sends people straight on to the app's
 // #/r/<payload> (18). Stateless and silent: nothing is stored or logged; the payload is checked, never trusted.
-// The preview image (og:image) comes with api/og in A4.
+// The preview picture is og:image = /api/og?d=<payload> (functions/og.mjs).
 import { decodeLink, angleCounts } from '../app/src/arc/link.js';
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -21,7 +21,8 @@ export function sharePage(payload, origin) {
 <meta property="og:type" content="website"><meta property="og:site_name" content="ARC">
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${esc(`${origin}/s/${d.ok ? payload : ''}`)}">
-<meta name="twitter:card" content="summary">
+${d.ok ? `<meta property="og:image" content="${esc(`${origin}/api/og?d=${payload}`)}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="${esc(`${title}: ${desc}`)}">
+<meta name="twitter:card" content="summary_large_image">` : '<meta name="twitter:card" content="summary">'}
 <meta name="robots" content="noindex">
 <meta http-equiv="refresh" content="0;url=${esc(to)}">
 <style>body{background:#121119;color:#f4f6ff;font:16px Inter,system-ui,sans-serif;display:grid;place-items:center;min-height:100dvh;margin:0}a{color:#f4f6ff}</style>
@@ -32,6 +33,6 @@ export default async function share(request) {
   if (request.method !== 'GET' && request.method !== 'HEAD') return new Response('GET only', { status: 405 });
   const url = new URL(request.url);
   const page = sharePage(url.searchParams.get('d') ?? '', url.origin);
-  // the page depends only on the payload; a day at the edge (A4 adds the preview image, so not a year yet)
-  return new Response(request.method === 'HEAD' ? null : page, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'public, max-age=3600, s-maxage=86400' } });
+  // the page depends only on the payload: cached for a year (a new deploy with other tags gets new edge caches)
+  return new Response(request.method === 'HEAD' ? null : page, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'public, max-age=86400, s-maxage=31536000' } });
 }

@@ -44,10 +44,11 @@ export function ArcList({ id }: { id: string }) {
               {nodes.map(n => {
                 const i = info(n.key), st = (states.get(n.key) ?? 'upcoming') as keyof typeof PREFIX;
                 return (
-                  <button key={n.key} type="button" onClick={() => go(`talk/${n.key}`)} aria-label={`${ANGLE_NAME[a]} · ${i.title} · ${i.time}`} aria-description={st}
+                  <button key={n.key} type="button" onClick={() => go(`talk/${n.key}`)} 
                     className="flex min-h-[62px] items-center gap-3 rounded-[20px] border border-arc-line bg-arc-surface py-2.5 pr-3 pl-3.5 text-left">
                     <span aria-hidden="true" className={`size-2.5 shrink-0 rounded-full ${st === 'heard' ? 'bg-tribe' : st === 'next' ? 'border-2 border-arc-text' : st === 'ended' ? 'border border-dashed border-arc-text/50' : 'border-[1.5px] border-arc-text/45'}`} />
                     <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <span className="sr-only">{ANGLE_NAME[a]} · </span>
                       <span className={`line-clamp-2 text-[14px] leading-[18px] font-semibold ${st === 'heard' || st === 'ended' ? 'text-arc-text/70' : ''}`}>{n.debut && <span aria-hidden="true">✦ </span>}{i.title}</span>
                       {/* Figma 11px; 12px is the floor */}
                       <span className="text-[12px] font-medium text-arc-text-3">{PREFIX[st]}{i.time}{i.room && ` · ${i.room}`}</span>{/* with the day: an Arc spans the week */}
