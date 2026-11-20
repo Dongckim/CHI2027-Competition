@@ -3,6 +3,7 @@
 // gradient or another layer) is measured from pixels: its box is captured with and without the text; under the glyphs
 // (the pixels that differ) the worst 2% of the background against the text colour must reach 4.5:1 (3:1 large). Screen readers
 // (VoiceOver) are a person's job.
+// 10 (Building, about 3 s) is not in the list.
 // npm run build && node --experimental-websocket tests/arc/a11y-check.mjs [--json] [--shots <dir>]
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -22,6 +23,7 @@ const opts = { angles: ['S', 'R', 'T'], days: [], types: ['Paper', 'Posters', 'I
 const ARC = buildArc(index, 'Does VR fidelity raise presence?', opts, { id: 'a11y-normal-001', createdAt: 2 });
 const NONE = buildArc(index, 'sign language', opts, { id: 'a11y-none-0001', createdAt: 1 });
 const PEND = buildArc(index, 'privacy of smart home devices', opts, { id: 'a11y-pend-0001', createdAt: 0, mode: 'pending' });
+const CROWD = buildArc(index, 'Does VR fidelity raise presence?', opts, { id: 'a11y-crowd-001', createdAt: 0, mode: 'crowded' });
 const OTHER = buildArc(index, 'haptic feedback', opts, { id: 'a11y-other-001', createdAt: 0 });
 const draft = { query: 'Does VR fidelity raise presence?', topicsFor: null, topics: { S: [], R: [], T: [] }, when: 'all', what: ['talks', 'posters', 'demos'] };
 const device = onboarded => JSON.stringify({ version: 1, edition: 'chi2026', mode: null, step: 'research', builtAt: null,
@@ -33,7 +35,7 @@ const SCREENS = [
   ['09', '#/when', 'Build my Arc'], ['11', `#/hood/${ARC.id}`, "YOU'RE IN"], ['12', `#/arc/${ARC.id}`, 'Next ·'], ['13', `#/arc/${ARC.id}/list`, 'Reframes'],
   ['14', `#/talk/${ARC.nodes[0].key}`, 'WHY IT'], ['15', `#/arc/${ARC.id}/edit`, 'Editing'], ['16', `#/share/${ARC.id}`, 'Never your name'],
   ['17', `#/qr/${ARC.id}`, 'Scan to get'], ['18', `#/r/${encodeLink(OTHER)}`, 'Shared Arc'], ['19', `#/r/${encodeLink(OTHER)}/pick`, 'Pick what to keep'],
-  ['20', '#/home', 'My Arcs'], ['23', `#/arc/${NONE.id}`, 'No clear challenge'], ['25', `#/arc/${PEND.id}`, 'Sorting angles'],
+  ['20', '#/home', 'My Arcs'], ['23', `#/arc/${NONE.id}`, 'No clear challenge'], ['24', `#/arc/${CROWD.id}`, ' more'], ['25', `#/arc/${PEND.id}`, 'Sorting angles'],
 ];
 
 const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { stdio: 'ignore', detached: true });
@@ -70,7 +72,7 @@ async function pixelContrast(selectors) {
     if (b.w < 2 || b.h < 2) continue;
     const sel = JSON.stringify(b.sel);
     const r = await ev(`(() => { const el = document.querySelector(${sel}); el.scrollIntoView({ block: 'center' }); const q = el.getBoundingClientRect();
-      return { x: q.x + scrollX, y: q.y + scrollY, w: q.width, h: q.height }; })()`);
+      return { x: q.x + scrollX, y: q.y + scrollY, w: q.width, h: q.height, off: q.right <= 0 || q.left >= innerWidth || q.bottom <= 0 || q.top >= innerHeight }; })()`);
     await sleep(80);
     const clip = { x: r.x, y: r.y, width: r.w, height: r.h, scale: 1 };
     const withText = (await send('Page.captureScreenshot', { format: 'png', clip })).result.data;
@@ -84,7 +86,7 @@ async function pixelContrast(selectors) {
       im.onload = () => { const c = Object.assign(document.createElement('canvas'), { width: im.width, height: im.height }); const g = c.getContext('2d'); g.drawImage(im, 0, 0); res(g.getImageData(0, 0, c.width, c.height).data); };
       im.src = 'data:image/png;base64,' + d; }))).then(([a, z]) => { const out = []; for (let i = 0; i < a.length; i += 4)
         if (Math.abs(a[i] - z[i]) + Math.abs(a[i + 1] - z[i + 1]) + Math.abs(a[i + 2] - z[i + 2]) > 60) out.push([z[i], z[i + 1], z[i + 2]]); return out; })`);
-    if (!bg?.length) { out.push({ text: b.text, ratio: null, need: 0 }); continue; } // no glyph on screen (a side card scrolled out)
+    if (!bg?.length) { out.push({ text: b.text, ratio: r.off ? null : 0, need: r.off ? 0 : b.large ? 3 : 4.5 }); continue; } // off screen (a side card): not measured; on screen with no visible glyph: fails
     const [cr, cg, cb, ca = 1] = b.color, alpha = ca * b.opacity;
     const ratios = bg.map(p => ratio([cr, cg, cb].map((c, k) => c * alpha + p[k] * (1 - alpha)), p)).sort((p, q) => p - q);
     out.push({ text: b.text, ratio: Math.round(ratios[Math.floor(ratios.length * 0.02)] * 100) / 100, need: b.large ? 3 : 4.5 }); // worst 2%
@@ -98,8 +100,12 @@ try {
   await send('Page.navigate', { url: BASE + '?at=2026-04-14T12:00#/start/1' });
   await waitFor(`document.readyState === 'complete'`);
   await ev(`localStorage.setItem('arc.device', ${JSON.stringify(device(true))}); true`);
+  // 21 empty home, before any Arc is stored
+  await send('Page.navigate', { url: `${BASE}?at=2026-04-14T12:00&s=21#/home` });
+  if (await waitFor(`document.body.innerText.includes('Start with one question')`, 30000)) { await sleep(600); results['21'] = await axe(); results['21'].pixels = await pixelContrast(results['21'].cc); }
+  else results['21'] = { error: 'did not show "Start with one question"' };
   await ev(`new Promise(r => { const q = indexedDB.open('arc', 1); q.onupgradeneeded = () => q.result.createObjectStore('arcs', { keyPath: 'id' });
-    q.onsuccess = () => { const t = q.result.transaction('arcs', 'readwrite'); for (const a of ${JSON.stringify([ARC, NONE, PEND])}) t.objectStore('arcs').put(a); t.oncomplete = () => r(true); }; })`);
+    q.onsuccess = () => { const t = q.result.transaction('arcs', 'readwrite'); for (const a of ${JSON.stringify([ARC, NONE, PEND, CROWD])}) t.objectStore('arcs').put(a); t.oncomplete = () => r(true); }; })`);
   for (const [name, hash, text] of SCREENS) {
     await send('Page.navigate', { url: `${BASE}?at=2026-04-14T12:00&s=${name}${hash}` });
     const ok = await waitFor(`document.body.innerText.includes(${JSON.stringify(text)})`, 30000);
