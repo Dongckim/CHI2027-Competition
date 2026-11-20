@@ -107,3 +107,20 @@ test('mock: word roots meet (robotics / robotic / robots), so a two-day Arc stil
   const arc = buildArc(index, q, { angles: ['S', 'R', 'T'], days: ['2026-04-14', '2026-04-15'], types: [] }, { id: 'stem-test-0001', createdAt: 0 });
   assert.ok(arc.nodes.filter(n => n.angle === 'S').length > 0, 'was ↑0 with only the plural rule');
 });
+
+test('mock: a Challenge is a result of the study, not its background (not the first sentence, no bare "However")', { skip: !corpus && 'data/build/chi2026 not built' }, async () => {
+  const { sentences } = await import('../../app/src/recommend/baseline.js');
+  const index = buildIndex(corpus);
+  const opts = { angles: ['S', 'R', 'T'], days: [], types: [] };
+  const qs = ['Does VR fidelity raise presence?', 'privacy of smart home devices', 'older adults and technology', 'LLM agents for programming', 'children learning with robots', 'mental health apps', 'Robotics could be helpful to the human daily life?'];
+  const result = /\b(no significant|did not|contrary to|we (?:did not )?(?:find|found|observed?|show(?:ed)?|reveal(?:ed)?)|results?|findings|analysis|participants)\b/i;
+  for (const q of qs) {
+    for (const n of buildArc(index, q, opts, { id: 'chal-test-0001', createdAt: 0 }).nodes.filter(x => x.angle === 'T')) {
+      const first = sentences(index.byKey.get(n.key).abstract)[0];
+      assert.notEqual(n.evidence.start, first.start, `${q}: first sentence`);
+      assert.match(n.evidence.sentence, result, `${q}: "${n.evidence.sentence.slice(0, 80)}"`);
+    }
+  }
+  const all = qs.flatMap(q => buildArc(index, q, opts, { id: 'chal-test-0002', createdAt: 0 }).nodes.filter(n => n.angle === 'T')).map(n => n.evidence?.sentence ?? '');
+  assert.ok(!all.some(s => /^However, these systems are typically designed/.test(s) || /^Yet studies on robot power/.test(s)), 'background sentences are not Challenges');
+});
