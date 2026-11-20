@@ -79,3 +79,11 @@ export function whenOptions(days, today) {
 }
 /** The chosen option, or All week when the saved one is not offered any more (e.g. "today" after the conference). */
 export const whenChoice = (options, when) => options.find(o => o.id === when) ?? options.find(o => o.id === 'all');
+
+// 14 "I heard it": talks the person marked as heard (paper keys), on this device only. Heard = tribe colour on the map.
+export const heardOf = state => new Set(arcOf(state).heard ?? []);
+export const toggleHeard = (state, key) => {
+  const h = heardOf(state);
+  if (h.has(key)) h.delete(key); else h.add(key);
+  return withArc(state, { heard: [...h].sort() });
+};
