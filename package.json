@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node app/scripts/copy-static.mjs",
+    "qa:auto": "node tests/qa/run.mjs",
     "qa:clean": "node functions/qa-admin.mjs clean",
     "qa:expiry": "node functions/qa-admin.mjs expiry",
     "build:deploy": "npm run data:fetch chi2023 chi2024 chi2025 chi2026 && npm run data:build chi2026 && npm run build && node app/scripts/fetch-model.mjs",
