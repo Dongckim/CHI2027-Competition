@@ -37,7 +37,8 @@ function side(seats, nodes, max) {
   if (nodes.length <= max) return { placed: nodes.map((n, i) => ({ node: n, at: (nodes.length === 1 ? seats.one : nodes.length === 2 ? seats.two : seats.three)[i] })), bundle: null };
   // Sides keep two and put the bundle between them (Figma 24). At the bottom there is no room between: one talk, then the bundle.
   const keep = seats.bundle ? 2 : 1;
-  return { placed: nodes.slice(0, keep).map((n, i) => ({ node: n, at: seats.two[i] })), bundle: { at: seats.bundle ?? seats.two[1], count: nodes.length - keep } };
+  // (a little lower than the seat, clear of the Challenges side's lower label)
+  return { placed: nodes.slice(0, keep).map((n, i) => ({ node: n, at: seats.two[i] })), bundle: { at: seats.bundle ?? [seats.two[1][0], seats.two[1][1] + 16], count: nodes.length - keep } };
 }
 
 /**
@@ -55,7 +56,12 @@ export function layout(arc) {
   const by = a => arc.nodes.filter(n => n.angle === a);
   const s = side(LEFT, by('S'), 2), t = side(RIGHT, by('T'), 2);
   // Three at the bottom only when neither side uses its lower seat (they would overlap its label), else two + bundle
-  const r = side(BOTTOM, by('R'), s.placed.length < 2 && t.placed.length < 2 ? 3 : 2);
+  const crowdedSides = s.placed.length >= 2 || t.placed.length >= 2;
+  const r = side(BOTTOM, by('R'), crowdedSides ? 2 : 3);
+  if (crowdedSides) { // the sides' lower labels reach the bottom row: move it down a node's half
+    for (const x of r.placed) x.at = [x.at[0], x.at[1] + 32];
+    if (r.bundle) r.bundle.at = [r.bundle.at[0], r.bundle.at[1] + 32];
+  }
   const bundles = [['S', s], ['T', t], ['R', r]].filter(([, x]) => x.bundle).map(([angle, x]) => ({ angle, ...x.bundle }));
   return { nodes: [...s.placed, ...r.placed, ...t.placed], bundles, emptyT: arc.tension === 'none' ? RIGHT.one[0] : null };
 }

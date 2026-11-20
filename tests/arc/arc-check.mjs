@@ -106,6 +106,10 @@ try {
   await open(`#/arc/${ARCS.normal.id}/edit`);
   await waitFor(`/Editing/.test(document.body.innerText) && document.querySelectorAll('button[aria-label^="Remove "]').length > 1`, 20000);
   const before = ARCS.normal.nodes.length; // stored talks (the map may bundle some)
+  await shot('15-closed');
+  const hintClear = await ev(`(() => { const p = [...document.querySelectorAll('main p')].find(p => p.innerText.startsWith('Tap a talk')); const r = p.getBoundingClientRect();
+    return ![...document.querySelectorAll('main button[aria-label*=" · "] span')].some(s => { const q = s.getBoundingClientRect(); return q.height && q.bottom > r.top + 1 && q.top < r.bottom - 1 && q.right > r.left && q.left < r.right; }); })()`);
+  check('15 hint below the map, not over the labels', hintClear === true, {});
   await click(`document.querySelector('button[aria-label^="Remove "]')`);
   await click(`[...document.querySelectorAll('main button[aria-pressed]')].find(b => b.getAttribute('aria-label')?.includes(' · '))`);
   const cardsMs = await waitFor(`[...document.querySelectorAll('section[aria-label=Swap] button')].some(b => b.getAttribute('aria-label')?.startsWith('Swap in'))`, 20000);
