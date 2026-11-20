@@ -47,13 +47,14 @@ export function Building() {
 
   return (
     <Screen label="Building your Arc" bottom={failed ? <ArcLink href={href('when')} kind="secondary">Try again</ArcLink> : undefined}>
-      <div className="relative -mx-6 mt-[100px] h-[340px] w-[390px] max-w-[100vw] self-center" aria-hidden="true">
+      <div className="pointer-events-none relative mt-[100px] h-[340px] w-[390px] shrink-0 self-center" aria-hidden="true">
         <div className="absolute left-0 w-[390px]" style={{ top: -210, height: 844 }}>
           <img src={outer} alt="" style={at(25, 210, 340)} />
           <img src={inner} alt="" style={at(70, 255, 250)} />
           <span className="arc-orb" style={at(125, 310, 140)} />{/* Figma's orb is XR blue; this takes the tribe colour */}
           <span className="arc-spin arc-progress" style={at(113, 298, 164)} />{/* Figma: 2px ring, angular gradient white 0 → 0.95 */}
-          <p className="absolute line-clamp-3 w-[104px] text-center text-[14px] leading-[18px] font-semibold" style={{ left: 143, top: 362 }}>{draft.query}</p>
+          {/* the question just typed, echoed in the loading picture (aria-hidden box): white on the tribe orb as in Figma, an exception */}
+          <p data-contrast-exception="figma-orb" className="absolute line-clamp-3 w-[104px] text-center text-[14px] leading-[18px] font-semibold" style={{ left: 143, top: 362 }}>{draft.query}</p>
         </div>
       </div>
       <p className="mt-[-20px] text-center text-[13px] font-medium text-arc-text-2" role="status">

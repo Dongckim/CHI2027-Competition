@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { go, href } from '../../router';
 import { Screen, ArcLink, Pic } from '../../components/arc';
 import { AngleHelp, ANGLE_NAME } from './AngleHelp';
-import { ArcView, ANGLE_ICON } from './ArcView';
+import { ArcView, ANGLE_ICON, useFitScale } from './ArcView';
 import { ArcHeader } from './ArcHeader';
 import { useArc } from './useArc';
 import editIcon from '../../assets/arc/icon-edit.svg';
@@ -14,6 +14,7 @@ import spinner from '../../assets/arc/25-spinner.svg';
 export function ArcMap({ id }: { id: string }) {
   const { arc, states, info } = useArc(id);
   const [help, setHelp] = useState(false);
+  const fit = useFitScale();
   const closeHelp = useCallback(() => setHelp(false), []);
   if (!arc) return null;
   const pending = arc.tension === 'pending';
@@ -45,7 +46,7 @@ export function ArcMap({ id }: { id: string }) {
         </p>
       )}
       <div className={`-mx-6 ${pending ? 'mt-1' : 'mt-[14px]'}`}>
-        <ArcView arc={arc} states={states} info={info} onNode={k => go(`talk/${k}`)} onBundle={() => go(`arc/${id}/list`)} />
+        <ArcView arc={arc} states={states} info={info} scale={fit} onNode={k => go(`talk/${k}`)} onBundle={() => go(`arc/${id}/list`)} />
       </div>
       <AngleHelp open={help} onClose={closeHelp} />
     </Screen>

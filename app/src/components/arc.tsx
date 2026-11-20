@@ -29,7 +29,7 @@ export function DemoBanner() {
  *  clock: a screen whose content depends on the time (shows the demo banner when the demo day is on). */
 export function Screen({ header, children, bottom, label, clock }: { header?: ReactNode; children: ReactNode; bottom?: ReactNode; label?: string; clock?: boolean }) {
   return (
-    <div className="arc mx-auto flex min-h-dvh max-w-[480px] flex-col bg-arc-bg font-sans text-arc-text">
+    <div className="arc mx-auto flex min-h-dvh max-w-[480px] flex-col overflow-x-clip bg-arc-bg font-sans text-arc-text">{/* nothing scrolls sideways (QA V7) */}
       {header && <header className="flex min-h-[54px] items-center justify-between px-4 pt-0.5">{header}</header>}
       {clock && <DemoBanner />}
       <main aria-label={label} className="flex flex-1 flex-col px-6">{children}</main>
@@ -89,7 +89,7 @@ export function StepBar({ at, total = 3 }: { at: number; total?: number }) {
 export function Chip({ selected, onClick, children, single }: { selected: boolean; onClick: () => void; children: ReactNode; single?: boolean }) {
   return (
     <button type="button" onClick={onClick} {...(single ? { role: 'radio', 'aria-checked': selected } : { 'aria-pressed': selected })}
-      className={`relative inline-flex h-[38px] max-w-full items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium whitespace-nowrap before:absolute before:inset-x-0 before:-inset-y-[3px] before:content-[''] ${
+      className={`relative inline-flex h-[38px] max-w-full items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium whitespace-nowrap before:absolute before:inset-x-0 before:-inset-y-[4px] before:content-[''] ${
         selected ? 'bg-arc-chip-on text-arc-on-primary shadow-[var(--arc-shadow-lift)]' : 'border border-arc-line bg-arc-surface text-arc-text/62'}`}>
       {selected && <Pic src={chipCheck} size={16} />}
       <span className="truncate">{children}</span>

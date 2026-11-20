@@ -48,7 +48,7 @@ export function Angles() {
       ) : (
         <div className="mt-9 flex flex-col gap-[30px] pb-4">
           {(['S', 'R', 'T'] as Angle[]).map(a => (
-            <section key={a} aria-labelledby={`angle-${a}`} className="flex flex-col gap-3">
+            <section key={a} aria-labelledby={`angle-${a}`} className="flex flex-col gap-[15px]">{/* 15 (was 12): the ? button (44) and the chips (44 with ::before) do not overlap */}
               <SectionHeader id={`angle-${a}`} icon={ICON[a]} label={ANGLE_NAME[a]} onHelp={() => setHelp(true)} />
               {draft.topics[a].length ? (
                 <div className="flex flex-wrap gap-2">

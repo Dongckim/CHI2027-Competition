@@ -113,7 +113,7 @@ const axe = async () => ev(`(async () => { if (!window.axe) { ${AXE}\n } const r
 const lum = ([r, g, b]) => { const f = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
 const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
 async function pixelContrast(selectors) {
-  const boxes = await ev(`(() => ${JSON.stringify(selectors)}.map((sel, i) => { const el = document.querySelector(sel); if (!el || !el.innerText.trim() || el.closest('[disabled], [aria-disabled=true], .opacity-35, [data-contrast-exception]')) return null; /* inactive controls are exempt (1.4.3); [data-contrast-exception] = a user decision, listed in docs/stages/A4-ship.md */
+  const boxes = await ev(`(() => ${JSON.stringify(selectors)}.map((sel, i) => { const el = document.querySelector(sel); if (!el || !el.innerText.trim() || el.closest('[disabled], [aria-disabled=true], .opacity-35, ' + ${JSON.stringify(EXCEPT.filter(x => x.kind === 'contrast').map(x => x.closest).join(', ') || ':not(*)')})) return null; /* inactive controls are exempt (1.4.3); contrast exceptions: tests/qa/a11y-exceptions.json */
     el.scrollIntoView({ block: 'center' }); const r = el.getBoundingClientRect(), cs = getComputedStyle(el);
     const g = Object.assign(document.createElement('canvas'), { width: 1, height: 1 }).getContext('2d'); g.fillStyle = cs.color; g.fillRect(0, 0, 1, 1);
     const d = g.getImageData(0, 0, 1, 1).data, rgba = [d[0], d[1], d[2], d[3] / 255]; /* oklch() etc. → sRGB */ const px = parseFloat(cs.fontSize), bold = Number(cs.fontWeight) >= 700;

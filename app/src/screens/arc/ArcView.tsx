@@ -1,7 +1,7 @@
 // The Arc map (Figma 597:711; states 23/24/25; Edit 15 at 0.74). Question orb in the middle, Supports left, Reframes
 // below, Challenges right. Positions come from arc/map.js; the orb, rings and node fills take the tribe colour (Figma's
 // pictures are drawn in the sample tribe's blue). Every node is a button named "<angle> · <title> · <time>".
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { layout, connector, BOX, type NodeState } from '../../arc/map.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
 import { ANGLE_NAME } from './AngleHelp';
@@ -24,6 +24,13 @@ const FREE: Record<Angle, [number, number][][]> = { // where an add slot goes wh
 };
 // Figma 15 keeps a "+" for every angle; when its seats are full it sits here (Figma's add slots on the 390 map)
 const FULL: Record<Angle, [number, number]> = { S: [66, 236], T: [324, 236], R: [195, 395] }; // R: Figma's (195, 452) would cover the − of a third Reframe
+
+/** The map's scale on this screen: Figma's 390 box, shrunk to fit narrower phones (375, 360); text stays real px. */
+export function useFitScale(base = 1) {
+  const [w, setW] = useState(() => (typeof innerWidth === 'number' ? innerWidth : BOX.w));
+  useEffect(() => { const on = () => setW(innerWidth); addEventListener('resize', on); return () => removeEventListener('resize', on); }, []);
+  return base * Math.min(1, w / BOX.w);
+}
 
 const BELOW = 80; // the bottom row's labels hang below the 530 box (Figma's labels are one line; real titles two)
 
@@ -112,7 +119,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
         {l.bundles.map(b => (
           <button key={b.angle ?? 'all'} type="button" disabled={still} onClick={() => onBundle?.(b.angle as Angle)}
             className="absolute flex flex-col items-center gap-0.5" style={{ left: b.at[0] - 40, top: b.at[1] - 24, width: 80 }}>
-            <span aria-hidden="true" className="flex size-12 items-center justify-center rounded-full border border-arc-line bg-arc-surface text-[15px] font-semibold">+{b.count}</span>
+            <span aria-hidden="true" data-a11y-decor="bundle-count" className="flex size-12 items-center justify-center rounded-full border border-arc-line bg-arc-surface text-[15px] font-semibold">+{b.count}</span>
             <span style={{ fontSize: real(12) }} className="font-semibold text-arc-text/80">{b.count} more<span className="sr-only"> {b.angle ? ANGLE_NAME[b.angle] : 'talks'}</span></span>
           </button>
         ))}
@@ -120,7 +127,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
         {l.emptyT && !edit && (
           <div className="absolute flex flex-col items-center" style={{ left: l.emptyT[0] - 56, top: l.emptyT[1] - 23, width: 112 }}>
             <span className="flex size-[46px] items-center justify-center rounded-full border border-dashed border-arc-text/30"><img src={challenge} alt="" width={24} height={24} /></span>
-            <p className="mt-2 text-center text-[12px] leading-4 text-arc-text/60">No clear challenge at CHI this year.</p>
+            <p style={{ fontSize: real(12), lineHeight: `${real(16)}px` }} className="mt-2 text-center text-arc-text/60">No clear challenge at CHI this year.</p>
           </div>
         )}
 
