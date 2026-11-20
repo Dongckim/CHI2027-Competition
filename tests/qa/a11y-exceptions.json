@@ -1,0 +1,7 @@
+{
+  "_": "Exceptions for the touch-target (44px) and text-size (12px) scan in tests/arc/a11y-check.mjs. Each entry: kind (target | font), closest (a CSS selector the element is inside or matches), optional screen, and the reason.",
+  "allow": [
+    { "kind": "font", "closest": "[inert]", "reason": "16 share card: a picture of the Arc (inert, aria-hidden), described in words by its figcaption" },
+    { "kind": "target", "closest": "[inert]", "reason": "16 share card: a picture, nothing in it can be pressed" }
+  ]
+}

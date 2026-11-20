@@ -3,7 +3,11 @@
 // gradient or another layer) is measured from pixels: its box is captured with and without the text; under the glyphs
 // (the pixels that differ) the worst 2% of the background against the text colour must reach 4.5:1 (3:1 large). Screen readers
 // (VoiceOver) are a person's job.
-// 10 (Building, about 3 s) is not in the list.
+// 10 (Building) opens with ?mock=slow (5 s) so it stays long enough to check.
+// Also (QA 5, 7): every screen at 390, 375 and 360 wide must not scroll sideways (16 also while its cards are swiped);
+// every control must take a press 22 px from its centre in all four directions (44 px, its own hit area, so a
+// ::before that widens it counts and a neighbour that covers it does not); visible text must be 12 px or more on screen
+// (font size × the scale of its scaled map). Exceptions with reasons: tests/qa/a11y-exceptions.json.
 // npm run build && node --experimental-websocket tests/arc/a11y-check.mjs [--json] [--shots <dir>]
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -29,7 +33,8 @@ const draft = { query: 'Does VR fidelity raise presence?', topicsFor: null, topi
 const device = onboarded => JSON.stringify({ version: 1, edition: 'chi2026', mode: null, step: 'research', builtAt: null,
   plan: { query: '', topicsFor: null, topics: [], nearbyAdded: [], days: [], needs: { stepFree: false, fewerRoomChanges: false, breaks: false, largerText: false, summaries: false }, language: 'en', see: ['papers'], howFull: 'balanced' },
   arc: { onboarded, firstChi: true, draft } });
-const SCREENS = [
+const EXCEPT = JSON.parse(readFileSync(new URL('../qa/a11y-exceptions.json', import.meta.url), 'utf8')).allow;
+const SCREENS = [['10', '#/building', 'Reading'], 
   ['01', '#/start/1', 'Bring one question'], ['02', '#/start/2', 'The biggest week'], ['03', '#/start/3', '10+ talks run'], ['04', '#/start/4', 'Know what to do'],
   ['05', '#/start/5', 'Breaks are'], ['06', '#/start/6', 'three sides'], ['07', '#/ask', 'What are you'], ['08', '#/angles', 'Supports'],
   ['09', '#/when', 'Build my Arc'], ['11', `#/hood/${ARC.id}`, "YOU'RE IN"], ['12', `#/arc/${ARC.id}`, 'Next ·'], ['13', `#/arc/${ARC.id}/list`, 'Reframes'],
@@ -51,6 +56,54 @@ const send = (method, params = {}) => new Promise(r => { const i = ++id; pending
 const ev = async expr => { const r = await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true }); if (r.result?.exceptionDetails && process.env.DEBUG) console.error(r.result.exceptionDetails.exception?.description?.slice(0, 300)); return !r.result || r.result.exceptionDetails ? undefined : r.result.result.value; };
 const waitFor = async (expr, ms = 30000) => { const t = Date.now(); while (Date.now() - t < ms) { if (await ev(expr).catch(() => false)) return true; await sleep(150); } return false; };
 const results = {};
+// 44 px targets and 12 px text, in the page. Returns what fails, with a short name for each element.
+const sizes = () => ev(`(async () => {
+  const except = ${JSON.stringify(EXCEPT)};
+  const exempt = (el, kind) => except.some(x => x.kind === kind && el.closest(x.closest));
+  const name = el => (el.getAttribute('aria-label') || el.innerText || el.getAttribute('placeholder') || el.tagName).trim().replace(/\\s+/g, ' ').slice(0, 40);
+  const shown = el => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && !el.closest('[aria-hidden=true] [aria-hidden=true], .sr-only'); };
+  const small = [], tiny = [];
+  const modal = document.querySelector('[role=dialog]'); // an open sheet: only what is in it can be pressed
+  for (const el of document.querySelectorAll('a[href], button, input, select, textarea, summary, [role=button], [tabindex]:not([tabindex="-1"])')) {
+    if (!shown(el) || el.closest('.sr-only') || exempt(el, 'target') || (modal && !modal.contains(el))) continue;
+    el.scrollIntoView({ block: 'center', inline: 'center' });
+    await new Promise(r => requestAnimationFrame(r));
+    const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const pts = [[cx - 21.5, cy], [cx + 21.5, cy], [cx, cy - 21.5], [cx, cy + 21.5]];
+    const hits = pts.map(([x, y]) => document.elementFromPoint(x, y));
+    const box = el.matches('input, select, textarea') ? el.closest('label') : null; // a press on its label focuses it
+    const miss = hits.filter(h => !h || !(h === el || el.contains(h) || (box && box.contains(h))));
+    if (miss.length) small.push({ el: name(el), w: Math.round(r.width), h: Math.round(r.height), missed: miss.length, hit: miss[0] ? miss[0].tagName + '.' + String(miss[0].className).slice(0, 40) : 'nothing' });
+  }
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+    const el = n.parentElement;
+    if (!n.textContent.trim() || !el || el.closest('.sr-only, script, style') || exempt(el, 'font') || !shown(el) || (modal && !modal.contains(el))) continue;
+    const scale = el.offsetHeight ? el.getBoundingClientRect().height / el.offsetHeight : 1;
+    const px = parseFloat(getComputedStyle(el).fontSize) * (scale || 1);
+    if (px < 11.85) tiny.push({ text: n.textContent.trim().slice(0, 30), px: +px.toFixed(1) });
+  }
+  scrollTo(0, 0);
+  return { small, tiny: tiny.slice(0, 8), tinyCount: tiny.length };
+})()`);
+// sideways scroll at three widths (and, on 16, while the cards are swiped)
+const overflow = async name => {
+  const out = [];
+  for (const w of [390, 375, 360]) {
+    await send('Emulation.setDeviceMetricsOverride', { width: w, height: 844, deviceScaleFactor: 2, mobile: true });
+    await sleep(250);
+    const steps = name === '16' ? [0, 0.25, 0.5, 0.75, 1] : [null];
+    for (const f of steps) {
+      if (f != null) await ev(`(() => { const s = document.querySelector('[aria-label="What people see"]'); if (s) s.scrollLeft = (s.scrollWidth - s.clientWidth) * ${f}; return true; })()`);
+      await sleep(f != null ? 150 : 0);
+      const m = await ev(`({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth, bw: document.body.scrollWidth })`);
+      if (m && (m.sw > m.cw || m.bw > m.cw)) out.push({ width: w, swipe: f, ...m });
+    }
+  }
+  await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+  await sleep(200);
+  return out;
+};
 const axe = async () => ev(`(async () => { if (!window.axe) { ${AXE}\n } const r = await axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] }, resultTypes: ['violations', 'incomplete'] });
   const pick = list => list.map(v => ({ id: v.id, impact: v.impact, n: v.nodes.length, help: v.help, nodes: v.nodes.slice(0, 3).map(n => n.target.join(' ') + (n.failureSummary ? ' — ' + n.failureSummary.split('\\n').slice(1, 2).join(' ').trim() : '')) }));
   const cc = r.incomplete.find(v => v.id === 'color-contrast')?.nodes.map(n => n.target[0]).filter(t => typeof t === 'string') ?? [];
@@ -102,22 +155,25 @@ try {
   await ev(`localStorage.setItem('arc.device', ${JSON.stringify(device(true))}); true`);
   // 21 empty home, before any Arc is stored
   await send('Page.navigate', { url: `${BASE}?at=2026-04-14T12:00&s=21#/home` });
-  if (await waitFor(`document.body.innerText.includes('Start with one question')`, 30000)) { await sleep(600); results['21'] = await axe(); results['21'].pixels = await pixelContrast(results['21'].cc); }
+  if (await waitFor(`document.body.innerText.includes('Start with one question')`, 30000)) { await sleep(600); results['21'] = await axe(); results['21'].pixels = await pixelContrast(results['21'].cc); results['21'].sizes = await sizes(); results['21'].overflow = await overflow('21'); }
   else results['21'] = { error: 'did not show "Start with one question"' };
   await ev(`new Promise(r => { const q = indexedDB.open('arc', 1); q.onupgradeneeded = () => q.result.createObjectStore('arcs', { keyPath: 'id' });
     q.onsuccess = () => { const t = q.result.transaction('arcs', 'readwrite'); for (const a of ${JSON.stringify([ARC, NONE, PEND, CROWD])}) t.objectStore('arcs').put(a); t.oncomplete = () => r(true); }; })`);
   for (const [name, hash, text] of SCREENS) {
-    await send('Page.navigate', { url: `${BASE}?at=2026-04-14T12:00&s=${name}${hash}` });
+    await send('Page.navigate', { url: `${BASE}?at=2026-04-14T12:00${name === '10' ? '&mock=slow' : ''}&s=${name}${hash}` });
     const ok = await waitFor(`document.body.innerText.includes(${JSON.stringify(text)})`, 30000);
-    await sleep(600); // pictures and fonts
+    await sleep(name === '10' ? 150 : 600); // pictures and fonts (10 is gone after 5 s)
     results[name] = ok ? await axe() : { error: `did not show "${text}"` };
     if (ok) results[name].pixels = await pixelContrast(results[name].cc);
+    if (ok) { results[name].sizes = await sizes(); if (name !== '10') results[name].overflow = await overflow(name); }
+    if (ok && name === '10') results[name].still = await ev(`document.body.innerText.includes(${JSON.stringify(text)})`); // measured while 10 was showing
     if (SHOTS) { await ev('scrollTo(0, 0), true'); writeFileSync(`${SHOTS}/${name}.png`, Buffer.from((await send('Page.captureScreenshot', { format: 'png' })).result.data, 'base64')); }
     if (name === '08') { // 22: the ? sheet over 08
       await ev(`[...document.querySelectorAll('button')].find(b => /What are Supports/.test(b.getAttribute('aria-label') ?? ''))?.click()`);
       await waitFor(`!!document.querySelector('[role=dialog]')`, 5000);
       results['22'] = await axe();
       results['22'].pixels = await pixelContrast(results['22'].cc);
+      results['22'].sizes = await sizes();
     }
   }
 } finally {
@@ -125,17 +181,24 @@ try {
   if (process.argv.includes('--json')) console.log(JSON.stringify(results, null, 2));
   let bad = 0;
   for (const [name, r] of rows) {
-    if (r.error) { bad++; console.log(`${name}  ERROR ${r.error}`); continue; }
+    if (r.error) { bad++; console.log(`${name}  ERROR ${r.error}`); console.log(`      [${name}] did not open: ${r.error}`); continue; }
     const v = r.violations.filter(x => x.impact === 'serious' || x.impact === 'critical');
     r.pixels ??= [];
     const low = r.pixels.filter(p => p.ratio != null && p.ratio < p.need), skipped = r.pixels.filter(p => p.ratio == null).length;
     r.pixels = r.pixels.filter(p => p.ratio != null);
-    bad += v.length + low.length;
+    const sz = r.sizes ?? { small: [], tiny: [], tinyCount: 0 }, of = r.overflow ?? [];
+    const gone = name === '10' && r.still === false ? 1 : 0;
+    bad += v.length + low.length + sz.small.length + sz.tinyCount + of.length + gone;
     console.log(`${name}  ${r.violations.length ? r.violations.map(x => `${x.id}(${x.impact},${x.n})`).join(' ') : 'no violations'}  · contrast from pixels: ${r.pixels.length ? `${r.pixels.length - low.length}/${r.pixels.length}, lowest ${Math.min(...r.pixels.map(p => p.ratio))}` : '—'}${skipped ? ` (${skipped} without glyphs on screen, not measured)` : ''}${r.incomplete.length ? `  · needs a look: ${r.incomplete.map(x => `${x.id}(${x.n})`).join(' ')}` : ''}`);
-    for (const x of r.violations) for (const n of x.nodes) console.log(`      ${x.id}: ${n.slice(0, 160)}`);
-    for (const p of low) console.log(`      contrast ${p.ratio} < ${p.need}: "${p.text}"`);
+    for (const x of r.violations) for (const n of x.nodes) console.log(`      [${name}] ${x.id}: ${n.slice(0, 160)}`);
+    for (const p of low) console.log(`      [${name}] contrast ${p.ratio} < ${p.need}: "${p.text}"`);
+    for (const t of sz.small) console.log(`      [${name}] target under 44 px: "${t.el}" ${t.w}×${t.h}, ${t.missed} of 4 presses missed (hit ${t.hit})`);
+    for (const t of sz.tiny) console.log(`      [${name}] text under 12 px: "${t.text}" ${t.px}px`);
+    if (sz.tinyCount > sz.tiny.length) console.log(`      [${name}] … ${sz.tinyCount - sz.tiny.length} more under 12 px`);
+    for (const o of of) console.log(`      [${name}] scrolls sideways at ${o.width}${o.swipe != null ? ` (cards swiped ${o.swipe * 100}%)` : ''}: scrollWidth ${o.sw} > ${o.cw}`);
+    if (gone) console.log('      [10] changed screen before the check ended');
   }
-  console.log(bad ? `FAIL: ${bad} serious, critical or low contrast` : `PASS: ${rows.length} screens, no serious or critical violations, contrast from pixels passes`);
+  console.log(bad ? `FAIL: ${bad} (serious/critical, low contrast, target under 44 px, text under 12 px, sideways scroll)` : `PASS: ${rows.length} screens: no serious or critical violations, contrast, 44 px targets, 12 px text, no sideways scroll at 390/375/360`);
   ws.close(); chrome.kill(); try { process.kill(-server.pid); } catch {}
   process.exit(bad ? 1 : 0);
 }

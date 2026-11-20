@@ -20,6 +20,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 데이터: `npm run data:fetch [edition...]`(version.json 조회 → 새 리비전만 data/raw) · `npm run data:validate`(공식 스키마, chi2025 외 실패가 정상) · `npm run data:ror`(새 기관 이름만 ROR 캐시) · `npm run data:build [edition...]`(data/build, 네트워크 안 씀) · `node data/scripts/report.mjs`(V0 측정값) · `npm run data:venue -- <CCIB PDF>` · `npm run data:venue:check [edition]`
 - 검사: `npm test`(하나만 `node --test --test-name-pattern="talk slots" tests/`) · `npm run typecheck` · `npm run contracts:check`
 - 헤드리스(빌드 먼저, 서버를 스스로 켜고 끔): `node --experimental-websocket tests/arc/create-check.mjs [--shots <dir>]`(01 → 12 → 14) · `tests/arc/arc-check.mjs`(12·13·14·15·23–25, mock Arc를 IndexedDB에 넣고 데모 시계) · `tests/arc/share-check.mjs`(16–20, /s/ 링크, 14 Q&A; vite preview가 /api/share·/api/qa·/api/og를 붙임) · `tests/arc/offline-check.mjs`(첫 방문 뒤 서버를 끄고 07 → 12 → 14) · `tests/arc/a11y-check.mjs [--shots <dir>]`(axe 24개 화면 + 글자 획 밑 픽셀 대비)
+- QA 한 번에: `npm run qa:auto [-- --no-build] [--only two-tabs,perf] [--deploy <주소>]`(빌드 → 두 탭·성능·바깥 요청·링크·a11y(넘침·44px·12px)·create·arc·share·offline, 알려진 실패는 tests/qa/known-failures.json, 결과 docs/validation/V7-qa.md·perf.json). 비밀·링크 인코딩은 npm test(tests/qa/*.test.mjs)
 - 배포 확인: `VERCEL_BYPASS_TOKEN=… node --experimental-websocket tests/arc/preview-check.mjs <미리보기 주소> [--expect-upstash]` (보호 해제 토큰은 헤더로만, 출력은 가림. 토큰은 커밋·로그 금지) · 프로덕션은 `… preview-check.mjs <주소> --public`(로그인 없이 열리는지)
 - 엔진: `node tests/engine/try.mjs ["질문" ...] [--mode none|pending|crowded] [--no-t]`(mock Arc JSON + 계약 검사) · `node tests/engine/tribes-report.mjs`(종족 분포)
 - 앱: `npm run dev`(같은 Wi-Fi 폰에서도 열림) · `npm run build`(dist/, data/build/chi2026 필요) · `npm run build:deploy`(Vercel: 피드 받기 → 빌드 → 앱 → 모델)
@@ -101,7 +102,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 단계가 끝나면 push → PR → 머지까지 한다 (2026-11-20 사용자 결정). 허용 범위는 `.claude/settings.json`과 같다:
   - push는 `stage/*`, `fix/*`, `docs/*`, `chore/*`, `refactor/*`, `test/*`, `perf/*`, `build/*` 브랜치만 (2026-11-20 넓힘). main에 직접 push, 강제 push, 원격 브랜치 삭제, `git remote` 금지
   - `gh pr create`(아래 PR 형식), `gh pr view/list/checks`, `gh pr merge --merge`(merge commit만, squash·rebase·--admin 금지). `gh api`, `gh repo` 금지
-  - 머지 전에 `npm test`·`npm run typecheck`·`npm run contracts:check`가 통과해야 한다. 실패하면 머지하지 않고 알린다
+  - 머지 전에 `npm test`·`npm run typecheck`·`npm run contracts:check`·`npm run qa:auto`가 통과해야 한다(qa:auto는 2026-11-20 추가, tests/qa/known-failures.json에 없는 실패가 0). 실패하면 머지하지 않고 알린다
   - 머지 후 로컬 main을 `git pull --ff-only`로 맞추고 다음 단계 브랜치를 main에서 딴다
   - 계약(contracts/)을 바꾼 PR도 머지는 하되, PR 본문 "확인할 것"에 "원준 확인 필요"를 남긴다
 - 커밋 메시지에 Co-Authored-By나 도구 이름을 넣지 않는다.
