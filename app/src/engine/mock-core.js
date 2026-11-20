@@ -5,10 +5,14 @@
 // corpus = { meta: { edition, revision, publicationVersion, timeZone },
 //            papers: [{ key, title, abstract, type (feed type), authors: [personKey], slots: [{ sessionKey, start }] }],
 //            sessions: [{ key, name }], topics: [{ key, label, contentKeys }], debut: [personKey] }
-import { buildIndex as baselineIndex, recommend, terms, sentences } from '../recommend/baseline.js';
+import { buildIndex as baselineIndex, recommend, terms as baseTerms, sentences } from '../recommend/baseline.js';
 import { verifiedReasons } from '../explore/quotes.js';
 import { localDay } from '../planner/plan.js';
 import { tribeOfText, tribeByCount, majority } from '../arc/tribes.js';
+// Word roots (A4, user request; anything smarter is the real engine's job): after the baseline's plural rule, drop
+// -ing, -ed and -ic so robotics / robotic / robot / robots, haptics / haptic and designed / designing / design meet.
+const root = w => w.replace(/(?<=.{3})(ing|ed)$/, '').replace(/(?<=.{3})ic$/, '');
+const terms = text => baseTerms(text).map(root);
 
 export const ENGINE = 'mock@0.1';
 export const POOL = 30; // candidates per question (top TF-IDF)
@@ -46,7 +50,7 @@ export function buildIndex(corpus) {
   const base = baselineIndex({
     meta: corpus.meta, topics: corpus.topics,
     papers: corpus.papers.map(p => ({ ...p, authors: p.authors.map(k => ({ personKey: k, affiliations: [] })) })),
-  });
+  }, { words: terms });
   const tf = new Map(base.docs.map(d => [d.p.key, d.tf]));
   const sessionName = new Map(corpus.sessions.map(s => [s.key, s.name]));
   const topicLabels = new Map();

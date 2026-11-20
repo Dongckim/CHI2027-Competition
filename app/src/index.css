@@ -77,8 +77,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
    (falls back to Figma's #5C7CFF before a tribe is known). Radial stops as Figma: 0.95 → 0.6 at 55% → 0.22. */
 .arc-orb { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.08);
   --c: var(--tribe-now, #5c7cff);
-  /* solid tribe colour under the question (dark text ≥ 4.7:1 for all 8 tribes, A4), the glow only at the rim */
-  background: radial-gradient(circle, var(--c) 0%, var(--c) 76%, color-mix(in srgb, var(--c) 60%, transparent) 88%, color-mix(in srgb, var(--c) 22%, transparent) 100%); }
+  /* Figma's glow (user 2026-11-20: "디자인은 figma대로"): white text on it is under 4.5:1, an accepted exception */
+  background: radial-gradient(circle, color-mix(in srgb, var(--c) 95%, transparent) 0%, color-mix(in srgb, var(--c) 60%, transparent) 55%, color-mix(in srgb, var(--c) 22%, transparent) 100%); }
 .arc-ring { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.08);
   background: radial-gradient(circle, color-mix(in srgb, var(--tribe-now, #5c7cff) 28%, transparent) 0%, transparent 70%); }
 :root[data-tribe] { --tribe-now: var(--tribe); }

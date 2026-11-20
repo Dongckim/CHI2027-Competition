@@ -36,18 +36,19 @@ const counts = list => { const m = new Map(); for (const t of list) m.set(t, (m.
 const uniqSorted = list => [...new Set(list.filter(Boolean))].sort();
 const round = x => Math.round(x * 1000) / 1000;
 
-export function buildIndex(corpus) {
-  const docs = corpus.papers.filter(p => !SKIP.has(p.type)).map(p => ({ p, tf: counts([...Array(TITLE_WEIGHT).fill(terms(p.title)).flat(), ...terms(p.abstract)]) }));
+// `words` lets a caller (the Arc mock) use its own word roots; the planner keeps `terms`.
+export function buildIndex(corpus, { words = terms } = {}) {
+  const docs = corpus.papers.filter(p => !SKIP.has(p.type)).map(p => ({ p, tf: counts([...Array(TITLE_WEIGHT).fill(words(p.title)).flat(), ...words(p.abstract)]) }));
   const df = new Map();
   for (const d of docs) for (const t of d.tf.keys()) df.set(t, (df.get(t) ?? 0) + 1);
   const topicsOf = new Map();
   for (const t of corpus.topics) for (const k of new Set(t.contentKeys)) (topicsOf.get(k) ?? topicsOf.set(k, []).get(k)).push(t.key);
-  return { corpus, docs, df, N: docs.length, topicsOf, topics: new Map(corpus.topics.map(t => [t.key, t])) };
+  return { corpus, docs, df, N: docs.length, topicsOf, topics: new Map(corpus.topics.map(t => [t.key, t])), words };
 }
 
 export function recommend(query, index, { limit = LIMIT } = {}) {
-  const { corpus, docs, df, N, topicsOf, topics } = index;
-  const q = [...new Set(terms(query))];
+  const { corpus, docs, df, N, topicsOf, topics, words = terms } = index;
+  const q = [...new Set(words(query))];
   const idf = t => Math.log((N + 1) / ((df.get(t) ?? 0) + 1)) + 1;
   const scored = [];
   for (const d of docs) {
@@ -77,7 +78,7 @@ export function recommend(query, index, { limit = LIMIT } = {}) {
     // Reason: the abstract sentence with the most query terms (ties: the earlier one).
     let reason = null;
     for (const s of sentences(p.abstract)) {
-      const n = new Set(terms(p.abstract.slice(s.start, s.end)).filter(t => q.includes(t))).size;
+      const n = new Set(words(p.abstract.slice(s.start, s.end)).filter(t => q.includes(t))).size;
       if (n && (!reason || n > reason.n)) reason = { ...s, n };
     }
     return {

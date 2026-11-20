@@ -10,8 +10,8 @@ import { useNow } from '../clock.js';
 import { venueClock } from '../time.js';
 
 /** A decorative picture: no alt text, hidden from screen readers. */
-export const Pic = ({ src, size, className = '', w, h }: { src: string; size?: number; w?: number; h?: number; className?: string }) =>
-  <img src={src} alt="" aria-hidden="true" width={w ?? size} height={h ?? size} className={`block shrink-0 ${className}`} draggable={false} />;
+export const Pic = ({ src, size, className = '', w, h, alt }: { src: string; size?: number; w?: number; h?: number; className?: string; alt?: string }) =>
+  <img src={src} alt={alt ?? ''} aria-hidden={alt ? undefined : true} width={w ?? size} height={h ?? size} className={`block shrink-0 ${className}`} draggable={false} />;
 
 /** Outside the conference the app runs on a demo day (arc/demoClock.ts); screens where time matters say so. */
 export function DemoBanner() {

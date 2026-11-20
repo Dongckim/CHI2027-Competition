@@ -100,3 +100,10 @@ test('chi2026: Arcs for 5 questions pass the schema and the evidence rules; sugg
   const crowded = buildArc(i, 'presence', { angles: ['S', 'R', 'T'], days: [], types: [] }, { id: 'arc-test-1', createdAt: 0, mode: 'crowded' });
   assert.ok(crowded.nodes.length > 9, `crowded has ${crowded.nodes.length}`);
 });
+
+test('mock: word roots meet (robotics / robotic / robots), so a two-day Arc still has Supports', { skip: !corpus && 'data/build/chi2026 not built' }, () => {
+  const index = buildIndex(corpus);
+  const q = 'Robotics could be helpful to the human daily life?';
+  const arc = buildArc(index, q, { angles: ['S', 'R', 'T'], days: ['2026-04-14', '2026-04-15'], types: [] }, { id: 'stem-test-0001', createdAt: 0 });
+  assert.ok(arc.nodes.filter(n => n.angle === 'S').length > 0, 'was ↑0 with only the plural rule');
+});
