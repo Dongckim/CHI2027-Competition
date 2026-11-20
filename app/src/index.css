@@ -43,3 +43,14 @@ body { margin: 0; padding-top: env(safe-area-inset-top, 0px); }
 /* With viewport-fit=cover the page runs under the status bar; this strip keeps scrolled text from showing through it. */
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 40; pointer-events: none; }
 :focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+/* Tribe glow (11 onward): the screen edge in the Arc's tribe colour, like a soft frame. It never blinks; it breathes slowly,
+   and stands still with reduced motion or the "still" setting (<html data-glow="still">). Never the only cue: shape + name too. */
+:root[data-tribe] body::after {
+  content: ""; position: fixed; inset: 0; z-index: 50; pointer-events: none;
+  box-shadow: inset 0 0 0 2px var(--tribe), inset 0 0 28px 4px color-mix(in srgb, var(--tribe) 55%, transparent);
+  animation: tribe-breathe 6s ease-in-out infinite;
+}
+@keyframes tribe-breathe { 50% { opacity: 0.6; } }
+:root[data-glow="still"] body::after { animation: none; }
+@media (prefers-reduced-motion: reduce) { :root[data-tribe] body::after { animation: none; } }
