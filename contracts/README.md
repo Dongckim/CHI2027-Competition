@@ -2,7 +2,9 @@
 
 ARC의 기능들(추천·플래너·지니·자막·앱)이 주고받는 데이터의 모양을 정한 약속입니다. 각 기능은 상대의 코드를 몰라도 이 모양만 맞추면 됩니다.
 
-> **상태:** RecommendRequest·RecommendResponse 0.1.0 확정 (원준 확인 필요). 나머지 계약은 설계 중이며, 그전까지는 각 기능이 내부 형식을 쓰고 경계에서 변환합니다.
+> **Arc 앱의 계약은 Arc 0.1.0(아래)과 엔진 인터페이스 `app/src/engine/types.ts`.** RecommendRequest·RecommendResponse 0.1.0은 옛 플래너와 mock 엔진 내부(baseline)용으로 남아 있다 (CHANGELOG 2026-11-20).
+>
+> **상태(옛 플래너 때):** RecommendRequest·RecommendResponse 0.1.0 확정 (원준 확인 필요). 나머지 계약은 설계 중이며, 그전까지는 각 기능이 내부 형식을 쓰고 경계에서 변환합니다.
 > **Arc 0.1.0** (2026-11-20, 결정 006): 엔진 → 앱. 질문 하나 + 세 관점(S·R·T) 노드. 엔진 인터페이스는 `app/src/engine/types.ts`. `contracts:check`가 evidence = `abstract.slice(start, end)`, 키 중복·edition, `tension: found` ⇔ T 노드도 검사 (원준 확인 필요).
 > RecommendResponse는 스키마 외 규칙도 `npm run contracts:check`가 검사합니다: `quote === abstract.slice(start, end)`, institutionKeys·countries 정렬·중복 없음, clusterId가 clusters에 있음, feedType = papers.json type, `bridge.via` 개수 = path 단계 수.
 
