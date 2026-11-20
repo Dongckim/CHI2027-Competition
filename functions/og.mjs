@@ -10,6 +10,9 @@ import { decodeLink, angleCounts } from '../app/src/arc/link.js';
 import { TRIBE } from '../app/src/arc/tribes.js';
 
 const file = p => readFile(new URL(p, import.meta.url));
+// satori's harfbuzzjs reads hb.wasm next to itself at run time; naming it here lets the deploy's file tracing ship it
+// (vercel.json includeFiles with this path failed the build).
+export const HARFBUZZ_WASM = new URL('../node_modules/harfbuzzjs/hb.wasm', import.meta.url);
 let ready = null, wasm = null;
 const assets = () => (ready ??= (async () => {
   await (wasm ??= initWasm(await file('../node_modules/@resvg/resvg-wasm/index_bg.wasm'))); // once per instance: a second initWasm throws
