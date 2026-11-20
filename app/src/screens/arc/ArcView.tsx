@@ -101,7 +101,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit }
         {l.emptyT && !edit && (
           <div className="absolute flex flex-col items-center" style={{ left: l.emptyT[0] - 56, top: l.emptyT[1] - 23, width: 112 }}>
             <span className="flex size-[46px] items-center justify-center rounded-full border border-dashed border-arc-text/30"><img src={challenge} alt="" width={24} height={24} /></span>
-            <p className="mt-2 text-center text-[12px] leading-4 text-arc-text/60">No clear clash<br />at CHI this year.</p>
+            <p className="mt-2 text-center text-[12px] leading-4 text-arc-text/60">No clear challenge</p>
           </div>
         )}
 
