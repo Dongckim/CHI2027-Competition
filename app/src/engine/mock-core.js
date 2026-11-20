@@ -8,11 +8,15 @@
 import { buildIndex as baselineIndex, recommend, terms, sentences } from '../recommend/baseline.js';
 import { verifiedReasons } from '../explore/quotes.js';
 import { localDay } from '../planner/plan.js';
-import { tribeOfText, majority } from '../arc/tribes.js';
+import { tribeOfText, tribeByCount, majority } from '../arc/tribes.js';
 
 export const ENGINE = 'mock@0.1';
 export const POOL = 30; // candidates per question (top TF-IDF)
 export const CAPS = { S: 4, R: 3, T: 2 }; // nodes per angle on a normal Arc (9 at most); "crowded" lifts them
+// Score bands on the baseline relevance (1 = the best match for this question), so the counts follow the data instead of
+// always filling the caps: S needs a strong match, R a middle one, T a fair one plus its cue sentence.
+export const MIN = { S: 0.6, T: 0.4 };
+export const R_BAND = [0.35, 0.8];
 const LABEL_MAX = 24;
 
 // Tension: an abstract sentence with a contrast or null-result cue. Only then a T node, and that sentence is its evidence.
@@ -77,8 +81,8 @@ export function candidates(index, query, { days = [], types = [], sessionKeys = 
 
 /**
  * Sort candidates into angles. T first: an abstract sentence with a contrast cue that also uses a question word (a
- * "however" about something else is not a tension with the question). S: in the top half and has the core question
- * words. R: the rest that use a method / people / measure word the question does not. Others are left out. No caps.
+ * "however" about something else is not a tension with the question), score ≥ MIN.T. S: score ≥ MIN.S and has the
+ * core question words. R: score in R_BAND and a method / people / measure word the question does not use. Others are left out. No caps.
  * Core words: the (up to) two question words most candidates share (in a third of them), so a rare word like "raise" does not empty S.
  * @returns {{ S: object[], R: object[], T: object[] }} ArcNodes per angle, best first
  */
@@ -90,23 +94,64 @@ export function classify(index, query, list, { tension = true } = {}) {
   const core = shared.filter(([, n], i) => i === 0 || n >= list.length / 3).slice(0, 2).map(([w]) => w);
   const qText = ` ${query.toLowerCase()} `;
   const out = { S: [], R: [], T: [] };
-  list.forEach(({ paper: p }, rank) => {
-    const node = (angle, s) => ({ key: p.key, angle, label: labelOf(p.title), evidence: evidenceOf(p.abstract, s), debut: p.authors.some(k => index.debut.has(k)) });
+  list.forEach(({ paper: p, score }) => {
+    const node = (angle, s) => ({ key: p.key, angle, label: labelOf(p.title), evidence: evidenceOf(p.abstract, s), debut: index.debut.has(p.authors[0]) }); // map/list ✦: first author new (14 marks every new author)
     const t = tension && bestSentence(p.abstract, q, TENSION);
-    if (t?.n) { out.T.push(node('T', t)); return; }
+    if (t?.n && score >= MIN.T) { out.T.push(node('T', t)); return; }
     const tf = index.tf.get(p.key);
-    if (rank < list.length / 2 && core.length && core.every(w => tf?.has(w))) { out.S.push(node('S', bestSentence(p.abstract, q))); return; }
+    if (score >= MIN.S && core.length && core.every(w => tf?.has(w))) { out.S.push(node('S', bestSentence(p.abstract, q))); return; }
     const text = `${p.title} ${p.abstract}`.toLowerCase();
-    if (REFRAME.some(w => text.includes(w) && !qText.includes(w))) out.R.push(node('R', bestSentence(p.abstract, q)));
+    if (score >= R_BAND[0] && score < R_BAND[1] && REFRAME.some(w => text.includes(w) && !qText.includes(w))) out.R.push(node('R', bestSentence(p.abstract, q)));
   });
   return out;
 }
 
-export function tribeOf(index, query) {
-  const votes = candidates(index, query).map(({ paper: p }) => {
+/**
+ * Every talk gets one of the 8 tribes, in this order: (1) its session names and topic labels, (2) its title,
+ * (3) the tribe with the most keyword hits in its abstract, (4) the tribe whose talks (from 1–3) share the most
+ * weighted words with it, (5) when it shares no word at all (award sessions with no abstract), the largest tribe.
+ * Computed once per index. Returns { tribe, step } so reports can show how each was decided.
+ */
+export function tribesOf(index) {
+  if (index.tribes) return index.tribes;
+  const out = new Map();
+  for (const p of index.byKey.values()) {
     const names = sessionsOf(p).map(k => index.sessionName.get(k)).concat(index.topicLabels.get(p.key) ?? []).join(' · ');
-    return tribeOfText(names) ?? tribeOfText(p.title);
-  });
+    const steps = [() => tribeOfText(names), () => tribeOfText(p.title), () => tribeByCount(p.abstract)];
+    const i = steps.findIndex(f => (out.set(p.key, { tribe: f(), step: 0 }), out.get(p.key).tribe));
+    if (i >= 0) out.get(p.key).step = i + 1; else out.delete(p.key);
+  }
+  // (4) word profile per tribe from the talks already placed
+  const { df, N } = index.base;
+  const idf = t => Math.log((N + 1) / ((df.get(t) ?? 0) + 1));
+  const profile = new Map(), size = new Map();
+  for (const [key, { tribe }] of out) {
+    const tf = index.tf.get(key) ?? new Map(termsOf(index.byKey.get(key)));
+    const prof = profile.get(tribe) ?? profile.set(tribe, new Map()).get(tribe);
+    for (const [t, n] of tf) prof.set(t, (prof.get(t) ?? 0) + n);
+    size.set(tribe, (size.get(tribe) ?? 0) + 1);
+  }
+  const largest = [...size].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'society';
+  for (const p of index.byKey.values()) {
+    if (out.has(p.key)) continue;
+    const tf = index.tf.get(p.key) ?? new Map(termsOf(p));
+    let best = null, top = 0;
+    for (const [tribe, prof] of profile) {
+      let score = 0;
+      for (const [t, n] of tf) score += n * ((prof.get(t) ?? 0) / size.get(tribe)) * idf(t) ** 2;
+      if (score > top) { best = tribe; top = score; }
+    }
+    out.set(p.key, best ? { tribe: best, step: 4 } : { tribe: largest, step: 5 });
+  }
+  return (index.tribes = out);
+}
+const termsOf = p => { const m = new Map(); for (const t of terms(`${p.title} ${p.abstract}`)) m.set(t, (m.get(t) ?? 0) + 1); return m; };
+
+/** One talk's tribe (always one of the 8). */
+export const paperTribe = (index, p) => tribesOf(index).get(p.key).tribe;
+
+export function tribeOf(index, query) {
+  const votes = candidates(index, query).map(({ paper: p }) => paperTribe(index, p));
   return majority(votes) ?? { tribe: tribeOfText(query) ?? 'design', confidence: 0 };
 }
 

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { TRIBES, tribeOfText, majority } from '../../app/src/arc/tribes.js';
+import { TRIBES, tribeOfText, tribeByCount, majority } from '../../app/src/arc/tribes.js';
 
 test('tribes: 8, each with its own shape, and the same colour as tokens.css', () => {
   assert.deepEqual(TRIBES.map(t => t.id).sort(), ['access', 'ai', 'design', 'devices', 'health', 'learning', 'society', 'xr']);
@@ -22,4 +22,9 @@ test('tribe keywords: field first, AI last, short words only whole', () => {
 test('majority: most votes, ties in TRIBES order, confidence is the share', () => {
   assert.deepEqual(majority(['ai', 'xr', 'xr', null, 'ai']), { tribe: 'xr', confidence: 0.5 });
   assert.equal(majority([null]), null);
+});
+
+test('abstract fallback: the tribe with the most keyword hits', () => {
+  assert.equal(tribeByCount('A study with older adults who are blind, using a screen reader on a VR headset.'), 'access');
+  assert.equal(tribeByCount('Nothing to match.'), null);
 });

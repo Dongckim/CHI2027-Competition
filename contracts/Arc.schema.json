@@ -55,7 +55,7 @@
             }
           ]
         },
-        "debut": { "description": "이전 3개 대회(예: 2023–2025)에 같은 이름의 저자가 없는 저자가 있음. 화면: ✦ New to CHI", "type": "boolean" }
+        "debut": { "description": "제1저자가 이전 3개 대회(예: 2023–2025)에 같은 이름으로 없음 (data/scripts/debut.mjs). 지도·목록의 ✦ New to CHI. 14 상세는 debut.json으로 새로 온 저자 전원을 표시", "type": "boolean" }
       }
     }
   }

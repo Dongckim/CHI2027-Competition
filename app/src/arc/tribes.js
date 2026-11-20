@@ -38,6 +38,17 @@ export function tribeOfText(text) {
   return TRIBES.find(tr => tr.keywords.some(k => hit(t, k)))?.id ?? null;
 }
 
+/** Keyword hits per tribe in a longer text (an abstract): the tribe with the most hits (ties: TRIBES order), or null. */
+export function tribeByCount(text) {
+  const t = padded(text);
+  let best = null, most = 0;
+  for (const tr of TRIBES) {
+    const n = tr.keywords.filter(k => hit(t, k)).length;
+    if (n > most) { best = tr.id; most = n; }
+  }
+  return best;
+}
+
 /** Majority of the votes (ties: TRIBES order); confidence = share of the winning votes among all votes. */
 export function majority(votes) {
   const n = new Map();

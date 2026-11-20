@@ -6,50 +6,6 @@
   "tribe": "xr",
   "nodes": [
     {
-      "key": "chi2026:222026",
-      "angle": "S",
-      "label": "Social, Spatial, and Se…",
-      "evidence": {
-        "sentence": "Extensive research has examined presence and basic psychological needs (drawing on Self-Determination Theory) in digital media.",
-        "start": 0,
-        "end": 127
-      },
-      "debut": false
-    },
-    {
-      "key": "chi2026:222447",
-      "angle": "S",
-      "label": "Usage Matters",
-      "evidence": {
-        "sentence": "The sense of presence is central to immersive experiences in Virtual Reality (VR), and particularly salient in socially rich platforms like social VR.",
-        "start": 0,
-        "end": 150
-      },
-      "debut": false
-    },
-    {
-      "key": "chi2026:223247",
-      "angle": "S",
-      "label": "Virtual Perspectives",
-      "evidence": {
-        "sentence": "Yet, how VR qualities, such as spatial presence and agency, influence -- and potentially enhance -- perspective-taking remains unclear.",
-        "start": 176,
-        "end": 311
-      },
-      "debut": false
-    },
-    {
-      "key": "chi2026:223439",
-      "angle": "S",
-      "label": "Designing for Wayfindin…",
-      "evidence": {
-        "sentence": "We conducted a between-subjects study (N=142) in two high-fidelity VR hospital contexts, including free exploration and task-based wayfinding, while treating locomotion and viewpoint transitions as experimental factors.",
-        "start": 276,
-        "end": 495
-      },
-      "debut": true
-    },
-    {
       "key": "chi2026:222323",
       "angle": "R",
       "label": "When Hands Meet Physics…",
@@ -61,26 +17,26 @@
       "debut": true
     },
     {
-      "key": "chi2026:222328",
+      "key": "chi2026:222026",
       "angle": "R",
-      "label": "Defining Reality in Dem…",
+      "label": "Social, Spatial, and Se…",
       "evidence": {
-        "sentence": "We translate these insights into design implications for at-home IADL-focused VR systems that emphasize functional fidelity, adaptability, and collaborative use, grounding real-world relevance in the lived routines and caregiving ecosystems of PwD.",
-        "start": 929,
-        "end": 1177
+        "sentence": "Extensive research has examined presence and basic psychological needs (drawing on Self-Determination Theory) in digital media.",
+        "start": 0,
+        "end": 127
       },
-      "debut": true
+      "debut": false
     },
     {
-      "key": "chi2026:229441",
+      "key": "chi2026:222447",
       "angle": "R",
-      "label": "Rethinking Simulator Fi…",
+      "label": "Usage Matters",
       "evidence": {
-        "sentence": "High-fidelity simulators are considered vital for evaluating user experience of future systems.",
+        "sentence": "The sense of presence is central to immersive experiences in Virtual Reality (VR), and particularly salient in socially rich platforms like social VR.",
         "start": 0,
-        "end": 95
+        "end": 150
       },
-      "debut": true
+      "debut": false
     },
     {
       "key": "chi2026:222304",
@@ -92,17 +48,6 @@
         "end": 929
       },
       "debut": false
-    },
-    {
-      "key": "chi2026:229895",
-      "angle": "T",
-      "label": "Exploring the Time Cour…",
-      "evidence": {
-        "sentence": "However, little is known about how such effects unfold during ongoing avatar embodiment in VR.",
-        "start": 242,
-        "end": 336
-      },
-      "debut": true
     }
   ],
   "tension": "found",
