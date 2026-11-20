@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { loadSchedule, loadPeople, loadAbstracts, loadDebut, type Schedule } from '../../data/load';
 import { highlightSegments } from '../../explore/quotes.js';
+import { keySegments } from '../../arc/keyPhrase.js';
 import { abstractFileDay, firstSlot, dateOf, clockOf } from '../../explore/format';
 import { talkPosition } from '../../today/card.js';
 import { getArc, loadArcs } from '../../arc/store';
@@ -103,7 +104,8 @@ export function TalkDetail({ paperKey }: { paperKey: string }) {
         <section aria-labelledby="why" className="mt-4 flex flex-col gap-1.5 rounded-[20px] border border-arc-line bg-arc-surface px-4 pt-3.5 pb-4">
           {/* Figma 11px; 12px is the floor */}
           <h2 id="why" className="text-[12px] font-medium tracking-[0.08em] text-arc-text/50">{WHY[found.node.angle]}</h2>
-          {ev ? <p className="text-[15px] leading-[22px] text-arc-text/90">“{ev.sentence}”</p>
+          {ev ? <p className="text-[15px] leading-[22px] text-arc-text/90">“{keySegments(ev.sentence, found.arc.query, found.node.angle).map((x, i) => x.mark
+            ? <strong key={i} className="font-semibold underline decoration-1 underline-offset-2">{x.text}</strong> : <span key={i}>{x.text}</span>)}”</p>
             : <p className="text-[15px] leading-[22px] text-arc-text-2">No sentence of the abstract was clear enough to quote.</p>}
         </section>
       )}
