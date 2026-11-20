@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { handle, memoryStore, upstashStore, DELETE_AT, TEXT_MAX } from '../../functions/qa.mjs';
+import qa, { handle, memoryStore, upstashStore, DELETE_AT, TEXT_MAX } from '../../functions/qa.mjs';
 
 const A = 'deviceAAAAAAAAAAAAAAAA', B = 'deviceBBBBBBBBBBBBBBBB', C = 'deviceCCCCCCCCCCCCCCCC', D = 'deviceDDDDDDDDDDDDDDDD';
 const call = async (store, method, token, body, query = '', now = Date.UTC(2026, 10, 21, 10)) => {
@@ -52,4 +52,9 @@ test('qa: Upstash gets plain Redis commands, every key expires on 2027-06-13', a
   const expiring = sent.filter(c => c[0] === 'EXPIREAT');
   assert.ok(expiring.length >= 2 && expiring.every(c => c[2] === DELETE_AT));
   assert.equal(new Date(DELETE_AT * 1000).toISOString(), '2027-06-13T00:00:00.000Z');
+});
+
+test('qa: the answer says which store it used (memory without Upstash env)', async () => {
+  const r = await qa(new Request('http://x/api/qa?paper=chi2026:1', { headers: { 'x-arc-device': A } }), {});
+  assert.equal(r.headers.get('x-arc-qa-store'), 'memory');
 });

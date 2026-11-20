@@ -56,10 +56,12 @@ export function upstashStore(url, token, fetcher = fetch) {
 let memory = null;
 export function storeFrom(env) {
   const url = env.KV_REST_API_URL || env.UPSTASH_REDIS_REST_URL, token = env.KV_REST_API_TOKEN || env.UPSTASH_REDIS_REST_TOKEN;
-  return url && token ? upstashStore(url, token) : (memory ??= memoryStore());
+  return url && token ? Object.assign(upstashStore(url, token), { kind: 'upstash' }) : (memory ??= Object.assign(memoryStore(), { kind: 'memory' }));
 }
 
-const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
+// x-arc-qa-store says which store answered (upstash | memory), so a check can tell the deploy is not on memory.
+let storeKind = 'memory';
+const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store', 'x-arc-qa-store': storeKind } });
 const hashOf = (salt, token) => createHash('sha256').update(`${salt}:${token}`).digest('hex');
 
 export async function handle(request, env, store, now = Date.now()) {
@@ -122,6 +124,8 @@ export async function handle(request, env, store, now = Date.now()) {
 }
 
 export default async function qa(request, env) {
-  try { return await handle(request, env, storeFrom(env)); }
+  const store = storeFrom(env);
+  storeKind = store.kind;
+  try { return await handle(request, env, store); }
   catch { return json(503, { error: 'questions are not available right now' }); } // no request content in any log
 }

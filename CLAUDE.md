@@ -20,6 +20,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 데이터: `npm run data:fetch [edition...]`(version.json 조회 → 새 리비전만 data/raw) · `npm run data:validate`(공식 스키마, chi2025 외 실패가 정상) · `npm run data:ror`(새 기관 이름만 ROR 캐시) · `npm run data:build [edition...]`(data/build, 네트워크 안 씀) · `node data/scripts/report.mjs`(V0 측정값) · `npm run data:venue -- <CCIB PDF>` · `npm run data:venue:check [edition]`
 - 검사: `npm test`(하나만 `node --test --test-name-pattern="talk slots" tests/`) · `npm run typecheck` · `npm run contracts:check`
 - 헤드리스(빌드 먼저, 서버를 스스로 켜고 끔): `node --experimental-websocket tests/arc/create-check.mjs [--shots <dir>]`(01 → 12 → 14) · `tests/arc/arc-check.mjs`(12·13·14·15·23–25, mock Arc를 IndexedDB에 넣고 데모 시계) · `tests/arc/share-check.mjs`(16–20, /s/ 링크, 14 Q&A; vite preview가 /api/share·/api/qa를 붙임)
+- 배포 확인: `VERCEL_BYPASS_TOKEN=… node --experimental-websocket tests/arc/preview-check.mjs <미리보기 주소> [--expect-upstash]` (보호 해제 토큰은 헤더로만, 출력은 가림. 토큰은 커밋·로그 금지) · 프로덕션은 `… preview-check.mjs <주소> --public`(로그인 없이 열리는지)
 - 엔진: `node tests/engine/try.mjs ["질문" ...] [--mode none|pending|crowded] [--no-t]`(mock Arc JSON + 계약 검사) · `node tests/engine/tribes-report.mjs`(종족 분포)
 - 앱: `npm run dev`(같은 Wi-Fi 폰에서도 열림) · `npm run build`(dist/, data/build/chi2026 필요) · `npm run build:deploy`(Vercel: 피드 받기 → 빌드 → 앱 → 모델)
 - 벤치: `npm run bench`(tests/serve.mjs, functions/를 /api/로) → `/tests/legacy/…` 페이지(`.env.local`에 `SONIOX_API_KEY=...`, git 무시)
