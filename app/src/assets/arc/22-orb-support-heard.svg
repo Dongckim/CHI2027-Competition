@@ -1,0 +1,24 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="78" height="79" viewBox="0 0 78 79" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Orb">
+<circle id="Pulse" cx="39" cy="32" r="31.5" stroke="white" stroke-opacity="0.28"/>
+<g id="Core" filter="url(#filter0_d_0_115)">
+<circle cx="39" cy="32" r="23" fill="white" fill-opacity="0.96" shape-rendering="crispEdges"/>
+</g>
+<g id="Angle">
+<path id="Vector" d="M39 39.5V25M45 31L39 25L33 31" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke="#15121F"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_0_115" x="0" y="1" width="78" height="78" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feMorphology radius="6" operator="erode" in="SourceAlpha" result="effect1_dropShadow_0_115"/>
+<feOffset dy="8"/>
+<feGaussianBlur stdDeviation="11"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.0392157 0 0 0 0 0.0196078 0 0 0 0 0.12549 0 0 0 0.55 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_115"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_115" result="shape"/>
+</filter>
+</defs>
+</svg>
