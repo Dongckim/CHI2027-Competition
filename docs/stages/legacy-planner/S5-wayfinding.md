@@ -156,3 +156,7 @@
 ## ⑥ 비용·토큰
 - 외부 API 없음 (경로·소리·3D 모두 폰 안)
 - 데이터: 이름 파일 1 KB 미만 (미리 저장), 3D 조각 gzip 137 KB (09를 처음 열 때 한 번)
+
+## 2026-11-20 저장소 정리 뒤 기록
+- `tests/legacy/venue/directions-check.mjs`(옮긴 위치)를 3번 돌려 2번 PASS, 1번은 "Auditorium: walkway by name, no plan shown as such" 단계에서 실패. 옮기기 전 위치에서는 1번 돌려 PASS. 코드 차이는 경로 한 줄(`../../../data/venue/chi2026.json`)뿐이라 3D 시점에 따라 흔들리는 것으로 본다. 길 안내는 Arc 메뉴에 없어 고치지 않고 기록만 (사용자 결정)
+- `tests/legacy/venue/entry-check.mjs`의 "06 Talk → Directions → 09"는 A2부터 알려진 실패로 표시(#/talk/<key>가 새 14로 열림)

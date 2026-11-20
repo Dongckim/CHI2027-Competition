@@ -4,7 +4,7 @@
 - **인터페이스**: `app/src/engine/types.ts`의 `Engine` (`init`, `tribeOf`, `angleTopics`, `buildArc`, `suggest`, `wildcard`), 결과는 `contracts/Arc.schema.json` 0.1.0. 앱은 `app/src/engine/index.ts`를 통해서만 부름
 - **연결**: `app/src/engine/ondevice.ts`가 이 폴더의 코드를 감싼다 (`?engine=ondevice` 또는 빌드 환경변수 `VITE_ENGINE=ondevice`). 기본은 mock(`app/src/engine/mock-core.js`, TF-IDF + 단순 규칙)
 - **이 폴더(recsys/)**: 모델 소스와 생성 스크립트(임베딩 만들기, 변환 등)
-- **모델 파일**: git에 넣지 않는다. 배포 빌드(`npm run build:deploy`)가 환경변수 `MODEL_URL`(zip)과 `MODEL_SHA256`을 확인해 `dist/model/`에 풀고, 앱은 같은 도메인 `/model/…`에서 받는다(1년 immutable 캐시). `MODEL_URL`이 없으면 건너뛰고 mock으로 동작. 스크립트 `app/scripts/fetch-model.mjs` (zip 안 경로는 상대 경로만, 빌드 환경에 `unzip` 필요)
+- **모델 파일**: git에 넣지 않는다. 배포 빌드(`npm run build:deploy`)가 환경변수 `MODEL_URL`(.zip 또는 .tar.gz)과 `MODEL_SHA256`을 확인해 `dist/model/`에 풀고, 앱은 같은 도메인 `/model/…`에서 받는다(1년 immutable 캐시). `MODEL_URL`이 없으면 건너뛰고 mock으로 동작. 스크립트 `app/scripts/fetch-model.mjs` (.zip 또는 .tar.gz, 안의 경로는 상대 경로만, Node로 풀어서 unzip·tar 명령 필요 없음)
 - 패키지 크기 20.3 MB(원준). 최종 방식(파일 구성, 서비스 워커 보관 여부)은 zip을 보고 확정
 
 ## 아래는 옛 플래너 때 문서 (2026-11-20 전)
