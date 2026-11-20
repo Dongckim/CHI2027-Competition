@@ -19,7 +19,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 ## 명령 (Node 26 = Vercel 빌드와 같게, `package.json` engines. 로컬 20.19+도 동작하지만 26 권장. `arc/`에서)
 - 데이터: `npm run data:fetch [edition...]`(version.json 조회 → 새 리비전만 data/raw) · `npm run data:validate`(공식 스키마, chi2025 외 실패가 정상) · `npm run data:ror`(새 기관 이름만 ROR 캐시) · `npm run data:build [edition...]`(data/build, 네트워크 안 씀) · `node data/scripts/report.mjs`(V0 측정값) · `npm run data:venue -- <CCIB PDF>` · `npm run data:venue:check [edition]`
 - 검사: `npm test`(하나만 `node --test --test-name-pattern="talk slots" tests/`) · `npm run typecheck` · `npm run contracts:check`
-- 헤드리스(빌드 먼저, 서버를 스스로 켜고 끔): `node --experimental-websocket tests/arc/create-check.mjs [--shots <dir>]`(01 → 12 → 14) · `tests/arc/arc-check.mjs`(12·13·14·15·23–25, mock Arc를 IndexedDB에 넣고 데모 시계) · `tests/arc/share-check.mjs`(16–20, /s/ 링크, 14 Q&A; vite preview가 /api/share·/api/qa·/api/og를 붙임) · `tests/arc/offline-check.mjs`(첫 방문 뒤 서버를 끄고 07 → 12 → 14) · `tests/arc/a11y-check.mjs [--shots <dir>]`(axe 22개 화면 + 글자 획 밑 픽셀 대비)
+- 헤드리스(빌드 먼저, 서버를 스스로 켜고 끔): `node --experimental-websocket tests/arc/create-check.mjs [--shots <dir>]`(01 → 12 → 14) · `tests/arc/arc-check.mjs`(12·13·14·15·23–25, mock Arc를 IndexedDB에 넣고 데모 시계) · `tests/arc/share-check.mjs`(16–20, /s/ 링크, 14 Q&A; vite preview가 /api/share·/api/qa·/api/og를 붙임) · `tests/arc/offline-check.mjs`(첫 방문 뒤 서버를 끄고 07 → 12 → 14) · `tests/arc/a11y-check.mjs [--shots <dir>]`(axe 24개 화면 + 글자 획 밑 픽셀 대비)
 - 배포 확인: `VERCEL_BYPASS_TOKEN=… node --experimental-websocket tests/arc/preview-check.mjs <미리보기 주소> [--expect-upstash]` (보호 해제 토큰은 헤더로만, 출력은 가림. 토큰은 커밋·로그 금지) · 프로덕션은 `… preview-check.mjs <주소> --public`(로그인 없이 열리는지)
 - 엔진: `node tests/engine/try.mjs ["질문" ...] [--mode none|pending|crowded] [--no-t]`(mock Arc JSON + 계약 검사) · `node tests/engine/tribes-report.mjs`(종족 분포)
 - 앱: `npm run dev`(같은 Wi-Fi 폰에서도 열림) · `npm run build`(dist/, data/build/chi2026 필요) · `npm run build:deploy`(Vercel: 피드 받기 → 빌드 → 앱 → 모델)
@@ -150,5 +150,5 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - share-check 10/10, create-check 15/15, arc-check 12/12, npm test 136/136, 첫 화면 90.1 KB. 고친 버그: 탭에서 첫 저장 전에 목록을 안 읽어 홈에 예전 Arc가 안 보임
 - 남은 것: Upstash 연결(사용자), og:image·실기기·메신저 미리보기(A4), QR이 촘촘함(긴 링크) (docs/stages/A3-share.md)
 - A4 미리보기 그림·오프라인·접근성 (2026-11-20, stage/A4-ship): /api/og 1200×630(satori + resvg-wasm), share 페이지 og:image·1년 캐시, app-data 전체 precache(132개), 보이는 글자 = 이름(2.5.3), 지도 가운데 질문 짙은 글자·원 안쪽 단색(대비 4.71+)
-- offline-check 6/6(서버 끈 상태로 07 → 12), a11y-check 22/22 serious 0·대비 최저 4.53, npm test 139/139, 첫 화면 87.8 KB
+- offline-check 6/6(서버 끈 상태로 07 → 12), a11y-check 24/24 serious 0·대비 최저 4.53, npm test 139/139, 첫 화면 87.8 KB
 - 남은 것: 동결 체크리스트(프로덕션 로그인 없이 열기, 토큰 미리보기 검사, Upstash, QR 폰, 메신저, VoiceOver), 가운데 원 모양 디자이너 확인 (docs/stages/A4-ship.md)

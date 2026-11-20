@@ -15,9 +15,9 @@
   - 지도 가운데 원의 질문 대비를 4.5:1로
 - **검사 3개**
   - `tests/arc/offline-check.mjs`: 첫 방문 → 서버 끔 → 01, 07 → 12 새 Arc, 14, 홈
-  - `tests/arc/a11y-check.mjs`: axe-core 22개 화면, 그리고 axe가 판단 못 한 대비는 글자 획 밑 픽셀로 측정
+  - `tests/arc/a11y-check.mjs`: axe-core 24개 화면, 그리고 axe가 판단 못 한 대비는 글자 획 밑 픽셀로 측정
   - `tests/app/og.test.mjs`
-- 미리보기 배포 검사 `tests/arc/preview-check.mjs`는 A3 뒤(PR #46)
+- 배포 검사 `tests/arc/preview-check.mjs`(A3 뒤, PR #46)에 `/api/og` PNG와 share 페이지 og:image 확인 추가. **og 함수가 Vercel에서 wasm·글꼴을 찾는지(includeFiles)는 배포에서만 확인됨: 확인 안 함**. 로컬 vite preview에서 `--public` 5/5
 
 ## ② 통과 기준 결과
 | 기준 | 결과 |
@@ -26,8 +26,8 @@
 | `npm run typecheck` · `npm run contracts:check` | 통과 · 8/8 |
 | create-check · arc-check · share-check | 15/15 · 12/12 · 10/10 |
 | offline-check (390×844, CPU 4배, 서버를 끈 진짜 오프라인) | **6/6**: 워커 132개 보관(438 ms), 01, 07 → 12, 14 초록 + "Questions are not available", 홈 목록, 오류 0 |
-| a11y-check: axe (WCAG 2.0/2.1/2.2 A·AA) | 22/22 화면, serious·critical **0** (고치기 전 9개 화면 label-content-name-mismatch, 16 scrollable-region-focusable) |
-| a11y-check: 대비(axe 미판단 89건을 픽셀로) | 전부 통과. 가장 낮은 값 06 4.53, 12 4.99 (고치기 전 지도 가운데 질문 2.2–3.8) |
+| a11y-check: axe (WCAG 2.0/2.1/2.2 A·AA) | 24/24 화면(01–09·11–25, 21 빈 홈·24 +N 묶음 포함. **10 Building(약 3초)은 확인 안 함**), serious·critical **0** (고치기 전 9개 화면 label-content-name-mismatch, 16 scrollable-region-focusable) |
+| a11y-check: 대비(axe 미판단 89건을 픽셀로) | 전부 통과(화면 위 글자에 획이 안 잡히면 실패로 셈). 가장 낮은 값 06 4.53, 12 4.99 (고치기 전 지도 가운데 질문 2.2–3.8) |
 | og 그림 | 1200×630, 첫 그림 약 270 ms · 다음 170 ms (node, 로컬), 280–360 KB |
 | precache | 122 → 132개 (app-data gzip 1.67 MB 추가, 파일은 immutable이라 대개 HTTP 캐시에서) |
 | 첫 화면 JS+CSS | 87.8 KB (index.html이 부르는 것, gzip -9. A3 90.1 KB와 같은 방법인지 확인 안 함) |
@@ -46,7 +46,7 @@
 - **og 그림에 한글 등이 들어 있으면 제목을 "An Arc for CHI"로**: 글꼴이 Inter latin뿐이라 빈 상자가 그려짐. 질문은 og:title 글자로 그대로 감. 다국어 글꼴(수 MB)은 함수 크기와 첫 그림 시간을 늘려 넣지 않음
 - **npm audit**: satori가 쓰는 fflate 0.7.x에 moderate 경고 1건(손상된 ZIP64에서 멈춤). satori에는 우리 글꼴 파일만 들어가 외부 입력이 닿지 않아 받아들임
 - **axe-core 4.14.0**: 4.14.1은 나온 지 2주가 안 됨
-- **이름 규칙**: 노드 이름은 "<관점> · <제목> <시각 · 방>"(관점은 sr-only 글자), 요일·상태는 aria-description("Tue 14 · ~09:36 · Ended"). A2의 "<관점> · <제목> · <시간>"과 순서는 같고, 이름과 설명으로 나눔
+- **이름 규칙 바뀜**: A2에서 정한 "<관점> · <제목> · <시간>"이 "<관점> · <제목> <시간 · 방>"으로(제목과 시간 사이 " · "가 없어짐), 요일·상태는 aria-description("Tue 14 · ~09:36 · Ended"). 이유: 이름이 보이는 글자를 그대로 담아야 함(2.5.3, axe serious). 관점은 sr-only 글자
 - 대비를 axe가 판단 못 하면(그림·그라데이션 위) 픽셀로 잼: 글자 있게·없게 두 장, 다른 픽셀의 배경 중 나쁜 2%. 비활성(잠긴 노드)은 WCAG 1.4.3 예외라 뺌
 
 ## ④ 남은 문제
@@ -54,6 +54,7 @@
 - 지도 노드 Heard(종족 색 원 + 흰 기호): 기호 대비(1.4.11, 3:1)는 종족에 따라 미달일 수 있음. 상태는 이름·설명 글자로도 전달됨. 재지 않음
 - og 그림에서 라틴 문자가 아닌 질문은 그림 제목이 일반 문구(위)
 - VoiceOver·실기기·실제 메신저 미리보기·QR 폰 인식은 확인 안 함(사용자, ⑦)
+- `.git/sequencer`에 11/11 cherry-pick(9b9b46f) 상태가 남아 git status가 "Cherry-pick currently in progress"라고 함. 브랜치에는 영향 없음. 정리하려면 `git cherry-pick --quit`(HEAD 그대로). `--abort`는 HEAD를 그때로 되돌리므로 쓰지 말 것
 - `app/src/assets/arc/20-mini-arc-{accessibility,ai,xr}.svg` 세 파일은 git에 없고 어디서도 안 씀(Home은 MiniArc를 코드로 그림). 커밋하지 않음
 - 데모 시계는 탭을 연 순간 정해짐(A3과 같음)
 
@@ -69,8 +70,8 @@
 ## ⑦ 동결 전 체크리스트 (11/23)
 | # | 할 것 | 누가 | 명령·방법 | 결과 |
 |---|---|---|---|---|
-| 1 | **프로덕션 주소를 로그인 없는 브라우저로 열기** (제출 주소는 보호 없이) | 사용자 + 검사 | 시크릿 창으로 열기, 그리고 `node --experimental-websocket tests/arc/preview-check.mjs <프로덕션 주소> --public` | 확인 안 함 |
-| 2 | 미리보기에서 /s/ → 18, Q&A 왕복 | 검사(토큰 필요) | `VERCEL_BYPASS_TOKEN=… node --experimental-websocket tests/arc/preview-check.mjs <미리보기 주소>` | 토큰 대기 |
+| 1 | **프로덕션 주소를 로그인 없는 브라우저로 열기** (제출 주소는 보호 없이) | 사용자 + 검사 | 시크릿 창으로 열기, 그리고 `node --experimental-websocket tests/arc/preview-check.mjs <프로덕션 주소> --public` (/s/ 태그, /api/og 그림, Q&A, 18) | 확인 안 함 |
+| 2 | 미리보기에서 /s/ → 18, /api/og 그림, Q&A 왕복 | 검사(토큰 필요) | `VERCEL_BYPASS_TOKEN=… node --experimental-websocket tests/arc/preview-check.mjs <미리보기 주소>` | 토큰 대기 |
 | 3 | Q&A가 Upstash로 가는지 | 검사 | 2 또는 1에 `--expect-upstash` | Upstash 연결 대기 |
 | 4 | QR을 폰 카메라로 찍기 (17, 7노드 링크) | 사용자 | 안 읽히면 payload 바이너리 압축(base64url) 안을 진행. 서버 저장형 짧은 링크는 하지 않음 | 대기 |
 | 5 | 메신저 미리보기(카카오톡·iMessage·Slack)에 그림·질문이 뜨는지 | 사용자 | 프로덕션 /s/ 링크를 보내 보기 | 확인 안 함 |
