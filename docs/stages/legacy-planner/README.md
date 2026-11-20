@@ -21,7 +21,7 @@
   - `node tests/legacy/planner/try.mjs <후보.json> [--day YYYY-MM-DD] [--wheelchair]` : 후보 목록으로 루트를 눈으로 확인 (예: tests/legacy/planner/examples/accessibility.json). 추천은 recsys/ 몫, 플래너·도구에 추천 로직 넣지 말 것
   - `node tests/legacy/explore/bench.mjs [질의...]` : 검색 속도 (node) / `node --experimental-websocket tests/legacy/explore/phone-check.mjs` : 헤드리스 Chrome 390×844·CPU 4배로 S4 화면 확인 (`vite preview --port 4317` 먼저) / `tests/legacy/explore/offline-check.mjs` : 오프라인 Explore (서버를 스스로 켜고 끔) / `tests/legacy/explore/qa-check.mjs` : QA 재현 (같은 방식)
 - 헤드리스: `node --experimental-websocket tests/legacy/venue/directions-check.mjs` · `revision-check.mjs` · `entry-check.mjs`, `tests/legacy/explore/phone-check.mjs`(`vite preview --port 4317` 먼저) · `offline-check.mjs` · `qa-check.mjs`
-  - 2026-11-20 기준: entry-check의 "06 Talk → Directions → 09"는 A2부터 실패(#/talk/<key>가 옛 06이 아니라 새 14로 열림). directions-check는 가끔 3D 시점 단계에서 흔들림
+  - 2026-11-20 기준: entry-check의 "06 Talk → Directions → 09"는 A2부터 실패(#/talk/<key>가 옛 06이 아니라 새 14로 열림) → 검사 안 KNOWN 목록으로 알려진 실패 표시(세지 않음). directions-check는 3번 중 1번 3D 시점 단계에서 흔들림(S5 문서 끝에 기록)
 - 벤치 페이지: `npm run bench` → `/tests/legacy/venue/bench.html`, `/tests/legacy/captions/bench.html`, `/tests/legacy/captions/conversation.html`, `/tests/legacy/mobile/bench.html`
 
 ## 디자인 기준 (Figma v3, 옛 플래너 화면의 기준. 지금 기준은 Final UI 582:7)
