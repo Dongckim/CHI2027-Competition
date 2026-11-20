@@ -58,9 +58,9 @@ try {
   const hood = await waitFor(`location.hash.startsWith('#/hood/') && /YOU'RE IN/.test(document.body.innerText)`, 40000);
   await waitFor(`/See my Arc/.test(document.body.innerText)`);
   await click('See my Arc');
-  const map = await waitFor(`location.hash.startsWith('#/arc/') && document.querySelectorAll('main button[aria-label*=" · "]').length >= 3`, 20000);
+  const map = await waitFor(`location.hash.startsWith('#/arc/') && [...document.querySelectorAll('main button[aria-description]')].length >= 3`, 20000);
   check('offline: a new Arc from 07 to 12 with the cached programme', angles != null && hood != null && map != null, {});
-  await ev(`document.querySelector('main button[aria-label*=" · "]').click()`);
+  await ev(`document.querySelector('main button[aria-description]').click()`);
   const talk = await waitFor(`location.hash.startsWith('#/talk/') && !!document.querySelector('main details') && /WHY IT/.test(document.body.innerText)`, 20000);
   const qa = await ev(`document.querySelector('section[aria-labelledby=qa]')?.innerText ?? ''`);
   check('offline: 14 with the abstract; Q&A says it needs the network', talk != null && /not available|need a connection/i.test(qa), { qa: qa.slice(0, 80) });

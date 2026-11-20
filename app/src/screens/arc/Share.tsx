@@ -54,7 +54,7 @@ export function Share({ id }: { id: string }) {
     <Screen label="Share your Arc" header={<><IconButton icon={closeIcon} label="Close" href={href(`arc/${id}`)} /><span /></>}>
       <h1 className="sr-only">Share your Arc: {arc.query}</h1>
       <div ref={strip} onScroll={e => setPage(Math.round(e.currentTarget.scrollLeft / 312))}
-        className="-mx-6 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-[calc(50%-150px)] pb-1 [scrollbar-width:none]" aria-label="What people see">
+        role="region" tabIndex={0} className="-mx-6 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-[calc(50%-150px)] pb-1 [scrollbar-width:none]" aria-label="What people see">
         <figure className="relative h-[430px] w-[300px] shrink-0 snap-center overflow-hidden rounded-[28px] border border-arc-line" style={tint(arc)}>
           <figcaption className="sr-only">Your Arc as a picture: {c.S} Supports, {c.R} Reframes, {c.T} Challenges.</figcaption>
           <div className="absolute top-4 left-4"><TribeChip arc={arc} /></div>

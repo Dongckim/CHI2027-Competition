@@ -35,7 +35,9 @@ const check = (name, ok, detail) => { out[name] = { ok, ...detail }; if (!ok) fa
 const shot = async name => { if (!SHOTS) return; mkdirSync(SHOTS, { recursive: true }); await sleep(400);
   const r = await send('Page.captureScreenshot', { format: 'png' }); writeFileSync(`${SHOTS}/${name}.png`, Buffer.from(r.result.data, 'base64')); };
 const open = async hash => { await send('Page.navigate', { url: BASE + AT + hash }); await waitFor(`document.readyState === 'complete'`); };
-const nodes = `[...document.querySelectorAll('main button[aria-label*=" · "]')].filter(b => b.closest('main'))`;
+// map nodes: buttons with a description (day · state); their name is their own text ("<angle> · <title> <time>")
+const nodes = `[...document.querySelectorAll('main button[aria-description]')].filter(b => /^(Supports|Reframes|Challenges) · /.test(b.textContent.trim()))`;
+const nameOf = `(b => b.innerText.replace(/\\s+/g, ' ').trim())`;
 const click = sel => ev(`(() => { const b = ${sel}; if (!b) return 'missing'; b.click(); return 'clicked'; })()`);
 
 try {
@@ -52,9 +54,9 @@ try {
 
   // 12 map
   await open(`#/arc/${ARCS.normal.id}`);
-  const mapMs = await waitFor(`${nodes}.length >= 3 && [...document.querySelectorAll('main button[aria-description]')].some(b => b.getAttribute('aria-description') === 'Next')`, 30000);
-  const map = await ev(`({ nodes: ${nodes}.length, states: [...document.querySelectorAll('main button[aria-description]')].map(b => b.getAttribute('aria-description')),
-    nextUp: [...document.querySelectorAll('a')].find(a => a.getAttribute('aria-label')?.startsWith('Next up:'))?.getAttribute('aria-label') ?? null,
+  const mapMs = await waitFor(`${nodes}.length >= 3 && [...document.querySelectorAll('main button[aria-description]')].some(b => b.getAttribute('aria-description')?.endsWith(' · Next'))`, 30000);
+  const map = await ev(`({ nodes: ${nodes}.length, states: [...document.querySelectorAll('main button[aria-description]')].map(b => b.getAttribute('aria-description').split(' · ').pop()),
+    nextUp: [...document.querySelectorAll('a')].find(a => a.getAttribute('aria-description')?.startsWith('Next up:'))?.getAttribute('aria-description') ?? null,
     tribe: document.documentElement.dataset.tribe, share: !!document.querySelector('button[disabled][aria-describedby=share-soon]') })`);
   await shot('12');
   check('12 map: nodes as buttons, Next and Ended from the clock, next-up panel, tribe edge', mapMs != null && map.states.includes('Next') && map.states.includes('Ended') && !!map.nextUp && map.tribe === 'xr', map);
@@ -63,9 +65,9 @@ try {
   await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
 
   // 12 → 14, "I heard it" → Heard on the map
-  const first = await ev(`(() => { const b = ${nodes}.find(b => b.getAttribute('aria-description') === 'Ended'); return b?.getAttribute('aria-label'); })()`);
-  await click(`${nodes}.find(b => b.getAttribute('aria-label') === ${JSON.stringify(first)})`);
-  const want = JSON.stringify(first?.split(' · ')[1] ?? '');
+  const first = await ev(`(() => { const b = ${nodes}.find(b => b.getAttribute('aria-description')?.endsWith(' · Ended')); return b ? ${nameOf}(b) : null; })()`);
+  await click(`${nodes}.find(b => ${nameOf}(b) === ${JSON.stringify(first)})`);
+  const want = JSON.stringify((first ?? '').replace(/^\w+ · /, '').replace(/^✦ /, '').replace(/ \d\d:\d\d( · .*)?$/, ''));
   const talkMs = await waitFor(`document.querySelector('h1')?.innerText === ${want} && !/Loading/.test(document.querySelector('main').innerText)`, 30000);
   const talk = await ev(`({ tags: [...document.querySelectorAll('main > div:first-child span')].map(s => s.innerText), why: document.querySelector('#why')?.innerText,
     authors: [...document.querySelectorAll('main li')].filter(l => l.querySelector('img') && / · |\\w/.test(l.innerText)).length,
@@ -77,7 +79,7 @@ try {
   await click(`[...document.querySelectorAll('button')].find(b => b.innerText.trim() === 'I heard it')`);
   await waitFor(`!!document.querySelector('button[aria-pressed=true]')`, 5000);
   await ev('history.back()');
-  const heardMs = await waitFor(`${nodes}.some(b => b.getAttribute('aria-label') === ${JSON.stringify(first)} && b.getAttribute('aria-description') === 'Heard')`, 15000);
+  const heardMs = await waitFor(`${nodes}.some(b => ${nameOf}(b) === ${JSON.stringify(first)} && b.getAttribute('aria-description')?.endsWith(' · Heard'))`, 15000);
   check('I heard it → the node shows Heard on 12', heardMs != null, {});
 
   // 13 list
@@ -92,13 +94,13 @@ try {
   check('23 no clear Challenge: empty slot, "No clear challenge"', (await waitFor(`/No clear challenge/.test(document.querySelector('main').innerText)`, 20000)) != null, {});
   await shot('23');
   await open(`#/arc/${ARCS.crowded.id}`);
-  const bundle = await waitFor(`!!document.querySelector('button[aria-label$=" more Supports"], button[aria-label$=" more Reframes"], button[aria-label$=" more Challenges"]')`, 20000);
+  const bundle = await waitFor(`[...document.querySelectorAll('main button')].some(b => /^\\d+ more (Supports|Reframes|Challenges)$/.test(b.innerText.trim().replace(/^\\+\\d+\\s*/, '')) || / more (Supports|Reframes|Challenges)/.test(b.textContent))`, 20000);
   await shot('24');
-  await click(`document.querySelector('button[aria-label*=" more "]')`);
+  await click(`[...document.querySelectorAll('main button')].find(b => / more (Supports|Reframes|Challenges)/.test(b.textContent))`);
   check('24 crowded: +N bundle opens the list', bundle != null && (await waitFor(`location.hash.endsWith('/list')`, 10000)) != null, { nodes: ARCS.crowded.nodes.length });
   await open(`#/arc/${ARCS.pending.id}`);
   const sorting = await waitFor(`/Sorting angles/.test(document.body.innerText) && ${nodes}.length > 0`, 20000);
-  const nextUp25 = await ev(`[...document.querySelectorAll('a')].some(a => a.getAttribute('aria-label')?.startsWith('Next up:'))`);
+  const nextUp25 = await ev(`[...document.querySelectorAll('a')].some(a => a.getAttribute('aria-description')?.startsWith('Next up:'))`);
   await shot('25');
   check('25 sorting: status pill, neutral nodes, no next-up', sorting != null && !nextUp25, {});
 
@@ -108,10 +110,10 @@ try {
   const before = ARCS.normal.nodes.length; // stored talks (the map may bundle some)
   await shot('15-closed');
   const hintClear = await ev(`(() => { const p = [...document.querySelectorAll('main p')].find(p => p.innerText.startsWith('Tap a talk')); const r = p.getBoundingClientRect();
-    return ![...document.querySelectorAll('main button[aria-label*=" · "] span')].some(s => { const q = s.getBoundingClientRect(); return q.height && q.bottom > r.top + 1 && q.top < r.bottom - 1 && q.right > r.left && q.left < r.right; }); })()`);
+    return ![...document.querySelectorAll('main button[aria-description] span')].some(s => { const q = s.getBoundingClientRect(); return q.height && q.bottom > r.top + 1 && q.top < r.bottom - 1 && q.right > r.left && q.left < r.right; }); })()`);
   check('15 hint below the map, not over the labels', hintClear === true, {});
   await click(`document.querySelector('button[aria-label^="Remove "]')`);
-  await click(`[...document.querySelectorAll('main button[aria-pressed]')].find(b => b.getAttribute('aria-label')?.includes(' · '))`);
+  await click(`[...document.querySelectorAll('main button[aria-pressed]')].find(b => b.hasAttribute('aria-description'))`);
   const cardsMs = await waitFor(`[...document.querySelectorAll('section[aria-label=Swap] button')].some(b => b.getAttribute('aria-label')?.startsWith('Swap in'))`, 20000);
   await shot('15');
   const swapIn = await ev(`[...document.querySelectorAll('section[aria-label=Swap] button')].find(b => b.getAttribute('aria-label')?.startsWith('Swap in'))?.getAttribute('aria-label')`);
@@ -125,7 +127,7 @@ try {
   // Wildcard chip gives cards too
   await open(`#/arc/${ARCS.normal.id}/edit`);
   await waitFor(`document.querySelectorAll('button[aria-label^="Add a talk to "], button[aria-label^="Remove "]').length > 0`, 20000);
-  await click(`[...document.querySelectorAll('main button[aria-pressed]')].find(b => b.getAttribute('aria-label')?.includes(' · '))`);
+  await click(`[...document.querySelectorAll('main button[aria-pressed]')].find(b => b.hasAttribute('aria-description'))`);
   await waitFor(`!!document.querySelector('section[aria-label=Swap]')`, 5000);
   await click(`[...document.querySelectorAll('section[aria-label=Swap] button[role=radio]')].find(b => b.innerText.includes('Wildcard'))`);
   check('15 Wildcard chip shows cards', (await waitFor(`[...document.querySelectorAll('section[aria-label=Swap] button')].filter(b => b.getAttribute('aria-label')?.startsWith('Swap in')).length > 0`, 20000)) != null, {});

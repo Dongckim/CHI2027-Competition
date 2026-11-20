@@ -97,7 +97,7 @@ export function Home() {
           const t = TRIBE[a.tribe], h = a.nodes.filter(n => heard.has(n.key)).length;
           return (
             <li key={a.id}>
-              <a href={href(`arc/${a.id}`)} aria-label={`${a.query} · ${t.name} · ${a.nodes.length} talks${h ? `, ${h} heard` : ''}${day ? ` · ${day}` : ''}${a.source === 'received' ? ' · shared with you' : ''}`}
+              <a href={href(`arc/${a.id}`)} aria-description={`${a.nodes.length} talks${h ? `, ${h} heard` : ''}${a.source === 'received' ? ', shared with you' : ''}`}
                 className="flex min-h-[136px] items-center gap-3.5 rounded-3xl border border-arc-line py-4 pr-4 pl-3.5"
                 style={{ background: `linear-gradient(color-mix(in srgb, ${t.color} 8%, transparent), color-mix(in srgb, ${t.color} 8%, transparent)), var(--arc-surface)` }}>
                 <MiniArc arc={a} heard={heard} />

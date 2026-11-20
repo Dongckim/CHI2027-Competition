@@ -76,15 +76,17 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           return (
             <div key={node.key} className="absolute" style={{ left: x - 52, top: y - 32, width: 104 }}>
               <button type="button" onClick={() => (pick ? !lock && pick.onToggle(node.key) : edit ? edit.onSelect(node.key) : onNode?.(node.key))}
-                aria-label={`${ANGLE_NAME[node.angle]} · ${i.title} · ${i.time}`}
-                aria-description={pick ? (lock === 'mine' ? 'Already in your Arcs' : lock ? 'Ended' : kept ? 'Keep' : 'Skip') : pending ? 'Angle still sorting' : STATE_WORD[st]}
+                // the name is the node's own text (WCAG 2.5.3 label in name): "<angle> · <title> <time · room>", the angle
+                // as hidden text; day and state as the description
+                aria-description={`${i.time} · ${pick ? (lock === 'mine' ? 'Already in your Arcs' : lock ? 'Ended' : kept ? 'Keep' : 'Skip') : pending ? 'Angle still sorting' : STATE_WORD[st]}`}
                 aria-pressed={edit ? selected : pick && !lock ? kept : undefined} aria-disabled={pick && lock ? true : undefined} disabled={readOnly && !pick}
                 className={`flex w-[104px] flex-col items-center gap-0.5 ${pick && lock ? 'opacity-35 blur-[0.78px]' : pick && !kept ? 'opacity-50' : ''}`}>
                 <span className={`arc-node ${pending ? '' : `arc-node-${st}`} ${selected || (pick && kept && !lock) ? 'arc-node-selected' : ''}`}>
                   {pending ? <img src={sortingOrb} alt="" width={64} height={64} /> : <span className="arc-node-core"><img src={ANGLE_ICON[node.angle]} alt="" width={24} height={24} /></span>}
                 </span>
+                <span className="sr-only">{ANGLE_NAME[node.angle]} · </span>
                 <span style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`line-clamp-2 text-center font-semibold ${st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
-                  {node.debut && <span aria-hidden="true">✦ </span>}{i.short}
+                  {node.debut && <span aria-hidden="true">✦ </span>}{i.title}{/* the whole title, cut to two lines (was the 24-character label) */}
                 </span>
                 {/* Figma 10px; 12px is the floor */}
                 <span style={{ fontSize: real(12) }} className="block max-w-[104px] truncate font-medium text-arc-text-3">{i.when}</span>
@@ -105,10 +107,10 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
         })}
 
         {l.bundles.map(b => (
-          <button key={b.angle ?? 'all'} type="button" disabled={still} onClick={() => onBundle?.(b.angle as Angle)} aria-label={`${b.count} more ${b.angle ? ANGLE_NAME[b.angle] : 'talks'}`}
+          <button key={b.angle ?? 'all'} type="button" disabled={still} onClick={() => onBundle?.(b.angle as Angle)}
             className="absolute flex flex-col items-center gap-0.5" style={{ left: b.at[0] - 40, top: b.at[1] - 24, width: 80 }}>
-            <span className="flex size-12 items-center justify-center rounded-full border border-arc-line bg-arc-surface text-[15px] font-semibold">+{b.count}</span>
-            <span style={{ fontSize: real(12) }} className="font-semibold text-arc-text/80">{b.count} more</span>
+            <span aria-hidden="true" className="flex size-12 items-center justify-center rounded-full border border-arc-line bg-arc-surface text-[15px] font-semibold">+{b.count}</span>
+            <span style={{ fontSize: real(12) }} className="font-semibold text-arc-text/80">{b.count} more<span className="sr-only"> {b.angle ? ANGLE_NAME[b.angle] : 'talks'}</span></span>
           </button>
         ))}
 
