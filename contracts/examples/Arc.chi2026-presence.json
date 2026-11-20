@@ -6,19 +6,8 @@
   "tribe": "xr",
   "nodes": [
     {
-      "key": "chi2026:222323",
-      "angle": "R",
-      "label": "When Hands Meet Physics…",
-      "evidence": {
-        "sentence": "Physics governs everyday interaction, yet in Virtual Reality (VR) the fidelity of such interactions can diverge from reality.",
-        "start": 0,
-        "end": 125
-      },
-      "debut": true
-    },
-    {
       "key": "chi2026:222026",
-      "angle": "R",
+      "angle": "S",
       "label": "Social, Spatial, and Se…",
       "evidence": {
         "sentence": "Extensive research has examined presence and basic psychological needs (drawing on Self-Determination Theory) in digital media.",
@@ -29,12 +18,56 @@
     },
     {
       "key": "chi2026:222447",
-      "angle": "R",
+      "angle": "S",
       "label": "Usage Matters",
       "evidence": {
         "sentence": "The sense of presence is central to immersive experiences in Virtual Reality (VR), and particularly salient in socially rich platforms like social VR.",
         "start": 0,
         "end": 150
+      },
+      "debut": false
+    },
+    {
+      "key": "chi2026:223247",
+      "angle": "S",
+      "label": "Virtual Perspectives",
+      "evidence": {
+        "sentence": "Yet, how VR qualities, such as spatial presence and agency, influence -- and potentially enhance -- perspective-taking remains unclear.",
+        "start": 176,
+        "end": 311
+      },
+      "debut": false
+    },
+    {
+      "key": "chi2026:223439",
+      "angle": "R",
+      "label": "Designing for Wayfindin…",
+      "evidence": {
+        "sentence": "We conducted a between-subjects study (N=142) in two high-fidelity VR hospital contexts, including free exploration and task-based wayfinding, while treating locomotion and viewpoint transitions as experimental factors.",
+        "start": 276,
+        "end": 495
+      },
+      "debut": false
+    },
+    {
+      "key": "chi2026:222572",
+      "angle": "R",
+      "label": "Balancing Accuracy and…",
+      "evidence": {
+        "sentence": "Visual perspective is a crucial design factor in Virtual Reality (VR).",
+        "start": 0,
+        "end": 70
+      },
+      "debut": true
+    },
+    {
+      "key": "chi2026:229929",
+      "angle": "R",
+      "label": "Cudly",
+      "evidence": {
+        "sentence": "In a within-subjects mixed-methods study (N=15, aged 60–86), participants completed three counterbalanced 10-min conditions (cushion-only, VR-only, XR-integrated), followed by standardised scales, presence, and interviews.",
+        "start": 465,
+        "end": 687
       },
       "debut": false
     },
@@ -46,6 +79,17 @@
         "sentence": "However, unlike prior work, we did not find that changes in scenario fidelity significantly affected one’s scenario presence.",
         "start": 804,
         "end": 929
+      },
+      "debut": false
+    },
+    {
+      "key": "chi2026:229895",
+      "angle": "T",
+      "label": "Exploring the Time Cour…",
+      "evidence": {
+        "sentence": "However, little is known about how such effects unfold during ongoing avatar embodiment in VR.",
+        "start": 242,
+        "end": 336
       },
       "debut": false
     }

@@ -13,7 +13,7 @@ import { tribeOfText, tribeByCount, majority } from '../arc/tribes.js';
 export const ENGINE = 'mock@0.1';
 export const POOL = 30; // candidates per question (top TF-IDF)
 export const CAPS = { S: 4, R: 3, T: 2 }; // nodes per angle on a normal Arc (9 at most); "crowded" lifts them
-// Score bands on the baseline relevance (1 = the best match for this question), so the counts follow the data instead of
+// Score bands on the baseline relevance (1 = as good as the top 3 matches for this question), so the counts follow the data instead of
 // always filling the caps: S needs a strong match, R a middle one, T a fair one plus its cue sentence.
 export const MIN = { S: 0.6, T: 0.4 };
 export const R_BAND = [0.35, 0.8];
@@ -74,8 +74,11 @@ export function candidates(index, query, { days = [], types = [], sessionKeys = 
   const tz = index.corpus.meta.timeZone;
   const keep = p => (!types.length || types.includes(p.type)) && (!days.length || days.includes(dayOf(p, tz)))
     && (!sessionKeys.length || sessionsOf(p).some(k => sessionKeys.includes(k)));
-  return recommend(query, index.base, { limit: index.base.N }).items
-    .map(it => ({ paper: index.byKey.get(it.paperKey), score: it.relevance }))
+  const items = recommend(query, index.base, { limit: index.base.N }).items;
+  // Score against the mean of the top 3, not the top 1: one standout match (1.00, then 0.60) would push every other
+  // talk under the S bar ("Does VR fidelity raise presence?" had no Supports). Capped at 1.
+  const ref = items.slice(0, 3).reduce((a, it) => a + it.relevance, 0) / Math.min(3, items.length || 1) || 1;
+  return items.map(it => ({ paper: index.byKey.get(it.paperKey), score: Math.min(1, it.relevance / ref) }))
     .filter(x => keep(x.paper)).slice(0, limit);
 }
 
