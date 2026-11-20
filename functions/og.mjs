@@ -10,6 +10,9 @@ import { decodeLink, angleCounts } from '../app/src/arc/link.js';
 import { TRIBE } from '../app/src/arc/tribes.js';
 
 const file = p => readFile(new URL(p, import.meta.url));
+// satori's harfbuzzjs reads hb.wasm next to itself at run time; naming it here lets the deploy's file tracing ship it
+// (vercel.json includeFiles with this path failed the build).
+export const HARFBUZZ_WASM = new URL('../node_modules/harfbuzzjs/hb.wasm', import.meta.url);
 let ready = null, wasm = null;
 const assets = () => (ready ??= (async () => {
   await (wasm ??= initWasm(await file('../node_modules/@resvg/resvg-wasm/index_bg.wasm'))); // once per instance: a second initWasm throws
@@ -58,7 +61,7 @@ export default async function og(request) {
   try {
     const png = await ogPng(new URL(request.url).searchParams.get('d') ?? '');
     return new Response(request.method === 'HEAD' ? null : png, { headers: { 'content-type': 'image/png', 'cache-control': 'public, max-age=31536000, immutable' } });
-  } catch {
-    return new Response('no picture', { status: 503, headers: { 'cache-control': 'no-store' } }); // nothing from the request in any log
+  } catch (e) { // nothing from the request in any log; the reason (a file path, not the request) outside production
+    return new Response(process.env.VERCEL_ENV === 'production' ? 'no picture' : `no picture: ${e?.message ?? e}`, { status: 503, headers: { 'cache-control': 'no-store' } });
   }
 }
