@@ -36,6 +36,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
   - `npm run bench` : 확인 페이지 서버 (tests/serve.mjs, functions/를 /api/로 연결). 길 안내 /tests/venue/bench.html, 자막 /tests/captions/bench.html, 대면 대화 /tests/captions/conversation.html (`.env.local`에 `SONIOX_API_KEY=...`, git 무시)
   - `npm run dev` : 앱 개발 서버 (같은 Wi-Fi 폰에서도 열림) / `npm run build` : dist/ (data/build/chi2026 필요) / `npm run build:deploy` : Vercel이 쓰는 것 (피드 받기 → 빌드 → 앱)
   - `node tests/explore/bench.mjs [질의...]` : 검색 속도 (node) / `node --experimental-websocket tests/explore/phone-check.mjs` : 헤드리스 Chrome 390×844·CPU 4배로 S4 화면 확인 (`vite preview --port 4317` 먼저) / `tests/explore/offline-check.mjs` : 오프라인 Explore (서버를 스스로 켜고 끔) / `tests/explore/qa-check.mjs` : QA 재현 (같은 방식)
+  - `node tests/engine/try.mjs ["질문" ...] [--mode none|pending|crowded] [--no-t]` : mock 엔진 Arc JSON + 계약 검사 (data/build/chi2026 필요)
   - `npm test` : 전체 테스트 / 하나만: `node --test --test-name-pattern="talk slots" tests/`
 - git은 반드시 `arc/` 안에서 실행. 상위 `chi2027-arc/`는 자체 레포가 아니라 홈 디렉토리(`/Users/dongchankim`) 레포로 잡힘
 
@@ -171,3 +172,6 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - S5b 진입점 (2026-11-13, stage/S5b-directions-entry): 하루 목록 모든 정차 ⋯·06·05 검색에서 Directions, 학회 날이 아니어도. 장소 키 09(방·Registration·가장 가까운 WC·엘리베이터)
 - route()가 평면도 지점도 받음, 05에 Rooms and places 줄. "pass Foyer 0" 같은 복도 이름 pass 없앰, "1 min". 직접 만든 계획(실제 시계) 헤드리스 entry-check 통과
 - 교차 검토 6건 고침(가장 가까운 WC는 초 단위·같은 층, 검색 여러 단어·한 구역 한 줄, 깨진 id, 시간 문구 하나), 장소 출발점은 지금 있는 방. 남은 것: 실기기 (docs/stages/S5b-directions-entry.md)
+- A0 Arc 계약·엔진 (2026-11-20, stage/A0-arc-contract): 결정 006·007, contracts/Arc 0.1.0(schema_version, tension off 추가) + evidence 규칙, engine/ 인터페이스·mock(TF-IDF + 단순 규칙, ?mock=)
+- 8종족 tribes.js + 테두리 빛(reduced-motion 정지), 데뷔 debut.json(chi2026 36.3%). 실데이터 질문 5개 → Arc 모두 검사 통과, node 11–47 ms
+- 남은 것: Figma 프레임 id 표(인증 대기), ✦ 기준(전체 저자 64% vs 제1저자 27%), mock Tension이 늘 found (docs/stages/A0-arc-contract.md)
