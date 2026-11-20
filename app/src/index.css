@@ -49,10 +49,14 @@
   --spacing-gutter: var(--gutter);
 }
 
-html { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: var(--text-body); -webkit-text-size-adjust: 100%; }
+/* The page behind the Arc screens is dark too, and iOS does not bounce it: pulling or dragging sideways showed the
+   white planner background and shook the whole page (user, 11/20). The planner (Legacy) keeps its light page. */
+html, body { overscroll-behavior: none; }
+html { background: var(--arc-bg); color: var(--text); font-family: var(--font-sans); font-size: var(--text-body); -webkit-text-size-adjust: 100%; }
 body { margin: 0; padding-top: env(safe-area-inset-top, 0px); }
+:root[data-legacy], :root[data-legacy] body::before { background: var(--bg); }
 /* With viewport-fit=cover the page runs under the status bar; this strip keeps scrolled text from showing through it. */
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 40; pointer-events: none; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--arc-bg); z-index: 40; pointer-events: none; }
 :focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 
 /* Tribe glow (11 onward): the screen edge in the Arc's tribe colour, like a soft frame. It never blinks; it breathes slowly,
