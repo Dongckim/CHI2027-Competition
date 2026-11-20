@@ -65,7 +65,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
         <span aria-hidden="true" className="arc-orb" style={at(BOX.cx, BOX.cy, 144)} />
         <svg aria-hidden="true" width={BOX.w} height={BOX.h} className="absolute top-0 left-0" stroke="#fff" strokeWidth={1.2} strokeLinecap="round" fill="none">{lines}</svg>
         <div aria-hidden="true" className="absolute flex flex-col items-center" style={{ left: BOX.cx - 54, top: 206, width: 108 }}>
-          <p className="line-clamp-3 text-center font-semibold tracking-[-0.006em]" style={{ fontSize: real(Math.max(12, 14 * scale)), lineHeight: `${real(Math.max(15, 18 * scale))}px` }}>{arc.query}</p>
+          <p className="line-clamp-3 text-center font-semibold tracking-[-0.006em] text-arc-on-primary" /* dark on the tribe orb: ≥ 4.7:1 for all 8 (white was 1.3–3.7) */ style={{ fontSize: real(Math.max(12, 14 * scale)), lineHeight: `${real(Math.max(15, 18 * scale))}px` }}>{arc.query}</p>
           <img src={TRIBE_ICON[arc.tribe]} alt="" width={12} height={12} className="mt-1.5" />
         </div>
 
