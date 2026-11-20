@@ -87,3 +87,11 @@ export const toggleHeard = (state, key) => {
   if (h.has(key)) h.delete(key); else h.add(key);
   return withArc(state, { heard: [...h].sort() });
 };
+
+// 14 Q&A (decision 007): a random token made on this phone, sent as X-ARC-Device (the server keeps only its hash),
+// and the questions this phone voted for. Both stay in arc.device.
+/** @param {() => string} make a new random token (crypto in the app, fixed in tests) */
+export const withQaToken = (state, make) => (arcOf(state).qaToken ? state : withArc(state, { qaToken: make() }));
+export const qaTokenOf = state => arcOf(state).qaToken ?? null;
+export const votedOf = state => new Set(arcOf(state).voted ?? []);
+export const addVoted = (state, id) => (votedOf(state).has(id) ? state : withArc(state, { voted: [...votedOf(state), id] }));
