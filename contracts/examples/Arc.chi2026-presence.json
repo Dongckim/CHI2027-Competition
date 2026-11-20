@@ -6,13 +6,13 @@
   "tribe": "xr",
   "nodes": [
     {
-      "key": "chi2026:222026",
+      "key": "chi2026:223247",
       "angle": "S",
-      "label": "Social, Spatial, and Se…",
+      "label": "Virtual Perspectives",
       "evidence": {
-        "sentence": "Extensive research has examined presence and basic psychological needs (drawing on Self-Determination Theory) in digital media.",
+        "sentence": "Perspective-taking supports empathy, bias reduction, and social cognition, and virtual reality (VR) promises to facilitate it by immersing users into simulated perspectives.",
         "start": 0,
-        "end": 127
+        "end": 173
       },
       "debut": false
     },
@@ -28,46 +28,35 @@
       "debut": false
     },
     {
-      "key": "chi2026:223247",
-      "angle": "S",
-      "label": "Virtual Perspectives",
-      "evidence": {
-        "sentence": "Yet, how VR qualities, such as spatial presence and agency, influence -- and potentially enhance -- perspective-taking remains unclear.",
-        "start": 176,
-        "end": 311
-      },
-      "debut": false
-    },
-    {
-      "key": "chi2026:223439",
+      "key": "chi2026:222918",
       "angle": "R",
-      "label": "Designing for Wayfindin…",
+      "label": "A Tree’s Perspective",
       "evidence": {
-        "sentence": "We conducted a between-subjects study (N=142) in two high-fidelity VR hospital contexts, including free exploration and task-based wayfinding, while treating locomotion and viewpoint transitions as experimental factors.",
-        "start": 276,
-        "end": 495
-      },
-      "debut": false
-    },
-    {
-      "key": "chi2026:222572",
-      "angle": "R",
-      "label": "Balancing Accuracy and…",
-      "evidence": {
-        "sentence": "Visual perspective is a crucial design factor in Virtual Reality (VR).",
+        "sentence": "Embodying natural entities in Virtual Reality (VR) shows potential to enhance nature connectedness, but design factors that support such embodiment remain underexplored.",
         "start": 0,
-        "end": 70
+        "end": 169
       },
       "debut": true
     },
     {
-      "key": "chi2026:229929",
+      "key": "chi2026:222188",
       "angle": "R",
-      "label": "Cudly",
+      "label": "VoiceRay",
       "evidence": {
-        "sentence": "In a within-subjects mixed-methods study (N=15, aged 60–86), participants completed three counterbalanced 10-min conditions (cushion-only, VR-only, XR-integrated), followed by standardised scales, presence, and interviews.",
-        "start": 465,
-        "end": 687
+        "sentence": "Disambiguating distal target selection in dense and occluded virtual environments has been a challenge for Virtual Reality (VR) interaction design.",
+        "start": 0,
+        "end": 147
+      },
+      "debut": false
+    },
+    {
+      "key": "chi2026:222047",
+      "angle": "R",
+      "label": "Stories for I, They and…",
+      "evidence": {
+        "sentence": "Virtual reality live streaming (VR streaming) is becoming increasingly popular as an entertainment medium, but its unique aspects of virtual camera usage remain underexplored.",
+        "start": 0,
+        "end": 175
       },
       "debut": false
     },
@@ -83,13 +72,13 @@
       "debut": false
     },
     {
-      "key": "chi2026:229895",
+      "key": "chi2026:229708",
       "angle": "T",
-      "label": "Exploring the Time Cour…",
+      "label": "Beyond \"Being There\"",
       "evidence": {
-        "sentence": "However, little is known about how such effects unfold during ongoing avatar embodiment in VR.",
-        "start": 242,
-        "end": 336
+        "sentence": "However, the strategic integration of narratology and VR technology remains in its infancy.",
+        "start": 135,
+        "end": 226
       },
       "debut": false
     }

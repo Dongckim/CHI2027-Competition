@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { buildIndex, buildArc, angleTopics, suggest, labelOf, classify, candidates, tribesOf, CAPS } from '../../app/src/engine/mock-core.js';
+import { buildIndex, buildArc, angleTopics, suggest, labelOf, classify, candidates, tribesOf, expandQuery, CAPS } from '../../app/src/engine/mock-core.js';
 import { arcRuleErrors } from '../../contracts/check.mjs';
 import { buildCorpus } from './corpus.mjs';
 
@@ -89,6 +89,14 @@ test('chi2026: Arcs for 5 questions pass the schema and the evidence rules; sugg
   const kinds = new Set(ui.nodes.map(n => corpus.papers.find(p => p.key === n.key).type));
   assert.ok(kinds.has('Posters'), `UI-path Arc has posters: ${[...kinds]}`);
   assert.ok(Object.values(t).flat().every(x => !/^Posters \(|Interactivity Demos/.test(x.label)), 'no format-block chips');
+  // A topic word ("VR"): long form searched too, Supports/Challenges quote the question word, Reframes not empty,
+  // Challenges only from finding-like sentences (none here → 23)
+  assert.equal(expandQuery('VR and LLMs'), 'VR and LLMs virtual reality large language models');
+  const vr = buildArc(i, 'VR', { angles: ['S', 'R', 'T'], days: [], types: [] }, { id: 'arc-test-1', createdAt: 0 });
+  const quoted = n => /\bvr\b|virtual reality/i.test(n.evidence?.sentence ?? '');
+  assert.ok(vr.nodes.filter(n => n.angle !== 'R').every(quoted), 'S and T evidence has the question word');
+  assert.ok(vr.nodes.some(n => n.angle === 'R'), 'VR has Reframes');
+  assert.ok(vr.nodes.filter(n => n.angle === 'T').every(n => !/however|lack of|little is known/i.test(n.evidence.sentence)));
   const crowded = buildArc(i, 'presence', { angles: ['S', 'R', 'T'], days: [], types: [] }, { id: 'arc-test-1', createdAt: 0, mode: 'crowded' });
   assert.ok(crowded.nodes.length > 9, `crowded has ${crowded.nodes.length}`);
 });

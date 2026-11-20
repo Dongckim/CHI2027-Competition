@@ -22,6 +22,19 @@ const LABEL_MAX = 24;
 // Tension: an abstract sentence with a contrast or null-result cue. Only then a T node, and that sentence is its evidence.
 // "mixed" only as mixed results/findings/evidence/effects (not mixed-methods, mixed reality).
 const TENSION = /\b(no significant|did not|however|contrary|fail(?:ed|s)? to|mixed (?:results|findings|evidence|effects))\b/i;
+// A 1–2 word topic ("VR") has no claim to contradict, so only finding-like cues count, not "however".
+const RESULT = /\b(no significant|did not|contrary|fail(?:ed|s)? to|mixed (?:results|findings|evidence|effects))\b/i;
+// "However, little is known…" names a gap in the literature, not a different finding.
+const GAP = /\b(lack of|little is known|remains? (?:limited|unclear|unexplored|underexplored|understudied)|few (?:studies|works)|under-?explored|has not been)\b/i;
+// Abbreviations → the words papers also write. The question is searched with both (shortcut: a fixed list for the mock).
+const EXPAND = { vr: 'virtual reality', ar: 'augmented reality', xr: 'extended reality', mr: 'mixed reality', llm: 'large language model',
+  llms: 'large language models', ai: 'artificial intelligence', hci: 'human computer interaction', bci: 'brain computer interface',
+  hri: 'human robot interaction', ml: 'machine learning', nlp: 'natural language processing', genai: 'generative ai', iot: 'internet of things' };
+export const expandQuery = query => {
+  const extra = (query.toLowerCase().match(/[a-z]+/g) ?? []).map(w => EXPAND[w]).filter(Boolean);
+  return extra.length ? `${query} ${extra.join(' ')}` : query;
+};
+const isShort = query => terms(query).length <= 2;
 // Reframe: a method, group of people or measure word that the question itself does not use.
 const REFRAME = ['interview', 'survey', 'diary', 'field study', 'field deployment', 'workshop', 'participatory', 'co-design', 'ethnograph',
   'experiment', 'controlled study', 'longitudinal', 'eye tracking', 'eye-tracking', 'physiological', 'log data', 'questionnaire', 'think-aloud',
@@ -81,7 +94,7 @@ export function candidates(index, query, { days = [], types = [], sessionKeys = 
   const tz = index.corpus.meta.timeZone;
   const keep = p => (!types.length || types.includes(p.type)) && (!days.length || days.includes(dayOf(p, tz)))
     && (!sessionKeys.length || inSessions(index, p, sessionKeys));
-  const items = recommend(query, index.base, { limit: index.base.N }).items;
+  const items = recommend(expandQuery(query), index.base, { limit: index.base.N }).items;
   // Score against the mean of the top 3, not the top 1: one standout match (1.00, then 0.60) would push every other
   // talk under the S bar ("Does VR fidelity raise presence?" had no Supports). Capped at 1.
   const ref = items.slice(0, 3).reduce((a, it) => a + it.relevance, 0) / Math.min(3, items.length || 1) || 1;
@@ -97,21 +110,32 @@ export function candidates(index, query, { days = [], types = [], sessionKeys = 
  * @returns {{ S: object[], R: object[], T: object[] }} ArcNodes per angle, best first
  */
 export function classify(index, query, list, { tension = true } = {}) {
-  const q = [...new Set(terms(query))];
-  const inPool = w => list.filter(x => index.tf.get(x.paper.key)?.has(w)).length;
-  const shared = q.map(w => [w, inPool(w)]).filter(([, n]) => n).sort((a, b) => b[1] - a[1]);
+  const q = [...new Set(terms(expandQuery(query)))]; // question words with the long forms of abbreviations
+  const own = [...new Set(terms(query))];
+  const textOf = p => `${p.title} ${p.abstract}`.toLowerCase().replace(/[^a-z0-9]+/g, ' ');
+  // A core word counts when the paper has it or its long form ("vr" or "virtual reality").
+  const has = (p, w) => index.tf.get(p.key)?.has(w) || (EXPAND[w] && textOf(p).includes(EXPAND[w]));
+  const inPool = w => list.filter(x => has(x.paper, w)).length;
+  const shared = own.map(w => [w, inPool(w)]).filter(([, n]) => n).sort((a, b) => b[1] - a[1]);
   // Words in at least a third of the candidates; at least the most shared one.
   const core = shared.filter(([, n], i) => i === 0 || n >= list.length / 3).slice(0, 2).map(([w]) => w);
-  const qText = ` ${query.toLowerCase()} `;
+  const qText = ` ${expandQuery(query).toLowerCase()} `;
+  const short = isShort(query);
+  const cue = short ? RESULT : TENSION;
+  const tensionLine = text => cue.test(text) && !GAP.test(text);
   const out = { S: [], R: [], T: [] };
   list.forEach(({ paper: p, score }) => {
     const node = (angle, s) => ({ key: p.key, angle, label: labelOf(p.title), evidence: evidenceOf(p.abstract, s), debut: index.debut.has(p.authors[0]) }); // map/list ✦: first author new (14 marks every new author)
-    const t = tension && bestSentence(p.abstract, q, TENSION);
+    const t = tension && bestSentence(p.abstract, q, { test: tensionLine });
     if (t?.n && score >= MIN.T) { out.T.push(node('T', t)); return; }
-    const tf = index.tf.get(p.key);
-    if (score >= MIN.S && core.length && core.every(w => tf?.has(w))) { out.S.push(node('S', bestSentence(p.abstract, q))); return; }
     const text = `${p.title} ${p.abstract}`.toLowerCase();
-    if (score >= R_BAND[0] && score < R_BAND[1] && REFRAME.some(w => text.includes(w) && !qText.includes(w))) out.R.push(node('R', bestSentence(p.abstract, q)));
+    const reframe = REFRAME.some(w => text.includes(w) && !qText.includes(w));
+    // A topic word matches almost every candidate, so after the top Supports the rest with a method / people / measure
+    // word go to Reframes (the R band reaches up to 1 for short questions).
+    const sFull = short && out.S.length >= CAPS.S;
+    const s = bestSentence(p.abstract, q);
+    if (!sFull && score >= MIN.S && core.length && core.every(w => has(p, w)) && s?.n) { out.S.push(node('S', s)); return; }
+    if (score >= R_BAND[0] && (short || score < R_BAND[1]) && reframe) out.R.push(node('R', s));
   });
   return out;
 }
