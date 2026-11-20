@@ -47,13 +47,13 @@ try {
   await shot('01');
   await click("It's my first CHI");
   const seen = [];
-  for (const [n, title] of [[2, 'The biggest week'], [3, 'Ten talks at once'], [4, 'Know what to do'], [5, 'Breaks are'], [6, 'Your question,']]) {
+  for (const [n, title] of [[2, 'The biggest week'], [3, '10+ talks run at once'], [4, 'Know what to do'], [5, 'Breaks are'], [6, 'Your question,']]) {
     const ok = await waitFor(`location.hash === '#/start/${n}' && document.body.innerText.includes(${JSON.stringify(title)})`);
     seen.push(ok != null); await shot(`0${n}`);
     await click('Next');
   }
   check('02–06 in order, each with Next', seen.every(Boolean), { seen });
-  check('06 Next → 07 with dots and Skip', !!(await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label="Step 6 of 6"]') && /Skip/.test(document.body.innerText)`)), { hash: await hash() });
+  check('06 Next → 07 with dots and Skip', !!(await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label="Step 8 of 8"]') && /Skip/.test(document.body.innerText)`)), { hash: await hash() });
 
   // 07: type a question (React needs the native setter + an input event), the tribe chip appears
   await ev(`(() => { const i = document.querySelector('main input'); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
@@ -123,7 +123,7 @@ try {
   check('Skip → 21 empty home', (await waitFor(`location.hash === '#/home' && /Start with one question/.test(document.body.innerText)`)) != null, {});
   await shot('21');
   await click('New Arc');
-  check('New Arc → 07 with a back button, no dots', (await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label=Back]') && !document.querySelector('[aria-label="Step 6 of 6"]')`)) != null, {});
+  check('New Arc → 07 with a back button, no dots', (await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label=Back]') && !document.querySelector('[aria-label="Step 8 of 8"]')`)) != null, {});
   check('no uncaught errors', errors.length === 0, { errors });
 } catch (e) {
   fails.push(`stopped: ${e.message}`);
