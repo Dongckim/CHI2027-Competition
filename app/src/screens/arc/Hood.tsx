@@ -8,6 +8,7 @@ import { useTribe } from '../../arc/live';
 import { Screen, ArcButton, ArcLink, Sheet, Pic } from '../../components/arc';
 import type { Arc, TribeId } from '../../engine';
 
+const shape = (src: string) => ({ WebkitMask: `url(${src}) center / contain no-repeat`, mask: `url(${src}) center / contain no-repeat` });
 const at = (x: number, y: number, w: number) => ({ position: 'absolute' as const, left: x, top: y, width: w, height: w });
 
 export function Hood({ id }: { id: string }) {
@@ -30,8 +31,11 @@ export function Hood({ id }: { id: string }) {
       <div className="relative -mx-6 mt-[96px] h-[340px] w-[390px] max-w-[100vw] self-center" aria-hidden="true">
         <span className="arc-ring" style={at(25, 0, 340)} />
         <span className="arc-ring" style={at(70, 45, 250)} />
+        {/* Figma 593:922 (XR only): the shape in a light-to-deep gradient with a 2px white 45% edge; the same mix for each tribe */}
         <span style={{ ...at(129, 104, 132), filter: `drop-shadow(0 0 24px color-mix(in srgb, ${t.color} 60%, transparent))` }}>
-          <img src={TRIBE_ICON[arc.tribe]} alt="" width={132} height={132} />
+          <span className="absolute inset-0" style={{ ...shape(TRIBE_ICON[arc.tribe]), background: 'rgba(255,255,255,0.45)' }} />
+          <span className="absolute inset-[2px]" style={{ ...shape(TRIBE_ICON[arc.tribe]),
+            background: `linear-gradient(135deg, color-mix(in srgb, ${t.color} 40%, white) 0%, color-mix(in srgb, ${t.color} 88%, white) 55%, color-mix(in srgb, ${t.color} 88%, black) 100%)` }} />
         </span>
       </div>
       <p className="mt-[-12px] text-center text-[12px] font-medium tracking-[0.12em] text-arc-text-3">YOU'RE IN</p>
