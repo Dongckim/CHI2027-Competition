@@ -1,0 +1,5 @@
+{
+  "_": "Hosts the Arc app may contact while running (tests/qa/requests-check.mjs). Fonts are self-hosted (Inter from @fontsource) and the model is served from our own /model/, so today this is our origin only. Links people tap (DOI, ACM DL, Code of Conduct) open in a new page and are not requests of the app.",
+  "hosts": ["localhost", "127.0.0.1", "arc-seven-wheat.vercel.app", "arc2027.com"],
+  "suffixes": [".vercel.app"]
+}
