@@ -81,3 +81,23 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .arc-ring { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.08);
   background: radial-gradient(circle, color-mix(in srgb, var(--tribe-now, #5c7cff) 28%, transparent) 0%, transparent 70%); }
 :root[data-tribe] { --tribe-now: var(--tribe); }
+
+/* 12 map nodes (Figma Node 588:644/652/660/668): a 64 box with a 46 core and the angle symbol.
+   next = white core + 1px pulse ring · upcoming = glass · heard = tribe colour · ended = dashed (something to read). */
+.arc-holo { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.1);
+  background: radial-gradient(circle, transparent 60%, color-mix(in srgb, var(--tribe-now, #5c7cff) 18%, transparent) 100%); }
+.arc-node { position: relative; display: flex; width: 64px; height: 64px; align-items: center; justify-content: center; border-radius: 9999px; }
+.arc-node-core { display: flex; width: 46px; height: 46px; align-items: center; justify-content: center; border-radius: 9999px;
+  background: var(--arc-surface); border: 1px solid var(--arc-line); }
+.arc-node-next .arc-node-core { background: rgba(255, 255, 255, 0.96); border-color: transparent; box-shadow: 0 8px 22px -6px rgba(10, 5, 32, 0.55); }
+.arc-node-next .arc-node-core img { filter: brightness(0) saturate(100%); opacity: 0.9; } /* dark symbol on the white core */
+.arc-node-next::before { content: ""; position: absolute; inset: 0; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.28);
+  animation: arc-pulse 2.4s ease-out infinite; }
+@keyframes arc-pulse { 0% { transform: scale(0.9); opacity: 1; } 100% { transform: scale(1.12); opacity: 0; } }
+.arc-node-heard .arc-node-core { border-color: rgba(255, 255, 255, 0.35);
+  background: linear-gradient(color-mix(in srgb, var(--tribe-now, #6e8bff) 55%, white), var(--tribe-now, #6e8bff));
+  box-shadow: 0 8px 22px -6px color-mix(in srgb, var(--tribe-now, #6e8bff) 50%, transparent); }
+.arc-node-ended .arc-node-core { background: transparent; border: 1.5px dashed rgba(244, 246, 255, 0.35); }
+.arc-node-ended .arc-node-core img { opacity: 0.6; }
+.arc-node-selected::after { content: ""; position: absolute; inset: -6px; border-radius: 9999px; border: 1.5px solid rgba(255, 255, 255, 0.9); }
+@media (prefers-reduced-motion: reduce) { .arc-node-next::before { animation: none; } }

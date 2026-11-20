@@ -1,0 +1,12 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Orb">
+<g id="Core">
+<circle cx="32" cy="32" r="23" fill="#1C1B24"/>
+<circle cx="32" cy="32" r="22.5" stroke="white" stroke-opacity="0.08"/>
+</g>
+<g id="Angle" opacity="0.5">
+<path id="Vector" d="M41 32C41 36.9706 36.9706 41 32 41C27.0294 41 23 36.9706 23 32C23 27.0294 27.0294 23 32 23C36.9706 23 41 27.0294 41 32Z" stroke-width="1.8" stroke="#F4F6FF"/>
+<path id="Vector_2" d="M32 27.5V32L35 34" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke="#F4F6FF"/>
+</g>
+</g>
+</svg>
