@@ -19,8 +19,7 @@ import warning from '../../assets/arc/icon-warning.svg';
 
 type Filter = 'angle' | 'debut' | 'wild';
 type Slot = { start: number | null; end: number };
-// Same rule as the engine's map label (title before the colon, 24 characters), for talks added by search.
-const labelOf = (title: string) => { const h = title.split(':')[0].trim() || title.trim(); return h.length <= 24 ? h : `${h.slice(0, 23).trimEnd()}…`; };
+import { labelOf } from '../../arc/label.js';
 const tensionFor = (arc: Arc, nodes: ArcNode[]): Arc['tension'] =>
   nodes.some(n => n.angle === 'T') ? 'found' : arc.tension === 'off' || arc.tension === 'pending' ? arc.tension : 'none';
 
