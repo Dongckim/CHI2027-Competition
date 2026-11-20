@@ -1,6 +1,7 @@
 {
   "buildCommand": "npm run build:deploy",
   "outputDirectory": "dist",
+  "rewrites": [{ "source": "/s/:d", "destination": "/api/share?d=:d" }],
   "headers": [
     { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
     { "source": "/app-data/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
