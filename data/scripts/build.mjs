@@ -2,6 +2,8 @@
 // Output is a pure function of the feed + venue + curated files: no clock, sorted by id.
 import { readFile, readdir, mkdir, writeFile, rm } from 'node:fs/promises';
 import { buildAppData } from './app-data.mjs';
+import { debutKeys, earlierEditions } from './debut.mjs';
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const DATA = new URL('../', import.meta.url);
@@ -30,6 +32,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   for (const edition of process.argv.slice(2).length ? process.argv.slice(2) : all) {
     const { feed, opts } = await loadEdition(edition);
     const out = buildEdition(feed, opts);
+    // 14 "✦ New to CHI": compare with the three earlier feeds in data/raw (fetched by build:deploy). Missing ones are named.
+    const earlier = earlierEditions(edition).filter(e => existsSync(new URL(`raw/${e}/`, DATA)));
+    const missing = earlierEditions(edition).filter(e => !earlier.includes(e));
+    if (missing.length) console.log(`note: ${edition} debut without ${missing.join(', ')} (not in data/raw)`);
+    out.debut = earlier.length ? debutKeys(edition, feed.people, await Promise.all(earlier.map(e => loadEdition(e).then(x => x.feed.people)))) : [];
     const dir = new URL(`build/${edition}/`, DATA);
     await mkdir(dir, { recursive: true });
     for (const [name, value] of Object.entries(out)) {

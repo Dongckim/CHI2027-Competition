@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node app/scripts/copy-static.mjs",
-    "build:deploy": "npm run data:fetch chi2026 && npm run data:build chi2026 && npm run build",
+    "build:deploy": "npm run data:fetch chi2023 chi2024 chi2025 chi2026 && npm run data:build chi2026 && npm run build",
     "preview": "vite preview",
     "typecheck": "tsc",
     "data:fetch": "node data/scripts/fetch.mjs",
