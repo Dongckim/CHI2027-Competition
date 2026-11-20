@@ -33,7 +33,6 @@
 - 서버 함수는 기존 구조를 따른다: 로직은 `functions/<이름>.mjs`, Vercel 진입점은 `api/<이름>.mjs` (A3)
 
 ## ④ 남은 문제
-- **Figma 프레임 id 표**: Figma MCP 인증 대기. 아래는 지시서에 있던 id만 적었다
 - ✦가 너무 흔함: 저자 중 하나라도로 하면 Paper의 64%에 붙어 "히트" 기능이 눈에 띄지 않는다. 제1저자 기준(27%)으로 바꿀지 사용자 결정 필요
 - mock의 Tension은 실데이터 5개 질문 모두 `found`. "however"가 흔해서 23번(`none`)은 `?mock=none`으로만 보인다. 실제 판정은 원준 엔진 몫
 - 키워드 종족 분류의 한계: "Collaborating with AI" → society('collaborat'). 다수결 30표라 질문 단위로는 대체로 맞지만, 분포 측정은 안 했다
@@ -46,31 +45,43 @@
 - mock 상태 재현: `?mock=slow|none|pending|crowded` (해시 앞, 예: `/?mock=none#/arc/<id>`)
 - `debut.json`이 비어 있으면(이전 피드 없이 빌드) 모든 노드가 debut false. build가 note를 출력한다
 
-### Figma Final UI (582:7) 프레임 — 인증 후 채움
-| # | 화면 | 노드 |
-|---|---|---|
-| 01 | Welcome | 590:453 |
-| 02–05 | CHI 101 | ? |
-| 06 | How ARC works | ? |
-| 07 | Ask first question | ? |
-| 08 | Choose your angles | 593:600 |
-| 09 | When and what | 593:700 |
-| 10 | Building | ? |
-| 11 | Your neighborhood | ? |
-| 12 | My Arc map | 597:711 |
-| 13 | List | ? |
-| 14 | Talk detail + Q&A | 597:972 |
-| 15 | Edit | 598:917 |
-| 16 | Share | 598:1098 |
-| 17 | QR full screen | ? |
-| 18 | Shared Arc opened | 599:994 |
-| 19 | Pick some | 599:1117 |
-| 20–21 | Home / empty | ? |
-| 22 | Angle help | ? |
-| 23 | No clear challenge | ? |
-| 24 | Crowded Arc | ? |
-| 25 | Angles still sorting | ? |
-| — | Components | 588:446 |
+### Figma Final UI (582:7) 프레임 (2026-11-20, get_metadata로 읽음)
+| # | 화면 (Figma 이름) | 노드 | Figma 설명 |
+|---|---|---|---|
+| 01 | Welcome | 590:453 | 첫 화면 |
+| 02 | CHI 101 · What is CHI | 590:514 | ① CHI가 뭔가요 |
+| 03 | CHI 101 · A day | 590:557 | ② 하루의 모양 |
+| 04 | CHI 101 · Formats | 590:623 | ③ 형식마다 할 일 |
+| 05 | CHI 101 · How people talk | 591:527 | ④ 대화의 규칙 |
+| 06 | How ARC works | 591:586 | ARC 사용법 (1장) |
+| 07 | Ask · first question | 591:654 | 첫 질문 (A-1) |
+| 08 | Choose your angles | 593:600 | 각도별 비슷한 주제 고르기 (A-2) |
+| 09 | When and what | 593:700 | 언제 · 무엇 (A-3) |
+| 10 | Building | 593:780 | 로딩 (약 3초) |
+| 11 | Your neighborhood | 593:902 | 종족 공개 |
+| 12 | My Arc · map | 597:711 | 메인 Arc |
+| 13 | My Arc · list | 597:860 | 목록 보기 (= Summary K2) |
+| 14 | Talk detail | 597:972 | 노드 상세 + Q&A |
+| 15 | Edit | 598:917 | Edit 모드 |
+| 16 | Share | 598:1098 | 공유 (이미지 · 링크 미리보기) |
+| 17 | QR · show your Arc | 598:1247 | 전체 화면 QR |
+| 18 | Shared Arc · opened | 599:994 | 받은 Arc 열기 |
+| 19 | Pick some | 599:1117 | 골라 담기 |
+| 20 | Home · My Arcs | 600:1105 | 홈 = 내 Arc들 |
+| 21 | Home · empty | 600:1225 | 빈 홈 (온보딩 Skip) |
+| 22 | State · Angle help | 600:1266 | ? 각도 설명 |
+| 23 | State · No clear challenge | 601:1198 | 뚜렷한 반론 없음 |
+| 24 | State · Crowded Arc | 601:1311 | +N 묶음 |
+| 25 | State · Angles still sorting | 601:1442 | 모델 준비 중 |
+| — | ARC · Components | 588:446 | 아이콘 24px stroke 1.8 흰색 등 |
+| — | Header · ARC Final UI | 601:1581 | 페이지 머리 |
+
+Figma 흐름 문구 (지시서와 다른 곳은 화면 구성이라 Figma를 따름):
+- 시작: "처음이면 01 → 02~05 (CHI 101) → 06 → 07 · 와본 적 있으면 01 → 06 → 07 · 모든 화면 Skip → 홈(20)". 지시서는 01 → 07이었음. 홈이 비어 있으면 21
+- 만들기: 07 → 08 → 09 → 10 (약 3초) → 11 → 12
+- 쓰기: 12 ⇄ 13 · 노드 탭 → 14 · Edit → 15 → Done → 12 · Share → 16
+- 공유: 16 → QR 탭 → 17 · 받은 사람 18 → 그대로 추가 또는 19
+- 홈: 20 → Arc 탭 → 12 · 21 빈 홈 · 22~25 상태
 
 ## ⑥ 비용·토큰
 - 외부 API 호출 없음. 빌드 시간 +0.1초(이전 피드 3개 이름 비교), 배포 때 피드 3개를 더 받음(리비전 파일, 약 25 MB)
