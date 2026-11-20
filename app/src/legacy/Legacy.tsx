@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { useRoute, go, tabOf } from './router';
-import { useDevice } from './state/useDevice';
+import { useRoute, go, tabOf } from '../router';
+import { useDevice } from '../state/useDevice';
 import { TabBar } from './components/TabBar';
 import { Today } from './screens/Today';
 import { Explore } from './screens/Explore';
@@ -12,11 +12,11 @@ import { Questions } from './screens/Questions';
 import { Placeholder, isPlaceholder } from './screens/Placeholder';
 import { More } from './screens/More';
 import { Cleared } from './screens/Cleared';
-import { loadNote } from './state/useDevice';
-import { planWasHere } from './data/offline';
-import { setDemoNow, isDemo } from './clock';
-import { clearSimulated } from './data/programme';
-import { keepsSample } from './today/simulate.js';
+import { loadNote } from '../state/useDevice';
+import { planWasHere } from '../data/offline';
+import { setDemoNow, isDemo } from '../clock';
+import { clearSimulated } from '../data/programme';
+import { keepsSample } from '../today/simulate.js';
 
 const TITLES = { today: 'Today', explore: 'Explore', questions: 'Questions' };
 

@@ -1,7 +1,7 @@
 import { useCallback, useState, type ReactNode } from 'react';
-import { useExploreData, useMyDay } from '../explore/useExplore';
-import { weekdayOf, clockOf, firstSlot } from '../explore/format';
-import { go } from '../router';
+import { useExploreData, useMyDay } from '../../explore/useExplore';
+import { weekdayOf, clockOf, firstSlot } from '../../explore/format';
+import { go } from '../../router';
 import { Header } from '../components/Header';
 import { Button, ButtonLink } from '../components/Button';
 import { Toast, type ToastValue } from '../components/Toast';

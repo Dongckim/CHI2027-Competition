@@ -1,9 +1,9 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
-import { searchTalks, searchPeople, searchSessions, placeOf, filterCount, hasWords, peopleFilterOnly, NO_FILTERS } from '../../../data/scripts/search.mjs';
-import { explore, openFilters, useExploreData, useMyDay, type ExploreState, type Loaded } from '../explore/useExplore';
-import { TYPE_TAG, weekdayOf, clockOf, firstSlot } from '../explore/format';
-import { go } from '../router';
-import { searchPlaces } from '../venue/places.js';
+import { searchTalks, searchPeople, searchSessions, placeOf, filterCount, hasWords, peopleFilterOnly, NO_FILTERS } from '../../../../data/scripts/search.mjs';
+import { explore, openFilters, useExploreData, useMyDay, type ExploreState, type Loaded } from '../../explore/useExplore';
+import { TYPE_TAG, weekdayOf, clockOf, firstSlot } from '../../explore/format';
+import { go } from '../../router';
+import { searchPlaces } from '../../venue/places.js';
 import { Header } from '../components/Header';
 import { Button } from '../components/Button';
 import { Toast, type ToastValue } from '../components/Toast';

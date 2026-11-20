@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import current from '../../../data/build/app-data/chi2026/current.json';
-import { searchTalks, placeChoices, NO_FILTERS } from '../../../data/scripts/search.mjs';
-import { explore, leaveFilters, useExploreData, type Filters as F, type Place } from '../explore/useExplore';
-import { dayLabel } from '../explore/format';
+import current from '../../../../data/build/app-data/chi2026/current.json';
+import { searchTalks, placeChoices, NO_FILTERS } from '../../../../data/scripts/search.mjs';
+import { explore, leaveFilters, useExploreData, type Filters as F, type Place } from '../../explore/useExplore';
+import { dayLabel } from '../../explore/format';
 import { Header } from '../components/Header';
 import { Chip } from '../components/Chip';
 import { ChoiceRow } from '../components/ChoiceRow';

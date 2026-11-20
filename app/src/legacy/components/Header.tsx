@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useDevice } from '../state/useDevice';
+import { useDevice } from '../../state/useDevice';
 
 // 44px header. Default: wordmark left, search and settings right. Onboarding: a back button, an optional title and a step count.
 // search: the magnifier that opens Explore from any screen (on by default with the wordmark; off on Explore itself).

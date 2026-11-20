@@ -1,4 +1,4 @@
-import { href, type Tab } from '../router';
+import { href, type Tab } from '../../router';
 
 // Figma v3 tab icons (22px, stroke 1.7 in both states; only the colour says which tab is open), drawn in currentColor.
 const ICONS: Record<Tab, string[]> = {

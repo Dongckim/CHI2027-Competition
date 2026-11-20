@@ -1,17 +1,17 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { loadSchedule, type Schedule } from '../data/load';
-import { route as findRoute } from '../venue/route.js';
-import { directions, minutesText } from '../venue/directions.js';
-import { playCues } from '../venue/sound.js';
-import { REGISTRATION } from '../venue/walk.js';
-import { placeTargets, routeToNearest } from '../venue/places.js';
-import { useDayPlans } from '../today/useDayPlans';
-import { firstSlot } from '../explore/format';
-import { useDevice } from '../state/useDevice';
-import { isDemo, useNow } from '../clock';
-import { roomNow } from '../today/card.js';
-import { localDay } from '../planner/plan.js';
-import { go } from '../router';
+import { loadSchedule, type Schedule } from '../../data/load';
+import { route as findRoute } from '../../venue/route.js';
+import { directions, minutesText } from '../../venue/directions.js';
+import { playCues } from '../../venue/sound.js';
+import { REGISTRATION } from '../../venue/walk.js';
+import { placeTargets, routeToNearest } from '../../venue/places.js';
+import { useDayPlans } from '../../today/useDayPlans';
+import { firstSlot } from '../../explore/format';
+import { useDevice } from '../../state/useDevice';
+import { isDemo, useNow } from '../../clock';
+import { roomNow } from '../../today/card.js';
+import { localDay } from '../../planner/plan.js';
+import { go } from '../../router';
 import { Header } from '../components/Header';
 import { Button, ButtonLink } from '../components/Button';
 import { ChoiceRow } from '../components/ChoiceRow';
@@ -177,7 +177,7 @@ function Plan3D({ venue, r, summary, cues, lines, onStep, goStep }: {
     stepRef.current = -1; setStepHere(-1); onStep(-1); setState('loading'); // a new route starts from the whole plan
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const reached = (i: number) => { stepRef.current = i; setStepHere(i); onStep(i); if (i >= 0) setShown('whole'); };
-    import('../venue/view3d.js').then(({ mount }) => {
+    import('../../venue/view3d.js').then(({ mount }) => {
       if (cancelled || !canvas.current) return;
       try { view.current = mount(canvas.current, { venue, route: r, summary, steps: lines, onStep: reached, reduceMotion }); setState('ready'); } catch { setState('failed'); }
     }, () => setState('failed'));

@@ -1,5 +1,5 @@
-import { go } from '../router';
-import { update } from '../state/useDevice';
+import { go } from '../../router';
+import { update } from '../../state/useDevice';
 import { Header } from '../components/Header';
 import { ButtonLink } from '../components/Button';
 import { BottomAction } from '../components/BottomAction';

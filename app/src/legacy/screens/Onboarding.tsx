@@ -1,17 +1,17 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import current from '../../../data/build/app-data/chi2026/current.json';
-import { recommend } from '../data/recommend';
-import { saveRecommendation, useRecommendation } from '../data/recommendation';
-import { go } from '../router';
-import { update, useDevice, isSaved, loadNote, LANGUAGES, type DeviceState } from '../state/useDevice';
+import current from '../../../../data/build/app-data/chi2026/current.json';
+import { recommend } from '../../data/recommend';
+import { saveRecommendation, useRecommendation } from '../../data/recommendation';
+import { go } from '../../router';
+import { update, useDevice, isSaved, loadNote, LANGUAGES, type DeviceState } from '../../state/useDevice';
 import {
   KINDS, REGISTRATION_NEEDED, HOW_FULL, setQuery, topicsFromResponse, toggleTopic, addOwnTopic, toggleNearby,
   toggleDay, toggleKind, toggleNeed, setLanguage, setHowFull, atStep, canBuild,
-} from '../state/device.js';
+} from '../../state/device.js';
 import { Header } from '../components/Header';
 import { Chip } from '../components/Chip';
 import { ChoiceRow } from '../components/ChoiceRow';
-import { SummaryRow } from '../components/SummaryRow';
+import { SummaryRow } from '../../components/SummaryRow';
 import { BottomAction } from '../components/BottomAction';
 
 // Onboarding (Figma 288:680): one question per screen, "N of 4", one button at the bottom. Every choice is saved as it

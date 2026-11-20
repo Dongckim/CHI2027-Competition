@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { loadSchedule } from '../data/load';
+import { loadSchedule } from '../../data/load';
 import { Header } from '../components/Header';
 
 // Destinations that later stages build. The route and the talk are real, so links can be wired now.

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useRecommendation } from '../data/recommendation';
-import { go } from '../router';
-import { update, useDevice } from '../state/useDevice';
-import { candidatesFor, canBuild } from '../state/device.js';
-import { loadSchedule } from '../data/load';
-import { realNow } from '../clock';
-import { markPlanSaved } from '../data/offline';
+import { useRecommendation } from '../../data/recommendation';
+import { go } from '../../router';
+import { update, useDevice } from '../../state/useDevice';
+import { candidatesFor, canBuild } from '../../state/device.js';
+import { loadSchedule } from '../../data/load';
+import { realNow } from '../../clock';
+import { markPlanSaved } from '../../data/offline';
 import { Header } from '../components/Header';
 import { Button } from '../components/Button';
 
