@@ -21,6 +21,8 @@ const FREE: Record<Angle, [number, number][][]> = { // where an add slot goes wh
   S: [[[66, 236]], [[66, 358]]], T: [[[324, 236]], [[324, 358]]], R: [[[195, 470]], [[252, 446]], [[195, 500]]],
 };
 
+const BELOW = 80; // the bottom row's labels hang below the 530 box (Figma's labels are one line; real titles two)
+
 export type Info = { title: string; short: string; time: string; when: string; room: string };
 type Edit = { selected: string | null; onSelect: (key: string) => void; onRemove: (key: string) => void; onAdd: (angle: Angle) => void; adding: Angle | null };
 
@@ -42,11 +44,13 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit }
   for (const b of l.bundles) { const c = connector(b.at, 24); lines.push(<line key={`b-${b.angle}`} x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} strokeOpacity={b.angle ? 0.32 : 0.26} strokeDasharray={b.angle === 'R' ? '5 5' : b.angle ? undefined : '1 5'} />); }
   if (l.emptyT) { const c = connector(l.emptyT, 23); lines.push(<line key="emptyT" x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} strokeOpacity={0.2} strokeDasharray="3 4" />); }
 
+  // The map may be drawn smaller (15 at 0.74), but text and touch targets keep their real size: never under 12px / 44px.
+  const real = (n: number) => n / scale;
   const counts = { S: 0, R: 0, T: 0 } as Record<Angle, number>;
   for (const n of arc.nodes) counts[n.angle]++;
 
   return (
-    <div className="relative mx-auto" style={{ width: BOX.w * scale, height: BOX.h * scale }}>
+    <div className="relative mx-auto" style={{ width: BOX.w * scale, height: (BOX.h + BELOW) * scale }}>
       <div className="absolute top-0 left-0 origin-top-left" style={{ width: BOX.w, height: BOX.h, transform: scale === 1 ? undefined : `scale(${scale})` }}>
         <img src={outerOrbit} alt="" aria-hidden="true" style={{ position: 'absolute', left: -25, top: 20, width: 440, height: 440 }} />
         <span aria-hidden="true" className="arc-ring" style={at(BOX.cx, BOX.cy, 300)} />
@@ -54,7 +58,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit }
         <span aria-hidden="true" className="arc-orb" style={at(BOX.cx, BOX.cy, 144)} />
         <svg aria-hidden="true" width={BOX.w} height={BOX.h} className="absolute top-0 left-0" stroke="#fff" strokeWidth={1.2} strokeLinecap="round" fill="none">{lines}</svg>
         <div aria-hidden="true" className="absolute flex flex-col items-center" style={{ left: BOX.cx - 54, top: 206, width: 108 }}>
-          <p className="line-clamp-3 text-center text-[14px] leading-[18px] font-semibold tracking-[-0.006em]">{arc.query}</p>
+          <p className="line-clamp-3 text-center font-semibold tracking-[-0.006em]" style={{ fontSize: real(Math.max(12, 14 * scale)), lineHeight: `${real(Math.max(15, 18 * scale))}px` }}>{arc.query}</p>
           <img src={TRIBE_ICON[arc.tribe]} alt="" width={12} height={12} className="mt-1.5" />
         </div>
 
@@ -70,15 +74,15 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit }
                 <span className={`arc-node ${pending ? '' : `arc-node-${st}`} ${selected ? 'arc-node-selected' : ''}`}>
                   {pending ? <img src={sortingOrb} alt="" width={64} height={64} /> : <span className="arc-node-core"><img src={ANGLE_ICON[node.angle]} alt="" width={24} height={24} /></span>}
                 </span>
-                <span className={`line-clamp-2 text-center text-[12px] leading-[15px] font-semibold ${st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
+                <span style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`line-clamp-2 text-center font-semibold ${st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
                   {node.debut && <span aria-hidden="true">✦ </span>}{i.short}
                 </span>
                 {/* Figma 10px; 12px is the floor */}
-                <span className="block max-w-[104px] truncate text-[12px] font-medium text-arc-text-3">{i.when}</span>
+                <span style={{ fontSize: real(12) }} className="block max-w-[104px] truncate font-medium text-arc-text-3">{i.when}</span>
               </button>
               {edit && (
                 <button type="button" onClick={() => edit.onRemove(node.key)} aria-label={`Remove ${i.title}`}
-                  className="absolute top-[-11px] left-[63px] flex size-11 items-center justify-center">
+                  className="absolute flex items-center justify-center" style={{ width: real(44), height: real(44), left: 85 - real(22), top: 0 - real(22) + 11 }}>
                   <span className="flex size-[22px] items-center justify-center rounded-full border border-white/40 bg-[rgba(34,29,54,0.94)]"><img src={minus} alt="" width={14} height={14} /></span>
                 </button>
               )}
@@ -90,7 +94,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit }
           <button key={b.angle ?? 'all'} type="button" onClick={() => onBundle?.(b.angle as Angle)} aria-label={`${b.count} more ${b.angle ? ANGLE_NAME[b.angle] : 'talks'}`}
             className="absolute flex flex-col items-center gap-0.5" style={{ left: b.at[0] - 40, top: b.at[1] - 24, width: 80 }}>
             <span className="flex size-12 items-center justify-center rounded-full border border-arc-line bg-arc-surface text-[15px] font-semibold">+{b.count}</span>
-            <span className="text-[12px] font-semibold text-arc-text/80">{b.count} more</span>
+            <span style={{ fontSize: real(12) }} className="font-semibold text-arc-text/80">{b.count} more</span>
           </button>
         ))}
 
@@ -105,7 +109,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit }
           const [x, y] = FREE[a][counts[a]][0];
           return (
             <button key={`add-${a}`} type="button" onClick={() => edit.onAdd(a)} aria-label={`Add a talk to ${ANGLE_NAME[a]}`} aria-pressed={edit.adding === a}
-              className="absolute flex size-11 items-center justify-center" style={{ left: x - 22, top: y - 22 }}>
+              className="absolute flex items-center justify-center" style={{ left: x - real(22), top: y - real(22), width: real(44), height: real(44) }}>
               <span className={`flex size-[34px] items-center justify-center rounded-full border border-dashed bg-arc-surface ${edit.adding === a ? 'border-white/90' : 'border-white/30'}`}><img src={plus} alt="" width={16} height={16} /></span>
             </button>
           );

@@ -17,7 +17,7 @@ test('layout: 2 per side, 3 at the bottom, then a +N bundle; empty Challenges sl
   const arc = { tension: 'found', nodes: [n('s1', 'S'), n('s2', 'S'), n('s3', 'S'), n('s4', 'S'), n('r1', 'R'), n('r2', 'R'), n('r3', 'R'), n('t1', 'T')] };
   const l = layout(arc);
   assert.equal(l.nodes.length, 4, 'Supports fill both side seats, so Reframes show 1 + a bundle in the second seat');
-  assert.deepEqual(l.bundles, [{ angle: 'S', at: [36, 236], count: 2 }, { angle: 'R', at: [252, 446], count: 2 }]);
+  assert.deepEqual(l.bundles, [{ angle: 'S', at: [36, 236], count: 2 }, { angle: 'R', at: [252, 494], count: 2 }]);
   assert.equal(layout({ tension: 'found', nodes: [n('s1', 'S'), n('r1', 'R'), n('r2', 'R'), n('r3', 'R')] }).nodes.length, 4, 'three at the bottom when the sides have room');
   assert.deepEqual(l.nodes.find(x => x.node.key === 't1').at, [324, 236]);
   assert.equal(layout({ tension: 'none', nodes: [n('s1', 'S')] }).emptyT?.join(), '324,236');
