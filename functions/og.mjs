@@ -10,9 +10,9 @@ import { decodeLink, angleCounts } from '../app/src/arc/link.js';
 import { TRIBE } from '../app/src/arc/tribes.js';
 
 const file = p => readFile(new URL(p, import.meta.url));
-let ready = null;
+let ready = null, wasm = null;
 const assets = () => (ready ??= (async () => {
-  await initWasm(await file('../node_modules/@resvg/resvg-wasm/index_bg.wasm'));
+  await (wasm ??= initWasm(await file('../node_modules/@resvg/resvg-wasm/index_bg.wasm'))); // once per instance: a second initWasm throws
   const [regular, bold] = await Promise.all(['400', '600'].map(w => file(`../node_modules/@fontsource/inter/files/inter-latin-${w}-normal.woff`)));
   const svg = async name => `data:image/svg+xml;base64,${(await file(`../app/src/assets/arc/${name}.svg`)).toString('base64')}`;
   const tribes = Object.fromEntries(await Promise.all(Object.keys(TRIBE).map(async t => [t, await svg(`tribe-${t}`)])));
