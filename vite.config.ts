@@ -13,7 +13,7 @@ const TYPES: Record<string, string> = { '.json': 'application/json', '.html': 't
 // functions/ under /api/ in dev and preview (the real host runs api/*.mjs), so the app and the headless checks can call
 // share and qa locally. Same Request → Response handlers; env from .env.local when there is one.
 const API: Record<string, () => Promise<{ default: (r: Request, env: Record<string, string | undefined>) => Promise<Response> }>> = {
-  '/api/share': () => import('./functions/share.mjs'), '/api/qa': () => import('./functions/qa.mjs'),
+  '/api/share': () => import('./functions/share.mjs'), '/api/qa': () => import('./functions/qa.mjs'), '/api/og': () => import('./functions/og.mjs'),
 };
 const apiMiddleware = (server: { middlewares: { use: (f: (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse, next: () => void) => void) => void } }) => {
   try { process.loadEnvFile(resolve(repo, '.env.local')); } catch { /* optional */ }
