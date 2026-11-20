@@ -2,7 +2,7 @@
 // ("Heard · …", "Next · …", "Ended · …") so it is never colour alone. A row opens 14.
 import { useCallback, useState } from 'react';
 import { go, href } from '../../router';
-import { Screen, ArcLink, ArcButton, Pic } from '../../components/arc';
+import { Screen, ArcLink, Pic } from '../../components/arc';
 import { AngleHelp, ANGLE_NAME } from './AngleHelp';
 import { ANGLE_ICON } from './ArcView';
 import { ArcHeader } from './ArcHeader';
@@ -24,8 +24,7 @@ export function ArcList({ id }: { id: string }) {
     <Screen clock label="My Arc list" header={<ArcHeader id={id} view="list" onHelp={() => setHelp(true)} />}
       bottom={<div className="flex gap-3">
         <ArcLink kind="secondary" href={href(`arc/${id}/edit`)} className="w-[128px] shrink-0"><Pic src={editIcon} size={20} />Edit</ArcLink>
-        <ArcButton disabled aria-describedby="share-soon">Share</ArcButton>
-        <p id="share-soon" className="sr-only">Sharing comes in the next build.</p>
+        <ArcLink href={href(`share/${id}`)}>Share</ArcLink>
       </div>}>
       <h1 className="mt-3.5 max-w-[300px] text-[22px] leading-7 font-semibold tracking-[-0.02em]">{arc.query}</h1>
       <div className="mt-3.5 flex flex-wrap items-center gap-1.5" role="img" aria-label={`${heard} of ${arc.nodes.length} heard`}>
