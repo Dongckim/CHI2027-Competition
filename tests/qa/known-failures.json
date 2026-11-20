@@ -1,29 +1,4 @@
 {
   "_": "Failures found by the QA checks and not fixed yet (QA task: checks only, app unchanged). qa:auto passes a check when every failure it prints matches one of these (check + substring of the failure line). When one is fixed, remove its entry; qa:auto says which entries were not seen.",
-  "known": [
-    { "check": "two-tabs", "match": "after A types, B's heard talk is still in DeviceState", "since": "2026-11-20", "reason": "DeviceState is read once per tab and written whole: a tab that read it before another tab marked a talk heard writes the old heard list back (localStorage, no storage event). IndexedDB Arcs are fine." },
-    { "check": "two-tabs", "match": "the heard talk is still heard after both tabs wrote", "since": "2026-11-20", "reason": "same cause as above" },
-    { "check": "a11y", "match": "[01] target under 44 px: \"Skip\"", "since": "2026-11-20", "reason": "the onboarding picture layer (Start.tsx Frame: an absolute 390×844 box) lies over the header, so a press on Skip lands on the picture" },
-    { "check": "a11y", "match": "[03] target under 44 px: \"Skip\"", "since": "2026-11-20", "reason": "same picture layer over the header" },
-    { "check": "a11y", "match": "[05] target under 44 px: \"Skip\"", "since": "2026-11-20", "reason": "same picture layer over the header" },
-    { "check": "a11y", "match": "[05] target under 44 px: \"Code of Conduct\"", "since": "2026-11-20", "reason": "same picture layer over the link" },
-    { "check": "a11y", "match": "[06] target under 44 px: \"Skip\"", "since": "2026-11-20", "reason": "same picture layer over the header" },
-    { "check": "a11y", "match": "[01] scrolls sideways", "since": "2026-11-20", "reason": "the 390-wide picture layer is wider than a 375/360 screen" },
-    { "check": "a11y", "match": "[03] scrolls sideways", "since": "2026-11-20", "reason": "the 390-wide picture layer" },
-    { "check": "a11y", "match": "[05] scrolls sideways", "since": "2026-11-20", "reason": "the 390-wide picture layer" },
-    { "check": "a11y", "match": "[06] scrolls sideways", "since": "2026-11-20", "reason": "the 390-wide picture layer" },
-    { "check": "a11y", "match": "[11] scrolls sideways at 360", "since": "2026-11-20", "reason": "11 rings box is 390 wide (Hood.tsx)" },
-    { "check": "a11y", "match": "[12] scrolls sideways", "since": "2026-11-20", "reason": "the map's 390 box (and its outer orbit) at 375/360" },
-    { "check": "a11y", "match": "[23] scrolls sideways", "since": "2026-11-20", "reason": "the map's 390 box" },
-    { "check": "a11y", "match": "[24] scrolls sideways", "since": "2026-11-20", "reason": "the map's 390 box" },
-    { "check": "a11y", "match": "[25] scrolls sideways", "since": "2026-11-20", "reason": "the map's 390 box" },
-    { "check": "a11y", "match": "target under 44 px: \"Map\" 52×36", "since": "2026-11-20", "reason": "12/23/24/25 map/list toggle presses only on its 36 px height" },
-    { "check": "a11y", "match": "target under 44 px: \"List\" 52×36", "since": "2026-11-20", "reason": "13 map/list toggle, 36 px high" },
-    { "check": "a11y", "match": "[08] target under 44 px", "since": "2026-11-20", "reason": "08 topic chips press only on their 38 px height (the ? buttons beside the headings touch the chip row)" },
-    { "check": "a11y", "match": "[09] target under 44 px", "since": "2026-11-20", "reason": "09 When/What chips, 38 px high" },
-    { "check": "a11y", "match": "[15] text under 12 px", "since": "2026-11-20", "reason": "15 map at 0.74: the +N bundle's \"+2\" (15 px) shows at 11.1 px" },
-    { "check": "a11y", "match": "[18] text under 12 px", "since": "2026-11-20", "reason": "18 map at 0.78: \"+2\" at 11.7 px and \"No clear challenge at CHI this year.\" (12 px, not real()) at 9.4 px" },
-    { "check": "a11y", "match": "[19] text under 12 px", "since": "2026-11-20", "reason": "19 map at 0.78: same as 18" },
-    { "check": "a11y", "match": "[10] contrast", "since": "2026-11-20", "reason": "10 orb: white question on the tribe colour (3.75:1); the user kept Figma's orb for the map (12…), 10 not decided" }
-  ]
+  "known": []
 }
