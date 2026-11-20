@@ -1,7 +1,8 @@
 // Phone check (A1): 01 → 12 by clicks only, on a fresh phone (390×844, CPU 4× slower). Starts and stops its own vite preview.
 // npm run build && node --experimental-websocket tests/arc/create-check.mjs [--shots <dir>]
 //   - first run: 01 → It's my first CHI → 02–05 → 06 → 07 (type a question, tribe chip) → 08 (? sheet opens and closes)
-//     → 09 → Build my Arc → 10 → 11 (tribe named, edge glows) → See my Arc → 12; reload keeps the Arc
+//     → 09 → Build my Arc → 10 → 11 (tribe named, edge glows) → See my Arc → 12 → a node opens 14 (evidence
+//     highlighted); reload keeps the Arc
 //   - Skip on a fresh phone → 21 empty home; New Arc → 07 with a back button (no dots)
 // Exit code 1 on a fail.
 import { spawn } from 'node:child_process';
@@ -95,6 +96,20 @@ try {
   const stored = await ev(`new Promise(r => { const q = indexedDB.open('arc'); q.onsuccess = () => { const g = q.result.transaction('arcs').objectStore('arcs').getAll(); g.onsuccess = () => r(g.result.length); }; })`);
   check('12 reached by clicks only, with talks under the angles, saved once', arcMs != null && nodes?.reduce((a, b) => a + b, 0) >= 3 && stored === 1, { hash: arcHash, nodesPerAngle: nodes, storedArcs: stored });
   await shot('12');
+  // 12 → 14: every node is a button named "<angle> · <title> · <time>"; the first opens 14 with its title and evidence
+  await waitFor(`!!document.querySelector('main section li button[aria-label*=" · "]')`);
+  const node = await ev(`(() => { const b = [...document.querySelectorAll('main section li button')]; const f = b[0];
+    return { count: b.length, named: b.every(x => /^(Supports|Reframes|Challenges) · .+ · .+/.test(x.getAttribute('aria-label') ?? '')), label: f?.getAttribute('aria-label') }; })()`);
+  await ev(`document.querySelector('main section li button').click()`);
+  const want = JSON.stringify(node.label?.split(' · ')[1] ?? '');
+  // 14 is its own chunk: wait for its title (not the 12 still on screen) and for the abstract
+  const talkMs = await waitFor(`location.hash.startsWith('#/talk/chi2026:') && document.querySelector('h1')?.innerText === ${want} && !/Loading/.test(document.querySelector('main').innerText)`, 30000);
+  const talk = await ev(`({ title: document.querySelector('h1')?.innerText, angle: document.querySelector('main p')?.innerText, mark: document.querySelector('main mark')?.innerText ?? null, when: [...document.querySelectorAll('main p')].map(p => p.innerText).find(t => t.includes(' · ~')) ?? null })`);
+  await shot('14');
+  check('12 node opens 14 with title, angle, time and the evidence highlighted', talkMs != null && node.named && node.label?.split(' · ')[1] === talk?.title && !!talk?.mark && !!talk.when,
+    { nodes: node.count, label: node.label, talk });
+  await send('Runtime.evaluate', { expression: 'history.back()' });
+  await waitFor(`location.hash.startsWith('#/arc/')`);
   await send('Page.reload'); await waitFor(`document.readyState === 'complete'`);
   check('reload keeps the Arc (IndexedDB)', (await waitFor(`location.hash === ${JSON.stringify(arcHash)} && document.querySelector('h1')?.innerText === 'Does VR fidelity raise presence?'`)) != null, {});
 
