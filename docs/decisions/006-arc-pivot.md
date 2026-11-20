@@ -4,6 +4,7 @@
 
 ## 결정
 - 앱의 중심을 "오늘 어디 갈지"(Today 카드·하루 루트)에서 **Arc**로 바꾼다. Arc는 사용자의 연구 질문 하나를 가운데 두고, CHI 발표들을 세 관점 Support ↑ / Reframe ↻ / Tension ⊣로 묶은 것이다
+  - 정정 (2026-11-20, 사용자): 화면 이름 = Figma의 **Supports / Reframes / Challenges**(설명 same finding / new lens / different finding). 코드·계약 키는 S/R/T 그대로, "Tension"은 지시서·코드 안의 이름일 뿐 화면에 쓰지 않는다
 - 질문마다 8개 종족(tribe) 중 하나가 정해지고, 화면 테두리가 그 종족 색으로 빛난다. 관점에는 색을 쓰지 않는다(색은 종족 전용). 색만으로 구분하지 않고 항상 모양·이름을 같이 보여 준다
 - Arc는 링크·QR로 공유하고, 받은 사람은 전체 또는 일부를 담는다(새 Arc로 저장, 합치지 않음)
 - 추천(무엇을 어떤 관점으로)은 `app/src/engine/`에만 둔다. 지금은 같은 인터페이스의 mock(baseline TF-IDF + 단순 규칙)이고, 원준의 온디바이스 엔진은 `ondevice.ts` 하나를 바꿔 끼운다

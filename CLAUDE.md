@@ -7,7 +7,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 제출 마감 2026-12-04. 학회 2027-05-10~14, Pittsburgh (David L. Lawrence Convention Center).
 
 ## 현재 상태
-- **방향 전환 (2026-11-20, 결정 006): 플래너(Today) 중심 → Arc 중심.** 질문 하나 → Support ↑ / Reframe ↻ / Tension ⊣ 세 관점의 발표 묶음(Arc), 8개 종족 색 테두리, 링크·QR 공유·받기. 단계 접두어 A0~A4 (`stage/A0-arc-contract`…), 11/23 동결, 마감 12/4
+- **방향 전환 (2026-11-20, 결정 006): 플래너(Today) 중심 → Arc 중심.** 질문 하나 → 세 관점(화면 이름 Supports ↑ / Reframes ↻ / Challenges ⊣, 코드·계약 키 S/R/T; 지시서의 "Tension" = 화면의 Challenges)의 발표 묶음(Arc), 8개 종족 색 테두리, 링크·QR 공유·받기. 단계 접두어 A0~A4 (`stage/A0-arc-contract`…), 11/23 동결, 마감 12/4
   - 계약: `contracts/Arc.schema.json` 0.1.0과 엔진 인터페이스(`app/src/engine/types.ts`)는 사용자 승인. 그 밖의 필드는 임의로 추가하지 말고 물어볼 것. 계약을 바꾸면 PR에 "원준 확인 필요"
   - 추천(무엇을 어떤 관점으로)은 `app/src/engine/`에만 (`index.ts`가 mock/ondevice 선택, 기본 mock, `?engine=ondevice`). 시간·방·저자·세션은 엔진이 아니라 data/build에서 key로 붙임
   - 플래너·길 안내·자막 코드는 지우지 않고 진입점에서만 뺌 (옛 화면 라우트는 직접 주소로 열림)
@@ -43,7 +43,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 ## 현재 단계: Arc 화면 만들기 (A0~A4, 결정 006)
 - UI 작업 해제 (2026-11-20). 최종 UI는 Figma Final UI 페이지(582:7)
 - 모든 출력은 contracts/ 형식을 따를 것
-- 화면 문구는 영어만. 관점은 흰 기호 ↑ ↻ ⊣ + 위치로만 구분, 색은 종족 전용. 색만으로 구분하지 않음(모양·이름 같이)
+- 화면 문구는 영어만, Figma 문구 그대로. 관점은 흰 기호 ↑ ↻ ⊣ + 위치로만 구분, 색은 종족 전용. 색만으로 구분하지 않음(모양·이름 같이)
 - 검증마다 docs/validation/Vn-이름.md에 기록: 가설 / 방법 / 통과 기준 / 결과(숫자) / 판정(통과·조건부·실패) / 다음 행동
 
 ## 데이터 원천: CHI 공식 프로그램 데이터 (유일한 데이터 원천)
@@ -94,6 +94,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 ## 디자인
 - 기준: Figma Final UI 페이지 https://www.figma.com/design/UfKtv7eGMTOrCZEzszq9GS/ARC-Mobile-Wireframes?node-id=582-7 (25화면 + Components 588:446). 프레임 id 표는 docs/stages/A0-arc-contract.md
 - Figma와 개발 지시서가 다르면: 화면 구성은 Figma, 데이터 규칙은 지시서. 판단이 안 서면 물어볼 것
+- Figma MCP는 읽기 도구만 (get_metadata·get_design_context·get_screenshot 등). `use_figma` 등 파일을 바꾸는 도구 금지 (2026-11-20 사용자). 서브에이전트에게도 같은 지시
 - v3(288-679)는 참고용
 - 390×844 기준, 본문·입력창 16px, 터치 44px, 대비 4.5:1, safe area, dvh
 - Figma 코드 초안은 그대로 쓰지 말고 app/src/components 부품으로 바꿔 끼울 것
