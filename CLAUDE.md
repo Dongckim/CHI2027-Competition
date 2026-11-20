@@ -7,6 +7,11 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 제출 마감 2026-12-04. 학회 2027-05-10~14, Pittsburgh (David L. Lawrence Convention Center).
 
 ## 현재 상태
+- **방향 전환 (2026-11-20, 결정 006): 플래너(Today) 중심 → Arc 중심.** 질문 하나 → Support ↑ / Reframe ↻ / Tension ⊣ 세 관점의 발표 묶음(Arc), 8개 종족 색 테두리, 링크·QR 공유·받기. 단계 접두어 A0~A4 (`stage/A0-arc-contract`…), 11/23 동결, 마감 12/4
+  - 계약: `contracts/Arc.schema.json` 0.1.0과 엔진 인터페이스(`app/src/engine/types.ts`)는 사용자 승인. 그 밖의 필드는 임의로 추가하지 말고 물어볼 것. 계약을 바꾸면 PR에 "원준 확인 필요"
+  - 추천(무엇을 어떤 관점으로)은 `app/src/engine/`에만 (`index.ts`가 mock/ondevice 선택, 기본 mock, `?engine=ondevice`). 시간·방·저자·세션은 엔진이 아니라 data/build에서 key로 붙임
+  - 플래너·길 안내·자막 코드는 지우지 않고 진입점에서만 뺌 (옛 화면 라우트는 직접 주소로 열림)
+  - 아래 S0~S5b 항목은 옛 플래너 줄기의 기록 (코드는 그대로 있음)
 - V0(데이터) 완료. V6 길 안내 조건부(`app/src/venue/route.js`, 플래너에 연결). V4 자막 조건부(`app/src/captions/`, `functions/soniox-key.mjs`, 키는 `.env.local`)
 - V2 진행 중: 플래너 `app/src/planner/plan.js`(내부 입력). contracts/는 RecommendRequest·RecommendResponse 0.1.0만 확정, 나머지는 사용자가 설계 중 → 임의로 계약 필드를 만들지 말 것. recsys/는 비어 있음
 - S0 뼈대: `app/` Vite + React + TS + Tailwind v4, 해시 라우팅 3탭, 가짜 추천 = `contracts/examples/RecommendResponse.chi2026-tuesday.json`
@@ -34,10 +39,10 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
   - `npm test` : 전체 테스트 / 하나만: `node --test --test-name-pattern="talk slots" tests/`
 - git은 반드시 `arc/` 안에서 실행. 상위 `chi2027-arc/`는 자체 레포가 아니라 홈 디렉토리(`/Users/dongchankim`) 레포로 잡힘
 
-## 현재 단계: 기능 검증 (화면 만들지 않음)
-- Figma는 최종 디자인이 아님. UI 컴포넌트·스타일 작업 금지
-- 검증은 CLI 스크립트 또는 /bench 테스트 페이지(무디자인)로만
-- 모든 출력은 contracts/ 형식을 따를 것 (나중에 화면에 그대로 연결)
+## 현재 단계: Arc 화면 만들기 (A0~A4, 결정 006)
+- UI 작업 해제 (2026-11-20). 최종 UI는 Figma Final UI 페이지(582:7)
+- 모든 출력은 contracts/ 형식을 따를 것
+- 화면 문구는 영어만. 관점은 흰 기호 ↑ ↻ ⊣ + 위치로만 구분, 색은 종족 전용. 색만으로 구분하지 않음(모양·이름 같이)
 - 검증마다 docs/validation/Vn-이름.md에 기록: 가설 / 방법 / 통과 기준 / 결과(숫자) / 판정(통과·조건부·실패) / 다음 행동
 
 ## 데이터 원천: CHI 공식 프로그램 데이터 (유일한 데이터 원천)
@@ -65,8 +70,9 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 예외: 학회장 거리·층은 CCIB 공식 평면도 PDF에서 뽑은 data/venue/ccib.json (docs/decisions/003). 거리는 저장 시 이미 미터, 앱에서 변환 금지
 
 ## 원칙 (절대 어기지 말 것)
-- 개인 데이터는 기기에만 저장 (DeviceState 하나로 통일). 계정·서버 저장 없음
-- 서버는 무상태, 요청 내용 로그 금지
+- 개인 데이터는 기기에만 저장 (DeviceState 하나로 통일, Arc 목록은 IndexedDB `arc.arcs`). 계정·서버 저장 없음
+  - **예외 하나: 발표 Q&A** (결정 007). 익명 글·추천·신고 수만 Upstash Redis에, 이름·이메일·IP·UA 저장 안 함, 2027-06-13 전부 삭제
+- 서버는 무상태, 요청 내용 로그 금지 (Q&A 저장소 외)
 - AI는 공개 프로그램 데이터만 사용. 논문 내용을 지어내지 않음. 이유는 개념 ID + 초록 원문 인용
 - 음성·대화 저장 금지 (자막은 화면 3줄만, 종료 시 삭제)
 - 최소화 대상 아님: 테스트, contracts 스키마 검사, 공식 스키마 검사, 접근성, 개인정보 처리, 출처 표기
@@ -80,12 +86,14 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - data/venue/<venue>.json : 학회장 구역 표(치수·수용 인원)와 걷는 길 그래프(미터). 예: ccib.json
 - contracts/ : 기능 간 계약 JSON 스키마 (바꾸면 schema_version 올리고 CHANGELOG 기록)
 - app/ : Vite + React + TS + Tailwind, 토큰은 app/src/tokens.css
-- functions/ : 서버 함수 (Soniox 임시 키, 추천 API, 지니 API)
+- app/src/engine/ : 엔진 인터페이스·mock·ondevice 자리 (추천 로직은 여기에만). app/src/arc/ : Arc 저장, 공유 링크, 종족(tribes.ts)
+- functions/ : 서버 함수 로직, api/<이름>.mjs가 Vercel 진입점으로 감쌈 (Soniox 임시 키, push, 이후 qa·og·share)
 - recsys/ : 원준 추천 모델 (contracts만 맞추면 됨)
 
 ## 디자인
-- 지금 Figma는 초안. 최종 디자인은 사용자가 따로 알려줄 때까지 아래 규칙은 적용하지 않음 (UI 작업 금지)
-- Figma: https://www.figma.com/design/UfKtv7eGMTOrCZEzszq9GS?node-id=288-679 (페이지: v3 · 리뷰 반영 (11/09), 섹션 1~7 + components · v3)
+- 기준: Figma Final UI 페이지 https://www.figma.com/design/UfKtv7eGMTOrCZEzszq9GS/ARC-Mobile-Wireframes?node-id=582-7 (25화면 + Components 588:446). 프레임 id 표는 docs/stages/A0-arc-contract.md
+- Figma와 개발 지시서가 다르면: 화면 구성은 Figma, 데이터 규칙은 지시서. 판단이 안 서면 물어볼 것
+- v3(288-679)는 참고용
 - 390×844 기준, 본문·입력창 16px, 터치 44px, 대비 4.5:1, safe area, dvh
 - Figma 코드 초안은 그대로 쓰지 말고 app/src/components 부품으로 바꿔 끼울 것
 - [대괄호] 자리는 contracts 데이터 필드로 연결
@@ -126,7 +134,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 계약(contracts/)을 바꾸면 확인할 것에 "원준 확인 필요"를 적는다
 - 머지는 merge commit으로 (커밋을 기능별로 나눈 기록을 유지)
 
-## 디자인 기준 (Figma v3)
+## 디자인 기준 (Figma v3, 참고용. 최종은 위 "디자인"의 Final UI)
 - 파일: UfKtv7eGMTOrCZEzszq9GS, 페이지 "v3 · 리뷰 반영 (11/09)"
 - 섹션 노드: 1 처음 열었을 때 288:680 / 2 오늘·하루 흐름 288:1174 / 3 바꾸기·예외 288:1903 / 4 발표장 288:2822 / 5 찾기·자세히 288:3007 / 6 이동·마무리 288:3335 / 7 보관·설정 288:3520 / 컴포넌트 289:450
 - 화면 기준 390×844. 각 프레임 아래 caption이 그 화면의 역할이다.
