@@ -90,7 +90,7 @@ export function TalkDetail({ paperKey }: { paperKey: string }) {
   const started = slot ? slot.start <= now : false;
 
   return (
-    <Screen header={header(p.doi)} label="Talk"
+    <Screen clock header={header(p.doi)} label="Talk"
       bottom={
         <form onSubmit={e => e.preventDefault()} className="flex flex-col gap-2">
           <label className="flex h-[52px] items-center gap-2.5 rounded-full border border-arc-line bg-arc-surface pr-4 pl-[18px]">

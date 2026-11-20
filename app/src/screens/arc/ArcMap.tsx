@@ -20,7 +20,7 @@ export function ArcMap({ id }: { id: string }) {
   const next = pending ? null : arc.nodes.find(n => states.get(n.key) === 'next') ?? null;
   const ni = next ? info(next.key) : null;
   return (
-    <Screen label="My Arc" header={<ArcHeader id={id} view="map" onHelp={() => setHelp(true)} />}
+    <Screen clock label="My Arc" header={<ArcHeader id={id} view="map" onHelp={() => setHelp(true)} />}
       bottom={<>
         {next && ni && (
           <a href={href(`talk/${next.key}`)} aria-label={`Next up: ${ANGLE_NAME[next.angle]} · ${ni.title} · ${ni.time}`}

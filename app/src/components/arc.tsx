@@ -5,16 +5,33 @@ import { useEffect, useRef, type ReactNode, type ComponentPropsWithRef, type Anc
 import chevronLeft from '../assets/arc/icon-chevron-left.svg';
 import helpIcon from '../assets/arc/icon-help.svg';
 import chipCheck from '../assets/arc/08-chip-check.svg';
+import { isAutoDemo, DEMO_TZ } from '../arc/demoClock';
+import { useNow } from '../clock.js';
+import { venueClock } from '../time.js';
 
 /** A decorative picture: no alt text, hidden from screen readers. */
 export const Pic = ({ src, size, className = '', w, h }: { src: string; size?: number; w?: number; h?: number; className?: string }) =>
   <img src={src} alt="" aria-hidden="true" width={w ?? size} height={h ?? size} className={`block shrink-0 ${className}`} draggable={false} />;
 
-/** The dark Final UI page: 24px sides, header row, content, and one bottom area 20px above the home indicator. */
-export function Screen({ header, children, bottom, label }: { header?: ReactNode; children: ReactNode; bottom?: ReactNode; label?: string }) {
+/** Outside the conference the app runs on a demo day (arc/demoClock.ts); screens where time matters say so. */
+export function DemoBanner() {
+  const now = useNow();
+  if (!isAutoDemo()) return null;
+  const day = new Intl.DateTimeFormat('en-GB', { timeZone: DEMO_TZ, weekday: 'short', day: 'numeric', month: 'short' }).format(now);
+  return (
+    <p role="note" className="mx-4 mt-1 rounded-xl border border-arc-line bg-arc-surface px-3 py-2 text-center text-[13px] text-arc-text-2">
+      Demo time: {day}, {venueClock(now, DEMO_TZ)} at the venue. CHI 2026 is over.
+    </p>
+  );
+}
+
+/** The dark Final UI page: 24px sides, header row, content, and one bottom area 20px above the home indicator.
+ *  clock: a screen whose content depends on the time (shows the demo banner when the demo day is on). */
+export function Screen({ header, children, bottom, label, clock }: { header?: ReactNode; children: ReactNode; bottom?: ReactNode; label?: string; clock?: boolean }) {
   return (
     <div className="arc mx-auto flex min-h-dvh max-w-[480px] flex-col bg-arc-bg font-sans text-arc-text">
       {header && <header className="flex min-h-[54px] items-center justify-between px-4 pt-0.5">{header}</header>}
+      {clock && <DemoBanner />}
       <main aria-label={label} className="flex flex-1 flex-col px-6">{children}</main>
       {/* the one fixed bottom area: stays on screen while the content scrolls under it */}
       {bottom && <div className="sticky bottom-0 z-10 flex flex-col gap-3 bg-arc-bg px-6 pt-4 pb-[calc(var(--safe-bottom)+20px)]">{bottom}</div>}

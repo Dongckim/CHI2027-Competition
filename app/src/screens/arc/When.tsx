@@ -23,7 +23,7 @@ export function When() {
   useTribe(null);
   if (!draft.query.trim()) { go('ask', { replace: true }); return null; }
   return (
-    <Screen label="When and what"
+    <Screen clock label="When and what"
       header={<><BackButton href={href('angles')} /><StepBar at={2} /><span className="w-11" /></>}
       bottom={<ArcButton onClick={() => go('building')} disabled={!draft.what.length}>Build my Arc</ArcButton>}>
       <h1 className="mt-[18px] text-[28px] leading-[34px] font-semibold tracking-[-0.024em]">When, and what kind?</h1>

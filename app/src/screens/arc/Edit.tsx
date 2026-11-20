@@ -75,7 +75,7 @@ export function Edit({ id }: { id: string }) {
   const done = async () => { await save(draft); go(`arc/${id}`); };
 
   return (
-    <Screen label="Editing" header={<>
+    <Screen clock label="Editing" header={<>
       <h1 className="pl-2 text-[17px] font-semibold">Editing</h1>
       <button type="button" onClick={done} className="h-11 rounded-full bg-arc-primary px-5 text-[16px] font-semibold text-arc-on-primary shadow-[var(--arc-shadow-primary)]">Done</button>
     </>}>

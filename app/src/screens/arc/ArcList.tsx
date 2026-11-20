@@ -21,7 +21,7 @@ export function ArcList({ id }: { id: string }) {
   const pending = arc.tension === 'pending';
   const heard = arc.nodes.filter(n => states.get(n.key) === 'heard').length;
   return (
-    <Screen label="My Arc list" header={<ArcHeader id={id} view="list" onHelp={() => setHelp(true)} />}
+    <Screen clock label="My Arc list" header={<ArcHeader id={id} view="list" onHelp={() => setHelp(true)} />}
       bottom={<div className="flex gap-3">
         <ArcLink kind="secondary" href={href(`arc/${id}/edit`)} className="w-[128px] shrink-0"><Pic src={editIcon} size={20} />Edit</ArcLink>
         <ArcButton disabled aria-describedby="share-soon">Share</ArcButton>
@@ -41,7 +41,7 @@ export function ArcList({ id }: { id: string }) {
                 <Pic src={ANGLE_ICON[a]} size={18} />{ANGLE_NAME[a]}
                 <span className="text-[12px] font-medium text-arc-text-3">{nodes.length}</span>
               </h2>
-              {a === 'T' && arc.tension === 'none' && <p className="text-[14px] text-arc-text/60">No clear clash at CHI this year.</p>}
+              {a === 'T' && arc.tension === 'none' && <p className="text-[14px] text-arc-text/60">No clear challenge</p>}
               {nodes.map(n => {
                 const i = info(n.key), st = (states.get(n.key) ?? 'upcoming') as keyof typeof PREFIX;
                 return (
