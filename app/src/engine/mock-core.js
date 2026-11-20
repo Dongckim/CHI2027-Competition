@@ -23,11 +23,17 @@ export const MIN = { S: 0.6, T: 0.4 };
 export const R_BAND = [0.35, 0.8];
 const LABEL_MAX = 24;
 
-// Tension: an abstract sentence with a contrast or null-result cue. Only then a T node, and that sentence is its evidence.
+// Tension: an abstract sentence that reports a contrary or null result. Only then a T node, and that sentence is its
+// evidence. Not the first sentence, and not background (what prior work or existing systems do), user 11/20:
+// - strong cues count alone: no significant, did not, contrary to … (but "prior work did not…" needs this study's finding)
+// - weak cues need a finding of this study in the same sentence: however, fail(s/ed) to, mixed results/findings/…
 // "mixed" only as mixed results/findings/evidence/effects (not mixed-methods, mixed reality).
-const TENSION = /\b(no significant|did not|however|contrary|fail(?:ed|s)? to|mixed (?:results|findings|evidence|effects))\b/i;
-// A 1–2 word topic ("VR") has no claim to contradict, so only finding-like cues count, not "however".
-const RESULT = /\b(no significant|did not|contrary|fail(?:ed|s)? to|mixed (?:results|findings|evidence|effects))\b/i;
+const STRONG = /\b(no significant|did not(?! (?:merely|just|only)\b)|contrary to)\b/i; // "did not merely X but Y" is a positive result
+const WEAK = /\b(however|fail(?:ed|s)? to|mixed (?:results|findings|evidence|effects))\b/i;
+const FINDING = /\b(we (?:did not |do not )?(?:find|found|observed?|show(?:ed)?|reveal(?:ed)?|identif(?:y|ied))|(?:results?|findings|analysis|study|studies|evaluation|experiment) (?:show(?:s|ed)?|suggest(?:s|ed)?|indicate(?:s|d)?|reveal(?:s|ed)?|found)|our (?:results|findings|analysis|study)|participants)\b/i;
+const BACKGROUND = /\b(prior|previous|past|existing|current|traditional) (?:work|works|studies|research|approaches|systems|tools|methods|care|literature)\b/i;
+const challenge = (text, { short }) => FINDING.test(text) ? STRONG.test(text) || (!short && WEAK.test(text)) || (short && /\bfail(?:ed|s)? to\b/i.test(text))
+  : STRONG.test(text) && !BACKGROUND.test(text);
 // "However, little is known…" names a gap in the literature, not a different finding.
 const GAP = /\b(lack of|little is known|remains? (?:limited|unclear|unexplored|underexplored|understudied)|few (?:studies|works)|under-?explored|has not been)\b/i;
 // Abbreviations → the words papers also write. The question is searched with both (shortcut: a fixed list for the mock).
@@ -71,12 +77,13 @@ const evidenceOf = (abstract, s) => {
   const e = { sentence: abstract.slice(s.start, s.end), start: s.start, end: s.end };
   return verifiedReasons([{ quote: e.sentence, start: e.start, end: e.end }], abstract).length ? e : null;
 };
-// The sentence of `abstract` (optionally only those matching `only`) with the most question words; ties: the earlier one.
+// The sentence of `abstract` (optionally only those matching `only`, never the first one then) with the most question
+// words; ties: the earlier one.
 function bestSentence(abstract, q, only) {
   let best = null;
-  for (const s of sentences(abstract)) {
+  for (const [i, s] of sentences(abstract).entries()) {
     const text = abstract.slice(s.start, s.end);
-    if (only && !only.test(text)) continue;
+    if (only && (i === 0 || !only.test(text))) continue;
     const n = new Set(terms(text).filter(t => q.includes(t))).size;
     if (only ? !best || n > best.n : n && (!best || n > best.n)) best = { ...s, n };
   }
@@ -125,12 +132,13 @@ export function classify(index, query, list, { tension = true } = {}) {
   const core = shared.filter(([, n], i) => i === 0 || n >= list.length / 3).slice(0, 2).map(([w]) => w);
   const qText = ` ${expandQuery(query).toLowerCase()} `;
   const short = isShort(query);
-  const cue = short ? RESULT : TENSION;
-  const tensionLine = text => cue.test(text) && !GAP.test(text);
+  const tensionLine = text => challenge(text, { short }) && !GAP.test(text);
+  // T needs a core question word in that sentence (or its long form's words), not just any question word ("daily")
+  const coreWords = [...new Set(core.flatMap(w => [w, ...(EXPAND[w] ? terms(EXPAND[w]) : [])]))];
   const out = { S: [], R: [], T: [] };
   list.forEach(({ paper: p, score }) => {
     const node = (angle, s) => ({ key: p.key, angle, label: labelOf(p.title), evidence: evidenceOf(p.abstract, s), debut: index.debut.has(p.authors[0]) }); // map/list ✦: first author new (14 marks every new author)
-    const t = tension && bestSentence(p.abstract, q, { test: tensionLine });
+    const t = tension && coreWords.length && bestSentence(p.abstract, coreWords, { test: tensionLine });
     if (t?.n && score >= MIN.T) { out.T.push(node('T', t)); return; }
     const text = `${p.title} ${p.abstract}`.toLowerCase();
     const reframe = REFRAME.some(w => text.includes(w) && !qText.includes(w));
