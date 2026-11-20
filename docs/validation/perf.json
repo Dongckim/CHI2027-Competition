@@ -1,0 +1,16 @@
+{
+  "_": "tests/qa/perf-check.mjs writes this; current vs previous run",
+  "current": {
+    "at": "2026-11-20T23:12",
+    "commit": "dab396b",
+    "target": "local vite preview (gzip)",
+    "firstScreenKB": 87.9,
+    "shown01Ms": 1087,
+    "bytesUntil01KB": 113,
+    "pageBytesKB": 1459,
+    "pageRequests": 34,
+    "workerCacheKB": 7255,
+    "network": "Slow 4G (150 ms, 1.6 Mbps down, 750 kbps up), CPU 4×"
+  },
+  "previous": null
+}
