@@ -1,0 +1,125 @@
+// 16 · Share (Figma 598:1098) and 17 · QR (598:1247). The link carries the question, the tribe and the talks (and where
+// each quote sits in its abstract); nothing about the person. The cards are pictures (the map at 0.6) for people to see.
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { encode } from 'uqr';
+import { href } from '../../router';
+import { encodeLink, angleCounts } from '../../arc/link.js';
+import { TRIBE } from '../../arc/tribes.js';
+import { TRIBE_ICON } from '../../arc/tribeIcons';
+import { Screen, IconButton, Pic } from '../../components/arc';
+import { ArcView, ANGLE_ICON } from './ArcView';
+import { useArc } from './useArc';
+import type { Arc } from '../../engine';
+import closeIcon from '../../assets/arc/icon-close.svg';
+import qrIcon from '../../assets/arc/icon-qr.svg';
+import linkIcon from '../../assets/arc/icon-link.svg';
+import shareIcon from '../../assets/arc/icon-share.svg';
+import arcMark from '../../assets/arc/arc-mark.svg';
+
+export const shareUrl = (arc: Arc) => `${location.origin}/s/${encodeLink(arc)}`;
+
+export function TribeChip({ arc, size = 13 }: { arc: Arc; size?: number }) {
+  const t = TRIBE[arc.tribe];
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-2xl border py-1.5 pr-3 pl-2.5 font-semibold" style={{ fontSize: size, background: `color-mix(in srgb, ${t.color} 14%, transparent)`, borderColor: `color-mix(in srgb, ${t.color} 50%, transparent)` }}>
+      <Pic src={TRIBE_ICON[arc.tribe]} size={14} />{t.name}
+    </span>
+  );
+}
+const tint = (arc: Arc) => ({ background: `linear-gradient(color-mix(in srgb, ${TRIBE[arc.tribe].color} 8%, transparent), color-mix(in srgb, ${TRIBE[arc.tribe].color} 8%, transparent)), var(--arc-surface)` });
+
+export function Share({ id }: { id: string }) {
+  const { arc, states, info } = useArc(id);
+  const [note, setNote] = useState('');
+  const [page, setPage] = useState(0);
+  const strip = useRef<HTMLDivElement>(null);
+  if (!arc) return null;
+  const url = shareUrl(arc);
+  const c = angleCounts(arc.nodes.map(n => [n.key, n.angle]));
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(url); setNote('Link copied.'); } catch { setNote(url); } // no clipboard: show it to copy by hand
+  };
+  const more = async () => {
+    if (navigator.share) { try { await navigator.share({ title: arc.query, text: 'An Arc for CHI', url }); return; } catch { return; } }
+    copy();
+  };
+  const round = (icon: string, label: string, onClick: () => void, link?: string) => (
+    <div className="flex w-20 flex-col items-center gap-2.5">
+      {link ? <a href={link} aria-label={label} className="flex size-[60px] items-center justify-center rounded-full border border-arc-line bg-arc-surface"><Pic src={icon} size={24} /></a>
+        : <button type="button" onClick={onClick} aria-label={label} className="flex size-[60px] items-center justify-center rounded-full border border-arc-line bg-arc-surface"><Pic src={icon} size={24} /></button>}
+      <span aria-hidden="true" className="text-[13px] font-medium text-arc-text/75">{label}</span>
+    </div>
+  );
+  return (
+    <Screen label="Share your Arc" header={<><IconButton icon={closeIcon} label="Close" href={href(`arc/${id}`)} /><span /></>}>
+      <h1 className="sr-only">Share your Arc: {arc.query}</h1>
+      <div ref={strip} onScroll={e => setPage(Math.round(e.currentTarget.scrollLeft / 312))}
+        className="-mx-6 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-[calc(50%-150px)] pb-1 [scrollbar-width:none]" aria-label="What people see">
+        <figure className="relative h-[430px] w-[300px] shrink-0 snap-center overflow-hidden rounded-[28px] border border-arc-line" style={tint(arc)}>
+          <figcaption className="sr-only">Your Arc as a picture: {c.S} Supports, {c.R} Reframes, {c.T} Challenges.</figcaption>
+          <div className="absolute top-4 left-4"><TribeChip arc={arc} /></div>
+          <div className="absolute top-[55px] left-[32px]"><ArcView arc={arc} states={states} info={info} scale={0.6} picture /></div>
+          <div aria-hidden="true" className="absolute bottom-4 left-4 flex items-center gap-1.5 text-[12px] font-medium text-arc-text/80">
+            <Pic src={ANGLE_ICON.S} size={14} />{c.S}<span className="w-1" /><Pic src={ANGLE_ICON.R} size={14} />{c.R}<span className="w-1" /><Pic src={ANGLE_ICON.T} size={14} />{c.T}
+          </div>
+          <Pic src={arcMark} w={34} h={20} className="absolute right-[19px] bottom-4" />
+        </figure>
+        {/* Figma draws only a peek of this card: the messenger preview, as the share page's tags make it (image in A4) */}
+        <figure className="relative flex h-[430px] w-[300px] shrink-0 snap-center flex-col overflow-hidden rounded-[28px] border border-arc-line" style={tint(arc)}>
+          <figcaption className="sr-only">How the link looks in a message.</figcaption>
+          <div aria-hidden="true" className="flex h-[170px] items-center justify-center" style={{ background: `color-mix(in srgb, ${TRIBE[arc.tribe].color} 18%, transparent)` }}>
+            <img src={TRIBE_ICON[arc.tribe]} alt="" width={96} height={96} />
+          </div>
+          <div className="flex flex-col gap-2 p-5">
+            <p className="text-[12px] font-medium text-arc-text-3">{location.host}</p>
+            <p className="line-clamp-3 text-[18px] leading-6 font-semibold">{arc.query}</p>
+            <p className="text-[14px] text-arc-text-2">↑ {c.S} Supports · ↻ {c.R} Reframes · ⊣ {c.T} Challenges · from the CHI 2026 programme. Unofficial.</p>
+          </div>
+        </figure>
+      </div>
+      <div className="mt-4 flex justify-center gap-1.5" aria-hidden="true">
+        {[0, 1].map(i => <span key={i} className={`h-1.5 rounded-full ${i === page ? 'w-[18px] bg-arc-text' : 'w-1.5 bg-arc-text/30'}`} />)}
+      </div>
+      <div className="mt-6 flex justify-evenly">
+        {round(qrIcon, 'QR code', () => {}, href(`qr/${id}`))}
+        {round(linkIcon, 'Copy link', copy)}
+        {round(shareIcon, 'More', more)}
+      </div>
+      <p className="mt-auto pt-6 pb-[calc(var(--safe-bottom)+20px)] text-center text-[12px] leading-[17px] font-medium text-arc-text/50">
+        {/* Figma 11px; 12px is the floor. Second line: user request (A0 B-answers) */}
+        Your question and talks only. Never your name.<br />Your question is part of the link.
+      </p>
+      <p role="status" className="sr-only">{note}</p>
+      {note && <p aria-hidden="true" className="fixed inset-x-0 bottom-24 mx-auto w-fit max-w-[90%] rounded-full bg-arc-primary px-4 py-2 text-[14px] font-semibold break-all text-arc-on-primary">{note}</p>}
+    </Screen>
+  );
+}
+
+/** The QR modules for a URL, as an SVG path. Level Q (25% may be lost): the 36px tribe shape covers about 3% of the code,
+ *  and H made a long link too dense to scan easily at 200px. */
+export function qrPath(url: string) {
+  const q = encode(url, { ecc: 'Q', border: 0 });
+  let d = '';
+  q.data.forEach((row, y) => row.forEach((dark, x) => { if (dark) d += `M${x} ${y}h1v1h-1z`; }));
+  return { d, size: q.size };
+}
+
+export function Qr({ id }: { id: string }) {
+  const { arc } = useArc(id);
+  const qr = useMemo(() => (arc ? qrPath(shareUrl(arc)) : null), [arc]);
+  useEffect(() => { document.title = 'QR · ARC'; }, []);
+  if (!arc || !qr) return null;
+  return (
+    <Screen label="QR code" header={<><span /><IconButton icon={closeIcon} label="Close" href={href(`share/${id}`)} /></>}>
+      <div className="mt-[14px] flex justify-center"><TribeChip arc={arc} /></div>
+      <h1 className="mx-auto mt-4 w-[320px] max-w-full text-center text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
+      <div className="relative mx-auto mt-6 flex size-[248px] items-center justify-center rounded-[28px] bg-white">
+        <svg role="img" aria-label={`QR code for the link to this Arc: ${arc.query}`} width={200} height={200} viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges">
+          <path d={qr.d} fill="#15121F" />
+        </svg>
+        <img src={TRIBE_ICON[arc.tribe]} alt="" width={36} height={36} className="absolute" />
+      </div>
+      <p className="mt-[30px] text-center text-[16px] font-medium text-arc-text/80">Scan to get this Arc</p>
+    </Screen>
+  );
+}

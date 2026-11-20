@@ -1,6 +1,6 @@
 // 14 · Talk detail (Figma 597:972): angle and format, title, why this angle (the abstract sentence), when and where with
 // the session, every author with "✦ New to CHI" for each one new (user decision), "I heard it", the paper (DOI) and the
-// Q&A area (the questions themselves arrive with api/qa in A3). The whole abstract opens below with the sentence marked.
+// Q&A (api/qa, decision 007). The whole abstract opens below with the sentence marked.
 import { useEffect, useState } from 'react';
 import { loadSchedule, loadPeople, loadAbstracts, loadDebut, type Schedule } from '../../data/load';
 import { highlightSegments } from '../../explore/quotes.js';
@@ -19,7 +19,6 @@ import clock from '../../assets/arc/icon-clock.svg';
 import pin from '../../assets/arc/icon-pin.svg';
 import person from '../../assets/arc/icon-person.svg';
 import sparkle from '../../assets/arc/icon-sparkle.svg';
-import chat from '../../assets/arc/icon-chat.svg';
 import check from '../../assets/arc/icon-check.svg';
 import talk from '../../assets/arc/icon-talk.svg';
 import poster from '../../assets/arc/icon-poster.svg';
@@ -28,6 +27,7 @@ import panel from '../../assets/arc/icon-panel.svg';
 import meetup from '../../assets/arc/icon-meetup.svg';
 import keynote from '../../assets/arc/icon-keynote.svg';
 import type { Arc, ArcNode } from '../../engine';
+import { useQandA, QandAList, QandAAsk } from './QandA';
 
 type People = Awaited<ReturnType<typeof loadPeople>>;
 type Slot = { start: number | null; end: number; roomKey: string; sessionKey: string };
@@ -50,6 +50,7 @@ export function TalkDetail({ paperKey }: { paperKey: string }) {
   const [allAuthors, setAllAuthors] = useState(false);
   const [debutNote, setDebutNote] = useState<string | null>(null);
   const heard = heardOf(useDevice()).has(paperKey);
+  const qa = useQandA(paperKey);
   const now = useNow();
   useEffect(() => {
     Promise.all([loadSchedule(), loadPeople(), loadDebut()]).then(([schedule, people, debut]) => setData({ schedule, people, debut: new Set(debut) }), () => setFailed(true));
@@ -90,18 +91,8 @@ export function TalkDetail({ paperKey }: { paperKey: string }) {
   const started = slot ? slot.start <= now : false;
 
   return (
-    <Screen header={header(p.doi)} label="Talk"
-      bottom={
-        <form onSubmit={e => e.preventDefault()} className="flex flex-col gap-2">
-          <label className="flex h-[52px] items-center gap-2.5 rounded-full border border-arc-line bg-arc-surface pr-4 pl-[18px]">
-            <Pic src={chat} size={18} />
-            {/* A3 connects this to api/qa; until then it cannot be sent */}
-            <input disabled placeholder="Add a question for the Q&A" aria-describedby="qa-note"
-              className="min-w-0 flex-1 bg-transparent text-[15px] text-arc-text placeholder:text-arc-text-3 disabled:opacity-100" />
-          </label>
-          <p id="qa-note" className="text-center text-[12px] text-arc-text-3">Questions are public and anonymous. Don't include personal details.</p>
-        </form>
-      }>
+    <Screen clock header={header(p.doi)} label="Talk"
+      bottom={<QandAAsk qa={qa} />}>
       <div className="mt-1 flex flex-wrap gap-2">
         {found && <Tag icon={ANGLE_ICON[found.node.angle]}>{ANGLE_NAME[found.node.angle]}</Tag>}
         <Tag icon={fIcon}>{fName}</Tag>
@@ -165,10 +156,7 @@ export function TalkDetail({ paperKey }: { paperKey: string }) {
       )}
 
       <hr className="mt-6 border-arc-line" />
-      <section aria-labelledby="qa" className="mt-[18px]">
-        <h2 id="qa" className="flex items-center gap-2 text-[17px] font-semibold">Questions <span className="text-[12px] font-medium text-arc-text-3">0</span></h2>
-        <p className="mt-3 text-[15px] text-arc-text-2">Be the first to ask</p>
-      </section>
+      <QandAList qa={qa} />
       <p className="mt-8 mb-4 text-[12px] text-arc-text-3">Programme data © ACM CHI 2026, licensed under CC BY-NC-SA 4.0.</p>
     </Screen>
   );

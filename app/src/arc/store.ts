@@ -45,12 +45,14 @@ export async function loadArcs(): Promise<Arc[]> {
 }
 
 export async function saveArc(arc: Arc) {
+  await loadArcs(); // first save in this tab (e.g. a link opened 18): read the stored Arcs, or the list would be just this one
   memory.set(arc.id, arc);
   changed();
   await tx('readwrite', s => s.put(arc));
 }
 
 export async function deleteArc(id: string) {
+  await loadArcs();
   memory.delete(id);
   changed();
   await tx('readwrite', s => s.delete(id));

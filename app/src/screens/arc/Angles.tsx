@@ -16,7 +16,7 @@ const ICON: Record<Angle, string> = { S: support, R: reframe, T: challenge };
 const NONE: Record<Angle, string> = {
   S: 'No talk this year matches it closely.',
   R: 'No talk looks at it from another side.',
-  T: 'No clear challenge to it this year.', // the abstracts do not say so; nothing is made up
+  T: 'No clear challenge', // the abstracts do not say so; nothing is made up
 };
 
 export function Angles() {

@@ -89,7 +89,7 @@ try {
 
   // 23, 24, 25
   await open(`#/arc/${ARCS.none.id}`);
-  check('23 no clear Challenge: empty slot with Figma copy', (await waitFor(`/No clear clash/.test(document.querySelector('main').innerText)`, 20000)) != null, {});
+  check('23 no clear Challenge: empty slot, "No clear challenge"', (await waitFor(`/No clear challenge/.test(document.querySelector('main').innerText)`, 20000)) != null, {});
   await shot('23');
   await open(`#/arc/${ARCS.crowded.id}`);
   const bundle = await waitFor(`!!document.querySelector('button[aria-label$=" more Supports"], button[aria-label$=" more Reframes"], button[aria-label$=" more Challenges"]')`, 20000);

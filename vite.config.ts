@@ -10,9 +10,33 @@ const repo = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const STATIC: [string, string][] = [['/app-data/', 'data/build/app-data/'], ['/data/build/', 'data/build/'], ['/data/venue/', 'data/venue/'], ['/tests/', 'tests/'], ['/app/src/', 'app/src/']];
 const TYPES: Record<string, string> = { '.json': 'application/json', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.mjs': 'text/javascript', '.png': 'image/png' };
 
+// functions/ under /api/ in dev and preview (the real host runs api/*.mjs), so the app and the headless checks can call
+// share and qa locally. Same Request → Response handlers; env from .env.local when there is one.
+const API: Record<string, () => Promise<{ default: (r: Request, env: Record<string, string | undefined>) => Promise<Response> }>> = {
+  '/api/share': () => import('./functions/share.mjs'), '/api/qa': () => import('./functions/qa.mjs'),
+};
+const apiMiddleware = (server: { middlewares: { use: (f: (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse, next: () => void) => void) => void } }) => {
+  try { process.loadEnvFile(resolve(repo, '.env.local')); } catch { /* optional */ }
+  server.middlewares.use(async (req, res, next) => {
+    const url = new URL(req.url ?? '/', 'http://localhost');
+    if (url.pathname.startsWith('/s/')) { req.url = `/api/share?d=${url.pathname.slice(3)}`; url.pathname = '/api/share'; url.search = req.url.split('?')[1] ? `?${req.url.split('?')[1]}` : ''; }
+    const load = API[url.pathname];
+    if (!load) return next();
+    const chunks: Buffer[] = [];
+    for await (const c of req) chunks.push(c as Buffer);
+    const body = chunks.length && req.method !== 'GET' && req.method !== 'HEAD' ? Buffer.concat(chunks) : undefined;
+    const handler = (await load()).default;
+    const r = await handler(new Request(`http://localhost${req.url}`, { method: req.method, headers: req.headers as HeadersInit, body }), process.env);
+    res.writeHead(r.status, Object.fromEntries(r.headers));
+    res.end(Buffer.from(await r.arrayBuffer()));
+  });
+};
+
 const repoFiles = (): Plugin => ({
   name: 'arc-repo-files',
+  configurePreviewServer(server) { apiMiddleware(server); },
   configureServer(server) {
+    apiMiddleware(server);
     server.middlewares.use((req, res, next) => {
       const path = decodeURIComponent((req.url ?? '').split('?')[0]);
       const hit = STATIC.find(([url]) => path.startsWith(url));

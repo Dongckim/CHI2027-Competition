@@ -24,7 +24,7 @@
 
 ---
 
-ARC is a mobile web companion for CHI. You bring one research question; ARC lays the conference's talks around it as an **Arc**: work that **Supports** it (same finding), **Reframes** it (another factor, measure or group) and **Challenges** it (a different finding), each with the sentence from the abstract that put it there. Your question lands in one of eight research neighbourhoods, shown by colour and shape. You can follow the Arc through the week and edit it; sharing by link or QR is the next step being built.
+ARC is a mobile web companion for CHI. You bring one research question; ARC lays the conference's talks around it as an **Arc**: work that **Supports** it (same finding), **Reframes** it (another factor, measure or group) and **Challenges** it (a different finding), each with the sentence from the abstract that put it there. Your question lands in one of eight research neighbourhoods, shown by colour and shape. You can follow the Arc through the week, edit it, ask questions on a talk, and share it by link or QR.
 
 ## Run it
 
@@ -40,7 +40,7 @@ npm run dev                                          # app on http://localhost:5
 - `npm test` · `npm run typecheck` · `npm run contracts:check`: unit tests, types, contract schemas
 - `npm run build` → `dist/`; then `node --experimental-websocket tests/arc/create-check.mjs` and `tests/arc/arc-check.mjs` walk the app in headless Chrome at 390×844
 - `npm run build:deploy` is what Vercel runs (feeds → build → app → on-device model if `MODEL_URL` is set)
-- Handy URL switches: `?at=2026-04-14T12:00` (demo clock, venue time) · `?mock=slow|none|pending|crowded` · `?engine=ondevice`
+- Outside the conference days the app runs on a demo day (the second day, 10:00 venue time) and says so. Handy URL switches: `?at=2026-04-14T12:00` (demo clock, venue time) · `?mock=slow|none|pending|crowded` · `?engine=ondevice`
 
 ## Data and licence
 
@@ -55,8 +55,8 @@ ARC is an independent competition entry. It is not affiliated with or endorsed b
 
 - **No account, no login.** Open it and start.
 - **Your question and your Arcs stay on your phone** (localStorage `arc.device` and IndexedDB `arc`). Nothing about you is sent to a server.
-- **Sharing (being built) is explicit.** A shared link will carry your question and the talk numbers, and nothing else (no name, no location), and the share screen will say so.
-- **One planned exception, talk Q&A** (decision 007, not live yet): anonymous questions, their votes and flags will be stored so everyone can see them. No name, e-mail, IP or user agent is stored; everything is deleted on 2027-06-13.
+- **Sharing is explicit.** A shared link carries your question, its neighbourhood and the talk numbers, and nothing else (no name, no location); the share screen says so.
+- **One exception, talk Q&A** (decision 007): anonymous questions, their votes and flags are stored so everyone can see them. No name, e-mail, IP or user agent is stored; everything is deleted on 2027-06-13.
 - **No analytics, no trackers, no ads.** Servers are stateless and do not log what you send.
 - AI uses only the public programme data and never writes about a paper: every angle is backed by a sentence quoted from its abstract.
 
@@ -71,7 +71,8 @@ ARC is an independent competition entry. It is not affiliated with or endorsed b
 | Vercel | hosting and stateless functions |
 | ROR API | institution names, build time only |
 | Soniox | live captions (validated, not in the current menu) |
-| Upstash Redis | talk Q&A store (planned) |
+| Upstash Redis (REST) | talk Q&A store |
+| uqr | QR codes for share links |
 | Mock engine (`app/src/engine/mock-core.js`) | the default engine: TF-IDF over the programme plus simple keyword rules |
 | On-device engine by Wonjune Lee (`recsys/`) | **to be confirmed**: model, licence and size (package about 20.3 MB) |
 

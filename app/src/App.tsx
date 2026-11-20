@@ -17,10 +17,14 @@ const ArcMap = named(() => import('./screens/arc/ArcMap'), 'ArcMap');
 const TalkDetail = named(() => import('./screens/arc/TalkDetail'), 'TalkDetail');
 const ArcList = named(() => import('./screens/arc/ArcList'), 'ArcList');
 const Edit = named(() => import('./screens/arc/Edit'), 'Edit');
+const Share = named(() => import('./screens/arc/Share'), 'Share');
+const Qr = named(() => import('./screens/arc/Share'), 'Qr');
+const Received = named(() => import('./screens/arc/Received'), 'Received');
+const Pick = named(() => import('./screens/arc/Received'), 'Pick');
 const Legacy = named(() => import('./legacy/Legacy'), 'Legacy');
 
 const TITLES: Record<string, string> = { start: 'Welcome', ask: 'Ask', angles: 'Choose your angles', when: 'When and what', building: 'Building your Arc',
-  hood: 'Your neighborhood', home: 'My Arcs', arc: 'My Arc', talk: 'Talk' };
+  hood: 'Your neighborhood', home: 'My Arcs', arc: 'My Arc', talk: 'Talk', share: 'Share', qr: 'QR code', r: 'Shared Arc' };
 
 export function App() {
   const route = useRoute();
@@ -28,7 +32,7 @@ export function App() {
   const [head, step, sub] = route.split('/');
   const { onboarded } = arcOf(state);
   // Opening the app: first time → 01, afterwards → My Arcs.
-  useEffect(() => { if (!route) go(onboarded ? 'home' : 'start/1', { replace: true }); }, [route, onboarded]);
+  useEffect(() => { if (!route) go(onboarded ? 'home' : 'start/1', { replace: true }); }, [route, onboarded]); // #/r/… opens as is, onboarded or not
   useEffect(() => { if (TITLES[head]) { document.title = `${TITLES[head]} · ARC`; window.scrollTo(0, 0); } }, [route, head]);
   if (!route) return null;
 
@@ -43,6 +47,9 @@ export function App() {
       case 'home': return <Home />;
       case 'arc': return !step ? <Home /> : sub === 'list' ? <ArcList id={step} /> : sub === 'edit' ? <Edit id={step} /> : <ArcMap id={step} />;
       case 'talk': return step ? <TalkDetail paperKey={step} /> : <Home />; // 14 (the planner's 06 is replaced)
+      case 'share': return step ? <Share id={step} /> : <Home />;
+      case 'qr': return step ? <Qr id={step} /> : <Home />;
+      case 'r': return sub === 'pick' ? <Pick payload={step ?? ''} /> : <Received payload={step ?? ''} />; // a share link (18, 19)
       default: return <Legacy />;
     }
   })();

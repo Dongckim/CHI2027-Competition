@@ -2,7 +2,7 @@
 // Bottom: the next talk (to 14), Edit (15) and Share (A3).
 import { useCallback, useState } from 'react';
 import { go, href } from '../../router';
-import { Screen, ArcLink, ArcButton, Pic } from '../../components/arc';
+import { Screen, ArcLink, Pic } from '../../components/arc';
 import { AngleHelp, ANGLE_NAME } from './AngleHelp';
 import { ArcView, ANGLE_ICON } from './ArcView';
 import { ArcHeader } from './ArcHeader';
@@ -20,7 +20,7 @@ export function ArcMap({ id }: { id: string }) {
   const next = pending ? null : arc.nodes.find(n => states.get(n.key) === 'next') ?? null;
   const ni = next ? info(next.key) : null;
   return (
-    <Screen label="My Arc" header={<ArcHeader id={id} view="map" onHelp={() => setHelp(true)} />}
+    <Screen clock label="My Arc" header={<ArcHeader id={id} view="map" onHelp={() => setHelp(true)} />}
       bottom={<>
         {next && ni && (
           <a href={href(`talk/${next.key}`)} aria-label={`Next up: ${ANGLE_NAME[next.angle]} · ${ni.title} · ${ni.time}`}
@@ -35,9 +35,8 @@ export function ArcMap({ id }: { id: string }) {
         )}
         <div className="flex gap-3">
           <ArcLink kind="secondary" href={href(`arc/${id}/edit`)} className="w-[128px] shrink-0"><Pic src={editIcon} size={20} />Edit</ArcLink>
-          <ArcButton disabled aria-describedby="share-soon">Share</ArcButton>
+          <ArcLink href={href(`share/${id}`)}>Share</ArcLink>
         </div>
-        <p id="share-soon" className="sr-only">Sharing comes in the next build.</p>
       </>}>
       <h1 className="sr-only">{arc.query}</h1>
       {pending && (
