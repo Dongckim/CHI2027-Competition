@@ -97,7 +97,7 @@ export function Edit({ id }: { id: string }) {
             <div role="radiogroup" aria-label="Show" className="-mx-6 mt-3 flex gap-2 overflow-x-auto px-6 pb-1">
               {([['angle', ANGLE_ICON[target], ANGLE_NAME[target]], ['debut', sparkle, 'New to CHI'], ['wild', wild, 'Wildcard']] as [Filter, string, string][]).map(([f, icon, label]) => (
                 <button key={f} type="button" role="radio" aria-checked={filter === f} onClick={() => setFilter(f)}
-                  className={`relative inline-flex h-[38px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium before:absolute before:inset-x-0 before:-inset-y-[3px] before:content-[''] ${filter === f ? 'bg-arc-chip-on text-arc-on-primary shadow-[var(--arc-shadow-lift)]' : 'border border-arc-line bg-arc-surface text-arc-text/62'}`}>
+                  className={`relative inline-flex h-[38px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium before:absolute before:inset-x-0 before:-inset-y-[4px] before:content-[''] ${filter === f ? 'bg-arc-chip-on text-arc-on-primary shadow-[var(--arc-shadow-lift)]' : 'border border-arc-line bg-arc-surface text-arc-text/62'}`}>
                   <img src={icon} alt="" width={16} height={16} className={filter === f ? 'brightness-0' : 'opacity-60'} />{label}
                 </button>
               ))}

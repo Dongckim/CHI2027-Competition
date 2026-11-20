@@ -14,6 +14,7 @@ const CHECKS = [
   ['perf', 'tests/qa/perf-check.mjs'],
   ['requests', 'tests/qa/requests-check.mjs'],
   ['link', 'tests/qa/link-check.mjs'],
+  ['press', 'tests/qa/press-check.mjs'],
   ['a11y', 'tests/arc/a11y-check.mjs'],
   ['create', 'tests/arc/create-check.mjs'],
   ['arc', 'tests/arc/arc-check.mjs'],

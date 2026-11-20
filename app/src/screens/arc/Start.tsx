@@ -48,7 +48,8 @@ const Title = ({ lines }: { lines: [string, string] }) =>
   <h1 className="mt-[34px] text-[30px] leading-9 font-semibold tracking-[-0.024em]">{lines[0]}<br />{lines[1]}</h1>;
 // Figma draws the pictures on the 390-wide frame; this box keeps their coordinates (y is from the frame top).
 const Frame = ({ top, height, children }: { top: number; height: number; children: React.ReactNode }) => (
-  <div aria-hidden="true" className="relative -mx-6 w-[390px] max-w-[100vw] self-center" style={{ height }}>
+  // 390 wide and centred on any screen (overflow is clipped by Screen); pictures take no presses, so Skip and links stay pressable
+  <div aria-hidden="true" className="pointer-events-none relative w-[390px] shrink-0 self-center" style={{ height }}>
     <div className="absolute left-0 w-[390px]" style={{ top: -top, height: 844 }}>{children}</div>
   </div>
 );
@@ -179,7 +180,7 @@ function HowArcWorks() {
   );
   return (
     <Page dot={5} label="How ARC works" title={['Your question,', 'seen from three sides.']} next="ask">
-      <div className="relative -mx-6 h-[280px] w-[390px] max-w-[100vw] self-center">
+      <div className="pointer-events-none relative h-[280px] w-[390px] shrink-0 self-center">
         <div className="absolute left-0 w-[390px]" style={{ top: -330, height: 844 }}>
           <img src={lines06} alt="" aria-hidden="true" style={at(0, 0, 390, 844)} />
           <img src={holo06} alt="" aria-hidden="true" style={at(123, 348, 144)} />

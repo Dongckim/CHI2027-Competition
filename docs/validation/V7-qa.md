@@ -57,3 +57,17 @@
 - 4·5번은 사용자에게 Figma 크기와 비교해 확인받는다.
 - 고친 항목은 `tests/qa/known-failures.json`에서 뺀다.
 - 배포 주소 성능(`perf-check.mjs --url …`)은 확인하지 않았다.
+
+## 고친 뒤 (2026-11-20, fix/qa-findings, 사용자 승인)
+| # | 문제 | 고친 것 | 확인 |
+|---|---|---|---|
+| 1 | Skip·Code of Conduct 위를 그림이 덮음 | 그림 상자(01–06 Frame, 06·10·11)에 `pointer-events: none` | 새 `tests/qa/press-check.mjs`: 실제 터치(CDP)로 Skip 가운데와 ±20 px → 홈, Code of Conduct 터치 도착. 5/5. **대조**: `pointer-events: none`을 빼면 5/5 실패(다섯 곳 모두 그림이 받음). 그러니 고치기 전에는 실기기에서도 Skip이 눌리지 않았을 것 |
+| 2 | 375·360 가로 넘침 | 그림 상자는 390 그대로 가운데(`self-center`, -mx-6·max-w 제거). 지도(12·23·24·25)는 화면 폭에 맞게 축소(`useFitScale`, 글자는 real()로 12 px 유지). 안전망으로 Screen 바깥 틀에 `overflow-x: clip` | a11y-check 넘침 0 |
+| 3 | 칩 38·토글 36 | 모양 그대로. 칩 `::before` −3 → −4 px(테두리 안쪽 기준이라 42 px였음), 토글 −4 → −5 px(선택된 것의 테두리). 08 제목과 칩 사이 12 → 15 px("?" 44 px와 칩 44 px가 겹치지 않게) | a11y-check 44 px 0 |
+| 4 | 탭 사이 Heard 사라짐 | `update()`가 매번 localStorage의 최신 값에 그 변경만 적용해 저장(저장 실패 중이면 메모리 기준), `storage` 이벤트로 다른 탭 갱신 | two-tabs 9/9 |
+| 5 | 축소 지도 글자, 10번 원 | "No clear challenge at CHI this year."는 real(12)(읽는 글자). "+N" 원은 aria-hidden 장식(말은 아래 "N more"가 12 px) → 예외. 10번 원의 질문은 지도 원과 같은 Figma 예외(`data-contrast-exception`) | a11y-check 12 px·대비 0 |
+
+- known-failures.json: 24항목 → **0**.
+- 남은 예외는 모두 이유가 있는 장식·그림이다(`tests/qa/a11y-exceptions.json` 4개, `secrets-allow.json` 0개).
+- 비밀 검사의 자기 검출: `secrets.test.mjs`의 가짜 URL 비밀번호가 파일이 커밋된 뒤 자기 자신에 걸렸다. PR #54 머지 뒤 main의 npm test가 1개 실패하던 상태였다. 가짜 값을 조각으로 만들어 해결했다.
+- 배포 성능(`--url` 프로덕션, 고치기 전 main 1159c92): 첫 화면 88 KB, 01 1.59 s, 01까지 115 KB, 첫 방문 페이지 1,471 KB·34요청, 워커 7,255 KB. perf.json `deploy`에 기록(로컬은 `local`).

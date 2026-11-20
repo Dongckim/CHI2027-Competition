@@ -1,7 +1,25 @@
 {
-  "_": "Exceptions for the touch-target (44px) and text-size (12px) scan in tests/arc/a11y-check.mjs. Each entry: kind (target | font), closest (a CSS selector the element is inside or matches), optional screen, and the reason.",
+  "_": "Exceptions for tests/arc/a11y-check.mjs. kind: target (44 px), font (12 px) or contrast (4.5:1); closest: a CSS selector the element is inside or matches; and the reason. Only decorations or pictures: what people read meets the rule.",
   "allow": [
-    { "kind": "font", "closest": "[inert]", "reason": "16 share card: a picture of the Arc (inert, aria-hidden), described in words by its figcaption" },
-    { "kind": "target", "closest": "[inert]", "reason": "16 share card: a picture, nothing in it can be pressed" }
+    {
+      "kind": "font",
+      "closest": "[inert]",
+      "reason": "16 share card: a picture of the Arc (inert, aria-hidden), described in words by its figcaption"
+    },
+    {
+      "kind": "target",
+      "closest": "[inert]",
+      "reason": "16 share card: a picture, nothing in it can be pressed"
+    },
+    {
+      "kind": "font",
+      "closest": "[data-a11y-decor=bundle-count]",
+      "reason": "the +N circle of a bundled map (aria-hidden): its words are the \"N more\" label under it, at 12 px"
+    },
+    {
+      "kind": "contrast",
+      "closest": "[data-contrast-exception=figma-orb]",
+      "reason": "the question on the tribe orb (12/15/18/19/23/24/25 map, 10 loading): white on the tribe colour as in Figma, the user's decision 2026-11-20; the same question is the screen's spoken name and is typed by the person"
+    }
   ]
 }

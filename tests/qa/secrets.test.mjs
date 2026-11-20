@@ -47,7 +47,7 @@ test('secrets: no tokens, keys, passwords in URLs or .env files in tracked files
 });
 
 test('secrets: the scan catches each kind and prints no value', () => {
-  const fake = { 'a.js': `const k = "AKIA${'A'.repeat(16)}";`, 'b.md': `see https://user:hunter22@db.example.com/x`, 'c/.env': 'X=1', 'd.env.example': 'X=', 'e.js': `token: '${'x'.repeat(24)}'` };
+  const fake = { 'a.js': `const k = "AKIA${'A'.repeat(16)}";`, 'b.md': `see https://${'user'}:${'hunter22'}@db.example.com/x` /* pieces, so this file does not match itself */, 'c/.env': 'X=1', 'd.env.example': 'X=', 'e.js': `token: '${'x'.repeat(24)}'` };
   const found = scan(Object.keys(fake), f => fake[f]);
   assert.deepEqual(found.map(f => [f.file, f.kind]), [['a.js', 'AWS access key'], ['b.md', 'password in a URL'], ['c/.env', '.env file'], ['e.js', 'assigned secret']]);
   assert.ok(found.every(f => !('value' in f)));

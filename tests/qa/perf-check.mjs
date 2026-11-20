@@ -3,7 +3,7 @@
 // - first visit on Slow 4G (Chrome DevTools preset: 150 ms RTT, 1.6 Mbps down, 750 kbps up) with CPU 4× slower:
 //   time until 01 shows ("Bring one question", fail over 5 s), bytes until then, and every byte of the first visit
 //   until the service worker has kept the app and its data (offline-ready)
-// Results go to docs/validation/perf.json ({ current, previous }) and are compared with the previous run.
+// Results go to docs/validation/perf.json, per target (local | deploy): { current, previous }, compared with the previous run.
 // Locally the bytes are what vite preview sends (gzip); pass --url <deploy> for what Vercel sends (brotli, CDN).
 // npm run build && node --experimental-websocket tests/qa/perf-check.mjs [--url https://…] [--no-save]
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
@@ -52,11 +52,17 @@ try {
     workerCacheKB: Math.round(swBytes / 1024), network: 'Slow 4G (150 ms, 1.6 Mbps down, 750 kbps up), CPU 4×',
   };
   console.log(JSON.stringify(result, null, 2));
-  const old = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : null;
-  const prev = old?.current?.target === result.target ? old.current : old?.previous?.target === result.target ? old.previous : null;
+  const key = URL_ARG ? 'deploy' : 'local';
+  const file = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : {};
+  if (file.current && !file.local) { file.local = { current: file.current, previous: file.previous ?? null }; delete file.current; delete file.previous; } // first format
+  const prev = file[key]?.current ?? null;
   if (prev) for (const k of ['firstScreenKB', 'shown01Ms', 'bytesUntil01KB', 'pageBytesKB', 'workerCacheKB'])
     console.log(`  ${k}: ${prev[k]} → ${result[k]} (${result[k] - prev[k] >= 0 ? '+' : ''}${+(result[k] - prev[k]).toFixed(1)})`);
-  if (!args.includes('--no-save')) writeFileSync(OUT, JSON.stringify({ _: 'tests/qa/perf-check.mjs writes this; current vs previous run', current: result, previous: old?.current ?? null }, null, 2) + '\n');
+  if (!args.includes('--no-save')) {
+    file._ = 'tests/qa/perf-check.mjs writes this: per target (local vite preview, deploy), the current and the previous run';
+    file[key] = { current: result, previous: prev };
+    writeFileSync(OUT, JSON.stringify(file, null, 2) + '\n');
+  }
   code = R.done();
 } catch (e) {
   console.error(`stopped: ${e.message}`);
