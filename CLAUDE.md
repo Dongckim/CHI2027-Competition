@@ -10,7 +10,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 질문 하나 → 세 관점의 발표 묶음(Arc). 화면 이름 Supports ↑ / Reframes ↻ / Challenges ⊣, 코드·계약 키 S/R/T (개발 지시서의 "Tension" = 화면의 Challenges). 8개 종족 색 테두리, 링크·QR 공유·받기
 - 단계 A0~A4 (`stage/A0-arc-contract`…), 11/23 동결, 마감 12/4. A0~A4 코드 끝, 남은 것은 동결 전 체크리스트(docs/stages/A4-ship.md ⑦: 토큰·Upstash·폰)
 - 계약: `contracts/Arc.schema.json` 0.1.0과 엔진 인터페이스 `app/src/engine/types.ts`(사용자 승인). 그 밖의 필드는 임의로 추가하지 말고 물어볼 것. 계약을 바꾸면 PR에 "원준 확인 필요"
-- 추천(무엇을 어떤 관점으로)은 `app/src/engine/`에만. `index.ts`가 mock(기본) / ondevice(`?engine=ondevice`, `VITE_ENGINE`) 선택. 시간·방·저자·세션은 엔진이 아니라 data/build에서 key로 붙임. mock은 "VR" 수정 뒤 동결(더 다듬지 않음)
+- 추천(무엇을 어떤 관점으로)은 `app/src/engine/`에만. `index.ts`가 mock(기본) / ondevice(`?engine=ondevice`, `VITE_ENGINE`) 선택. 시간·방·저자·세션은 엔진이 아니라 data/build에서 key로 붙임. mock은 "VR" 수정·어근 처리(-s/-ing/-ed/-ic, 11/20 사용자 요청) 뒤 동결(더 다듬지 않음)
 - 원준 엔진: 소스·생성 스크립트는 `recsys/`, 모델 zip은 git 밖 → `build:deploy`가 `MODEL_URL`·`MODEL_SHA256`으로 `dist/model/`에 풂(`/model/` 서빙). 없으면 mock (recsys/README.md)
 - 옛 플래너(S0~S5b)는 지우지 않고 진입점에서만 뺌: 화면 `app/src/legacy/`, 직접 주소로 열림. 기록 `docs/stages/legacy-planner/`
 - 데모 시계: 학회 기간 밖이면 자동으로 둘째 날 10:00(배너 표시), `?at=2026-04-14T12:00`(개최지 시각)이 우선. mock 상태 `?mock=slow|none|pending|crowded`
@@ -149,6 +149,6 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - A3 공유·받기·Q&A (2026-11-20, stage/A3-share): 데모 시계(기간 밖이면 둘째 날 10:00 + 배너), 23 "No clear challenge", 16 Share·17 QR(uqr 0.1.3)·18 Shared Arc·19 Pick some·20 My Arcs, /s/ share 함수(OG 태그), 14 Q&A(메모리 → Upstash REST)
 - share-check 10/10, create-check 15/15, arc-check 12/12, npm test 136/136, 첫 화면 90.1 KB. 고친 버그: 탭에서 첫 저장 전에 목록을 안 읽어 홈에 예전 Arc가 안 보임
 - 남은 것: Upstash 연결(사용자), og:image·실기기·메신저 미리보기(A4), QR이 촘촘함(긴 링크) (docs/stages/A3-share.md)
-- A4 미리보기 그림·오프라인·접근성 (2026-11-20, stage/A4-ship): /api/og 1200×630(satori + resvg-wasm), share 페이지 og:image·1년 캐시, app-data 전체 precache(132개), 보이는 글자 = 이름(2.5.3), 지도 가운데 질문 짙은 글자·원 안쪽 단색(대비 4.71+)
+- A4 미리보기 그림·오프라인·접근성 (2026-11-20, stage/A4-ship): /api/og 1200×630(satori + resvg-wasm), share 페이지 og:image·1년 캐시, app-data 전체 precache(132개), 보이는 글자 = 이름(2.5.3), 지도 가운데 원은 Figma대로(흰 글자 대비 미달, 사용자 결정 예외)
 - offline-check 6/6(서버 끈 상태로 07 → 12), a11y-check 24/24 serious 0·대비 최저 4.53, npm test 139/139, 첫 화면 87.8 KB
-- 남은 것: 동결 체크리스트(프로덕션 로그인 없이 열기, 토큰 미리보기 검사, Upstash, QR 폰, 메신저, VoiceOver), 가운데 원 모양 디자이너 확인 (docs/stages/A4-ship.md)
+- 남은 것: 동결 체크리스트(프로덕션 로그인 없이 열기, 토큰 미리보기 검사, Upstash, QR 폰, 메신저, VoiceOver), 16 카드 마크 로고 확인 (docs/stages/A4-ship.md)
