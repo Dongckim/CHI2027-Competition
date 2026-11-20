@@ -16,7 +16,7 @@
   --inverse-text: #ffffff;
   --inverse-text-2: #cccccc;
 
-  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif; /* other scripts fall back to the system font */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; /* other scripts fall back to the system font */
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --text-tag: 12px;   --text-small: 14px;  --text-link: 15px;
   --text-body: 16px;  --text-header: 17px; --text-card-title: 18px;
@@ -30,6 +30,21 @@
   --header-h: 44px; --day-tab-h: 48px; --row-h: 61px;
   --card-border: 1.5px;
   --safe-bottom: env(safe-area-inset-bottom, 0px); /* Figma draws 34px for iPhone; the device supplies the real value */
+
+  /* Final UI (Figma 582:7, 588:446): one dark theme for the Arc screens. Values are what the frames use. */
+  --arc-bg: #121119;
+  --arc-surface: #1c1b24;    /* chips, cards, secondary button, icon button */
+  --arc-sheet: #1a1922;      /* bottom sheets (22) */
+  --arc-line: rgba(255, 255, 255, 0.08);
+  --arc-text: #f4f6ff;
+  --arc-text-2: rgba(244, 246, 255, 0.65); /* ≈ 6.3:1 on --arc-bg */
+  --arc-text-3: rgba(244, 246, 255, 0.55); /* lightest text allowed: ≈ 5.6:1 on --arc-bg, 5.3:1 on --arc-sheet */
+  --arc-primary: #f4f3f8;    /* primary button */
+  --arc-on-primary: #15121f;
+  --arc-chip-on: #f7f6fc;
+  --arc-shadow-primary: 0 10px 28px -8px rgba(10, 5, 32, 0.5);
+  --arc-shadow-lift: 0 4px 12px -4px rgba(10, 5, 32, 0.4);
+  --arc-button-h: 54px;
 
   /* 8 tribes (app/src/arc/tribes.js, same values). Colour is for tribes only, never for angles (↑ ↻ ⊣ stay white). */
   --tribe-ai: #9b6bff; --tribe-xr: #4c7dff; --tribe-access: #2fbf71; --tribe-health: #ff6b6b;

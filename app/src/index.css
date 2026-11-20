@@ -1,6 +1,6 @@
-@import "@fontsource/ibm-plex-sans/latin-400.css";
-@import "@fontsource/ibm-plex-sans/latin-500.css";
-@import "@fontsource/ibm-plex-sans/latin-600.css";
+@import "@fontsource/inter/latin-400.css";
+@import "@fontsource/inter/latin-500.css";
+@import "@fontsource/inter/latin-600.css";
 @import "@fontsource/ibm-plex-mono/latin-500.css";
 @import "tailwindcss";
 @import "./tokens.css";
@@ -18,6 +18,17 @@
   --color-inverse: var(--inverse-bg);
   --color-on-inverse: var(--inverse-text);
   --color-on-inverse-2: var(--inverse-text-2);
+  --color-arc-bg: var(--arc-bg);
+  --color-arc-surface: var(--arc-surface);
+  --color-arc-sheet: var(--arc-sheet);
+  --color-arc-line: var(--arc-line);
+  --color-arc-text: var(--arc-text);
+  --color-arc-text-2: var(--arc-text-2);
+  --color-arc-text-3: var(--arc-text-3);
+  --color-arc-primary: var(--arc-primary);
+  --color-arc-on-primary: var(--arc-on-primary);
+  --color-arc-chip-on: var(--arc-chip-on);
+  --color-tribe: var(--tribe);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --text-tag: var(--text-tag);
@@ -48,9 +59,25 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
    and stands still with reduced motion or the "still" setting (<html data-glow="still">). Never the only cue: shape + name too. */
 :root[data-tribe] body::after {
   content: ""; position: fixed; inset: 0; z-index: 50; pointer-events: none;
-  box-shadow: inset 0 0 0 2px var(--tribe), inset 0 0 28px 4px color-mix(in srgb, var(--tribe) 55%, transparent);
+  box-shadow: inset 0 0 56px color-mix(in srgb, var(--tribe) 32%, transparent); /* Figma 10/11/22: inner shadow, blur 56 */
   animation: tribe-breathe 6s ease-in-out infinite;
 }
 @keyframes tribe-breathe { 50% { opacity: 0.6; } }
 :root[data-glow="still"] body::after { animation: none; }
 @media (prefers-reduced-motion: reduce) { :root[data-tribe] body::after { animation: none; } }
+
+/* 10 Building: the progress ring turns; with reduced motion it stands still (the status line still says what happens). */
+.arc-spin { animation: arc-spin 1.4s linear infinite; }
+.arc-progress { border-radius: 9999px; background: conic-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.95));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px)); }
+@keyframes arc-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .arc-spin { animation: none; } }
+
+/* Question orb (10, 12) and tribe rings (11): Figma's pictures are drawn in the sample tribe's blue; these take --tribe
+   (falls back to Figma's #5C7CFF before a tribe is known). Radial stops as Figma: 0.95 → 0.6 at 55% → 0.22. */
+.arc-orb { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.08);
+  --c: var(--tribe-now, #5c7cff);
+  background: radial-gradient(circle, color-mix(in srgb, var(--c) 95%, transparent) 0%, color-mix(in srgb, var(--c) 60%, transparent) 55%, color-mix(in srgb, var(--c) 22%, transparent) 100%); }
+.arc-ring { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.08);
+  background: radial-gradient(circle, color-mix(in srgb, var(--tribe-now, #5c7cff) 28%, transparent) 0%, transparent 70%); }
+:root[data-tribe] { --tribe-now: var(--tribe); }
