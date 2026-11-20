@@ -11,7 +11,7 @@ import {
 import { Header } from '../components/Header';
 import { Chip } from '../components/Chip';
 import { ChoiceRow } from '../components/ChoiceRow';
-import { SummaryRow } from '../../components/SummaryRow';
+import { SummaryRow } from '../components/SummaryRow';
 import { BottomAction } from '../components/BottomAction';
 
 // Onboarding (Figma 288:680): one question per screen, "N of 4", one button at the bottom. Every choice is saved as it
