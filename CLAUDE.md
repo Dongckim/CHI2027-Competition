@@ -110,7 +110,12 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 정리 문서 형식: ① 만든 것 ② 통과 기준 결과(숫자) ③ 결정과 이유 ④ 남은 문제 ⑤ 다음 단계가 알아야 할 것 ⑥ 비용·토큰
 
 ## Git 규칙
-- 커밋까지만 한다. git push, git remote, gh, GitHub API는 어떤 형태로도 쓰지 않는다. push와 PR은 사람이 한다.
+- 단계가 끝나면 push → PR → 머지까지 한다 (2026-11-20 사용자 결정). 허용 범위는 `.claude/settings.json`과 같다:
+  - `git push -u origin stage/<…>` 브랜치 push만. main에 직접 push, 강제 push, 원격 브랜치 삭제, `git remote` 금지
+  - `gh pr create`(아래 PR 형식), `gh pr view/list/checks`, `gh pr merge --merge`(merge commit만, squash·rebase·--admin 금지). `gh api`, `gh repo` 금지
+  - 머지 전에 `npm test`·`npm run typecheck`·`npm run contracts:check`가 통과해야 한다. 실패하면 머지하지 않고 알린다
+  - 머지 후 로컬 main을 `git pull --ff-only`로 맞추고 다음 단계 브랜치를 main에서 딴다
+  - 계약(contracts/)을 바꾼 PR도 머지는 하되, PR 본문 "확인할 것"에 "원준 확인 필요"를 남긴다
 - 커밋 메시지에 Co-Authored-By나 도구 이름을 넣지 않는다.
 - 단계마다 stage/<단계>-<이름> 브랜치에서 작업한다. 단계가 아닌 작업은 <type>/<이름> (예: docs/git-conventions, fix/fetch-timeout).
 
@@ -133,7 +138,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 본문: `.github/pull_request_template.md`의 순서 (요약 / 바뀐 것 / 확인한 것 / 확인할 것 / 문서)
 - 확인한 것에는 실제로 돌린 명령과 결과 숫자만 적는다 (예: `npm test` 46/46). 안 돌린 것은 "확인 안 함"으로 적는다
 - 계약(contracts/)을 바꾸면 확인할 것에 "원준 확인 필요"를 적는다
-- 머지는 merge commit으로 (커밋을 기능별로 나눈 기록을 유지)
+- 머지는 merge commit으로 (커밋을 기능별로 나눈 기록을 유지). `gh pr merge <번호> --merge`
 
 ## 디자인 기준 (Figma v3, 참고용. 최종은 위 "디자인"의 Final UI)
 - 파일: UfKtv7eGMTOrCZEzszq9GS, 페이지 "v3 · 리뷰 반영 (11/09)"
