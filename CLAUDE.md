@@ -10,7 +10,8 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - **방향 전환 (2026-11-20, 결정 006): 플래너(Today) 중심 → Arc 중심.** 질문 하나 → 세 관점(화면 이름 Supports ↑ / Reframes ↻ / Challenges ⊣, 코드·계약 키 S/R/T; 지시서의 "Tension" = 화면의 Challenges)의 발표 묶음(Arc), 8개 종족 색 테두리, 링크·QR 공유·받기. 단계 접두어 A0~A4 (`stage/A0-arc-contract`…), 11/23 동결, 마감 12/4
   - 계약: `contracts/Arc.schema.json` 0.1.0과 엔진 인터페이스(`app/src/engine/types.ts`)는 사용자 승인. 그 밖의 필드는 임의로 추가하지 말고 물어볼 것. 계약을 바꾸면 PR에 "원준 확인 필요"
   - 추천(무엇을 어떤 관점으로)은 `app/src/engine/`에만 (`index.ts`가 mock/ondevice 선택, 기본 mock, `?engine=ondevice`). 시간·방·저자·세션은 엔진이 아니라 data/build에서 key로 붙임
-  - 플래너·길 안내·자막 코드는 지우지 않고 진입점에서만 뺌 (옛 화면 라우트는 직접 주소로 열림)
+  - 플래너·길 안내·자막 코드는 지우지 않고 진입점에서만 뺌 (옛 화면은 `app/src/Legacy.tsx`, 직접 주소로 열림)
+  - Arc 화면: `app/src/screens/arc/`, 부품 `app/src/components/arc.tsx`, 토큰 `--arc-*`, 상태 `app/src/arc/draft.js`(DeviceState의 arc 칸)·`store.ts`(IndexedDB)
   - 아래 S0~S5b 항목은 옛 플래너 줄기의 기록 (코드는 그대로 있음)
 - V0(데이터) 완료. V6 길 안내 조건부(`app/src/venue/route.js`, 플래너에 연결). V4 자막 조건부(`app/src/captions/`, `functions/soniox-key.mjs`, 키는 `.env.local`)
 - V2 진행 중: 플래너 `app/src/planner/plan.js`(내부 입력). contracts/는 RecommendRequest·RecommendResponse 0.1.0만 확정, 나머지는 사용자가 설계 중 → 임의로 계약 필드를 만들지 말 것. recsys/는 비어 있음
@@ -36,6 +37,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
   - `npm run bench` : 확인 페이지 서버 (tests/serve.mjs, functions/를 /api/로 연결). 길 안내 /tests/venue/bench.html, 자막 /tests/captions/bench.html, 대면 대화 /tests/captions/conversation.html (`.env.local`에 `SONIOX_API_KEY=...`, git 무시)
   - `npm run dev` : 앱 개발 서버 (같은 Wi-Fi 폰에서도 열림) / `npm run build` : dist/ (data/build/chi2026 필요) / `npm run build:deploy` : Vercel이 쓰는 것 (피드 받기 → 빌드 → 앱)
   - `node tests/explore/bench.mjs [질의...]` : 검색 속도 (node) / `node --experimental-websocket tests/explore/phone-check.mjs` : 헤드리스 Chrome 390×844·CPU 4배로 S4 화면 확인 (`vite preview --port 4317` 먼저) / `tests/explore/offline-check.mjs` : 오프라인 Explore (서버를 스스로 켜고 끔) / `tests/explore/qa-check.mjs` : QA 재현 (같은 방식)
+  - `node --experimental-websocket tests/arc/create-check.mjs [--shots <dir>]` : 헤드리스 Chrome 390×844·CPU 4배로 01 → 12 클릭 (빌드 먼저, 서버를 스스로 켜고 끔) / `node tests/engine/tribes-report.mjs` : chi2026 종족 분포
   - `node tests/engine/try.mjs ["질문" ...] [--mode none|pending|crowded] [--no-t]` : mock 엔진 Arc JSON + 계약 검사 (data/build/chi2026 필요)
   - `npm test` : 전체 테스트 / 하나만: `node --test --test-name-pattern="talk slots" tests/`
 - git은 반드시 `arc/` 안에서 실행. 상위 `chi2027-arc/`는 자체 레포가 아니라 홈 디렉토리(`/Users/dongchankim`) 레포로 잡힘
@@ -181,3 +183,6 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - A0 Arc 계약·엔진 (2026-11-20, stage/A0-arc-contract): 결정 006·007, contracts/Arc 0.1.0(schema_version, tension off 추가) + evidence 규칙, engine/ 인터페이스·mock(TF-IDF + 단순 규칙, ?mock=)
 - 8종족 tribes.js + 테두리 빛(reduced-motion 정지), 데뷔 debut.json(chi2026 36.3%). 실데이터 질문 5개 → Arc 모두 검사 통과, node 11–47 ms
 - 남은 것: Figma 프레임 id 표(인증 대기), ✦ 기준(전체 저자 64% vs 제1저자 27%), mock Tension이 늘 found (docs/stages/A0-arc-contract.md)
+- A1 만들기 (2026-11-20, stage/A1-create): 01–11·21·22, Final UI 토큰·Inter·부품, Arc는 IndexedDB, 옛 플래너는 Legacy(직접 주소), 화면 이름 Supports/Reframes/Challenges
+- 헤드리스 01 → 12 클릭 14/14, 첫 화면 gzip 114.5 → 86.8 KB, 에셋 SVG 84개 54.6 KB. 엔진: 상위 3개 평균 기준(↑0 해결), 08 칩에서 형식 블록 세션 제외
+- 남은 것: 12는 자리만(A2), 첫 방문 오프라인 보관(A4), 옛 헤드리스 검사 일부·실기기 확인 안 함 (docs/stages/A1-create.md)
