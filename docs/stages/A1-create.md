@@ -11,7 +11,7 @@
 ## ② 통과 기준 결과
 | 기준 | 결과 |
 |---|---|
-| 헤드리스 Chrome 390×844, CPU 4배: 01 → 12를 클릭만으로 | **14/14** (create-check) |
+| 헤드리스 Chrome 390×844, CPU 4배: 01 → 12를 클릭만으로 | **14/14** (create-check, 간격 두고 5회 연속 통과. 바로 이어 돌린 1회는 앞 서버가 꺼지기 전이라 첫 단계 실패) |
 | `npm test` | 123/123 |
 | `npm run typecheck` · `npm run contracts:check` | 통과 · 8/8 |
 | 옛 플래너 직접 주소 (`tests/venue/entry-check.mjs`) | PASS: all checks |
@@ -23,20 +23,25 @@
 - **"Does VR fidelity raise presence?"의 ↑0 원인**: 점수를 1등 = 1로 나눴는데, 이 질문은 1등(1.00) 하나가 튀어 2·3등이 0.60·0.51로 눌렸다. 1등은 "did not find" 문장으로 ⊣에, 0.6을 넘는 유일한 다른 발표는 핵심어 presence가 없어 ↑에서 빠졌다. → **상위 3개 평균 = 1**로 바꿈 (`fix(engine): score angles against the top-3 mean`)
 - 기준값: ↑ ≥ 0.6, ↻ 0.35–0.8, ⊣ ≥ 0.4 (상위 3개 평균 대비), 최대 4/3/2
 
-| 질문 | 종족 | ↑ | ↻ | ⊣ | tension |
-|---|---|---|---|---|---|
-| presence | xr | 4 | 3 | 2 | found |
-| Does VR fidelity raise presence? | xr | **3** (전 0) | 3 | 2 | found |
-| What is accessibility research asking now? | access | 4 | 3 | 2 | found |
-| LLM writing assistants and student learning | learning | 4 | 3 | 2 | found |
-| privacy of smart home devices | society | 4 | 3 | 2 | found |
-| haptic feedback | devices | 4 | 2 | 2 | found |
-| sign language | access | 4 | 3 | **0** | none (→ 23) |
-| older adults loneliness | access | 4 | **0** | 2 | found |
-| conversational agents for mental health | health | 4 | 3 | 2 | found |
-| tangible interfaces for children | learning | 3 | 3 | 2 | found |
-| misinformation on social media | society | 4 | 3 | 2 | found |
-| eye tracking in VR | devices | 4 | 3 | 2 | found |
+- 아래 표는 **앱이 만드는 경로** 그대로다: 08 기본 칩(↑·↻ 앞 2개, ⊣ 앞 1개) → 09 All week + Talks/Posters/Demos → buildArc. (처음 잰 표는 칩 없이 돌린 것이라 앱과 달랐다: 앱 경로로는 포스터·데모가 0개였음 → `fix(engine): let posters and demos into Arcs built from 08 chips`)
+
+| 질문 | 08 칩 ↑/↻/⊣ | ↑ | ↻ | ⊣ | tension | 종류 |
+|---|---|---|---|---|---|---|
+| presence | 4/5/2 | 4 | 3 | 2 | found | Paper 5 · Posters 3 · Demo 1 |
+| Does VR fidelity raise presence? | 2/5/1 | **3** (전 0) | 3 | 2 | found | Paper 5 · Posters 3 |
+| What is accessibility research asking now? | 5/4/1 | 4 | 3 | 2 | found | Paper 5 · Posters 4 |
+| LLM writing assistants and student learning | 4/5/4 | 4 | 3 | 2 | found | Paper 7 · Posters 2 |
+| privacy of smart home devices | 5/5/4 | 4 | 3 | 2 | found | Paper 5 · Posters 3 · Journal 1 |
+| haptic feedback | 5/2/3 | 4 | 3 | 2 | found | Paper 6 · Posters 2 · Demo 1 |
+| sign language | 3/2/**0** | 4 | 3 | **0** | none (→ 23) | Paper 4 · Posters 2 · Demo 1 |
+| older adults loneliness | 5/**0**/2 | 4 | 3 | 2 | found | Paper 2 · Posters 7 |
+| conversational agents for mental health | 5/4/5 | 4 | 3 | 2 | found | Paper 3 · Posters 6 |
+| tangible interfaces for children | 1/5/3 | 3 | 3 | 2 | found | Paper 4 · Posters 3 · Demo 1 |
+| misinformation on social media | 4/5/5 | 4 | 3 | 2 | found | Paper 7 · Posters 2 |
+| eye tracking in VR | 4/5/1 | 4 | 3 | 2 | found | Paper 3 · Posters 6 |
+
+- 하루만(2026-04-14) 고르면 노드가 크게 준다: 12개 중 7개가 ⊣0(none), "sign language"는 ↑1 ↻0 ⊣0. 데이터가 그만큼이라 채우지 않는다
+- 08 칩 수: 지시서는 관점별 3–5개. ↑ "Does VR fidelity…" 2개, "tangible interfaces…" 1개, ⊣ "sign language" 0개처럼 3개 미만도 있다(형식 블록 세션을 빼서). 지어서 채우지 않음
 
 - **✦ New to CHI 기준**: 지도·목록 노드는 제1저자가 새 사람일 때만 (Paper 1,702편 중 460편, 27%). 저자 중 누구라도로 하면 1,092편(64%). 14 상세에서는 새로 온 저자 전원(A2). 사람 기준 chi2026 9,756명 중 3,546명(36.3%)이 새 사람
 - **종족 분포 (chi2026, 미분류 0)**: 정하는 순서 세션·주제 1,502 → 제목 946 → 초록 키워드 수 316 → 가장 비슷한 종족 18 → 가장 큰 종족 0. 30% 넘는 종족 없음
@@ -84,6 +89,8 @@
 - Arc 목록은 IndexedDB. 막힌 브라우저에선 메모리 + 홈에 "This browser does not keep Arcs." 한 줄
 - 08에서 관점의 칩을 모두 끄면 그 관점을 빼고 만든다(⊣를 끄면 `tension: off`, 23번 안 뜸)
 - 08 칩에서 형식·시간 블록 세션("Posters (Tuesday)", "Interactivity Demos" 등)은 빼고, 두 번 열리는 워크숍은 한 번만
+- **B3 규칙을 좁힌 곳**: 08 칩은 주제 세션만이라, 주제 세션이 하나도 없는 발표(대부분의 포스터·데모)는 칩 필터를 통과하고 09 What이 정한다. 칩이 아예 없는 관점은 빼지 않는다(⊣ 칩 0개 → none → 23)
+- Arc id는 `getRandomValues` 32자리(randomUUID는 http LAN 개발 주소에서 없음)
 - 11의 "Change"는 사용자가 종족을 고칠 수 있게 함(가이드 Q5의 답이 없어 가장 단순한 쪽). 다르게 하려면 알려 주세요
 
 ## ④ 남은 문제
@@ -91,6 +98,9 @@
 - 처음 여는 순간 서비스 워커가 켜지기 전에 받은 초록 파일은 오프라인 보관이 안 될 수 있음 → A4 비행기 모드 검사에서 확인. 07 "Ready offline"은 엔진 준비 완료 기준
 - 옛 헤드리스 검사 중 entry-check만 다시 돌림(PASS). phone-check·offline-check·qa-check·directions-check·revision-check는 확인 안 함
 - 폰 실기기 확인 안 함 (Vercel 미리보기에서)
+- create-check을 간격 없이 바로 이어 돌리면 포트가 아직 잡혀 있어 첫 단계가 실패할 수 있음 (3초 쉬면 통과)
+- DeviceState VERSION은 계획(2)과 달리 1 그대로: arc 칸만 추가해 옛 검사가 그대로 읽음
+- 첫 화면 86.8 KB는 JS+CSS만. 01을 열면 엔진 준비로 초록 전체를 뒤에서 받기 시작한다(온보딩 동안 받기, 가이드 1번)
 - Figma 대비 시각 비교는 헤드리스 스크린샷을 눈으로만 (픽셀 비교 없음)
 
 ## ⑤ 다음 단계가 알아야 할 것
