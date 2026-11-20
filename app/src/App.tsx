@@ -14,15 +14,18 @@ const Building = named(() => import('./screens/arc/Building'), 'Building');
 const Hood = named(() => import('./screens/arc/Hood'), 'Hood');
 const Home = named(() => import('./screens/arc/Home'), 'Home');
 const ArcMap = named(() => import('./screens/arc/ArcMap'), 'ArcMap');
+const TalkDetail = named(() => import('./screens/arc/TalkDetail'), 'TalkDetail');
+const ArcList = named(() => import('./screens/arc/ArcList'), 'ArcList');
+const Edit = named(() => import('./screens/arc/Edit'), 'Edit');
 const Legacy = named(() => import('./Legacy'), 'Legacy');
 
 const TITLES: Record<string, string> = { start: 'Welcome', ask: 'Ask', angles: 'Choose your angles', when: 'When and what', building: 'Building your Arc',
-  hood: 'Your neighborhood', home: 'My Arcs', arc: 'My Arc' };
+  hood: 'Your neighborhood', home: 'My Arcs', arc: 'My Arc', talk: 'Talk' };
 
 export function App() {
   const route = useRoute();
   const state = useDevice();
-  const [head, step] = route.split('/');
+  const [head, step, sub] = route.split('/');
   const { onboarded } = arcOf(state);
   // Opening the app: first time → 01, afterwards → My Arcs.
   useEffect(() => { if (!route) go(onboarded ? 'home' : 'start/1', { replace: true }); }, [route, onboarded]);
@@ -38,7 +41,8 @@ export function App() {
       case 'building': return <Building />;
       case 'hood': return step ? <Hood id={step} /> : <Home />;
       case 'home': return <Home />;
-      case 'arc': return step ? <ArcMap id={step} /> : <Home />;
+      case 'arc': return !step ? <Home /> : sub === 'list' ? <ArcList id={step} /> : sub === 'edit' ? <Edit id={step} /> : <ArcMap id={step} />;
+      case 'talk': return step ? <TalkDetail paperKey={step} /> : <Home />; // 14 (the planner's 06 is replaced)
       default: return <Legacy />;
     }
   })();

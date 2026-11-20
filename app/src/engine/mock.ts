@@ -59,4 +59,5 @@ export const mockEngine: Engine = {
     id: newArcId(), createdAt: Date.now(), mode: MODE === 'slow' ? 'normal' : MODE,
   }) as Arc),
   suggest: (query, angle, excludeKeys, limit) => answer(i => core.suggest(i, query, angle, excludeKeys, limit) as ArcNode[]),
+  wildcard: (query, excludeKeys, limit) => answer(i => core.wildcard(i, query, excludeKeys, limit) as ArcNode[]),
 };

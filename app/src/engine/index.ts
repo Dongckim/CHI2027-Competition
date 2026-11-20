@@ -16,5 +16,6 @@ export const engine: Engine = {
   angleTopics: q => pick().then(e => e.angleTopics(q)),
   buildArc: (q, o) => pick().then(e => e.buildArc(q, o)),
   suggest: (q, a, x, l) => pick().then(e => e.suggest(q, a, x, l)),
+  wildcard: (q, x, l) => pick().then(e => e.wildcard(q, x, l)),
 };
 export type * from './types';
