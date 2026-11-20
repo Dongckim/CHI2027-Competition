@@ -30,7 +30,7 @@ const device = onboarded => JSON.stringify({ version: 1, edition: 'chi2026', mod
   plan: { query: '', topicsFor: null, topics: [], nearbyAdded: [], days: [], needs: { stepFree: false, fewerRoomChanges: false, breaks: false, largerText: false, summaries: false }, language: 'en', see: ['papers'], howFull: 'balanced' },
   arc: { onboarded, firstChi: true, draft } });
 const SCREENS = [
-  ['01', '#/start/1', 'Bring one question'], ['02', '#/start/2', 'The biggest week'], ['03', '#/start/3', 'Ten talks'], ['04', '#/start/4', 'Know what to do'],
+  ['01', '#/start/1', 'Bring one question'], ['02', '#/start/2', 'The biggest week'], ['03', '#/start/3', '10+ talks run'], ['04', '#/start/4', 'Know what to do'],
   ['05', '#/start/5', 'Breaks are'], ['06', '#/start/6', 'three sides'], ['07', '#/ask', 'What are you'], ['08', '#/angles', 'Supports'],
   ['09', '#/when', 'Build my Arc'], ['11', `#/hood/${ARC.id}`, "YOU'RE IN"], ['12', `#/arc/${ARC.id}`, 'Next ·'], ['13', `#/arc/${ARC.id}/list`, 'Reframes'],
   ['14', `#/talk/${ARC.nodes[0].key}`, 'WHY IT'], ['15', `#/arc/${ARC.id}/edit`, 'Editing'], ['16', `#/share/${ARC.id}`, 'Never your name'],
