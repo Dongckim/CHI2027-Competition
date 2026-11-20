@@ -52,7 +52,7 @@
 - 06 초록 문구: 초록이 원래 없으면 "No abstract in the programme.", 그날 파일을 못 받았는데 오프라인이면 "Abstract not saved on this phone yet. Connect to load it.", 온라인인데 실패하면 "Could not load the abstract. Try again in a moment." 다시 온라인이 되면 다시 받음
 - simulate 규칙을 `app/src/today/simulate.js`로 분리 (`simulateRequested`, `keepsSample`). Today와 App이 이것을 씀. 값도 확인함: `?simulate=room-change`만 (전에는 `?simulate`에 무슨 값이든)
 - 고친 것: 서비스 워커가 `Vary: Origin`을 붙이는 서버에서는 오프라인일 때 JS·CSS를 못 찾음 (모듈 스크립트 요청에는 Origin이 붙고 미리 저장할 때는 없음). `vite preview`가 그렇고, 이 때문에 처음 오프라인 확인에서 빈 화면. `caches.match(…, { ignoreVary: true })` (이름에 내용 해시가 있어 안전)
-- 도구: `node --experimental-websocket tests/explore/qa-check.mjs` (QA 4·5·11·12 재현, 서버를 스스로 켜고 끔), `node tests/explore/bench.mjs [질의...]` (node 속도), `node --experimental-websocket tests/explore/phone-check.mjs [스크린숏 폴더]` (헤드리스 Chrome 390×844, CPU 4배 느리게), `node --experimental-websocket tests/explore/offline-check.mjs` (자기 서버를 켜고 끔)
+- 도구: `node --experimental-websocket tests/legacy/explore/qa-check.mjs` (QA 4·5·11·12 재현, 서버를 스스로 켜고 끔), `node tests/legacy/explore/bench.mjs [질의...]` (node 속도), `node --experimental-websocket tests/legacy/explore/phone-check.mjs [스크린숏 폴더]` (헤드리스 Chrome 390×844, CPU 4배 느리게), `node --experimental-websocket tests/legacy/explore/offline-check.mjs` (자기 서버를 켜고 끔)
 
 ## ② 통과 기준 결과
 - **"CMU" → Carnegie Mellon 발표 109개** (Talks 109 · People 181). 테스트가 실제 데이터에서 "저자 중 누구든 어느 소속이든 Carnegie Mellon인 발표" 전체와 같은지 확인
@@ -82,7 +82,7 @@
 
 ## 교차 검증 (QA, 2026-11-12, 브랜치 `fix/s4-qa`)
 코드 검토(제 결론을 모르는 에이전트) + 실제 데이터·헤드리스 Chrome의 경계 입력 확인. 고친 것마다 재현 테스트를 먼저 넣고 고치기 전 실패 → 고친 뒤 통과를 확인.
-- node 재현 테스트 `tests/app/explore-qa.test.mjs` 7개 (QA 1·2·3·6·7·9·10). 브라우저 재현 `tests/explore/qa-check.mjs` (QA 4·5·11·12, 13은 측정만)
+- node 재현 테스트 `tests/app/explore-qa.test.mjs` 7개 (QA 1·2·3·6·7·9·10). 브라우저 재현 `tests/legacy/explore/qa-check.mjs` (QA 4·5·11·12, 13은 측정만)
 
 | # | 문제 | 고치기 전 | 고친 뒤 | 상태 |
 |---|---|---|---|---|

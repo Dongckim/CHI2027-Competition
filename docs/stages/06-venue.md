@@ -9,7 +9,7 @@
 - `app/src/venue/route.js`: 문에서 문까지 최단 경로 → 거리(m), 시간 범위(분), 층, 에스컬레이터/엘리베이터, 랜드마크 순서(`stops`)
   - 걷기는 에스컬레이터, 휠체어는 엘리베이터만
 - 플래너 연결: `venueTravelMinutes` (02 참고)
-- 확인: `node tests/venue/try.mjs 111 211 [--wheelchair]`, `/tests/venue/bench.html`, `tests/venue/share.mjs`(서버 없이 공유할 한 장짜리 페이지)
+- 확인: `node tests/legacy/venue/try.mjs 111 211 [--wheelchair]`, `/tests/legacy/venue/bench.html`, `tests/legacy/venue/share.mjs`(서버 없이 공유할 한 장짜리 페이지)
 - 테스트 `tests/venue/route.test.mjs`
 
 ## ② 통과 기준 결과

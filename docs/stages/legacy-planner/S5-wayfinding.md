@@ -38,7 +38,7 @@
 → 두 원천이 복도 이름(118–134 복도 = 공식 "Foyer 2"), 층 연결(프로토타입 계단 1개 vs 공식 에스컬레이터 + M1 중간층), 거리(226 vs 195 m)가 다름. 프로토타입의 P0은 스스로 "Rough guess"라고 적혀 있음
 
 ### 정한 것 (2026-11-12, 사용자)
-1. 원천: **공식 좌표 + 이름 보정** (ccib.json 그대로, 보이는 이름만 `ccib.labels.json`) → 결정 [005](../decisions/005-wayfinding-on-the-official-plan.md)
+1. 원천: **공식 좌표 + 이름 보정** (ccib.json 그대로, 보이는 이름만 `ccib.labels.json`) → 결정 [005](../../decisions/005-wayfinding-on-the-official-plan.md)
 2. 09 배치: **Figma대로** (안내 목록이 위, 3D는 그 아래 평면도 자리, 하단 I'm here)
 3. 문장: **짧은 줄**, 테스트는 프로토타입과 같은 내용인지 확인
 
@@ -103,7 +103,7 @@
   - 113 → Posters: "Exit left into Foyer 1" / "**Escalator down to P0**" / "Walk along the P0 concourse" / "Posters on your left" — 계단 대신 에스컬레이터
   - Entrance Hall → 121 (step-free): "… / **Elevator 3 up to P1** / … / Room 121 on your left" — 프로토타입은 Elevator 2
   - 피드 방 모든 쌍 × 걷기/step-free 2,000개 이상: 모두 방에서 끝나고, step-free는 에스컬레이터 0
-- 3D가 끊김 없이: 헤드리스 Chrome 390×844, **CPU 4배 느리게**, 움직이는 점이 도는 동안 3초에 181장, 프레임 간격 중앙값 16.7 ms · p95 16.8 ms · 50 ms 넘는 프레임 0 (`tests/venue/directions-check.mjs`). 폰 실기기는 확인 안 함
+- 3D가 끊김 없이: 헤드리스 Chrome 390×844, **CPU 4배 느리게**, 움직이는 점이 도는 동안 3초에 181장, 프레임 간격 중앙값 16.7 ms · p95 16.8 ms · 50 ms 넘는 프레임 0 (`tests/legacy/venue/directions-check.mjs`). 폰 실기기는 확인 안 함
 - 3D는 09에서만: Today에서는 `view3d-*.js` 요청 0, 09를 열면 1. 09를 연 뒤 83 ms에 첫 그림
 - WebGL context 잃음 → 복구 → 108 ms 뒤 다시 그림. 동작 줄이기: 멈춘 뒤 1.5초에 0장
 - Change → 09-1 → Room 133 → 09 "From Room 133", 뒤로 한 번에 샘플 하루. 이미 고른 줄을 다시 눌러도 09로
@@ -119,7 +119,7 @@
 
 - 교차 검토(결론을 모르는 새 에이전트, 재현한 것만) 5건 모두 고침, 테스트를 먼저 넣어 실패를 확인한 뒤:
   - 좌표 없는 곳(오디토리움·Connecting Walkway): 왼쪽/오른쪽·pass 없이 "Take the Connecting Walkway to the Auditorium · about 120 m" → "Auditorium entrance", 3D는 "No floor plan for the Auditorium". 오디토리움에서 시작하면 출구 기준 "Leave the Auditorium · take the Connecting Walkway to Access A · about 120 m", 3D는 Access A에 "You come out here". 좌표 없는 곳을 지나는 모든 경로에서 방향 단어 0 (테스트). 플래너 걷는 시간은 이미 통로 116.8 m 포함 (테스트로 고정)
-  - 09를 연 채 경로가 바뀌거나 새 revision이 와도 3D가 다시 그림 (경로마다 새 canvas). `tests/venue/revision-check.mjs`(가짜 revision 2): 고치기 전 2개 실패 → 통과
+  - 09를 연 채 경로가 바뀌거나 새 revision이 와도 3D가 다시 그림 (경로마다 새 canvas). `tests/legacy/venue/revision-check.mjs`(가짜 revision 2): 고치기 전 2개 실패 → 통과
   - 09-1에서 고른 출발점은 09를 떠나면(I'm here 포함) 지움: 다시 열면 From Registration (헤드리스)
   - 같은 방은 "Same room", 같은 구역은 "Same area", Directions 버튼 숨김 (`walkNote`, 테스트)
   - `directions-check.mjs`가 중간에 멈추면 "FAIL: stopped: …" (전에는 PASS 출력)
@@ -150,7 +150,7 @@
 - 학회장이 바뀌면 데이터 3개만: `<venue>.json`(PDF), `<venue>.labels.json`(이름), `<edition>.json`(방·층·장소). `npm run data:venue:check <edition>`
 - 안내 문장은 `directions(venue, labels, route(...))`. 화면 밖(S6 등)에서도 같은 함수
 - 3D를 다른 화면에서 쓰려면 `import('../venue/view3d.js')`의 `mount(canvas, { venue, route, summary, reduceMotion })`, 꼭 `dispose()`
-- 헤드리스 확인: `npm run build && node --experimental-websocket tests/venue/directions-check.mjs [스크린숏 폴더]` (WebGL은 SwiftShader), 09를 연 채 경로·revision이 바뀌는 경우는 `tests/venue/revision-check.mjs`
+- 헤드리스 확인: `npm run build && node --experimental-websocket tests/legacy/venue/directions-check.mjs [스크린숏 폴더]` (WebGL은 SwiftShader), 09를 연 채 경로·revision이 바뀌는 경우는 `tests/legacy/venue/revision-check.mjs`
 - 좌표 없는 장소(예: 2027 학회장의 별관)는 평면도 그래프에 이름 있는 연결과 거리만 있으면 됨: directions가 그 구간을 한 줄로, 3D는 "No floor plan for …"
 
 ## ⑥ 비용·토큰

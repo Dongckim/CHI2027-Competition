@@ -19,8 +19,8 @@
   - 시간 범위: 걷기 1.3/0.9 m/s + 에스컬레이터 층당 20–40초, 엘리베이터 대기 30–120초 + 층당 10초
   - 경로 안내(`stops`): 복도 이름 대신 눈에 보이는 랜드마크 순서. 꺾는 곳마다, 직선은 25m마다 하나 (WC > 에스컬레이터 > 엘리베이터 > 방 번호 순), 다른 정지점과 12m 안이면 생략
     - 예: 117 → Escalator P1→P2 → Banquet Hall → 212 → 211 / 휠체어: 117 → Elevators → 114 → Elevator P1→P2 → 211
-- 브라우저 확인: `npm run bench` → http://localhost:5173/tests/venue/bench.html (Figma 09 배치를 흉내 낸 확인용 페이지, `?from=P1-117&to=P2-211&wheelchair=1`)
-- 확인: `node tests/venue/try.mjs 111 211 [--wheelchair] [--json]`, 테스트 `tests/venue/route.test.mjs`
+- 브라우저 확인: `npm run bench` → http://localhost:5173/tests/legacy/venue/bench.html (Figma 09 배치를 흉내 낸 확인용 페이지, `?from=P1-117&to=P2-211&wheelchair=1`)
+- 확인: `node tests/legacy/venue/try.mjs 111 211 [--wheelchair] [--json]`, 테스트 `tests/venue/route.test.mjs`
 
 ## 통과 기준
 1. 손 계산 5개 구간 오차 범위 이내

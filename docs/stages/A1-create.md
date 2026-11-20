@@ -14,7 +14,7 @@
 | 헤드리스 Chrome 390×844, CPU 4배: 01 → 12를 클릭만으로 | **14/14** (create-check, 간격 두고 5회 연속 통과. 바로 이어 돌린 1회는 앞 서버가 꺼지기 전이라 첫 단계 실패) |
 | `npm test` | 123/123 |
 | `npm run typecheck` · `npm run contracts:check` | 통과 · 8/8 |
-| 옛 플래너 직접 주소 (`tests/venue/entry-check.mjs`) | PASS: all checks |
+| 옛 플래너 직접 주소 (`tests/legacy/venue/entry-check.mjs`) | PASS: all checks |
 | 첫 화면 JS+CSS (gzip) | **114.5 KB → 86.8 KB** (Arc 화면·Legacy를 따로 받는 조각으로) |
 | 10 → 11 (Build my Arc부터, CPU 4배) | 2.6초 (Figma "약 3초", 최소 3초로 맞춤) |
 | 에셋 | SVG 84개 54.6 KB (gzip 32 KB), PNG 0개, 빌드에 들어간 것 58개, 서비스 워커 precache 31 → 89개 |

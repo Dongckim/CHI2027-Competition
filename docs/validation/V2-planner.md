@@ -12,7 +12,7 @@
   - 하루(개최지 현지 날짜) 안에서 가중 구간 스케줄링(동적 계획법). 앞 발표가 끝나고 이동 시간 안에 다음 방에 도착할 수 있을 때만 이어 붙임
   - 같은 방은 이동 0분. 다른 방은 평면도 경로의 느린 쪽 분 (`venueTravelMinutes`, V6 #7). 학회장 그래프가 없는 연도(chi2025 등)·방은 임시값 (같은 층 4분, 다른 층 7분, 휠체어 ×1.5 + 3분)
   - 겹치는 발표는 정차마다 대안 최대 2개를 conflicts에, 원격 전용·다른 날·없는 키는 skipped에 이유와 함께
-- 테스트 `tests/planner/plan.test.mjs`, 성능 `node tests/planner/bench.mjs`
+- 테스트 `tests/planner/plan.test.mjs`, 성능 `node tests/legacy/planner/bench.mjs`
 
 ## 통과 기준
 1. 일부러 만든 어려운 사례 10개 정답

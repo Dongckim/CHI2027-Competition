@@ -5,7 +5,7 @@
 ## 계획 (A)
 
 ### 1. 플래너를 앱에서 쓰는 방법
-- 같은 코드: `app/src/planner/plan.js`의 `planDay` (tests/planner/try.mjs가 부르는 것)
+- 같은 코드: `app/src/planner/plan.js`의 `planDay` (tests/legacy/planner/try.mjs가 부르는 것)
 - `app/src/today/plan-days.js`의 `planDays({ index, travelMinutes, days }, response, plan)` → 날짜마다 `{ day, stops, conflicts, skipped }`
   - 입력 = 추천 items (`candidatesFor`: 꺼진 주제·볼 종류로 거름) + 계획: 날짜(고른 날만), 필요한 것(step-free → 휠체어 경로, fewer room changes → 이동 비용 ×3), How full(`limitStops` 4/6/8)
   - 샘플 하루(`plan = null`): 추천 전부, 필요한 것·한도 없음

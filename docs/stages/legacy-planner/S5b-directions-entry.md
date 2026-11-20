@@ -26,7 +26,7 @@ S5의 09는 Today 맨 위 카드에서만 열렸다. 이 카드는 실제 오늘
   - "1–1 min" → "1 min"(`card.js` `minutesText`, 09와 Today 카드가 같이 씀)
 
 ## ② 통과 기준 결과
-- `tests/venue/entry-check.mjs`(헤드리스, 직접 만든 계획, 실제 시계 = 학회 날 아님, Today 맨 위 카드 없음): 구현 전 4개 실패 → 통과
+- `tests/legacy/venue/entry-check.mjs`(헤드리스, 직접 만든 계획, 실제 시계 = 학회 날 아님, Today 맨 위 카드 없음): 구현 전 4개 실패 → 통과
   - 하루 목록 두 번째 정차 → 09 "From Room 130 · to Room 134"
   - 첫 정차 → "From Registration"
   - 06 → 09

@@ -15,7 +15,7 @@
   - `sessionContext(data, sessionKey)`: 세션의 공개 프로그램 데이터로 Soniox `context` 생성. 저자 이름·제목의 약어/합성어(VR, LLM, GuideMe)를 `terms`, 이름은 번역에서도 그대로(`translation_terms`), 제목 목록은 `text`. 10,000자 제한 안으로 자름
   - `createCaptions()`: 확정 토큰은 이어 붙이고 미확정은 바꿔 끼움. 원문·번역 각각 **마지막 3줄만** 화면에(줄바꿈은 브라우저가, 한국어는 단어 단위), 스트림당 1,000자 넘는 옛 텍스트는 버림. 종료 시 `clear()`
   - 문단: 말이 멈추면 Soniox가 `<end>`를 보냄(endpoint detection) → 다음 발화는 새 줄에서 시작. 발화자 분리를 켜면 사람이 바뀔 때도 새 줄 + `S2:`. 실제 응답(en↔ko 합성 음성 3발화)으로 확인: 발화마다 한 문단
-- `tests/captions/bench.html` (`.env.local`에 `SONIOX_API_KEY=...` 저장 후 `npm run bench` → http://localhost:5173/tests/captions/bench.html)
+- `tests/legacy/captions/bench.html` (`.env.local`에 `SONIOX_API_KEY=...` 저장 후 `npm run bench` → http://localhost:5173/tests/legacy/captions/bench.html)
   - 세션 선택(용어집), 번역 언어(기본 한국어), 용어집 켜기/끄기(O/X 비교용)
   - 마이크 → `MediaRecorder` 120ms 조각 → Soniox `stt-rt-v5`, `audio_format: auto`. 스피커 소리를 받으므로 에코 제거·잡음 제거는 끔
   - 키는 WebSocket protocols 목록으로 보냄 (시작 메시지의 `api_key`는 2027-01-15부터 거부됨)
@@ -23,7 +23,7 @@
   - 화면 켜짐 유지(Wake Lock), 화면 꺼짐·앱 전환·연결 끊김 횟수
   - 측정값: 지연 = 녹음 시작 후 경과 시간 − 가장 최근 단어가 오디오에서 끝난 시각(`end_ms`). 처음 보이는 글자(미확정)와 확정 글자 따로, 중앙값/90%
   - 저장 없음. Stop을 누르면 자막을 지우고 숫자만 화면에 남김
-- 대면 대화 모드 `tests/captions/conversation.html`: 휴대폰을 두 사람 사이에 눕히고 위쪽 절반은 180° 돌려 맞은편 사람을 향함
+- 대면 대화 모드 `tests/legacy/captions/conversation.html`: 휴대폰을 두 사람 사이에 눕히고 위쪽 절반은 180° 돌려 맞은편 사람을 향함
   - 각자 자기 쪽에서 언어 선택 (Soniox stt-rt-v5가 지원하는 60개, `app/src/captions/soniox-languages.json`, 각 언어를 그 언어로도 표시)
   - Soniox 양방향 번역(`two_way`) + 언어 식별. 발화자 분리 대신 **언어로 나눔**: 원문 토큰은 말한 언어, 번역 토큰은 번역된 언어가 붙어 오므로 (실제 응답으로 확인, en↔ko 합성 음성)
   - 각자 화면: 상대가 한 말을 내 언어로 (큰 글씨 3줄) + 내가 한 말이 어떻게 들렸는지 (작게 1줄)
@@ -42,7 +42,7 @@
 | 용어집 크기 | chi2026 발표 세션 243개 모두 제한 안 (최대 6,700자, 용어 중앙값 36개, 제목 잘림 0) | 통과 |
 | 비용 (계산) | 1시간 $0.12. 하루 세션 4블록 × 1.5시간 = 6시간 → **1인 하루 $0.72** | 예산 정해지면 판정 |
 | 실제 연결 | 노트북 Chrome: 임시 키 발급 → WebSocket(protocols 인증) → 영어 자막 + 한국어 번역 표시 (2026-10-22) | 통과 |
-| 지연 (합성 음성) | 영어 25초를 실제 속도로 직접 전송 (`tests/captions/latency.py`): 처음 보이는 글자 **0.41초** (90% 0.46) · 확정 4.5초 (번역 없이) / 번역 켜면 확정 0.45초 · 번역은 원문 확정 뒤 **0.48초** (90% 0.57) | 통과 (기준 약 2초) |
+| 지연 (합성 음성) | 영어 25초를 실제 속도로 직접 전송 (`tests/legacy/captions/latency.py`): 처음 보이는 글자 **0.41초** (90% 0.46) · 확정 4.5초 (번역 없이) / 번역 켜면 확정 0.45초 · 번역은 원문 확정 뒤 **0.48초** (90% 0.57) | 통과 (기준 약 2초) |
 | 문단 나눔 | 실제 응답 3발화 → 3문단 (원문·번역 모두) | 통과 |
 | 대면 대화 언어 분리 | 실제 응답(en↔ko): 원문 토큰 = 말한 언어, 번역 토큰 = 번역된 언어 → 양쪽 화면 정확히 분리 | 통과 |
 | 용어·번역 품질·끊김 (발표 영상, 마이크) | 측정 전 | 대기 |
