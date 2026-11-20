@@ -1,5 +1,5 @@
 // Phone check: 09's 3D plan survives its route changing while it is open. Starts and stops its own vite preview.
-// npm run build && node --experimental-websocket tests/venue/revision-check.mjs
+// npm run build && node --experimental-websocket tests/legacy/venue/revision-check.mjs
 //   - in place: 09 for one talk → 09 for another (same screen, new route) → the plan draws the new route
 //   - a new programme revision arrives while 09 is open (version.json says revision 2; the revision file is held back
 //     until the plan has drawn, then let through) → the plan draws again, the WebGL context is not lost
@@ -19,7 +19,7 @@ const ws = new WebSocket(targets.find(t => t.type === 'page').webSocketDebuggerU
 await new Promise(r => ws.addEventListener('open', r));
 let id = 0; const pending = new Map(); const errors = [], paused = [];
 const send = (method, params = {}) => new Promise(r => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
-const feedBody = readFileSync(new URL('../../data/raw/chi2026/rev-001.json', import.meta.url)).toString('base64');
+const feedBody = readFileSync(new URL('../../../data/raw/chi2026/rev-001.json', import.meta.url)).toString('base64');
 const json = { responseCode: 200, responseHeaders: [{ name: 'Access-Control-Allow-Origin', value: '*' }, { name: 'Content-Type', value: 'application/json' }] };
 let holdRevision = true;
 ws.addEventListener('message', e => {

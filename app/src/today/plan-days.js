@@ -1,5 +1,5 @@
 // Recommendation + plan → one planned day per conference day, with the existing planner (app/src/planner/plan.js,
-// the same code tests/planner/try.mjs runs). Pure. Used by Today for every mode.
+// the same code tests/legacy/planner/try.mjs runs). Pure. Used by Today for every mode.
 import { planDay, TRAVEL_COST_PER_MIN } from '../planner/plan.js';
 import { candidatesFor, limitStops, HOW_FULL } from '../state/device.js';
 import { applyEdits, NO_EDITS } from './edits.js';

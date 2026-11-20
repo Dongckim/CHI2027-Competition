@@ -1,17 +1,17 @@
 // Walking time between two rooms, to eyeball data/venue/ccib.json.
-// Usage: node tests/venue/try.mjs <from> <to> [--wheelchair] [--json] [--edition chi2026]
+// Usage: node tests/legacy/venue/try.mjs <from> <to> [--wheelchair] [--json] [--edition chi2026]
 // A room is an area id (P1-111), a feed room key (chi2026:12303), a feed room name ("P1 - Room 111") or a short name (111, M215, "VIP Room").
 import { readFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
-import { route, stopsText } from '../../app/src/venue/route.js';
+import { route, stopsText } from '../../../app/src/venue/route.js';
 
 const { values: opt, positionals } = parseArgs({
   allowPositionals: true,
   options: { wheelchair: { type: 'boolean', default: false }, json: { type: 'boolean', default: false }, edition: { type: 'string', default: 'chi2026' } },
 });
-if (positionals.length !== 2) { console.error('Usage: node tests/venue/try.mjs <from> <to> [--wheelchair] [--json] [--edition chi2026]'); process.exit(1); }
+if (positionals.length !== 2) { console.error('Usage: node tests/legacy/venue/try.mjs <from> <to> [--wheelchair] [--json] [--edition chi2026]'); process.exit(1); }
 
-const read = path => JSON.parse(readFileSync(new URL(`../../data/${path}`, import.meta.url)));
+const read = path => JSON.parse(readFileSync(new URL(`../../../data/${path}`, import.meta.url)));
 const edition = read(`venue/${opt.edition}.json`);
 const venue = read(`venue/${edition.venue}.json`);
 let feedRooms = [];

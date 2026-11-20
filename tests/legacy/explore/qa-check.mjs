@@ -5,7 +5,7 @@
 //   12 06: a slow abstract of the talk opened before does not overwrite the talk shown now
 //   13 browsing (no plan): Explore does not run the planner (time to the first screen, CPU 4x slower)
 //   16 06 highlight is underlined (2px) as well as coloured, light and dark, and stays a <mark>
-// npm run build && node --experimental-websocket tests/explore/qa-check.mjs   (starts and stops its own vite preview)
+// npm run build && node --experimental-websocket tests/legacy/explore/qa-check.mjs   (starts and stops its own vite preview)
 // Exit code 1 when a check fails.
 import { spawn } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -13,7 +13,7 @@ import { tmpdir } from 'node:os';
 const PORT = 4320, BASE = `http://localhost:${PORT}/`;
 const CHROME = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const appData = new URL('../../data/build/app-data/chi2026/', import.meta.url);
+const appData = new URL('../../../data/build/app-data/chi2026/', import.meta.url);
 const { path: dataPath } = JSON.parse(readFileSync(new URL('current.json', appData)));
 const abstracts = day => JSON.parse(readFileSync(new URL(`${dataPath}abstracts/${day}.json`, appData)));
 

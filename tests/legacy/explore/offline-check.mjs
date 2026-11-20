@@ -1,13 +1,13 @@
 // Explore offline after one visit (S4): open Today (the sample day) online, wait until the idle prefetch put
 // people.json, institutions.json and topics.json in the service worker cache, stop the server (= airplane mode for
 // the app), reload on #/explore and search "CMU". Also checks "CMU = … · Other CMUs" → the filter screen's list.
-// npm run build && node --experimental-websocket tests/explore/offline-check.mjs   (starts and stops its own vite preview)
+// npm run build && node --experimental-websocket tests/legacy/explore/offline-check.mjs   (starts and stops its own vite preview)
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { readFileSync } from 'node:fs';
 // Talks for the abstract checks, from the built app data: the sample day's planned talk (Tue 14), a talk whose
 // abstract file is another day (not prefetched), and a talk with no abstract in the programme.
-const appData = new URL('../../data/build/app-data/chi2026/', import.meta.url);
+const appData = new URL('../../../data/build/app-data/chi2026/', import.meta.url);
 const { path: dataPath } = JSON.parse(readFileSync(new URL('current.json', appData)));
 const abstractsOf = day => JSON.parse(readFileSync(new URL(`${dataPath}abstracts/${day}.json`, appData)));
 const PLANNED = 'chi2026:221879'; // first item of the sample day's recommendations, on 2026-04-14

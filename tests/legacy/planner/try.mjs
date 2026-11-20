@@ -1,25 +1,25 @@
 // Print day routes for a candidate list, to eyeball the planner. The planner does not recommend:
 // candidates come from the recommender (recsys/) or are picked by hand.
-// Usage: node tests/planner/try.mjs <candidates.json> [--day 2026-04-14] [--wheelchair] [--edition chi2026]
+// Usage: node tests/legacy/planner/try.mjs <candidates.json> [--day 2026-04-14] [--wheelchair] [--edition chi2026]
 // candidates.json: [{ "paperKey": "chi2026:223509", "relevance": 0.9 }, ...]  (relevance 0..1)
 import { readFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
-import { indexData, localDay, planDay, venueTravelMinutes } from '../../app/src/planner/plan.js';
+import { indexData, localDay, planDay, venueTravelMinutes } from '../../../app/src/planner/plan.js';
 
 const { values: opt, positionals } = parseArgs({
   allowPositionals: true,
   options: { day: { type: 'string' }, wheelchair: { type: 'boolean', default: false }, edition: { type: 'string', default: 'chi2026' } },
 });
-if (positionals.length !== 1) { console.error('Usage: node tests/planner/try.mjs <candidates.json> [--day YYYY-MM-DD] [--wheelchair] [--edition chi2026]'); process.exit(1); }
+if (positionals.length !== 1) { console.error('Usage: node tests/legacy/planner/try.mjs <candidates.json> [--day YYYY-MM-DD] [--wheelchair] [--edition chi2026]'); process.exit(1); }
 const candidates = JSON.parse(readFileSync(positionals[0]));
 const bad = Array.isArray(candidates) ? candidates.filter(c => typeof c?.paperKey !== 'string' || !(c.relevance >= 0 && c.relevance <= 1)) : [candidates];
 if (bad.length) { console.error(`each item needs paperKey (string) and relevance (0..1): ${JSON.stringify(bad.slice(0, 3))}`); process.exit(1); }
 
-const load = f => JSON.parse(readFileSync(new URL(`../../data/build/${opt.edition}/${f}.json`, import.meta.url)));
+const load = f => JSON.parse(readFileSync(new URL(`../../../data/build/${opt.edition}/${f}.json`, import.meta.url)));
 const data = { meta: load('meta'), papers: load('papers'), sessions: load('sessions'), rooms: load('rooms') };
 const index = indexData(data);
 const tz = data.meta.timeZone;
-const venueFile = f => JSON.parse(readFileSync(new URL(`../../data/venue/${f}.json`, import.meta.url)));
+const venueFile = f => JSON.parse(readFileSync(new URL(`../../../data/venue/${f}.json`, import.meta.url)));
 const edition = venueFile(opt.edition);
 // walking times from the floor plan when the edition has one (V6), otherwise the floor guess
 const travelMinutes = edition.venue ? venueTravelMinutes(venueFile(edition.venue), edition) : undefined;

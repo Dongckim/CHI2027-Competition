@@ -1,6 +1,6 @@
 // Phone check (S5b): every way into 09 works with a plan made on this phone, on the real clock (not a conference day,
 // so Today has no top card). Starts and stops its own vite preview.
-// npm run build && node --experimental-websocket tests/venue/entry-check.mjs
+// npm run build && node --experimental-websocket tests/legacy/venue/entry-check.mjs
 //   - Today's day list: a stop's ⋯ → Directions → 09 for that talk; the first stop starts at Registration, the next one
 //     at the stop before
 //   - 06 Talk → Directions; 05 search: a talk's Directions, a room number and a facility ("toilet") with Directions

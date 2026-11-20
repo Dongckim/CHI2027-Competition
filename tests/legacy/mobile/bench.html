@@ -287,12 +287,12 @@ $('kbd-input').onfocus = () => setTimeout(() => {
   put('kbd', '입력창이 키보드 위에 보임 (자동)', box.bottom <= visibleBottom + 1 ? '예' : '아니오 (가려짐)');
 }, 1000);
 
-// 8. planner speed on the phone (same runs as tests/planner/bench.mjs)
+// 8. planner speed on the phone (same runs as tests/legacy/planner/bench.mjs)
 $('plan').onclick = async () => {
   $('plan').disabled = true;
   put('plan', '상태', '데이터 받는 중…');
   try {
-    const { indexData, localDay, planDay, venueTravelMinutes } = await import('../../app/src/planner/plan.js');
+    const { indexData, localDay, planDay, venueTravelMinutes } = await import('../../../app/src/planner/plan.js');
     const get = p => fetch(`../../data/${p}`).then(r => { if (!r.ok) throw new Error(`${p} ${r.status}`); return r.json(); });
     const t = performance.now();
     const [meta, papers, sessions, rooms, ed] = await Promise.all(['meta', 'papers', 'sessions', 'rooms'].map(f => get(`build/chi2026/${f}.json`)).concat(get('venue/chi2026.json')));

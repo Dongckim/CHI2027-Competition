@@ -88,7 +88,7 @@
 <p class="muted">Room names: programme data © ACM CHI 2026, licensed under CC BY-NC-SA 4.0. Room sizes and positions: CCIB "Floorplans &amp; capacities" (2026). Walking times are estimates.</p>
 
 <script type="module">
-import { route } from '../../app/src/venue/route.js';
+import { route } from '../../../app/src/venue/route.js';
 
 const get = path => fetch(`../../data/${path}`).then(r => (r.ok ? r.json() : null));
 const edition = await get('venue/chi2026.json');

@@ -1,6 +1,6 @@
 # V4 latency without a microphone: stream a 16 kHz mono WAV to Soniox at real-time pace and time the replies.
 # Usage: say -v Samantha -o talk.aiff "…" && afconvert -f WAVE -d LEI16@16000 -c 1 talk.aiff talk.wav
-#        python3 tests/captions/latency.py .env.local talk.wav   (pip install websockets)
+#        python3 tests/legacy/captions/latency.py .env.local talk.wav   (pip install websockets)
 # Delay = wall time since the first chunk − end of the newest word in the audio (end_ms), as on the bench page.
 import asyncio, json, sys, time, wave, statistics, websockets
 key = [l.split('=',1)[1].strip() for l in open(sys.argv[1]) if l.startswith('SONIOX_API_KEY=')][0]

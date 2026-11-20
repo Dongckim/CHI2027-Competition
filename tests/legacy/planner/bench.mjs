@@ -1,14 +1,14 @@
 // V2 timing: planDay per conference day, with top-50 / top-200 recommendations and with every scheduled paper.
-// Usage: node tests/planner/bench.mjs [edition...]
+// Usage: node tests/legacy/planner/bench.mjs [edition...]
 import { readFileSync } from 'node:fs';
-import { indexData, localDay, planDay, venueTravelMinutes } from '../../app/src/planner/plan.js';
+import { indexData, localDay, planDay, venueTravelMinutes } from '../../../app/src/planner/plan.js';
 
 const out = {};
 for (const edition of process.argv.slice(2).length ? process.argv.slice(2) : ['chi2026', 'chi2025']) {
-  const load = f => JSON.parse(readFileSync(new URL(`../../data/build/${edition}/${f}.json`, import.meta.url)));
+  const load = f => JSON.parse(readFileSync(new URL(`../../../data/build/${edition}/${f}.json`, import.meta.url)));
   const data = { meta: load('meta'), papers: load('papers'), sessions: load('sessions'), rooms: load('rooms') };
   const index = indexData(data);
-  const venueFile = f => JSON.parse(readFileSync(new URL(`../../data/venue/${f}.json`, import.meta.url)));
+  const venueFile = f => JSON.parse(readFileSync(new URL(`../../../data/venue/${f}.json`, import.meta.url)));
   const ed = venueFile(edition);
   const travelMinutes = ed.venue ? venueTravelMinutes(venueFile(ed.venue), ed) : undefined;
   const scheduled = data.papers.filter(p => p.scheduled);

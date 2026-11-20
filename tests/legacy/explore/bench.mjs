@@ -1,10 +1,10 @@
 // Explore search speed on the real app data (data/build/app-data/<edition>/current path). Desktop node numbers;
 // the phone check is the same code in headless Chrome with the CPU slowed (docs/stages/S4-explore.md).
-// node tests/explore/bench.mjs ["query" ...]
+// node tests/legacy/explore/bench.mjs ["query" ...]
 import { readFileSync } from 'node:fs';
-import { buildSearchIndex, searchTalks, searchPeople, searchSessions, placeOf } from '../../data/scripts/search.mjs';
+import { buildSearchIndex, searchTalks, searchPeople, searchSessions, placeOf } from '../../../data/scripts/search.mjs';
 
-const root = new URL('../../data/build/app-data/chi2026/', import.meta.url);
+const root = new URL('../../../data/build/app-data/chi2026/', import.meta.url);
 const { path } = JSON.parse(readFileSync(new URL('current.json', root)));
 const read = f => JSON.parse(readFileSync(new URL(path + f, root)));
 const data = { schedule: read('schedule.json'), people: read('people.json'), topics: read('topics.json'), aliases: read('institutions.json') };

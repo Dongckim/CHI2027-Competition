@@ -1,5 +1,5 @@
 // Phone check of S4 (Explore, Filters, No results, Talk detail, Author) in headless Chrome: 390x844, CPU slowed 4x.
-// npm run build && npx vite preview --port 4317 &   then   node --experimental-websocket tests/explore/phone-check.mjs [screenshot dir]
+// npm run build && npx vite preview --port 4317 &   then   node --experimental-websocket tests/legacy/explore/phone-check.mjs [screenshot dir]
 // Prints timings (input → rendered results) and checks; screenshots go to the given dir (default: os tmpdir).
 import { spawn } from 'node:child_process';
 import { writeFileSync, readFileSync } from 'node:fs';
@@ -90,7 +90,7 @@ result.cleared = await ev(`!document.body.innerText.includes('Filters ·')`);
 // 06 Talk detail on the sample day (contract example response): the highlight must be the abstract's own characters.
 await send('Page.navigate', { url: BASE + '#/sample' });
 await waitFor(`document.body.innerText.includes('Preview')`, 30000);
-const example = JSON.parse(readFileSync(new URL('../../contracts/examples/RecommendResponse.chi2026-tuesday.json', import.meta.url)));
+const example = JSON.parse(readFileSync(new URL('../../../contracts/examples/RecommendResponse.chi2026-tuesday.json', import.meta.url)));
 const item = example.items.find(i => i.reasons.length);
 await send('Page.navigate', { url: BASE + '#/talk/' + item.paperKey });
 await waitFor(`document.body.innerText.includes('Why for you')`, 30000);

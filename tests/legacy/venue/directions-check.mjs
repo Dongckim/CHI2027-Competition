@@ -1,6 +1,6 @@
 // Phone check of S5 (09 Getting there, 09-1 Where are you now) in headless Chrome, 390x844. Starts and stops its own
 // (steps on the plan: Show step 1 / Next, one-finger drag, the view bar, the large plan sideways or from its button)
-// vite preview. npm run build && node --experimental-websocket tests/venue/directions-check.mjs [screenshot dir]
+// vite preview. npm run build && node --experimental-websocket tests/legacy/venue/directions-check.mjs [screenshot dir]
 //   - the 3D view (three.js) downloads only when 09 opens, and draws (canvas pixels, not blank)
 //   - frame times while the route dot moves, CPU slowed 4x (the "no stutter" check)
 //   - reduced motion: the view stops drawing once still; WebGL context lost → restored → drawn again
@@ -261,7 +261,7 @@ try {
   check('from the Auditorium: shown where you come out', /^1\. Leave the Auditorium · take the Connecting Walkway to Access A/.test(fromAud?.card ?? '') && !fromAud.noPlan && fromAud.sign === 'out' && fromAud.inArea === 'true' && fromAud.overlaps === 0, { fromAud, search: out.searchAuditorium });
   await shot('s5-09-from-auditorium');
   // 09 by place, not by talk (S5b): the nearest WC, a programme room by its key, Registration (where the walk starts).
-  const edition = JSON.parse(readFileSync(new URL('../../data/venue/chi2026.json', import.meta.url)));
+  const edition = JSON.parse(readFileSync(new URL('../../../data/venue/chi2026.json', import.meta.url)));
   const room127 = Object.keys(edition.rooms).find(k => edition.rooms[k] === 'P1-127');
   const openPlace = async id => {
     await send('Page.navigate', { url: `${BASE}#/directions/place/${id}` }); await waitFor(`location.hash === ${JSON.stringify(`#/directions/place/${id}`)}`); await send('Page.reload');
