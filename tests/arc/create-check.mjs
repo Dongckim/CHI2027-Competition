@@ -91,7 +91,9 @@ try {
   await click('See my Arc');
   const arcMs = await waitFor(`location.hash.startsWith('#/arc/') && document.querySelector('h1')?.innerText === 'Does VR fidelity raise presence?'`);
   const arcHash = await hash();
-  check('12 reached by clicks only', arcMs != null, { hash: arcHash });
+  const nodes = await ev(`[...document.querySelectorAll('main section')].map(s => s.querySelectorAll('li').length)`);
+  const stored = await ev(`new Promise(r => { const q = indexedDB.open('arc'); q.onsuccess = () => { const g = q.result.transaction('arcs').objectStore('arcs').getAll(); g.onsuccess = () => r(g.result.length); }; })`);
+  check('12 reached by clicks only, with talks under the angles, saved once', arcMs != null && nodes?.reduce((a, b) => a + b, 0) >= 3 && stored === 1, { hash: arcHash, nodesPerAngle: nodes, storedArcs: stored });
   await shot('12');
   await send('Page.reload'); await waitFor(`document.readyState === 'complete'`);
   check('reload keeps the Arc (IndexedDB)', (await waitFor(`location.hash === ${JSON.stringify(arcHash)} && document.querySelector('h1')?.innerText === 'Does VR fidelity raise presence?'`)) != null, {});

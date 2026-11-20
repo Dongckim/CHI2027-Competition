@@ -35,6 +35,7 @@ export function Building() {
       if (live) setCount(papers.filter(p => opts.types.includes(p.feedType) && (!opts.days.length || opts.days.includes(day(p)!))).length);
     }, () => {});
     warm().then(() => engine.buildArc(query, opts)).then(async arc => {
+      if (!live) return; // StrictMode runs this effect twice in dev: only the live run saves
       await saveArc(arc);
       await new Promise(r => setTimeout(r, Math.max(0, MIN_MS - (Date.now() - started))));
       if (!live) return;
