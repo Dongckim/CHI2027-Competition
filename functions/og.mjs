@@ -58,7 +58,7 @@ export default async function og(request) {
   try {
     const png = await ogPng(new URL(request.url).searchParams.get('d') ?? '');
     return new Response(request.method === 'HEAD' ? null : png, { headers: { 'content-type': 'image/png', 'cache-control': 'public, max-age=31536000, immutable' } });
-  } catch {
-    return new Response('no picture', { status: 503, headers: { 'cache-control': 'no-store' } }); // nothing from the request in any log
+  } catch (e) { // nothing from the request in any log; the reason (a file path, not the request) outside production
+    return new Response(process.env.VERCEL_ENV === 'production' ? 'no picture' : `no picture: ${e?.message ?? e}`, { status: 503, headers: { 'cache-control': 'no-store' } });
   }
 }
