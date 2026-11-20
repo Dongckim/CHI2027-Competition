@@ -30,5 +30,7 @@ export default defineConfig({
   publicDir: false,
   plugins: [react(), tailwindcss(), repoFiles()],
   server: { host: true, fs: { allow: [repo] } },
-  build: { outDir: '../dist', emptyOutDir: true },
+  // Final UI pictures (app/src/assets/arc) stay files, not data URLs inside the JS: the first screen's bundle must not grow,
+  // and each screen's pictures load with that screen (the service worker precaches them for offline).
+  build: { outDir: '../dist', emptyOutDir: true, assetsInlineLimit: file => (file.includes('/assets/arc/') ? false : undefined) },
 });

@@ -25,7 +25,7 @@
         "start": 422,
         "end": 696
       },
-      "debut": true
+      "debut": false
     },
     {
       "key": "chi2026:221906",
@@ -36,7 +36,7 @@
         "start": 0,
         "end": 157
       },
-      "debut": true
+      "debut": false
     },
     {
       "key": "chi2026:222168",
@@ -58,7 +58,7 @@
         "start": 0,
         "end": 138
       },
-      "debut": true
+      "debut": false
     },
     {
       "key": "chi2026:230068",

@@ -1,71 +1,46 @@
-import { useEffect } from 'react';
-import { useRoute, go, tabOf } from './router';
+import { lazy, Suspense, useEffect } from 'react';
+import { useRoute, go } from './router';
 import { useDevice } from './state/useDevice';
-import { startRoute } from './state/device.js';
-import { TabBar } from './components/TabBar';
-import { Today } from './screens/Today';
-import { Explore } from './screens/Explore';
-import { Filters } from './screens/Filters';
-import { Talk } from './screens/Talk';
-import { Person } from './screens/Person';
-import { Directions } from './screens/Directions';
-import { Questions } from './screens/Questions';
-import { Onboarding } from './screens/Onboarding';
-import { Building } from './screens/Building';
-import { Placeholder, isPlaceholder } from './screens/Placeholder';
-import { More } from './screens/More';
-import { Cleared } from './screens/Cleared';
-import { loadNote } from './state/useDevice';
-import { planWasHere } from './data/offline';
-import { setDemoNow, isDemo } from './clock';
-import { clearSimulated } from './data/programme';
-import { keepsSample } from './today/simulate.js';
+import { arcOf } from './arc/draft.js';
+import { Start, START_PAGES } from './screens/arc/Start';
 
-const TITLES = { today: 'Today', explore: 'Explore', questions: 'Questions' };
-const STEPS = ['research', 'topics', 'days', 'needs', 'summary', 'see', 'language', 'howfull'] as const;
+// Arc screens (decision 006). 01–06 load with the app (the first screen); every other screen is its own chunk, so the
+// first download does not grow with the app. The planner screens (Legacy) load only when their address is opened.
+const named = <K extends string>(load: () => Promise<Record<K, React.ComponentType<any>>>, name: K) => lazy(() => load().then(m => ({ default: m[name] }))); // eslint-disable-line @typescript-eslint/no-explicit-any
+const Ask = named(() => import('./screens/arc/Ask'), 'Ask');
+const Angles = named(() => import('./screens/arc/Angles'), 'Angles');
+const When = named(() => import('./screens/arc/When'), 'When');
+const Building = named(() => import('./screens/arc/Building'), 'Building');
+const Hood = named(() => import('./screens/arc/Hood'), 'Hood');
+const Home = named(() => import('./screens/arc/Home'), 'Home');
+const ArcMap = named(() => import('./screens/arc/ArcMap'), 'ArcMap');
+const Legacy = named(() => import('./Legacy'), 'Legacy');
+
+const TITLES: Record<string, string> = { start: 'Welcome', ask: 'Ask', angles: 'Choose your angles', when: 'When and what', building: 'Building your Arc',
+  hood: 'Your neighborhood', home: 'My Arcs', arc: 'My Arc' };
 
 export function App() {
   const route = useRoute();
   const state = useDevice();
-  const [head, step, edit, more] = route.split('/');
-  const tab = tabOf(route);
-  // Opening the app: a built plan → Today, browsing → Explore, otherwise back to the onboarding step that was left.
-  // Today and Questions need a plan (or "Just browse"); without one they send people to where onboarding stopped.
-  // Explore, a talk and a person open from anywhere (the magnifier, the sample day).
-  const misplaced = !route || (head === 'start' && !STEPS.includes(step as never)) || (!!tab && tab !== 'explore' && !state.builtAt && state.mode !== 'browse')
-    || (head === 'explore' && !!step && step.split('?')[0] !== 'filters') || (['talk', 'person', 'directions'].includes(head) && !step)
-    || (!tab && !['start', 'building', 'sample', 'more', 'cleared', 'talk', 'person', 'directions'].includes(head) && !isPlaceholder(head));
-  useEffect(() => { if (misplaced) go(startRoute(state), { replace: true }); }, [misplaced, state]);
-  // The demo clock belongs to the sample day (and the talks opened from it); anywhere else the real clock runs.
-  // The demo clock and a simulated programme change belong to the sample day (and screens opened from it).
-  useEffect(() => { if (!keepsSample(head, isPlaceholder(head))) { if (isDemo()) setDemoNow(null); clearSimulated(); } }, [head]);
-  // 03-J2: no usable plan here, but one was built on this phone (or the stored one could not be read).
-  useEffect(() => {
-    if (state.builtAt || state.mode) return;
-    if (loadNote === 'unreadable') go('cleared', { replace: true });
-    else if (loadNote === 'none') planWasHere().then(was => { if (was) go('cleared', { replace: true }); });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const screen = head === 'talk' ? 'Talk' : head === 'person' ? 'Author' : head === 'directions' ? (edit === 'from' ? 'Where are you now?' : 'Getting there') : step?.startsWith('filters') ? 'Filters' : tab ? TITLES[tab] : 'Plan your days';
-  useEffect(() => { document.title = `${screen} · ARC`; window.scrollTo(0, 0); }, [route, screen]);
+  const [head, step] = route.split('/');
+  const { onboarded } = arcOf(state);
+  // Opening the app: first time → 01, afterwards → My Arcs.
+  useEffect(() => { if (!route) go(onboarded ? 'home' : 'start/1', { replace: true }); }, [route, onboarded]);
+  useEffect(() => { if (TITLES[head]) { document.title = `${TITLES[head]} · ARC`; window.scrollTo(0, 0); } }, [route, head]);
+  if (!route) return null;
 
-  if (misplaced) return null;
-  if (head === 'start') return <Onboarding step={step as (typeof STEPS)[number]} edit={edit === 'edit'} />;
-  if (head === 'building') return <Building />;
-  if (head === 'sample') return <Today mode="sample" />;
-  if (isPlaceholder(head)) return <Placeholder kind={head} paperKey={step} />;
-  if (head === 'more') { const [path, query] = route.split('?'); const [, d, r] = path.split('/'); return <More day={d} range={r} swap={new URLSearchParams(query).get('swap') ?? undefined} />; }
-  if (head === 'cleared') return <Cleared />;
-  if (head === 'talk') return <Talk paperKey={step} />;
-  if (head === 'person') return <Person personKey={step} />;
-  // 09 for a talk (#/directions/<paperKey>[/from]) or for a place (#/directions/place/<id>[/from], S5b)
-  if (head === 'directions') return step === 'place' ? <Directions target={`place/${edit ?? ''}`} sub={more} /> : <Directions target={step} sub={edit} />;
-  if (head === 'explore' && step?.startsWith('filters')) return <Filters place={new URLSearchParams(step.split('?')[1]).get('place') ?? undefined} />;
-  return (
-    <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col bg-bg">
-      <main className="flex-1 pb-[calc(var(--touch)+var(--safe-bottom)+16px)]">
-        {tab === 'today' ? <Today mode={state.builtAt ? 'plan' : 'none'} /> : tab === 'explore' ? <Explore /> : <Questions />}
-      </main>
-      <TabBar current={tab!} />
-    </div>
-  );
+  const screen = (() => {
+    switch (head) {
+      case 'start': return <Start page={START_PAGES.includes(step) ? step : '1'} />;
+      case 'ask': return <Ask />;
+      case 'angles': return <Angles />;
+      case 'when': return <When />;
+      case 'building': return <Building />;
+      case 'hood': return step ? <Hood id={step} /> : <Home />;
+      case 'home': return <Home />;
+      case 'arc': return step ? <ArcMap id={step} /> : <Home />;
+      default: return <Legacy />;
+    }
+  })();
+  return <Suspense fallback={<div className="min-h-dvh bg-arc-bg" />}>{screen}</Suspense>;
 }

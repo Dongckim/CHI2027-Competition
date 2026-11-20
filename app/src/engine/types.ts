@@ -13,7 +13,7 @@ export interface ArcNode {
   angle: Angle;
   label: string;             // short name for the map node, at most 24 characters
   evidence: Evidence | null; // abstract quote; null when not sure
-  debut: boolean;            // has an author new to CHI (data/scripts/debut.mjs)
+  debut: boolean;            // first author new to CHI (map/list ✦); 14 marks every new author from debut.json
 }
 
 export interface Arc {

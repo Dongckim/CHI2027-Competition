@@ -1,0 +1,13 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Holo ring" opacity="0.5">
+<circle cx="150" cy="150" r="150" fill="url(#paint0_radial_0_93)"/>
+<circle cx="150" cy="150" r="149.5" stroke="white" stroke-opacity="0.16"/>
+</g>
+<defs>
+<radialGradient id="paint0_radial_0_93" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(150 150) scale(150)">
+<stop stop-color="#7C5CFF" stop-opacity="0.55"/>
+<stop offset="0.7" stop-color="#7C5CFF" stop-opacity="0.3"/>
+<stop offset="1" stop-color="#7C5CFF" stop-opacity="0.05"/>
+</radialGradient>
+</defs>
+</svg>

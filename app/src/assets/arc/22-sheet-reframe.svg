@@ -1,0 +1,11 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame">
+<g id="Ellipse">
+<circle cx="20" cy="20" r="19" fill="#1C1B24"/>
+<circle cx="20" cy="20" r="18.5" stroke="white" stroke-opacity="0.08"/>
+</g>
+<g id="angle/reframe">
+<path id="Vector" d="M25.4 20C25.3969 21.2491 24.9609 22.4586 24.1662 23.4223C23.3714 24.3861 22.2672 25.0445 21.0415 25.2854C19.8158 25.5263 18.5445 25.3348 17.4441 24.7436C16.3437 24.1523 15.4824 23.1979 15.0068 22.0428C14.5311 20.8877 14.4707 19.6035 14.8357 18.4089C15.2007 17.2142 15.9686 16.1831 17.0085 15.4911C18.0485 14.7991 19.2962 14.489 20.5391 14.6137C21.782 14.7384 22.9432 15.2902 23.825 16.175M25.625 14V17.45H22.175" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke="#F4F6FF"/>
+</g>
+</g>
+</svg>

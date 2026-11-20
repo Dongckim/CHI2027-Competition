@@ -1,0 +1,13 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="84" height="84" viewBox="0 0 84 84" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Bubble ?">
+<circle cx="42" cy="42" r="42" fill="url(#paint0_radial_0_39)"/>
+<circle cx="42" cy="42" r="41.5" stroke="white" stroke-opacity="0.08"/>
+</g>
+<defs>
+<radialGradient id="paint0_radial_0_39" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(42 42) scale(42)">
+<stop stop-color="#7C5CFF" stop-opacity="0.95"/>
+<stop offset="0.55" stop-color="#7C5CFF" stop-opacity="0.6"/>
+<stop offset="1" stop-color="#7C5CFF" stop-opacity="0.22"/>
+</radialGradient>
+</defs>
+</svg>

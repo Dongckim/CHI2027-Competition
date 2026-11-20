@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { buildIndex, buildArc, angleTopics, suggest, labelOf, classify, candidates, CAPS } from '../../app/src/engine/mock-core.js';
+import { buildIndex, buildArc, angleTopics, suggest, labelOf, classify, candidates, tribesOf, CAPS } from '../../app/src/engine/mock-core.js';
 import { arcRuleErrors } from '../../contracts/check.mjs';
 import { buildCorpus } from './corpus.mjs';
 
@@ -15,7 +15,7 @@ const tiny = () => buildIndex({
   papers: [
     paper(1, 'Presence in VR: a study', 'We measure presence in VR. Presence rose with fidelity.'),
     paper(2, 'Fidelity and presence', 'Presence in VR matters. However, fidelity did not change presence.', 'chi2026:901', ['chi2026:2']),
-    paper(3, 'Older adults in VR', 'Interviews with older adults about VR and presence.'),
+    paper(3, 'Older adults in VR', 'Interviews with older adults about VR and presence.', 'chi2026:900', ['chi2026:1', 'chi2026:2']),
     paper(4, 'Unrelated', 'Nothing here about it.'),
   ],
 });
@@ -31,7 +31,8 @@ test('angles: T needs a contrast sentence about the question, and that sentence 
   const g = classify(i, 'presence in VR', candidates(i, 'presence in VR'));
   assert.deepEqual(g.T.map(n => n.key), ['chi2026:2']);
   assert.equal(g.T[0].evidence.sentence, 'However, fidelity did not change presence.');
-  assert.equal(g.T[0].debut, true);
+  assert.equal(g.T[0].debut, true); // first author is new
+  assert.ok(g.S.concat(g.R).filter(n => n.key === 'chi2026:3').every(n => n.debut === false)); // only a co-author is new
   assert.ok(!g.S.concat(g.R, g.T).some(n => n.key === 'chi2026:4'));
   const noT = classify(i, 'presence in VR', candidates(i, 'presence in VR'), { tension: false });
   assert.equal(noT.T.length, 0);
@@ -75,6 +76,19 @@ test('chi2026: Arcs for 5 questions pass the schema and the evidence rules; sugg
     const more = suggest(i, q, 'S', arc.nodes.map(n => n.key));
     assert.ok(more.every(n => n.angle === 'S' && !arc.nodes.some(m => m.key === n.key)));
   }
+  const counts = qs => qs.map(q => buildArc(i, q, { angles: ['S', 'R', 'T'], days: [], types: [] }, { id: 'arc-test-1', createdAt: 0 }))
+    .map(a => ['S', 'R', 'T'].map(x => a.nodes.filter(n => n.angle === x).length).join('/'));
+  assert.ok(new Set(counts(['presence', 'sign language', 'older adults loneliness', 'Does VR fidelity raise presence?'])).size > 1, 'counts follow the scores');
+  const tribes = tribesOf(i);
+  assert.equal(tribes.size, corpus.papers.length);
+  assert.ok([...tribes.values()].every(t => ['ai', 'xr', 'access', 'health', 'learning', 'society', 'devices', 'design'].includes(t.tribe)), 'every talk in one of the 8');
+  // The way the app builds (08 chips → topicIds): posters and demos in format-block sessions still come in
+  const t = angleTopics(i, 'presence');
+  const ids = ['S', 'R', 'T'].flatMap(a => t[a].slice(0, 2).map(x => x.id));
+  const ui = buildArc(i, 'presence', { angles: ['S', 'R', 'T'], topicIds: ids, days: [], types: ['Paper', 'Posters', 'Interactive Demos'] }, { id: 'arc-test-1', createdAt: 0 });
+  const kinds = new Set(ui.nodes.map(n => corpus.papers.find(p => p.key === n.key).type));
+  assert.ok(kinds.has('Posters'), `UI-path Arc has posters: ${[...kinds]}`);
+  assert.ok(Object.values(t).flat().every(x => !/^Posters \(|Interactivity Demos/.test(x.label)), 'no format-block chips');
   const crowded = buildArc(i, 'presence', { angles: ['S', 'R', 'T'], days: [], types: [] }, { id: 'arc-test-1', createdAt: 0, mode: 'crowded' });
   assert.ok(crowded.nodes.length > 9, `crowded has ${crowded.nodes.length}`);
 });

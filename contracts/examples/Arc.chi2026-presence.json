@@ -40,47 +40,36 @@
     },
     {
       "key": "chi2026:223439",
-      "angle": "S",
+      "angle": "R",
       "label": "Designing for Wayfindin…",
       "evidence": {
         "sentence": "We conducted a between-subjects study (N=142) in two high-fidelity VR hospital contexts, including free exploration and task-based wayfinding, while treating locomotion and viewpoint transitions as experimental factors.",
         "start": 276,
         "end": 495
       },
-      "debut": true
+      "debut": false
     },
     {
-      "key": "chi2026:222323",
+      "key": "chi2026:222572",
       "angle": "R",
-      "label": "When Hands Meet Physics…",
+      "label": "Balancing Accuracy and…",
       "evidence": {
-        "sentence": "Physics governs everyday interaction, yet in Virtual Reality (VR) the fidelity of such interactions can diverge from reality.",
+        "sentence": "Visual perspective is a crucial design factor in Virtual Reality (VR).",
         "start": 0,
-        "end": 125
+        "end": 70
       },
       "debut": true
     },
     {
-      "key": "chi2026:222328",
+      "key": "chi2026:229929",
       "angle": "R",
-      "label": "Defining Reality in Dem…",
+      "label": "Cudly",
       "evidence": {
-        "sentence": "We translate these insights into design implications for at-home IADL-focused VR systems that emphasize functional fidelity, adaptability, and collaborative use, grounding real-world relevance in the lived routines and caregiving ecosystems of PwD.",
-        "start": 929,
-        "end": 1177
+        "sentence": "In a within-subjects mixed-methods study (N=15, aged 60–86), participants completed three counterbalanced 10-min conditions (cushion-only, VR-only, XR-integrated), followed by standardised scales, presence, and interviews.",
+        "start": 465,
+        "end": 687
       },
-      "debut": true
-    },
-    {
-      "key": "chi2026:229441",
-      "angle": "R",
-      "label": "Rethinking Simulator Fi…",
-      "evidence": {
-        "sentence": "High-fidelity simulators are considered vital for evaluating user experience of future systems.",
-        "start": 0,
-        "end": 95
-      },
-      "debut": true
+      "debut": false
     },
     {
       "key": "chi2026:222304",
@@ -102,7 +91,7 @@
         "start": 242,
         "end": 336
       },
-      "debut": true
+      "debut": false
     }
   ],
   "tension": "found",

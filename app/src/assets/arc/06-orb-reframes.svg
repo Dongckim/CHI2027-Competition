@@ -1,0 +1,11 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Orb">
+<g id="Core">
+<circle cx="32" cy="32" r="23" fill="#1C1B24"/>
+<circle cx="32" cy="32" r="22.5" stroke="white" stroke-opacity="0.08"/>
+</g>
+<g id="Angle">
+<path id="Vector" d="M39.2 32C39.1959 33.6655 38.6145 35.2781 37.5549 36.5631C36.4952 37.8481 35.0229 38.726 33.3886 39.0472C31.7544 39.3684 30.0593 39.1131 28.5921 38.3248C27.125 37.5364 25.9765 36.2638 25.3423 34.7237C24.7082 33.1837 24.6276 31.4714 25.1142 29.8785C25.6009 28.2857 26.6248 26.9108 28.0114 25.9881C29.398 25.0655 31.0616 24.652 32.7188 24.8183C34.376 24.9846 35.9243 25.7203 37.1 26.9M39.5 24V28.6H34.9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke="#F4F6FF"/>
+</g>
+</g>
+</svg>

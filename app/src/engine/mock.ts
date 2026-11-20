@@ -12,6 +12,9 @@ export const MODE: Mode = MODES.includes(asked as Mode) ? (asked as Mode) : 'nor
 const DELAY_MS = 1200;
 const SLOW_MS = 5000;
 
+// Random id on the device. getRandomValues works on any origin; randomUUID needs https or localhost, and the phone opens
+// `npm run dev` over plain http on the LAN.
+export const newArcId = () => Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join('');
 const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
 let indexPromise: Promise<ReturnType<typeof core.buildIndex>> | null = null;
 
@@ -53,7 +56,7 @@ export const mockEngine: Engine = {
   tribeOf: query => answer(i => core.tribeOf(i, query) as { tribe: TribeId; confidence: number }),
   angleTopics: query => answer(i => core.angleTopics(i, query) as Record<Angle, AngleTopic[]>),
   buildArc: (query, opts) => answer(i => (core.buildArc as (...a: unknown[]) => unknown)(i, query, opts, { // mock-core.js is untyped JS
-    id: crypto.randomUUID(), createdAt: Date.now(), mode: MODE === 'slow' ? 'normal' : MODE,
+    id: newArcId(), createdAt: Date.now(), mode: MODE === 'slow' ? 'normal' : MODE,
   }) as Arc),
   suggest: (query, angle, excludeKeys, limit) => answer(i => core.suggest(i, query, angle, excludeKeys, limit) as ArcNode[]),
 };

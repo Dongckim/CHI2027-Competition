@@ -1,0 +1,16 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="45.6917" height="44.6833" viewBox="0 0 45.6917 44.6833" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="tribe/society" filter="url(#filter0_d_0_74)">
+<path id="Vector" d="M22.8458 14L25.55 19.5917L31.6917 20.3708L27.1542 24.5875L28.3458 30.6833L22.8458 27.6583L17.3458 30.6833L18.5375 24.5875L14 20.3708L20.1417 19.5917L22.8458 14Z" fill="#F49CCB"/>
+</g>
+<defs>
+<filter id="filter0_d_0_74" x="-2.15417" y="-2.01667" width="50" height="50" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset/>
+<feGaussianBlur stdDeviation="7"/>
+<feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 0.478431 0 0 0 0 0.776471 0 0 0 0.9 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_74"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_74" result="shape"/>
+</filter>
+</defs>
+</svg>
