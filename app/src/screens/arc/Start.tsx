@@ -9,7 +9,6 @@ import { TRIBES } from '../../arc/tribes.js';
 import { Screen, ArcButton, ArcLink, TextAction, Dots, Pic } from '../../components/arc';
 import holoRing from '../../assets/arc/welcome-holo-ring.svg';
 import innerRing from '../../assets/arc/welcome-inner-ring.svg';
-import arcMark from '../../assets/arc/glow-arc-mark.svg';
 import gAi from '../../assets/arc/glow-tribe-ai.svg';
 import gXr from '../../assets/arc/glow-tribe-xr.svg';
 import gAccess from '../../assets/arc/glow-tribe-access.svg';
@@ -19,6 +18,7 @@ import gSociety from '../../assets/arc/glow-tribe-society.svg';
 import gDevices from '../../assets/arc/glow-tribe-devices.svg';
 import gDesign from '../../assets/arc/glow-tribe-design.svg';
 import pathLine from '../../assets/arc/03-path-line.svg';
+import timeAxis from '../../assets/arc/03-time-axis.svg';
 import talk from '../../assets/arc/icon-talk.svg';
 import poster from '../../assets/arc/icon-poster.svg';
 import demo from '../../assets/arc/icon-demo.svg';
@@ -65,8 +65,8 @@ function Welcome() {
       bottom={<>
         <ArcButton onClick={() => { update(s => setFirstChi(s, true)); go('start/2'); }}>It's my first CHI</ArcButton>
         <ArcButton kind="secondary" onClick={() => { update(s => setFirstChi(s, false)); go('start/6'); }}>I've been before</ArcButton>
-        {/* Figma 11px; 12px is the floor */}
-        <p className="text-center text-[12px] font-medium whitespace-pre text-arc-text-3">{'Unofficial  ·  No account  ·  Stays on your phone'}</p>
+        {/* Figma 11px at x 33; 12px is the floor */}
+        <p className="pl-[9px] text-[12px] font-medium whitespace-pre text-arc-text-3">{'Unofficial  ·  No account  ·  Stays on your phone'}</p>
       </>}>
       <Frame top={120} height={340}>
         <img src={holoRing} alt="" style={at(45, 140, 300)} />
@@ -74,8 +74,7 @@ function Welcome() {
         {WELCOME_SHAPES.map(([src, x, y], i) => (
           <span key={i} style={at(x, y, 22)}><img src={src} alt="" className="absolute max-w-none" style={{ inset: '-53%', width: '206%', height: '206%' }} /></span>
         ))}
-        <span style={at(135, 242, 120, 70)}><img src={arcMark} alt="" className="absolute max-w-none" style={{ inset: '-19.29% -9.17%', width: '118.34%', height: '138.58%' }} /></span>
-        <p className="absolute w-[390px] text-center text-[14px] font-medium tracking-[0.14em]" style={{ top: 324 }}>ARC</p>
+        <p className="absolute w-[390px] text-center text-[14px] font-medium tracking-[0.14em]" style={{ top: 281.5 }}>ARC</p>{/* Figma 590:496: no arc stroke */}
       </Frame>
       <h1 className="mt-2 text-[30px] leading-9 font-semibold tracking-[-0.024em]">Bring one question.<br />Leave CHI with an answer.</h1>
       <p className="sr-only">{TRIBES.length} neighbourhoods of CHI research, each a colour and a shape.</p>
@@ -112,14 +111,16 @@ function WhatIsChi() {
 const PICKS = new Set(['0-2', '1-0', '2-3', '3-1']);
 function ADay() {
   return (
-    <Page dot={2} label="A day at CHI" title={['Ten talks at once.', 'You pick one path.']} next="start/4">
+    <Page dot={2} label="A day at CHI" title={['10+ talks run at once.', 'Pick one per time slot.']} next="start/4">
       <p className="sr-only">Many talks run at the same time; you choose one in each slot.</p>
-      <Frame top={330} height={244}>
+      <Frame top={330} height={272}>
         {Array.from({ length: 4 }, (_, c) => Array.from({ length: 6 }, (_, r) => (
-          <span key={`${c}-${r}`} style={at(24 + c * 84, 330 + r * 42, 66, 34)}
+          <span key={`${c}-${r}`} style={{ ...at(24 + c * 84, 330 + r * 42, 66, 34), opacity: r === 4 ? 0.55 : r === 5 ? 0.22 : undefined }}
             className={`rounded-[8px] ${PICKS.has(`${c}-${r}`) ? 'bg-white shadow-[var(--arc-shadow-lift)]' : 'border border-arc-line bg-arc-surface'}`} />
         )))}
         <img src={pathLine} alt="" style={at(0, 0, 390, 844)} />
+        <img src={timeAxis} alt="" style={at(24, 587, 282, 10)} />
+        <span className="absolute text-[12px] font-medium text-arc-text-3" style={{ left: 308, top: 584 }}>Time</span>{/* Figma 50%; 55% is the floor */}
       </Frame>
     </Page>
   );
@@ -130,12 +131,13 @@ function Formats() {
     [panel, 'Debate', 'Panel'], [meetup, 'Join', 'SIG & meetup'], [keynote, 'Zoom out', 'Keynote']];
   return (
     <Page dot={3} label="Formats" title={['Know what to do', 'where.']} next="start/5">
-      <ul className="grid grid-cols-2 gap-3">
+      <ul className="grid grid-cols-2 gap-3">{/* Figma 590:650…: 165×132 tiles, radius 20, fade from 6% white */}
         {cells.map(([icon, verb, name]) => (
-          <li key={name} className="flex min-h-[112px] flex-col gap-1.5 pt-4 pr-4 pb-3.5 pl-1">
-            <Pic src={icon} size={26} className="mb-2.5" />
-            <p className="text-[20px] font-semibold tracking-[-0.012em]">{verb}</p>
-            <p className="text-[13px] font-medium text-arc-text-3">{name}</p>
+          <li key={name} className="flex h-[132px] flex-col items-center justify-center rounded-[20px] px-2 text-center"
+            style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.06), rgba(255,255,255,0.03) 55%, rgba(255,255,255,0))' }}>
+            <Pic src={icon} size={26} />
+            <p className="mt-3 text-[20px] font-semibold tracking-[-0.012em]">{verb}</p>
+            <p className="mt-1 text-[13px] font-medium text-arc-text-3">{name}</p>
           </li>
         ))}
       </ul>

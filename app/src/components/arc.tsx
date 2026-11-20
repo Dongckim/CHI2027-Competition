@@ -67,7 +67,8 @@ export const BackButton = ({ href, onClick }: { href?: string; onClick?: () => v
   <IconButton icon={chevronLeft} label="Back" href={href} onClick={onClick ?? (href ? undefined : () => history.back())} />;
 
 /** Onboarding dots (6): the active one is a pill. Screen readers get "Step n of 6". */
-export function Dots({ at, total = 6 }: { at: number; total?: number }) {
+/** Onboarding dots: Figma draws 8 (02–06 are 1–5, 07 is 8). */
+export function Dots({ at, total = 8 }: { at: number; total?: number }) {
   return (
     <div className="flex items-center gap-1.5 px-2" role="img" aria-label={`Step ${at} of ${total}`}>
       {Array.from({ length: total }, (_, i) => <span key={i} className={`h-1.5 rounded-full ${i + 1 === at ? 'w-[18px] bg-arc-text' : 'w-1.5 bg-arc-text/25'}`} />)}

@@ -109,9 +109,11 @@ try {
   await waitFor(`/Editing/.test(document.body.innerText) && document.querySelectorAll('button[aria-label^="Remove "]').length > 1`, 20000);
   const before = ARCS.normal.nodes.length; // stored talks (the map may bundle some)
   await shot('15-closed');
-  const hintClear = await ev(`(() => { const p = [...document.querySelectorAll('main p')].find(p => p.innerText.startsWith('Tap a talk')); const r = p.getBoundingClientRect();
-    return ![...document.querySelectorAll('main button[aria-description] span')].some(s => { const q = s.getBoundingClientRect(); return q.height && q.bottom > r.top + 1 && q.top < r.bottom - 1 && q.right > r.left && q.left < r.right; }); })()`);
-  check('15 hint below the map, not over the labels', hintClear === true, {});
+  // Figma 15: a + for every angle (even a full one), none covering a − button
+  const adds = await ev(`(() => { const add = [...document.querySelectorAll('main button[aria-label^="Add a talk to "]')];
+    const rm = [...document.querySelectorAll('main button[aria-label^="Remove "]')].map(b => b.getBoundingClientRect());
+    return { n: add.length, clear: add.every(b => { const r = b.getBoundingClientRect(); return !rm.some(q => q.right > r.left + 1 && q.left < r.right - 1 && q.bottom > r.top + 1 && q.top < r.bottom - 1); }) }; })()`);
+  check('15 a + for every angle, clear of the − buttons', adds?.n === 3 && adds.clear, adds ?? {});
   await click(`document.querySelector('button[aria-label^="Remove "]')`);
   await click(`[...document.querySelectorAll('main button[aria-pressed]')].find(b => b.hasAttribute('aria-description'))`);
   const cardsMs = await waitFor(`[...document.querySelectorAll('section[aria-label=Swap] button')].some(b => b.getAttribute('aria-label')?.startsWith('Swap in'))`, 20000);

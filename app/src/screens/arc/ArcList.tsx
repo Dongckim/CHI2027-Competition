@@ -40,7 +40,7 @@ export function ArcList({ id }: { id: string }) {
                 <Pic src={ANGLE_ICON[a]} size={18} />{ANGLE_NAME[a]}
                 <span className="text-[12px] font-medium text-arc-text-3">{nodes.length}</span>
               </h2>
-              {a === 'T' && arc.tension === 'none' && <p className="text-[14px] text-arc-text/60">No clear challenge</p>}
+              {a === 'T' && arc.tension === 'none' && <p className="text-[14px] text-arc-text/60">No clear challenge at CHI this year.</p>}
               {nodes.map(n => {
                 const i = info(n.key), st = (states.get(n.key) ?? 'upcoming') as keyof typeof PREFIX;
                 return (

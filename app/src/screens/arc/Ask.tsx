@@ -10,6 +10,10 @@ import { TRIBE_ICON } from '../../arc/tribeIcons';
 import { useWarm, warm, useTribe, setPreviewTribe } from '../../arc/live';
 import { Screen, ArcButton, TextAction, Dots, BackButton, Pic } from '../../components/arc';
 import offline from '../../assets/arc/icon-offline.svg';
+import chevron from '../../assets/arc/icon-chevron-right.svg';
+
+// Figma 741:1586…: three starter questions under the input; one tap puts it in the box.
+const STARTERS: [TribeId, string][] = [['access', 'What is accessibility research asking now?'], ['ai', 'Which CHI work can I use in industry?'], ['design', 'My first CHI: how do I spend a day?']];
 
 const hasWords = (q: string) => /[\p{L}\p{N}]/u.test(q);
 
@@ -33,7 +37,7 @@ export function Ask() {
 
   return (
     <Screen label="Ask"
-      header={onboarded ? <BackButton href={href('home')} /> : <><Dots at={6} /><TextAction href={href('home')} onClick={e => { e.preventDefault(); update(setOnboarded); go('home'); }}>Skip</TextAction></>}
+      header={onboarded ? <BackButton href={href('home')} /> : <><Dots at={8} /><TextAction href={href('home')} onClick={e => { e.preventDefault(); update(setOnboarded); go('home'); }}>Skip</TextAction></>}
       bottom={<>
         <p className="flex items-center justify-center gap-1.5 text-[12px] font-medium text-arc-text-3" aria-live="polite">
           <Pic src={offline} size={16} />{warmState === 'ready' ? 'Ready offline' : warmState === 'failed' ? 'Needs a connection to get ready' : 'Getting ready for offline…'}
@@ -54,6 +58,17 @@ export function Ask() {
           </span>
         )}
       </div>
+      <p id="starters" className="mt-[26px] text-[12px] font-medium text-arc-text-3">Or start from one of these</p>
+      <ul className="mt-3 flex flex-col gap-2" aria-labelledby="starters">
+        {STARTERS.map(([tid, q]) => (
+          <li key={q}>
+            <button type="button" onClick={() => update(s => setQuery(s, q))}
+              className="flex h-[52px] w-full items-center gap-3 rounded-2xl border border-arc-line bg-arc-surface pr-3.5 pl-[15px] text-left text-[14px] font-medium tracking-[-0.006em] text-arc-text/85">
+              <Pic src={TRIBE_ICON[tid]} size={18} /><span className="min-w-0 flex-1 truncate">{q}</span><Pic src={chevron} size={16} />
+            </button>
+          </li>
+        ))}
+      </ul>
     </Screen>
   );
 }

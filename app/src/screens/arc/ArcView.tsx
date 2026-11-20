@@ -22,6 +22,8 @@ const SEATS: Record<Angle, number> = { S: 2, R: 3, T: 2 };
 const FREE: Record<Angle, [number, number][][]> = { // where an add slot goes when an angle has 0 / 1 / 2 talks (Edit)
   S: [[[66, 236]], [[66, 358]]], T: [[[324, 236]], [[324, 358]]], R: [[[195, 470]], [[252, 446]], [[195, 500]]],
 };
+// Figma 15 keeps a "+" for every angle; when its seats are full it sits here (Figma's add slots on the 390 map)
+const FULL: Record<Angle, [number, number]> = { S: [66, 236], T: [324, 236], R: [195, 395] }; // R: Figma's (195, 452) would cover the − of a third Reframe
 
 const BELOW = 80; // the bottom row's labels hang below the 530 box (Figma's labels are one line; real titles two)
 
@@ -88,18 +90,19 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
                 <span style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`line-clamp-2 text-center font-semibold ${st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
                   {node.debut && <span aria-hidden="true">✦ </span>}{i.title}{/* the whole title, cut to two lines (was the 24-character label) */}
                 </span>
-                {/* Figma 10px; 12px is the floor */}
-                <span style={{ fontSize: real(12) }} className="block max-w-[104px] truncate font-medium text-arc-text-3">{i.when}</span>
+                {/* Figma 10px; 12px is the floor. Editing (Figma 15) shows the title only */}
+                {!edit && <span style={{ fontSize: real(12) }} className="block max-w-[104px] truncate font-medium text-arc-text-3">{i.when}</span>}
               </button>
               {pick && ( /* Figma 19 badge at the orb's top-right; the whole node is the button */
-                <span aria-hidden="true" className={`absolute top-[-4px] left-[70px] flex size-6 items-center justify-center rounded-full ${lock ? 'border border-white/25 bg-[#2b2a35]' : kept ? 'bg-arc-text' : 'border border-white/25 bg-[#2b2a35]'}`}>
-                  {lock ? <img src={lockIcon} alt="" width={14} height={14} /> : kept ? <img src={check} alt="" width={16} height={16} className="brightness-0" /> : null}
+                // Figma 19 draws the badges at 24px outside the scaled map: real() keeps them 24 on screen
+                <span aria-hidden="true" style={{ width: real(24), height: real(24), top: -4, left: 82 - real(12) }} className={`absolute flex items-center justify-center rounded-full ${lock ? 'border border-white/25 bg-[#2b2a35]' : kept ? 'bg-arc-text' : 'border border-white/25 bg-[#2b2a35]'}`}>
+                  {lock ? <img src={lockIcon} alt="" width={real(14)} height={real(14)} /> : kept ? <img src={check} alt="" width={real(16)} height={real(16)} className="brightness-0" /> : null}
                 </span>
               )}
               {edit && (
                 <button type="button" onClick={() => edit.onRemove(node.key)} aria-label={`Remove ${i.title}`}
                   className="absolute flex items-center justify-center" style={{ width: real(44), height: real(44), left: 85 - real(22), top: 0 - real(22) + 11 }}>
-                  <span className="flex size-[22px] items-center justify-center rounded-full border border-white/40 bg-[rgba(34,29,54,0.94)]"><img src={minus} alt="" width={14} height={14} /></span>
+                  <span className="flex size-[22px] items-center justify-center rounded-full border border-white/24 bg-[rgba(34,29,54,0.94)]"><img src={minus} alt="" width={14} height={14} /></span>
                 </button>
               )}
             </div>
@@ -117,12 +120,13 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
         {l.emptyT && !edit && (
           <div className="absolute flex flex-col items-center" style={{ left: l.emptyT[0] - 56, top: l.emptyT[1] - 23, width: 112 }}>
             <span className="flex size-[46px] items-center justify-center rounded-full border border-dashed border-arc-text/30"><img src={challenge} alt="" width={24} height={24} /></span>
-            <p className="mt-2 text-center text-[12px] leading-4 text-arc-text/60">No clear challenge</p>
+            <p className="mt-2 text-center text-[12px] leading-4 text-arc-text/60">No clear challenge at CHI this year.</p>
           </div>
         )}
 
-        {edit && !pending && (['S', 'R', 'T'] as Angle[]).filter(a => counts[a] < SEATS[a]).map(a => {
-          const [x, y] = FREE[a][counts[a]][0];
+        {edit && !pending && (['S', 'R', 'T'] as Angle[]).map(a => {
+          const full = counts[a] >= SEATS[a];
+          const [x, y] = !full ? FREE[a][counts[a]][0] : a === 'S' && l.bundles.some(b => b.angle === 'S') ? [96, 236] : FULL[a];
           return (
             <button key={`add-${a}`} type="button" onClick={() => edit.onAdd(a)} aria-label={`Add a talk to ${ANGLE_NAME[a]}`} aria-pressed={edit.adding === a}
               className="absolute flex items-center justify-center" style={{ left: x - real(22), top: y - real(22), width: real(44), height: real(44) }}>

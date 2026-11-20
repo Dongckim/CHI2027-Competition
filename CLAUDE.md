@@ -152,3 +152,4 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - A4 미리보기 그림·오프라인·접근성 (2026-11-20, stage/A4-ship): /api/og 1200×630(satori + resvg-wasm), share 페이지 og:image·1년 캐시, app-data 전체 precache(132개), 보이는 글자 = 이름(2.5.3), 지도 가운데 원은 Figma대로(흰 글자 대비 미달, 사용자 결정 예외)
 - offline-check 6/6(서버 끈 상태로 07 → 12), a11y-check 24/24 serious 0·대비 최저 4.53, npm test 139/139, 첫 화면 87.8 KB
 - 남은 것: 동결 체크리스트(프로덕션 로그인 없이 열기, 토큰 미리보기 검사, Upstash, QR 폰, 메신저, VoiceOver), 16 카드 마크 로고 확인 (docs/stages/A4-ship.md)
+- A4 뒤 (11/20): iOS 바탕·튕김(#51), Challenge는 연구 자신의 결과 문장만(#52, 13개 질문 T 18 → 5문장), Figma 대조 뒤 01–07·11·14·15·19·20·23 맞춤(A4 문서 ⑧). 가장자리 빛은 Figma 레이어가 비어 있어 사용자 결정 대기

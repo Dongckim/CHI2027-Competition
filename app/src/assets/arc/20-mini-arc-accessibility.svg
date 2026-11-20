@@ -1,0 +1,54 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Mini Arc">
+<g clip-path="url(#clip0_0_87)">
+<rect width="100" height="100" rx="20" fill="url(#paint0_radial_0_87)"/>
+<g id="Frame">
+<path id="Vector" d="M22.8 29.6L36.4 39.8" stroke="#F4F6FF" stroke-opacity="0.45"/>
+<path id="Vector_2" d="M22.8 70.4L36.4 60.2" stroke="#F4F6FF" stroke-opacity="0.45"/>
+<path id="Vector_3" d="M78 50H67" stroke="#F4F6FF" stroke-opacity="0.45"/>
+<path id="Vector_4" d="M39.8068 82.2785L40.1451 81.2073M44.8808 66.2109L44.5425 67.2821M41.1599 77.9938L41.8364 75.8515M42.8512 72.6379L43.5277 70.4956" stroke="#F4F6FF" stroke-opacity="0.45"/>
+<path id="Vector_5" d="M61.9258 82.3699L61.5225 81.2754M55.877 65.9518L56.2802 67.0464M57.49 70.33L58.2965 72.5191M59.5063 75.8027L60.3128 77.9918" stroke="#F4F6FF" stroke-opacity="0.45"/>
+</g>
+<g id="Ellipse">
+<circle cx="50" cy="50" r="15" fill="url(#paint1_radial_0_87)"/>
+<circle cx="50" cy="50" r="14.5" stroke="white" stroke-opacity="0.55"/>
+</g>
+<g id="Ellipse_2">
+<circle cx="18" cy="26" r="5" fill="#F4F6FF" fill-opacity="0.06"/>
+<circle cx="18" cy="26" r="4.5" stroke="#F4F6FF" stroke-opacity="0.6"/>
+</g>
+<g id="Ellipse_3">
+<circle cx="18" cy="74" r="5" fill="#F4F6FF" fill-opacity="0.06"/>
+<circle cx="18" cy="74" r="4.5" stroke="#F4F6FF" stroke-opacity="0.6"/>
+</g>
+<g id="Ellipse_4">
+<circle cx="84" cy="50" r="5" fill="#F4F6FF" fill-opacity="0.06"/>
+<circle cx="84" cy="50" r="4.5" stroke="#F4F6FF" stroke-opacity="0.6"/>
+</g>
+<g id="Ellipse_5">
+<circle cx="38" cy="88" r="5" fill="#F4F6FF" fill-opacity="0.06"/>
+<circle cx="38" cy="88" r="4.5" stroke="#F4F6FF" stroke-opacity="0.6"/>
+</g>
+<g id="Ellipse_6">
+<circle cx="64" cy="88" r="5" fill="#F4F6FF" fill-opacity="0.06"/>
+<circle cx="64" cy="88" r="4.5" stroke="#F4F6FF" stroke-opacity="0.6"/>
+</g>
+</g>
+<rect x="0.5" y="0.5" width="99" height="99" rx="19.5" stroke="white" stroke-opacity="0.1"/>
+</g>
+<defs>
+<radialGradient id="paint0_radial_0_87" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50 50) scale(50)">
+<stop stop-color="#4CCF9E" stop-opacity="0.35"/>
+<stop offset="0.7" stop-color="#4CCF9E" stop-opacity="0.14"/>
+<stop offset="1" stop-color="#4CCF9E" stop-opacity="0.06"/>
+</radialGradient>
+<radialGradient id="paint1_radial_0_87" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50 50) scale(15)">
+<stop stop-color="#4CCF9E" stop-opacity="0.95"/>
+<stop offset="0.55" stop-color="#4CCF9E" stop-opacity="0.6"/>
+<stop offset="1" stop-color="#4CCF9E" stop-opacity="0.22"/>
+</radialGradient>
+<clipPath id="clip0_0_87">
+<rect width="100" height="100" rx="20" fill="white"/>
+</clipPath>
+</defs>
+</svg>

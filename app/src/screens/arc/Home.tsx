@@ -1,6 +1,6 @@
 // 20 · Home · My Arcs (Figma 600:1105) and 21 empty (600:1225). Rows: a small Arc, the tribe, the question, dots for the
 // talks (filled = heard) and the day of the next talk ("Today", "Wed", or "… · all heard"). Newest Arc first.
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { href } from '../../router';
 import { useArcs, isPersistent } from '../../arc/store';
 import { TRIBE } from '../../arc/tribes.js';
@@ -25,19 +25,35 @@ import chevron from '../../assets/arc/icon-chevron-right.svg';
 
 const at = (x: number, y: number, w: number) => ({ position: 'absolute' as const, left: x, top: y, width: w, height: w });
 type Slot = { start: number | null; end: number; roomKey: string; sessionKey: string };
-const SEAT = { S: [[22, 34], [22, 66]], T: [[78, 50], [78, 70]], R: [[40, 82], [60, 82]] } as const; // mini map seats (100 box)
+// Figma 20 "Mini Arc" (app/src/assets/arc/20-mini-arc-{xr,ai,accessibility}.svg, the same drawing in three tribes):
+// seats and connectors in a 100 box, 2 Supports left, 1 Challenge right, 2 Reframes below (dashed).
+const SEAT = { S: [[18, 26], [18, 74]], T: [[84, 50]], R: [[38, 88], [64, 88]] } as const;
+const LINE: Record<'S' | 'T' | 'R', string[]> = { S: ['M22.8 29.6L36.4 39.8', 'M22.8 70.4L36.4 60.2'], T: ['M78 50H67'],
+  R: ['M39.8068 82.2785L40.1451 81.2073M44.8808 66.2109L44.5425 67.2821M41.1599 77.9938L41.8364 75.8515M42.8512 72.6379L43.5277 70.4956',
+    'M61.9258 82.3699L61.5225 81.2754M55.877 65.9518L56.2802 67.0464M57.49 70.33L58.2965 72.5191M59.5063 75.8027L60.3128 77.9918'] };
 
-/** A 100px Arc: the question orb in the tribe colour and up to 2 talks per angle, filled when heard. */
+/** A 100px Arc as Figma draws it: tile and orb in the tribe colour, up to 5 talks, filled when heard. */
 function MiniArc({ arc, heard }: { arc: Arc; heard: Set<string> }) {
-  const c = TRIBE[arc.tribe].color;
-  const dots = (['S', 'T', 'R'] as const).flatMap(a => arc.nodes.filter(n => n.angle === a).slice(0, 2).map((n, i) => ({ n, xy: SEAT[a][i] })));
+  const c = TRIBE[arc.tribe].color, id = useId().replace(/[^a-zA-Z0-9]/g, ''); // safe inside url(#…)
+  const seats = (['S', 'T', 'R'] as const).flatMap(a => arc.nodes.filter(n => n.angle === a).slice(0, SEAT[a].length).map((n, i) => ({ n, a, i, xy: SEAT[a][i] })));
   return (
-    <span aria-hidden="true" className="relative block size-[100px] shrink-0 overflow-hidden rounded-[20px]" style={{ background: `radial-gradient(circle, color-mix(in srgb, ${c} 22%, transparent), transparent 70%)`, ['--tribe-now' as string]: c }}>
-      <span className="arc-orb" style={at(36, 36, 28)} />
-      {dots.map(({ n, xy: [x, y] }) => (
-        <span key={n.key} className="absolute size-2.5 rounded-full" style={{ left: x - 5, top: y - 5, ...(heard.has(n.key) ? { background: c } : { border: '1.5px solid rgba(244,246,255,0.55)' }) }} />
-      ))}
-    </span>
+    <svg aria-hidden="true" width={100} height={100} viewBox="0 0 100 100" fill="none" className="block shrink-0">
+      <defs>
+        <radialGradient id={`${id}t`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50 50) scale(50)">
+          <stop stopColor={c} stopOpacity="0.35" /><stop offset="0.7" stopColor={c} stopOpacity="0.14" /><stop offset="1" stopColor={c} stopOpacity="0.06" />
+        </radialGradient>
+        <radialGradient id={`${id}o`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50 50) scale(15)">
+          <stop stopColor={c} stopOpacity="0.95" /><stop offset="0.55" stopColor={c} stopOpacity="0.6" /><stop offset="1" stopColor={c} stopOpacity="0.22" />
+        </radialGradient>
+      </defs>
+      <rect width="100" height="100" rx="20" fill={`url(#${id}t)`} />
+      {seats.map(({ n, a, i }) => <path key={`l${n.key}`} d={LINE[a][i]} stroke="#F4F6FF" strokeOpacity="0.45" />)}
+      <circle cx="50" cy="50" r="15" fill={`url(#${id}o)`} /><circle cx="50" cy="50" r="14.5" stroke="white" strokeOpacity="0.55" />
+      {seats.map(({ n, xy: [x, y] }) => heard.has(n.key)
+        ? <circle key={n.key} cx={x} cy={y} r="5" fill={c} />
+        : <g key={n.key}><circle cx={x} cy={y} r="5" fill="#F4F6FF" fillOpacity="0.06" /><circle cx={x} cy={y} r="4.5" stroke="#F4F6FF" strokeOpacity="0.6" /></g>)}
+      <rect x="0.5" y="0.5" width="99" height="99" rx="19.5" stroke="white" strokeOpacity="0.1" />
+    </svg>
   );
 }
 
