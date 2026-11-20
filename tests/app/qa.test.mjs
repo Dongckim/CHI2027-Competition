@@ -1,10 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import qa, { handle, memoryStore, upstashStore, DELETE_AT, TEXT_MAX } from '../../functions/qa.mjs';
+import { cleanKeys, checkExpiry, scanKeys } from '../../functions/qa-admin.mjs';
 
 const A = 'deviceAAAAAAAAAAAAAAAA', B = 'deviceBBBBBBBBBBBBBBBB', C = 'deviceCCCCCCCCCCCCCCCC', D = 'deviceDDDDDDDDDDDDDDDD';
-const call = async (store, method, token, body, query = '', now = Date.UTC(2026, 10, 21, 10)) => {
-  const r = await handle(new Request(`http://x/api/qa${query}`, { method, headers: { 'x-arc-device': token, 'content-type': 'application/json' }, body: body && JSON.stringify(body) }), {}, store, now);
+const call = async (store, method, token, body, query = '', now = Date.UTC(2026, 10, 21, 10), env = {}) => {
+  const r = await handle(new Request(`http://x/api/qa${query}`, { method, headers: { 'x-arc-device': token, 'content-type': 'application/json' }, body: body && JSON.stringify(body) }), env, store, now);
   return { status: r.status, body: await r.json() };
 };
 const paper = 'chi2026:222795';
@@ -19,7 +20,7 @@ test('qa: ask, list by votes, one vote per device, mine/voted flags, no device d
   await call(s, 'POST', C, { action: 'vote', id: q2.id });
   const list = (await call(s, 'GET', A, null, `?paper=${paper}`)).body.questions;
   assert.deepEqual(list.map(q => [q.text, q.votes, q.mine, q.voted]), [['Which factor mattered most?', 2, false, true], ['Did presence hold after 20 minutes?', 0, true, false]]);
-  const stored = JSON.parse(await s.cmd('GET', `qa:q:${q1.id}`));
+  const stored = JSON.parse(await s.cmd('GET', `development:qa:q:${q1.id}`));
   assert.deepEqual(Object.keys(stored).sort(), ['authorToken', 'createdAt', 'id', 'paperKey', 'text']);
   assert.notEqual(stored.authorToken, A, 'only a hash of the device token');
 });
@@ -57,4 +58,31 @@ test('qa: Upstash gets plain Redis commands, every key expires on 2027-06-13', a
 test('qa: the answer says which store it used (memory without Upstash env)', async () => {
   const r = await qa(new Request('http://x/api/qa?paper=chi2026:1', { headers: { 'x-arc-device': A } }), {});
   assert.equal(r.headers.get('x-arc-qa-store'), 'memory');
+});
+
+test('qa: keys start with the Vercel environment; clean removes preview only, never production', async () => {
+  const s = memoryStore();
+  const now = Date.now();
+  await call(s, 'POST', A, { action: 'ask', paper, text: 'from production' }, '', now, { VERCEL_ENV: 'production' });
+  const p = (await call(s, 'POST', B, { action: 'ask', paper, text: 'from a preview' }, '', now, { VERCEL_ENV: 'preview' })).body.question;
+  await call(s, 'POST', C, { action: 'vote', id: p.id }, '', now, { VERCEL_ENV: 'preview' });
+  assert.equal((await call(s, 'GET', A, null, `?paper=${paper}`, now, { VERCEL_ENV: 'production' })).body.questions.length, 1, 'production sees only its own');
+  const prod = await scanKeys(s, 'production'), prev = await scanKeys(s, 'preview');
+  assert.ok(prod.length && prod.every(k => k.startsWith('production:qa:')) && prev.every(k => k.startsWith('preview:qa:')));
+  await assert.rejects(cleanKeys(s, 'production'), /not deleted/);
+  await assert.rejects(cleanKeys(s, 'staging'), /environment/);
+  assert.equal(await cleanKeys(s, 'preview'), prev.length);
+  assert.deepEqual(await scanKeys(s, 'preview'), []);
+  assert.deepEqual(await scanKeys(s, 'production'), prod, 'production untouched');
+});
+
+test('qa: the expiry check passes real keys and catches one that never expires', async () => {
+  const s = memoryStore();
+  const now = Date.now();
+  const q = (await call(s, 'POST', A, { action: 'ask', paper, text: 'q?' }, '', now, { VERCEL_ENV: 'preview' })).body.question;
+  await call(s, 'POST', B, { action: 'vote', id: q.id }, '', now, { VERCEL_ENV: 'preview' });
+  const ok = await checkExpiry(s, 'preview', now);
+  assert.ok(ok.content >= 3 && ok.rate === 2 && ok.bad.length === 0, JSON.stringify(ok));
+  await s.cmd('SET', 'preview:qa:q:ffffffffffffffff', '{}');
+  assert.deepEqual((await checkExpiry(s, 'preview', now)).bad.map(b => [b.key, b.ttl]), [['preview:qa:q:ffffffffffffffff', -1]]);
 });

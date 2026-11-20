@@ -14,7 +14,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 원준 엔진: 소스·생성 스크립트는 `recsys/`, 모델 zip은 git 밖 → `build:deploy`가 `MODEL_URL`·`MODEL_SHA256`으로 `dist/model/`에 풂(`/model/` 서빙). 없으면 mock (recsys/README.md)
 - 옛 플래너(S0~S5b)는 지우지 않고 진입점에서만 뺌: 화면 `app/src/legacy/`, 직접 주소로 열림. 기록 `docs/stages/legacy-planner/`
 - 데모 시계: 학회 기간 밖이면 자동으로 둘째 날 10:00(배너 표시), `?at=2026-04-14T12:00`(개최지 시각)이 우선. mock 상태 `?mock=slow|none|pending|crowded`
-- 공유 `/s/<payload>`(arc/link.js, functions/share.mjs), 받기 `#/r/<payload>`. Q&A `functions/qa.mjs`: Upstash 환경변수가 없으면 메모리
+- 공유 `/s/<payload>`(arc/link.js, functions/share.mjs), 받기 `#/r/<payload>`. Q&A `functions/qa.mjs`: Upstash 환경변수가 없으면 메모리, 키는 `<VERCEL_ENV>:qa:…`. `npm run qa:clean -- preview`(production 거부) · `npm run qa:expiry -- <환경>`(.env.local에 Upstash 값)
 
 ## 명령 (Node 26 = Vercel 빌드와 같게, `package.json` engines. 로컬 20.19+도 동작하지만 26 권장. `arc/`에서)
 - 데이터: `npm run data:fetch [edition...]`(version.json 조회 → 새 리비전만 data/raw) · `npm run data:validate`(공식 스키마, chi2025 외 실패가 정상) · `npm run data:ror`(새 기관 이름만 ROR 캐시) · `npm run data:build [edition...]`(data/build, 네트워크 안 씀) · `node data/scripts/report.mjs`(V0 측정값) · `npm run data:venue -- <CCIB PDF>` · `npm run data:venue:check [edition]`

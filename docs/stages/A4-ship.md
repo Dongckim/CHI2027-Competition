@@ -42,6 +42,9 @@
 | og 그림 | 디자인 없음 | 종족 모양 + 질문 + 개수 | 16 미리보기 카드와 같은 내용 |
 
 ### 그 밖의 결정
+- **/api/og 배포 오류(PR #48)**: 프로덕션 500. satori의 harfbuzzjs가 실행 중 `hb.wasm`을 읽는데 함수에 없었다(ENOENT, 미리보기에서 이유를 본문에 보이게 해서 찾음). vercel.json includeFiles에 넣으면 배포가 실패해(원인 로그 못 봄), og.mjs에 `new URL('../node_modules/harfbuzzjs/hb.wasm', import.meta.url)`을 두어 파일 추적이 싣게 함. 프로덕션 밖에서는 og 실패 이유를 503 본문에
+- **Q&A 키에 환경 접두어**: `production:qa:…` / `preview:qa:…` / `development:qa:…` (VERCEL_ENV, 없으면 development). Upstash 하나를 세 환경이 같이 써도 미리보기 테스트 질문이 프로덕션에 안 보이고, `npm run qa:clean -- preview`로 지움(production은 거부). 접두어 전 키는 내 검사의 횟수 제한 키뿐(2일 안에 만료)
+- **만료 검사** `npm run qa:expiry -- <환경>`: SCAN으로 그 환경의 키를 모두 읽어 TTL 확인. 질문·추천·신고 키는 2027-06-13 00:00 UTC ±5초, 횟수 제한 키는 2일 안, 만료 없는 키는 실패. 글 내용은 출력 안 함
 - **@vercel/og 대신 satori + resvg-wasm**: @vercel/og 1.0.3은 Node ESM 함수에서 require와 `__dirname` 없이 돌지 않음(Next 번들 전제). 그 안의 두 부품을 직접 씀
 - **og 그림에 한글 등이 들어 있으면 제목을 "An Arc for CHI"로**: 글꼴이 Inter latin뿐이라 빈 상자가 그려짐. 질문은 og:title 글자로 그대로 감. 다국어 글꼴(수 MB)은 함수 크기와 첫 그림 시간을 늘려 넣지 않음
 - **npm audit**: satori가 쓰는 fflate 0.7.x에 moderate 경고 1건(손상된 ZIP64에서 멈춤). satori에는 우리 글꼴 파일만 들어가 외부 입력이 닿지 않아 받아들임
@@ -70,9 +73,9 @@
 ## ⑦ 동결 전 체크리스트 (11/23)
 | # | 할 것 | 누가 | 명령·방법 | 결과 |
 |---|---|---|---|---|
-| 1 | **프로덕션 주소를 로그인 없는 브라우저로 열기** (제출 주소는 보호 없이) | 사용자 + 검사 | 시크릿 창으로 열기, 그리고 `node --experimental-websocket tests/arc/preview-check.mjs <프로덕션 주소> --public` (/s/ 태그, /api/og 그림, Q&A, 18) | 확인 안 함 |
-| 2 | 미리보기에서 /s/ → 18, /api/og 그림, Q&A 왕복 | 검사(토큰 필요) | `VERCEL_BYPASS_TOKEN=… node --experimental-websocket tests/arc/preview-check.mjs <미리보기 주소>` | 토큰 대기 |
-| 3 | Q&A가 Upstash로 가는지 | 검사 | 2 또는 1에 `--expect-upstash` | Upstash 연결 대기 |
+| 1 | **프로덕션 주소를 로그인 없는 브라우저로 열기** (제출 주소는 보호 없이) | 사용자 + 검사 | 시크릿 창으로 열기, 그리고 `node --experimental-websocket tests/arc/preview-check.mjs https://arc-seven-wheat.vercel.app --public --expect-upstash` | 검사 **6/6** (11/20, Vercel Authentication 끈 뒤): 로그인 없이 200, /s/ 태그, /api/og PNG, Q&A 왕복 upstash, 18. 시크릿 창은 사용자 |
+| 2 | 미리보기에서 /s/ → 18, /api/og 그림, Q&A 왕복 | 검사 | Vercel Authentication을 꺼서 토큰 없이 `--public`으로 됨(토큰은 다시 켤 때) | PR #48 미리보기 **6/6** |
+| 3 | Q&A가 Upstash로 가는지, 키에 2027-06-13 만료 | 검사 + 사용자 | `--expect-upstash`, 그리고 폰에서 14에 질문을 올린 뒤 `npm run qa:expiry -- production`(.env.local에 Upstash 값) | upstash 확인(1·2). 실제 키 만료는 사용자 질문 뒤 |
 | 4 | QR을 폰 카메라로 찍기 (17, 7노드 링크) | 사용자 | 안 읽히면 payload 바이너리 압축(base64url) 안을 진행. 서버 저장형 짧은 링크는 하지 않음 | 대기 |
 | 5 | 메신저 미리보기(카카오톡·iMessage·Slack)에 그림·질문이 뜨는지 | 사용자 | 프로덕션 /s/ 링크를 보내 보기 | 확인 안 함 |
 | 6 | VoiceOver로 01 → 12 → 14 | 사용자 | iPhone 설정 → 손쉬운 사용 | 확인 안 함 |
