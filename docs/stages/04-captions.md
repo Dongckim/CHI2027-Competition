@@ -10,10 +10,10 @@
   - `createConversation(a, b)`: 대면 대화. 양방향 번역 토큰의 언어로 두 사람 화면을 나눔
 - `app/src/captions/soniox-languages.json`: Soniox stt-rt-v5 지원 60개 언어 (API에서 받음)
 - 확인 페이지 (`npm run bench`, 키는 `.env.local`)
-  - `tests/captions/bench.html`: 발표 자막 + 번역, 용어집 O/X, 발화자 표시, 지연·끊김·비용 측정
-  - `tests/captions/conversation.html`: 휴대폰을 두 사람 사이에 눕혀 위아래로 나눈 화면, 각자 언어 선택
+  - `tests/legacy/captions/bench.html`: 발표 자막 + 번역, 용어집 O/X, 발화자 표시, 지연·끊김·비용 측정
+  - `tests/legacy/captions/conversation.html`: 휴대폰을 두 사람 사이에 눕혀 위아래로 나눈 화면, 각자 언어 선택
 - `tests/serve.mjs`: 확인 페이지 서버 (venue 것을 옮김), `functions/`를 `/api/`로 연결, `.env.local` 읽음
-- `tests/captions/latency.py`: 마이크 없이 지연 측정
+- `tests/legacy/captions/latency.py`: 마이크 없이 지연 측정
 - 테스트 7개 (전체 37/37)
 
 ## ② 통과 기준 결과

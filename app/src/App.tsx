@@ -17,7 +17,7 @@ const ArcMap = named(() => import('./screens/arc/ArcMap'), 'ArcMap');
 const TalkDetail = named(() => import('./screens/arc/TalkDetail'), 'TalkDetail');
 const ArcList = named(() => import('./screens/arc/ArcList'), 'ArcList');
 const Edit = named(() => import('./screens/arc/Edit'), 'Edit');
-const Legacy = named(() => import('./Legacy'), 'Legacy');
+const Legacy = named(() => import('./legacy/Legacy'), 'Legacy');
 
 const TITLES: Record<string, string> = { start: 'Welcome', ask: 'Ask', angles: 'Choose your angles', when: 'When and what', building: 'Building your Arc',
   hood: 'Your neighborhood', home: 'My Arcs', arc: 'My Arc', talk: 'Talk' };

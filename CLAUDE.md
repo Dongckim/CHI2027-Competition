@@ -6,40 +6,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없음, 오픈소스, 비상업.
 제출 마감 2026-12-04. 학회 2027-05-10~14, Pittsburgh (David L. Lawrence Convention Center).
 
-## 현재 상태
-- **방향 전환 (2026-11-20, 결정 006): 플래너(Today) 중심 → Arc 중심.** 질문 하나 → 세 관점(화면 이름 Supports ↑ / Reframes ↻ / Challenges ⊣, 코드·계약 키 S/R/T; 지시서의 "Tension" = 화면의 Challenges)의 발표 묶음(Arc), 8개 종족 색 테두리, 링크·QR 공유·받기. 단계 접두어 A0~A4 (`stage/A0-arc-contract`…), 11/23 동결, 마감 12/4
-  - 계약: `contracts/Arc.schema.json` 0.1.0과 엔진 인터페이스(`app/src/engine/types.ts`)는 사용자 승인. 그 밖의 필드는 임의로 추가하지 말고 물어볼 것. 계약을 바꾸면 PR에 "원준 확인 필요"
-  - 추천(무엇을 어떤 관점으로)은 `app/src/engine/`에만 (`index.ts`가 mock/ondevice 선택, 기본 mock, `?engine=ondevice`). 시간·방·저자·세션은 엔진이 아니라 data/build에서 key로 붙임
-  - 플래너·길 안내·자막 코드는 지우지 않고 진입점에서만 뺌 (옛 화면은 `app/src/Legacy.tsx`, 직접 주소로 열림)
-  - Arc 화면: `app/src/screens/arc/`, 부품 `app/src/components/arc.tsx`, 토큰 `--arc-*`, 상태 `app/src/arc/draft.js`(DeviceState의 arc 칸)·`store.ts`(IndexedDB)
-  - 아래 S0~S5b 항목은 옛 플래너 줄기의 기록 (코드는 그대로 있음)
-- V0(데이터) 완료. V6 길 안내 조건부(`app/src/venue/route.js`, 플래너에 연결). V4 자막 조건부(`app/src/captions/`, `functions/soniox-key.mjs`, 키는 `.env.local`)
-- V2 진행 중: 플래너 `app/src/planner/plan.js`(내부 입력). contracts/는 RecommendRequest·RecommendResponse 0.1.0만 확정, 나머지는 사용자가 설계 중 → 임의로 계약 필드를 만들지 말 것. recsys/는 비어 있음
-- S0 뼈대: `app/` Vite + React + TS + Tailwind v4, 해시 라우팅 3탭, 가짜 추천 = `contracts/examples/RecommendResponse.chi2026-tuesday.json`
-- S1 온보딩: `#/start/<step>` O-1~O-5 → `#/building` → Today. 계획은 `app/src/state/device.js` 형식으로 localStorage `arc.device`에 저장 (앱 내부 형식, DeviceState 계약 아님)
-- S2 오늘: 시각은 `app/src/clock.ts`(`now()`/`useNow()`)에서만, 샘플 하루는 데모 시계. 카드 규칙 `app/src/today/card.js`, 개최지 시각 변환 `app/src/time.js`
-- S3 바꾸기·예외: 변경은 플래너 입력에 (`app/src/today/edits.js`, `plan.edits`), 프로그램 확인 `app/src/data/programme.ts`(1분, 보일 때만), 오프라인 `app/sw.js`(빌드가 목록 생성)
-- S4 찾기: 검색 `data/scripts/search.mjs`(폰·node 공용, 추천 점수 안 씀), 인용 검사·하이라이트 `app/src/explore/quotes.js`, 내 하루·+ Add `app/src/explore/useExplore.ts`의 `useMyDay`
-- S5b 진입점: 09는 발표(`#/directions/<paperKey>`)와 장소(`#/directions/place/<id>`, `app/src/venue/places.js`)로 열림, 하루 목록 ⋯·06·05에서
-- S5 길 안내: 공식 평면도 ccib.json + 보이는 이름 `data/venue/ccib.labels.json` (결정 005), 문장 `app/src/venue/directions.js`, Today 걷는 시간 `app/src/venue/walk.js`, 3D `app/src/venue/view3d.js`(09에서 import()로만, three 0.186.1 고정), 소리 `app/src/venue/sound.js`
-- 명령 (Node 26 = Vercel 빌드와 같게, `package.json` engines. 로컬 20.19+도 동작하지만 26 권장. `arc/`에서):
-  - `npm run data:fetch [edition...]` : version.json 조회 → 새 리비전만 data/raw에 저장
-  - `npm run data:validate` : 공식 스키마 검사 (스키마는 초안이라 chi2025 외 실패가 정상, V0 문서 참고)
-  - `npm run data:ror` : data/raw의 새 기관 이름만 ROR로 조회해 data/curated/ror-*.json에 캐시 (새 리비전 받은 뒤)
-  - `npm run data:build [edition...]` : data/build 생성 (data/raw 필요, 네트워크 안 씀)
-  - `node data/scripts/report.mjs` : V0 측정값 JSON 출력
-  - `npm run data:venue -- <CCIB 평면도 PDF>` : data/venue/ccib.json 다시 생성 (python3 + pdfplumber, PDF는 커밋 안 함)
-  - `node tests/venue/try.mjs 111 211 [--wheelchair]` : 방 사이 거리·시간 (app/src/venue/route.js)
-  - `npm run data:venue:check [edition]` : 피드 floors[].roomIds가 data/venue 파일과 맞는지 / `node --experimental-websocket tests/venue/directions-check.mjs` : 헤드리스 Chrome으로 09·09-1·3D 확인 (빌드 먼저, 서버를 스스로 켜고 끔) / `tests/venue/revision-check.mjs` : 09를 연 채 경로·revision이 바뀔 때 3D (같은 방식) / `tests/venue/entry-check.mjs` : 직접 만든 계획(실제 시계)에서 하루 목록·06·05 → 09 (같은 방식)
-  - `npm run contracts:check` : 계약 스키마와 examples 검사
-  - `node tests/planner/bench.mjs` : 플래너 하루 계산 시간 (data/build 필요)
-  - `node tests/planner/try.mjs <후보.json> [--day YYYY-MM-DD] [--wheelchair]` : 후보 목록으로 루트를 눈으로 확인 (예: tests/planner/examples/accessibility.json). 추천은 recsys/ 몫, 플래너·도구에 추천 로직 넣지 말 것
-  - `npm run bench` : 확인 페이지 서버 (tests/serve.mjs, functions/를 /api/로 연결). 길 안내 /tests/venue/bench.html, 자막 /tests/captions/bench.html, 대면 대화 /tests/captions/conversation.html (`.env.local`에 `SONIOX_API_KEY=...`, git 무시)
-  - `npm run dev` : 앱 개발 서버 (같은 Wi-Fi 폰에서도 열림) / `npm run build` : dist/ (data/build/chi2026 필요) / `npm run build:deploy` : Vercel이 쓰는 것 (피드 받기 → 빌드 → 앱)
-  - `node tests/explore/bench.mjs [질의...]` : 검색 속도 (node) / `node --experimental-websocket tests/explore/phone-check.mjs` : 헤드리스 Chrome 390×844·CPU 4배로 S4 화면 확인 (`vite preview --port 4317` 먼저) / `tests/explore/offline-check.mjs` : 오프라인 Explore (서버를 스스로 켜고 끔) / `tests/explore/qa-check.mjs` : QA 재현 (같은 방식)
-  - `node --experimental-websocket tests/arc/create-check.mjs [--shots <dir>]` : 헤드리스 Chrome 390×844·CPU 4배로 01 → 12 → 14 클릭 (빌드 먼저, 서버를 스스로 켜고 끔) / `tests/arc/arc-check.mjs` : 12·13·14·15·23–25 (mock Arc를 IndexedDB에 넣고, 데모 시계 `?at=2026-04-14T12:00`) / `node tests/engine/tribes-report.mjs` : chi2026 종족 분포
-  - `node tests/engine/try.mjs ["질문" ...] [--mode none|pending|crowded] [--no-t]` : mock 엔진 Arc JSON + 계약 검사 (data/build/chi2026 필요)
-  - `npm test` : 전체 테스트 / 하나만: `node --test --test-name-pattern="talk slots" tests/`
+## 현재 상태 (Arc, 결정 006)
+- 질문 하나 → 세 관점의 발표 묶음(Arc). 화면 이름 Supports ↑ / Reframes ↻ / Challenges ⊣, 코드·계약 키 S/R/T (개발 지시서의 "Tension" = 화면의 Challenges). 8개 종족 색 테두리, 링크·QR 공유·받기
+- 단계 A0~A4 (`stage/A0-arc-contract`…), 11/23 동결, 마감 12/4. A0~A2 끝, 다음은 A3(공유·받기·Q&A)
+- 계약: `contracts/Arc.schema.json` 0.1.0과 엔진 인터페이스 `app/src/engine/types.ts`(사용자 승인). 그 밖의 필드는 임의로 추가하지 말고 물어볼 것. 계약을 바꾸면 PR에 "원준 확인 필요"
+- 추천(무엇을 어떤 관점으로)은 `app/src/engine/`에만. `index.ts`가 mock(기본) / ondevice(`?engine=ondevice`, `VITE_ENGINE`) 선택. 시간·방·저자·세션은 엔진이 아니라 data/build에서 key로 붙임. mock은 "VR" 수정 뒤 동결(더 다듬지 않음)
+- 원준 엔진: 소스·생성 스크립트는 `recsys/`, 모델 zip은 git 밖 → `build:deploy`가 `MODEL_URL`·`MODEL_SHA256`으로 `dist/model/`에 풂(`/model/` 서빙). 없으면 mock (recsys/README.md)
+- 옛 플래너(S0~S5b)는 지우지 않고 진입점에서만 뺌: 화면 `app/src/legacy/`, 직접 주소로 열림. 기록 `docs/stages/legacy-planner/`
+- 데모 시계 `?at=2026-04-14T12:00`(개최지 시각). mock 상태 `?mock=slow|none|pending|crowded`
+
+## 명령 (Node 26 = Vercel 빌드와 같게, `package.json` engines. 로컬 20.19+도 동작하지만 26 권장. `arc/`에서)
+- 데이터: `npm run data:fetch [edition...]`(version.json 조회 → 새 리비전만 data/raw) · `npm run data:validate`(공식 스키마, chi2025 외 실패가 정상) · `npm run data:ror`(새 기관 이름만 ROR 캐시) · `npm run data:build [edition...]`(data/build, 네트워크 안 씀) · `node data/scripts/report.mjs`(V0 측정값) · `npm run data:venue -- <CCIB PDF>` · `npm run data:venue:check [edition]`
+- 검사: `npm test`(하나만 `node --test --test-name-pattern="talk slots" tests/`) · `npm run typecheck` · `npm run contracts:check`
+- 헤드리스(빌드 먼저, 서버를 스스로 켜고 끔): `node --experimental-websocket tests/arc/create-check.mjs [--shots <dir>]`(01 → 12 → 14) · `tests/arc/arc-check.mjs`(12·13·14·15·23–25, mock Arc를 IndexedDB에 넣고 데모 시계)
+- 엔진: `node tests/engine/try.mjs ["질문" ...] [--mode none|pending|crowded] [--no-t]`(mock Arc JSON + 계약 검사) · `node tests/engine/tribes-report.mjs`(종족 분포)
+- 앱: `npm run dev`(같은 Wi-Fi 폰에서도 열림) · `npm run build`(dist/, data/build/chi2026 필요) · `npm run build:deploy`(Vercel: 피드 받기 → 빌드 → 앱 → 모델)
+- 벤치: `npm run bench`(tests/serve.mjs, functions/를 /api/로) → `/tests/legacy/…` 페이지(`.env.local`에 `SONIOX_API_KEY=...`, git 무시)
+- 옛 플래너 도구·헤드리스: `docs/stages/legacy-planner/README.md`
 - git은 반드시 `arc/` 안에서 실행. 상위 `chi2027-arc/`는 자체 레포가 아니라 홈 디렉토리(`/Users/dongchankim`) 레포로 잡힘
 
 ## 현재 단계: Arc 화면 만들기 (A0~A4, 결정 006)
@@ -82,25 +65,25 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 
 ## 구조
 - data/raw/<edition>/rev-<NNN>.json : 받은 원본 (수정 금지)
-- data/build/app-data/<edition>/r<리비전>-<해시>/ : 앱이 받는 조각 (schedule·abstracts/<날짜>·people). data:build가 data/build/<edition>/에서 만듦, 앱은 이것만 받음
-- data/build/<edition>/ : 정규화 결과 (단일 데이터 원천, 추천·지니·계약 검사는 이것을 읽음). meta·papers·sessions·rooms·people·topics·aliases. 키: `edition:id`, 기관 `inst:<slug>`, 주제 `topic:<slug>`
-- data/curated/ : 빌드 입력 (institutions.json은 사람이 관리, ror-*.json은 ROR 캐시). data/scripts/ : fetch·validate·ror·build·report
-- data/venue/<edition>.json : 시간대, 사용하는 학회장(`venue`), 피드 방 키 → 학회장 구역 ID(`rooms`) (해마다 교체)
-- data/venue/<venue>.json : 학회장 구역 표(치수·수용 인원)와 걷는 길 그래프(미터). 예: ccib.json
-- contracts/ : 기능 간 계약 JSON 스키마 (바꾸면 schema_version 올리고 CHANGELOG 기록)
-- app/ : Vite + React + TS + Tailwind, 토큰은 app/src/tokens.css
-- app/src/engine/ : 엔진 인터페이스·mock·ondevice 자리 (추천 로직은 여기에만). app/src/arc/ : Arc 저장, 공유 링크, 종족(tribes.ts)
-- functions/ : 서버 함수 로직, api/<이름>.mjs가 Vercel 진입점으로 감쌈 (Soniox 임시 키, push, 이후 qa·og·share)
-- recsys/ : 원준 추천 모델 (contracts만 맞추면 됨)
+- data/build/<edition>/ : 정규화 결과 (단일 데이터 원천). meta·papers·sessions·rooms·people·topics·aliases·debut. 키: `edition:id`, 기관 `inst:<slug>`, 주제 `topic:<slug>`
+- data/build/app-data/<edition>/r<리비전>-<해시>/ : 앱이 받는 조각 (schedule·abstracts/<날짜>·people·topics·institutions·debut)
+- data/curated/ : 빌드 입력 (institutions.json은 사람이 관리, ror-*.json은 ROR 캐시). data/scripts/ : fetch·validate·ror·build·debut·report·search
+- data/venue/<edition>.json : 시간대, 학회장, 피드 방 → 구역 ID · data/venue/<venue>.json : 구역 표와 걷는 길 그래프(미터)
+- contracts/ : 계약 JSON 스키마 (바꾸면 schema_version 올리고 CHANGELOG). Arc 0.1.0이 지금 것, RecommendRequest·Response는 옛 플래너·mock 내부용
+- app/src/screens/arc/ : Arc 화면(01–25) · components/arc.tsx : Final UI 부품 · arc/ : draft(DeviceState의 arc 칸)·store(IndexedDB)·map·tribes·theme · engine/ : 엔진
+- app/src/legacy/ : 옛 플래너 화면·부품 (직접 주소로만) · 공용 모듈(data/, planner/, today/, explore/, state/, venue/, captions/)은 제자리(Arc도 씀)
+- app/src/tokens.css : 토큰(`--arc-*` = Final UI) · app/sw.js : 서비스 워커(빌드가 목록 생성) · app/scripts/ : copy-static, fetch-model
+- functions/ : 서버 함수 로직, api/<이름>.mjs가 Vercel 진입점 (Soniox 임시 키, push, 이후 qa·og·share)
+- recsys/ : 원준 엔진 소스·생성 스크립트 (모델 파일은 git 밖)
+- tests/ : 단위 테스트(`*.test.mjs`), tests/arc/(Arc 헤드리스), tests/engine/, tests/legacy/(옛 헤드리스·벤치)
 
 ## 디자인
 - 기준: Figma Final UI 페이지 https://www.figma.com/design/UfKtv7eGMTOrCZEzszq9GS/ARC-Mobile-Wireframes?node-id=582-7 (25화면 + Components 588:446). 프레임 id 표는 docs/stages/A0-arc-contract.md
 - Figma와 개발 지시서가 다르면: 화면 구성은 Figma, 데이터 규칙은 지시서. 판단이 안 서면 물어볼 것
 - Figma MCP는 읽기 도구만 (get_metadata·get_design_context·get_screenshot 등). `use_figma` 등 파일을 바꾸는 도구 금지 (2026-11-20 사용자). 서브에이전트에게도 같은 지시
-- v3(288-679)는 참고용
-- 390×844 기준, 본문·입력창 16px, 터치 44px, 대비 4.5:1, safe area, dvh
+- 390×844 기준, 본문·입력창 16px, 글씨 12px 이상, 터치 44px, 대비 4.5:1, safe area, dvh. Figma가 기준보다 작으면 모양은 두고 크기·누르는 영역만 올리고 stage 문서에 표로
 - Figma 코드 초안은 그대로 쓰지 말고 app/src/components 부품으로 바꿔 끼울 것
-- [대괄호] 자리는 contracts 데이터 필드로 연결
+- 옛 기준(Figma v3)은 docs/stages/legacy-planner/README.md
 
 ## 외부 문서
 - 모르는 라이브러리 API는 Context7로 조회
@@ -114,7 +97,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 
 ## Git 규칙
 - 단계가 끝나면 push → PR → 머지까지 한다 (2026-11-20 사용자 결정). 허용 범위는 `.claude/settings.json`과 같다:
-  - `git push -u origin stage/<…>` 브랜치 push만. main에 직접 push, 강제 push, 원격 브랜치 삭제, `git remote` 금지
+  - push는 `stage/*`, `fix/*`, `docs/*`, `chore/*`, `refactor/*`, `test/*`, `perf/*`, `build/*` 브랜치만 (2026-11-20 넓힘). main에 직접 push, 강제 push, 원격 브랜치 삭제, `git remote` 금지
   - `gh pr create`(아래 PR 형식), `gh pr view/list/checks`, `gh pr merge --merge`(merge commit만, squash·rebase·--admin 금지). `gh api`, `gh repo` 금지
   - 머지 전에 `npm test`·`npm run typecheck`·`npm run contracts:check`가 통과해야 한다. 실패하면 머지하지 않고 알린다
   - 머지 후 로컬 main을 `git pull --ff-only`로 맞추고 다음 단계 브랜치를 main에서 딴다
@@ -143,13 +126,6 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 계약(contracts/)을 바꾸면 확인할 것에 "원준 확인 필요"를 적는다
 - 머지는 merge commit으로 (커밋을 기능별로 나눈 기록을 유지). `gh pr merge <번호> --merge`
 
-## 디자인 기준 (Figma v3, 참고용. 최종은 위 "디자인"의 Final UI)
-- 파일: UfKtv7eGMTOrCZEzszq9GS, 페이지 "v3 · 리뷰 반영 (11/09)"
-- 섹션 노드: 1 처음 열었을 때 288:680 / 2 오늘·하루 흐름 288:1174 / 3 바꾸기·예외 288:1903 / 4 발표장 288:2822 / 5 찾기·자세히 288:3007 / 6 이동·마무리 288:3335 / 7 보관·설정 288:3520 / 컴포넌트 289:450
-- 화면 기준 390×844. 각 프레임 아래 caption이 그 화면의 역할이다.
-- 원칙: 화면마다 질문 하나에만 답한다. 첫 화면에 지금 할 일이 보인다. 화면엔 쉬운 말만(route, plan, picks, bridge는 내부 용어). 기본값이 채워져 있고 뭘 눌러도 되돌릴 수 있다.
-- 접근성: 글씨 태그 12px / 보조 14px / 본문 16px 이상, 누르는 곳 44px, 회색 글씨 대비 4.5:1, 하단 고정 요소는 화면당 하나, safe area 34px.
-
 ## 참고 파일
 - reference/wayfinding/arc-wayfinding.html: 길 안내·시공간 큐브·방향 소리 프로토타입 (CHI 2026 CCIB P1)
 - reference/wayfinding/sign-scan-test.html: 표지판 인식 테스트
@@ -158,28 +134,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 앱과 프로토타입의 결과가 다르면(예: 안내 문장), 어느 쪽이 맞는지 나에게 물어본다.
 
 ## 진행 상황
-(단계마다 3줄씩 추가)
-- S0 뼈대 (2026-11-11, stage/S0-skeleton): 3탭 해시 라우팅, Figma v3 토큰(+다크 제안), 공통 컴포넌트 9개, Today = 가짜 추천 → 플래너
-- 계약 RecommendRequest/Response 0.1.0 + contracts:check 규칙(인용 위치 등). Vercel 빌드가 피드를 받아 dist/ 생성, 실패 시 원인 출력
-- 앱 데이터 분리(첫 화면 gzip 2.02 MB → 393 KB)·캐시 헤더, Vercel 미리보기·폰 실기기 확인 통과. 남은 것: 버튼 동작·시계, 계약 원준 확인 (docs/stages/S0-skeleton.md)
-- S1 온보딩 (2026-11-11, stage/S1-onboarding): O-1~O-5·수정 3화면·03-1, 계획을 localStorage에 저장, 다시 열면 Today 또는 멈춘 화면
-- Larger text는 앱 전체 글씨 한 단계 위, step-free·fewer room changes·How full은 Today 계산에 반영. 헤드리스 Chrome으로 끄고 다시 열기 통과
-- 폰 확인 통과. 남은 것: breaks·요약 언어는 저장만, 설정 버튼(S7), 추천은 아직 가짜 (docs/stages/S1-onboarding.md)
-- S2 오늘 (2026-11-11, stage/S2-today): 추천 → 플래너 → 날짜별 일정, 카드 FIRST STOP/NEXT/LEAVE NOW/NOW/DONE, 03-P 슬라이더로 데모 시계
-- 발표 순서·경과 시간은 데이터의 발표 시각으로 (12분 상수 아님). 시각별 카드 테스트 10개 시점, 헤드리스 Chrome에서 같은 결과
-- 폰 확인 통과(데모 슬라이더). 남은 것: 걷는 시간 가짜(S5), Skip·Edit 동작, 06/09/S6 자리만 (docs/stages/S2-today.md)
-- S3 바꾸기·예외 (2026-11-12, stage/S3-changes): Remove/Swap/Undo, PICK ONE, More for you 3상태, 03-J2/K/L/M, 서비스 워커 오프라인
-- 새 revision은 기기에서 같은 buildEdition으로 정규화 → 내 일정 변경만 알림. 헤드리스 Chrome에서 서버를 끄고도 Today·Undo 동작
-- 임시 추천기 baseline-0 (TF-IDF, 폰에서 실행, `app/src/data/recommend.ts`의 TODO(recsys)가 API 자리). 남은 것: 폰 확인(비행기 모드), Edit 버튼 (docs/stages/S3-changes.md)
-- S4 찾기·자세히 (2026-11-12, stage/S4-explore): 05 검색(Talks/People/Sessions, 프로그램 순서 "Not ranked for you"), 04 필터 전체 화면, No results, 06 발표, 07 저자, 어디서든 돋보기
-- "CMU" → Carnegie Mellon 발표 109개(모든 저자의 모든 소속). 06 하이라이트는 abstract.slice(start, end)가 맞는 인용만, 이모지 초록 테스트. 헤드리스 Chrome CPU 4배에서 검색 68–76 ms
-- 앱 데이터에 institutions.json(gzip 91 KB)·DOI(피드마다 다른 형식 정규화) 추가, Today 뒤 한가할 때 검색 파일·계획한 날 초록을 미리 받아 오프라인 동작. QA 13건 중 11건 고침, 새 revision도 빌드와 같은 앱 모양(app-shape.mjs)·저자 갱신. Figma v3 값으로 05·04·06·07 맞춤(Button outline/lg, 26px 제목). 남은 것: 폰 실기기, 한글 줄임말(원준님), 요약은 S7 (docs/stages/S4-explore.md)
-- S5 길 안내 (2026-11-12, stage/S5-wayfinding): 09(Figma 순서: 짧은 단계 줄 → 3D 평면도 → I'm here), 09-1(검색·Your last stop·Registration, 위치 추적 없음), Hear the turns(HRTF)
-- 공식 평면도 기준 경로 테스트 4개 통과(133→111 좌우·계단·엘리베이터 번호는 프로토타입과 다름, 결정 005). CPU 4배에서 3D p95 16.8 ms, context lost 복구, 동작 줄이기면 정지
-- Today 카드 걷는 시간 = 경로 시간(step-free면 더 일찍 Leave now). 남은 것: 프로토타입과 다른 3가지 확인, 폰 실기기 (docs/stages/S5-wayfinding.md)
-- S5b 진입점 (2026-11-13, stage/S5b-directions-entry): 하루 목록 모든 정차 ⋯·06·05 검색에서 Directions, 학회 날이 아니어도. 장소 키 09(방·Registration·가장 가까운 WC·엘리베이터)
-- route()가 평면도 지점도 받음, 05에 Rooms and places 줄. "pass Foyer 0" 같은 복도 이름 pass 없앰, "1 min". 직접 만든 계획(실제 시계) 헤드리스 entry-check 통과
-- 교차 검토 6건 고침(가장 가까운 WC는 초 단위·같은 층, 검색 여러 단어·한 구역 한 줄, 깨진 id, 시간 문구 하나), 장소 출발점은 지금 있는 방. 남은 것: 실기기 (docs/stages/S5b-directions-entry.md)
+(단계마다 3줄씩 추가. S0~S5b는 docs/stages/legacy-planner/README.md)
 - A0 Arc 계약·엔진 (2026-11-20, stage/A0-arc-contract): 결정 006·007, contracts/Arc 0.1.0(schema_version, tension off 추가) + evidence 규칙, engine/ 인터페이스·mock(TF-IDF + 단순 규칙, ?mock=)
 - 8종족 tribes.js + 테두리 빛(reduced-motion 정지), 데뷔 debut.json(chi2026 36.3%). 실데이터 질문 5개 → Arc 모두 검사 통과, node 11–47 ms
 - 남은 것: Figma 프레임 id 표(인증 대기), ✦ 기준(전체 저자 64% vs 제1저자 27%), mock Tension이 늘 found (docs/stages/A0-arc-contract.md)

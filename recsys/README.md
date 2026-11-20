@@ -1,5 +1,14 @@
 # recsys: 추천 모델 (Wonjune)
 
+## Arc 엔진 자리 (2026-11-20, 지금 기준)
+- **인터페이스**: `app/src/engine/types.ts`의 `Engine` (`init`, `tribeOf`, `angleTopics`, `buildArc`, `suggest`, `wildcard`), 결과는 `contracts/Arc.schema.json` 0.1.0. 앱은 `app/src/engine/index.ts`를 통해서만 부름
+- **연결**: `app/src/engine/ondevice.ts`가 이 폴더의 코드를 감싼다 (`?engine=ondevice` 또는 빌드 환경변수 `VITE_ENGINE=ondevice`). 기본은 mock(`app/src/engine/mock-core.js`, TF-IDF + 단순 규칙)
+- **이 폴더(recsys/)**: 모델 소스와 생성 스크립트(임베딩 만들기, 변환 등)
+- **모델 파일**: git에 넣지 않는다. 배포 빌드(`npm run build:deploy`)가 환경변수 `MODEL_URL`(zip)과 `MODEL_SHA256`을 확인해 `dist/model/`에 풀고, 앱은 같은 도메인 `/model/…`에서 받는다(1년 immutable 캐시). `MODEL_URL`이 없으면 건너뛰고 mock으로 동작. 스크립트 `app/scripts/fetch-model.mjs` (zip 안 경로는 상대 경로만, 빌드 환경에 `unzip` 필요)
+- 패키지 크기 20.3 MB(원준). 최종 방식(파일 구성, 서비스 워커 보관 여부)은 zip을 보고 확정
+
+## 아래는 옛 플래너 때 문서 (2026-11-20 전)
+
 ARC에서 추천이 맡는 일과, 다른 부분과 맞춰야 할 것을 정리한 문서입니다.
 
 ## 추천의 역할
@@ -44,10 +53,10 @@ npm run data:build   # data/build/<edition>/ 생성, 약 1초
 ]
 ```
 ```bash
-node tests/planner/try.mjs my-output.json            # 학회 전체 일정
-node tests/planner/try.mjs my-output.json --day 2026-04-14
+node tests/legacy/planner/try.mjs my-output.json            # 학회 전체 일정
+node tests/legacy/planner/try.mjs my-output.json --day 2026-04-14
 ```
-예시: `tests/planner/examples/accessibility.json`
+예시: `tests/legacy/planner/examples/accessibility.json`
 
 ## 입력과 처리 위치
 여러 입력으로 더 정확하게 추천하되, 개인을 알아볼 수 있는 조합이 기기 밖으로 나가지 않게 나눕니다.

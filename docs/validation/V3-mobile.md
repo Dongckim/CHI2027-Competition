@@ -10,13 +10,13 @@
   - 올리는 데이터는 `.vercelignore`로 chi2026의 확인 페이지가 읽는 것만 (people·aliases·raw·다른 연도 제외)
   - 키: Vercel 환경 변수 `SONIOX_API_KEY` (Production). 배포는 `npx vercel --prod` (git 자동 배포는 data/build가 없어서 안 씀)
   - 시작 페이지 `/` → `/tests/`
-- `/tests/mobile/bench.html` (무디자인): 자동 측정 + 사람이 누르는 O/X 17개 + "결과 복사"(마크다운 표)
+- `/tests/legacy/mobile/bench.html` (무디자인): 자동 측정 + 사람이 누르는 O/X 17개 + "결과 복사"(마크다운 표)
   - 기기·화면: `100vh/dvh/svh/lvh`, safe area, 다크 모드, 시스템 글자 크기, 진동·방향 고정 지원
   - 저장: IndexedDB에 처음 연 시각 → 다시 열면 경과 일수 (7일 테스트), `storage.persisted()/persist()/estimate()`
   - 예약 배너: 30초·2분 뒤 화면 안 배너, 지연 초와 경로(타이머·백그라운드 복귀·페이지 재로드)
   - 마이크: 권한 → 1초 녹음 형식·크기 (소리는 버림). Wake Lock, 알림 권한, 키보드(아래 고정 입력창이 보이는지)
-  - 플래너 속도 (V2 조건 ①): `tests/planner/bench.mjs`와 같은 계산을 휴대폰 브라우저에서
-- 자막·대면 대화: `/tests/captions/bench.html`, `/tests/captions/conversation.html`에서 하고 O/X에 표시
+  - 플래너 속도 (V2 조건 ①): `tests/legacy/planner/bench.mjs`와 같은 계산을 휴대폰 브라우저에서
+- 자막·대면 대화: `/tests/legacy/captions/bench.html`, `/tests/legacy/captions/conversation.html`에서 하고 O/X에 표시
 - shortcut: 결과 표는 contracts/ 형식이 아님. DeviceState 계약 확정 뒤 옮김
 
 ## 통과 기준
@@ -67,7 +67,7 @@ Safari 탭에서는 화면 값이 414×896으로 나와 실제(홈 화면 앱 40
 - 2026-10-29 이후 같은 페이지를 Safari 탭·홈 화면 앱 각각 열어 "처음 저장 후" 일수 확인
 - 홈 화면 앱에서: 자막·대면 대화, 백그라운드 중 배너 (2분 배너 예약 → 바로 나가서 3분 뒤 복귀)
 - Safari 탭에서: 자막 중 다른 앱 갔다 오기, 당겨서 새로고침
-- Android (Samsung Internet, Chrome 각각): `/tests/mobile/bench.html`을 탭에서 그대로 (홈 화면 추가 없이) 전부 측정 → 결과 복사
+- Android (Samsung Internet, Chrome 각각): `/tests/legacy/mobile/bench.html`을 탭에서 그대로 (홈 화면 추가 없이) 전부 측정 → 결과 복사
   - 웹 푸시: 알림 권한 → 60초 뒤 푸시 → 홈으로 나가거나 화면 끔 → 도착 여부·지연. Android는 브라우저 탭에서도 푸시가 되는 것으로 알려짐 (미확인)
   - 막히면 확인: Android 13+는 사이트 권한 + 휴대폰 설정의 브라우저 앱 알림 둘 다 필요, 배터리 절약·삼성 "절전 앱"이면 늦거나 안 옴
   - "not a known push service"가 뜨면 표의 "푸시 서비스" 주소를 `functions/push.mjs`의 `PUSH_HOSTS`에 추가 (Samsung Internet 푸시 서버 미확인)

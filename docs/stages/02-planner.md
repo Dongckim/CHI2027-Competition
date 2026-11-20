@@ -10,7 +10,7 @@
   - `venueTravelMinutes(venue, edition)`: V6 평면도 경로의 느린 쪽 분 (아래 06 참고). 그래프 없는 연도·방은 층 임시값 (같은 층 4분, 다른 층 7분, 휠체어 ×1.5 + 3분)
 - `contracts/`: 규칙, `npm run contracts:check`, 플래너가 필요로 하는 필드 체크리스트 (README). 스키마 필드는 아직 없음
 - `recsys/README.md`: 추천 쪽 인계 메모 (입력 처리 위치, 사람 추천)
-- 도구: `node tests/planner/try.mjs <후보.json>` (예: `tests/planner/examples/accessibility.json`), `node tests/planner/bench.mjs`
+- 도구: `node tests/legacy/planner/try.mjs <후보.json>` (예: `tests/legacy/planner/examples/accessibility.json`), `node tests/legacy/planner/bench.mjs`
 - 테스트 `tests/planner/plan.test.mjs`
 
 ## ② 통과 기준 결과
