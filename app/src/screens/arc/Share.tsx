@@ -62,7 +62,8 @@ export function Share({ id }: { id: string }) {
           <div aria-hidden="true" className="absolute bottom-4 left-4 flex items-center gap-1.5 text-[12px] font-medium text-arc-text/80">
             <Pic src={ANGLE_ICON.S} size={14} />{c.S}<span className="w-1" /><Pic src={ANGLE_ICON.R} size={14} />{c.R}<span className="w-1" /><Pic src={ANGLE_ICON.T} size={14} />{c.T}
           </div>
-          <Pic src={arcMark} w={34} h={20} className="absolute right-[19px] bottom-4" />
+          {/* TODO(designer): is this gradient mark the ARC logo? At 34×20 it reads like a loading spinner (user, 16 feedback) */}
+          <Pic src={arcMark} w={34} h={20} alt="ARC" className="absolute right-[19px] bottom-4" />
         </figure>
         {/* Figma draws only a peek of this card: the messenger preview, as the share page's tags make it (image in A4) */}
         <figure className="relative flex h-[430px] w-[300px] shrink-0 snap-center flex-col overflow-hidden rounded-[28px] border border-arc-line" style={tint(arc)}>
