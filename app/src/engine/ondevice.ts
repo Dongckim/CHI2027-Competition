@@ -6,4 +6,4 @@ import type { Engine } from './types';
 export const MODEL_CACHE = 'arc-model-v1';
 const notYet = async (): Promise<never> => { throw new Error('ondevice engine is not wired yet (recsys/)'); };
 
-export const ondeviceEngine: Engine = { init: notYet, tribeOf: notYet, angleTopics: notYet, buildArc: notYet, suggest: notYet };
+export const ondeviceEngine: Engine = { init: notYet, tribeOf: notYet, angleTopics: notYet, buildArc: notYet, suggest: notYet, wildcard: notYet };

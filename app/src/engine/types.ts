@@ -39,6 +39,9 @@ export interface Engine {
   angleTopics(query: string): Promise<Record<Angle, AngleTopic[]>>; // 08: 3–5 per angle
   buildArc(query: string, opts: { angles: Angle[]; topicIds?: string[]; days: string[]; types: string[] }): Promise<Arc>;
   suggest(query: string, angle: Angle, excludeKeys: string[], limit?: number): Promise<ArcNode[]>; // 15: same angle
+  // 15 Wildcard (user decision 2026-11-20): talks a step away from the question, to break the filter bubble. The engine
+  // picks each one's angle. Added after Arc 0.1.0 was shared: Wonjune to confirm.
+  wildcard(query: string, excludeKeys: string[], limit?: number): Promise<ArcNode[]>;
 }
 
 export const QUERY_MAX = 200;
