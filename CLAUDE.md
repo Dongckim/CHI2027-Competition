@@ -8,17 +8,18 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 
 ## 현재 상태 (Arc, 결정 006)
 - 질문 하나 → 세 관점의 발표 묶음(Arc). 화면 이름 Supports ↑ / Reframes ↻ / Challenges ⊣, 코드·계약 키 S/R/T (개발 지시서의 "Tension" = 화면의 Challenges). 8개 종족 색 테두리, 링크·QR 공유·받기
-- 단계 A0~A4 (`stage/A0-arc-contract`…), 11/23 동결, 마감 12/4. A0~A2 끝, 다음은 A3(공유·받기·Q&A)
+- 단계 A0~A4 (`stage/A0-arc-contract`…), 11/23 동결, 마감 12/4. A0~A3 끝, 다음은 A4(OG 이미지·서비스 워커·접근성·배포·동결)
 - 계약: `contracts/Arc.schema.json` 0.1.0과 엔진 인터페이스 `app/src/engine/types.ts`(사용자 승인). 그 밖의 필드는 임의로 추가하지 말고 물어볼 것. 계약을 바꾸면 PR에 "원준 확인 필요"
 - 추천(무엇을 어떤 관점으로)은 `app/src/engine/`에만. `index.ts`가 mock(기본) / ondevice(`?engine=ondevice`, `VITE_ENGINE`) 선택. 시간·방·저자·세션은 엔진이 아니라 data/build에서 key로 붙임. mock은 "VR" 수정 뒤 동결(더 다듬지 않음)
 - 원준 엔진: 소스·생성 스크립트는 `recsys/`, 모델 zip은 git 밖 → `build:deploy`가 `MODEL_URL`·`MODEL_SHA256`으로 `dist/model/`에 풂(`/model/` 서빙). 없으면 mock (recsys/README.md)
 - 옛 플래너(S0~S5b)는 지우지 않고 진입점에서만 뺌: 화면 `app/src/legacy/`, 직접 주소로 열림. 기록 `docs/stages/legacy-planner/`
-- 데모 시계 `?at=2026-04-14T12:00`(개최지 시각). mock 상태 `?mock=slow|none|pending|crowded`
+- 데모 시계: 학회 기간 밖이면 자동으로 둘째 날 10:00(배너 표시), `?at=2026-04-14T12:00`(개최지 시각)이 우선. mock 상태 `?mock=slow|none|pending|crowded`
+- 공유 `/s/<payload>`(arc/link.js, functions/share.mjs), 받기 `#/r/<payload>`. Q&A `functions/qa.mjs`: Upstash 환경변수가 없으면 메모리
 
 ## 명령 (Node 26 = Vercel 빌드와 같게, `package.json` engines. 로컬 20.19+도 동작하지만 26 권장. `arc/`에서)
 - 데이터: `npm run data:fetch [edition...]`(version.json 조회 → 새 리비전만 data/raw) · `npm run data:validate`(공식 스키마, chi2025 외 실패가 정상) · `npm run data:ror`(새 기관 이름만 ROR 캐시) · `npm run data:build [edition...]`(data/build, 네트워크 안 씀) · `node data/scripts/report.mjs`(V0 측정값) · `npm run data:venue -- <CCIB PDF>` · `npm run data:venue:check [edition]`
 - 검사: `npm test`(하나만 `node --test --test-name-pattern="talk slots" tests/`) · `npm run typecheck` · `npm run contracts:check`
-- 헤드리스(빌드 먼저, 서버를 스스로 켜고 끔): `node --experimental-websocket tests/arc/create-check.mjs [--shots <dir>]`(01 → 12 → 14) · `tests/arc/arc-check.mjs`(12·13·14·15·23–25, mock Arc를 IndexedDB에 넣고 데모 시계)
+- 헤드리스(빌드 먼저, 서버를 스스로 켜고 끔): `node --experimental-websocket tests/arc/create-check.mjs [--shots <dir>]`(01 → 12 → 14) · `tests/arc/arc-check.mjs`(12·13·14·15·23–25, mock Arc를 IndexedDB에 넣고 데모 시계) · `tests/arc/share-check.mjs`(16–20, /s/ 링크, 14 Q&A; vite preview가 /api/share·/api/qa를 붙임)
 - 엔진: `node tests/engine/try.mjs ["질문" ...] [--mode none|pending|crowded] [--no-t]`(mock Arc JSON + 계약 검사) · `node tests/engine/tribes-report.mjs`(종족 분포)
 - 앱: `npm run dev`(같은 Wi-Fi 폰에서도 열림) · `npm run build`(dist/, data/build/chi2026 필요) · `npm run build:deploy`(Vercel: 피드 받기 → 빌드 → 앱 → 모델)
 - 벤치: `npm run bench`(tests/serve.mjs, functions/를 /api/로) → `/tests/legacy/…` 페이지(`.env.local`에 `SONIOX_API_KEY=...`, git 무시)
@@ -144,3 +145,6 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - A2 지도·목록·상세·편집 (2026-11-20, stage/A2-arc): 12 지도(노드 상태 4가지, +N 묶음, 23·25), 13 목록(제목 두 줄), 14(저자 전원 ✦ New to CHI, 세션, I heard it, Q&A 자리), 15 Edit(−/+, Swap, Wildcard)
 - 엔진 wildcard 추가(원준 확인 필요), mock "VR" 최소 수정 후 동결. arc-check 11/11, create-check 15/15, 첫 화면 88.4 KB
 - 남은 것: Share·Q&A는 A3, 15에서 묶인 노드 편집, 실기기 (docs/stages/A2-arc.md)
+- A3 공유·받기·Q&A (2026-11-20, stage/A3-share): 데모 시계(기간 밖이면 둘째 날 10:00 + 배너), 23 "No clear challenge", 16 Share·17 QR(uqr 0.1.3)·18 Shared Arc·19 Pick some·20 My Arcs, /s/ share 함수(OG 태그), 14 Q&A(메모리 → Upstash REST)
+- share-check 10/10, create-check 15/15, arc-check 12/12, npm test 136/136, 첫 화면 90.1 KB. 고친 버그: 탭에서 첫 저장 전에 목록을 안 읽어 홈에 예전 Arc가 안 보임
+- 남은 것: Upstash 연결(사용자), og:image·실기기·메신저 미리보기(A4), QR이 촘촘함(긴 링크) (docs/stages/A3-share.md)
