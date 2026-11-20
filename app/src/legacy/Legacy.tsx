@@ -25,6 +25,7 @@ const TITLES = { today: 'Today', explore: 'Explore', questions: 'Questions' };
 export function Legacy() {
   const route = useRoute();
   const state = useDevice();
+  useEffect(() => { document.documentElement.dataset.legacy = ''; return () => { delete document.documentElement.dataset.legacy; }; }, []); // its light page (index.css)
   const [head, step, edit, more] = route.split('/');
   const tab = tabOf(route);
   // Opening the app: a built plan → Today, browsing → Explore, otherwise back to the onboarding step that was left.
