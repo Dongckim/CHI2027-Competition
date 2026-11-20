@@ -158,6 +158,9 @@ export function tribeOf(index, query) {
   return majority(votes) ?? { tribe: tribeOfText(query) ?? 'design', confidence: 0 };
 }
 
+// Sessions named after a format or a time slot, not a topic ("Posters (Tuesday)", "Interactivity Demos"): no use as a 08 chip.
+const FORMAT_BLOCK = /^(Posters \(|Video Presentations|Interactivity Demos|Reception and Interactivity|Student Research Competition|Student Mentoring|Global Science Program)/;
+
 /** 08: per angle, the sessions (real names) the angle's talks are in; 3–5 each when the data has them. */
 export function angleTopics(index, query) {
   const groups = classify(index, query, candidates(index, query));
@@ -165,7 +168,11 @@ export function angleTopics(index, query) {
   for (const angle of ['S', 'R', 'T']) {
     const count = new Map();
     for (const n of groups[angle]) for (const k of sessionsOf(index.byKey.get(n.key))) count.set(k, (count.get(k) ?? 0) + 1);
-    out[angle] = [...count].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([id]) => ({ id, label: index.sessionName.get(id) ?? id }));
+    const seen = new Set();
+    out[angle] = [...count].sort((a, b) => b[1] - a[1])
+      .map(([id]) => ({ id, label: index.sessionName.get(id) ?? id }))
+      .filter(t => !FORMAT_BLOCK.test(t.label) && !seen.has(t.label) && seen.add(t.label)) // a two-part workshop once
+      .slice(0, 5);
   }
   return out;
 }
