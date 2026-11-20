@@ -114,7 +114,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 
 ## Git 규칙
 - 단계가 끝나면 push → PR → 머지까지 한다 (2026-11-20 사용자 결정). 허용 범위는 `.claude/settings.json`과 같다:
-  - `git push -u origin stage/<…>` 브랜치 push만. main에 직접 push, 강제 push, 원격 브랜치 삭제, `git remote` 금지
+  - push는 `stage/*`, `fix/*`, `docs/*`, `chore/*`, `refactor/*`, `test/*`, `perf/*`, `build/*` 브랜치만 (2026-11-20 넓힘). main에 직접 push, 강제 push, 원격 브랜치 삭제, `git remote` 금지
   - `gh pr create`(아래 PR 형식), `gh pr view/list/checks`, `gh pr merge --merge`(merge commit만, squash·rebase·--admin 금지). `gh api`, `gh repo` 금지
   - 머지 전에 `npm test`·`npm run typecheck`·`npm run contracts:check`가 통과해야 한다. 실패하면 머지하지 않고 알린다
   - 머지 후 로컬 main을 `git pull --ff-only`로 맞추고 다음 단계 브랜치를 main에서 딴다
