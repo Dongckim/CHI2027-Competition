@@ -19,6 +19,8 @@ test('08 topics: Figma defaults, kept for the same question, and the build optio
   assert.deepEqual([on('S'), on('R'), on('T')], [2, 2, 1]);
   s = toggleTopic(s, 'S', 'chi2026:s2');
   assert.equal(setTopics(s, 'presence', { S: [], R: [], T: [] }), s); // same question: kept
+  assert.deepEqual(buildOptions(arcOf(setTopics(setQuery({}, 'q'), 'q', { S: t(1, 's'), R: [], T: [] })).draft, []).angles, ['S', 'R', 'T'],
+    'an angle with no chip to offer stays in, so the engine can say none (23)');
   s = toggleTopic(s, 'T', 'chi2026:t0'); // no Challenge on → T left out (tension off)
   s = toggleWhat(s, 'demos');
   const o = buildOptions(arcOf(s).draft, ['2026-04-14']);

@@ -82,6 +82,13 @@ test('chi2026: Arcs for 5 questions pass the schema and the evidence rules; sugg
   const tribes = tribesOf(i);
   assert.equal(tribes.size, corpus.papers.length);
   assert.ok([...tribes.values()].every(t => ['ai', 'xr', 'access', 'health', 'learning', 'society', 'devices', 'design'].includes(t.tribe)), 'every talk in one of the 8');
+  // The way the app builds (08 chips → topicIds): posters and demos in format-block sessions still come in
+  const t = angleTopics(i, 'presence');
+  const ids = ['S', 'R', 'T'].flatMap(a => t[a].slice(0, 2).map(x => x.id));
+  const ui = buildArc(i, 'presence', { angles: ['S', 'R', 'T'], topicIds: ids, days: [], types: ['Paper', 'Posters', 'Interactive Demos'] }, { id: 'arc-test-1', createdAt: 0 });
+  const kinds = new Set(ui.nodes.map(n => corpus.papers.find(p => p.key === n.key).type));
+  assert.ok(kinds.has('Posters'), `UI-path Arc has posters: ${[...kinds]}`);
+  assert.ok(Object.values(t).flat().every(x => !/^Posters \(|Interactivity Demos/.test(x.label)), 'no format-block chips');
   const crowded = buildArc(i, 'presence', { angles: ['S', 'R', 'T'], days: [], types: [] }, { id: 'arc-test-1', createdAt: 0, mode: 'crowded' });
   assert.ok(crowded.nodes.length > 9, `crowded has ${crowded.nodes.length}`);
 });

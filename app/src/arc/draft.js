@@ -52,10 +52,13 @@ export const toggleWhat = (state, what) => {
 };
 export const resetDraft = state => withArc(state, { draft: freshDraft() });
 
-/** The buildArc options for a draft: angles with a chip on (none on → that angle is left out; no T → tension off). */
+/**
+ * The buildArc options for a draft. An angle whose chips are all switched off is left out (no T → tension off, no 23).
+ * An angle that had no chip to offer stays in, so the engine can say there is none (T → tension none → 23).
+ */
 export function buildOptions(draft, days) {
   const on = a => draft.topics[a].filter(t => t.on).map(t => t.id);
-  const angles = ['S', 'R', 'T'].filter(a => on(a).length);
+  const angles = ['S', 'R', 'T'].filter(a => on(a).length || !draft.topics[a].length);
   return { angles, topicIds: angles.flatMap(on), days, types: draft.what.flatMap(k => WHAT[k]) };
 }
 

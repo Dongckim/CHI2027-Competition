@@ -66,6 +66,13 @@ function bestSentence(abstract, q, only) {
   return best;
 }
 
+// 08 chips are topical sessions only, so a talk whose sessions are all format blocks (most posters and demos sit in
+// "Posters (Tuesday)", "Interactivity Demos") cannot be picked by a chip: it passes, and 09's What chips decide.
+const inSessions = (index, p, keys) => {
+  const topical = sessionsOf(p).filter(k => !FORMAT_BLOCK.test(index.sessionName.get(k) ?? ''));
+  return !topical.length || topical.some(k => keys.includes(k));
+};
+
 /**
  * Top candidates for the question after the filters, best first: [{ paper, score }].
  * @param {{ days?: string[], types?: string[], sessionKeys?: string[], limit?: number }} [filters]
@@ -73,7 +80,7 @@ function bestSentence(abstract, q, only) {
 export function candidates(index, query, { days = [], types = [], sessionKeys = [], limit = POOL } = {}) {
   const tz = index.corpus.meta.timeZone;
   const keep = p => (!types.length || types.includes(p.type)) && (!days.length || days.includes(dayOf(p, tz)))
-    && (!sessionKeys.length || sessionsOf(p).some(k => sessionKeys.includes(k)));
+    && (!sessionKeys.length || inSessions(index, p, sessionKeys));
   const items = recommend(query, index.base, { limit: index.base.N }).items;
   // Score against the mean of the top 3, not the top 1: one standout match (1.00, then 0.60) would push every other
   // talk under the S bar ("Does VR fidelity raise presence?" had no Supports). Capped at 1.
