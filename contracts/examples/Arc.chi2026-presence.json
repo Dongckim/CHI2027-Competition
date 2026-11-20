@@ -1,0 +1,116 @@
+{
+  "schema_version": "0.1.0",
+  "id": "example-presence-0001",
+  "edition": "chi2026",
+  "query": "Does VR fidelity raise presence?",
+  "tribe": "xr",
+  "nodes": [
+    {
+      "key": "chi2026:222026",
+      "angle": "S",
+      "label": "Social, Spatial, and Se…",
+      "evidence": {
+        "sentence": "Extensive research has examined presence and basic psychological needs (drawing on Self-Determination Theory) in digital media.",
+        "start": 0,
+        "end": 127
+      },
+      "debut": false
+    },
+    {
+      "key": "chi2026:222447",
+      "angle": "S",
+      "label": "Usage Matters",
+      "evidence": {
+        "sentence": "The sense of presence is central to immersive experiences in Virtual Reality (VR), and particularly salient in socially rich platforms like social VR.",
+        "start": 0,
+        "end": 150
+      },
+      "debut": false
+    },
+    {
+      "key": "chi2026:223247",
+      "angle": "S",
+      "label": "Virtual Perspectives",
+      "evidence": {
+        "sentence": "Yet, how VR qualities, such as spatial presence and agency, influence -- and potentially enhance -- perspective-taking remains unclear.",
+        "start": 176,
+        "end": 311
+      },
+      "debut": false
+    },
+    {
+      "key": "chi2026:223439",
+      "angle": "S",
+      "label": "Designing for Wayfindin…",
+      "evidence": {
+        "sentence": "We conducted a between-subjects study (N=142) in two high-fidelity VR hospital contexts, including free exploration and task-based wayfinding, while treating locomotion and viewpoint transitions as experimental factors.",
+        "start": 276,
+        "end": 495
+      },
+      "debut": true
+    },
+    {
+      "key": "chi2026:222323",
+      "angle": "R",
+      "label": "When Hands Meet Physics…",
+      "evidence": {
+        "sentence": "Physics governs everyday interaction, yet in Virtual Reality (VR) the fidelity of such interactions can diverge from reality.",
+        "start": 0,
+        "end": 125
+      },
+      "debut": true
+    },
+    {
+      "key": "chi2026:222328",
+      "angle": "R",
+      "label": "Defining Reality in Dem…",
+      "evidence": {
+        "sentence": "We translate these insights into design implications for at-home IADL-focused VR systems that emphasize functional fidelity, adaptability, and collaborative use, grounding real-world relevance in the lived routines and caregiving ecosystems of PwD.",
+        "start": 929,
+        "end": 1177
+      },
+      "debut": true
+    },
+    {
+      "key": "chi2026:229441",
+      "angle": "R",
+      "label": "Rethinking Simulator Fi…",
+      "evidence": {
+        "sentence": "High-fidelity simulators are considered vital for evaluating user experience of future systems.",
+        "start": 0,
+        "end": 95
+      },
+      "debut": true
+    },
+    {
+      "key": "chi2026:222304",
+      "angle": "T",
+      "label": "Effects of Virtual Real…",
+      "evidence": {
+        "sentence": "However, unlike prior work, we did not find that changes in scenario fidelity significantly affected one’s scenario presence.",
+        "start": 804,
+        "end": 929
+      },
+      "debut": false
+    },
+    {
+      "key": "chi2026:229895",
+      "angle": "T",
+      "label": "Exploring the Time Cour…",
+      "evidence": {
+        "sentence": "However, little is known about how such effects unfold during ongoing avatar embodiment in VR.",
+        "start": 242,
+        "end": 336
+      },
+      "debut": true
+    }
+  ],
+  "tension": "found",
+  "filters": {
+    "days": [],
+    "types": []
+  },
+  "source": "mine",
+  "engine": "mock@0.1",
+  "createdAt": 1795176000000
+}

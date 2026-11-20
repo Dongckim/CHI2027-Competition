@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "Arc.schema.json",
+  "title": "Arc",
+  "description": "엔진 → 앱. 질문 하나와 그 질문을 세 관점(S Support ↑ · R Reframe ↻ · T Tension ⊣)으로 둘러싼 발표들. 무엇을 어떤 관점으로 보여 줄지만 담는다. 시간·방·저자·세션은 앱이 data/build에서 key로 붙인다. 기기에만 저장(IndexedDB arc.arcs). 엔진 인터페이스: app/src/engine/types.ts",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "edition", "query", "tribe", "nodes", "tension", "filters", "source", "engine", "createdAt"],
+  "properties": {
+    "schema_version": { "const": "0.1.0" },
+    "id": { "description": "기기에서 만든 무작위 id", "type": "string", "pattern": "^[A-Za-z0-9_-]{8,64}$" },
+    "edition": { "$ref": "#/$defs/edition" },
+    "query": { "description": "사용자가 쓴 그대로 (200자까지)", "type": "string", "minLength": 1, "maxLength": 200 },
+    "tribe": { "$ref": "#/$defs/tribe" },
+    "nodes": { "type": "array", "items": { "$ref": "#/$defs/node" } },
+    "tension": {
+      "description": "found: T 노드 있음 · none: T를 찾았지만 뚜렷한 것이 없음(23번 화면) · pending: 아직 판정 중(25번) · off: 사용자가 T를 고르지 않음",
+      "enum": ["found", "none", "pending", "off"]
+    },
+    "filters": {
+      "type": "object", "additionalProperties": false,
+      "required": ["days", "types"],
+      "properties": {
+        "days": { "description": "개최지 날짜 YYYY-MM-DD. 비면 모든 날", "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" } },
+        "types": { "description": "피드의 콘텐츠 종류 이름(papers.json type). 비면 모든 종류", "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "source": { "enum": ["mine", "received"] },
+    "engine": { "description": "만든 엔진과 버전, 예: mock@0.1 · ondevice@<모델버전>", "type": "string", "pattern": "^[a-z]+@.+$" },
+    "createdAt": { "description": "UTC epoch ms", "type": "integer", "minimum": 0 }
+  },
+  "$defs": {
+    "edition": { "type": "string", "pattern": "^(chi\\d{4}|sandbox)$" },
+    "tribe": { "enum": ["ai", "xr", "access", "health", "learning", "society", "devices", "design"] },
+    "angle": { "description": "S Support ↑ · R Reframe ↻ · T Tension ⊣", "enum": ["S", "R", "T"] },
+    "node": {
+      "type": "object", "additionalProperties": false,
+      "required": ["key", "angle", "label", "evidence", "debut"],
+      "properties": {
+        "key": { "description": "발표 키 edition:id (Arc의 edition과 같은 해)", "type": "string", "pattern": "^(chi\\d{4}|sandbox):\\d+$" },
+        "angle": { "$ref": "#/$defs/angle" },
+        "label": { "description": "지도 노드용 짧은 이름", "type": "string", "minLength": 1, "maxLength": 24 },
+        "evidence": {
+          "description": "초록 원문 인용. sentence === abstract.slice(start, end) (UTF-16). 확신 없으면 null",
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object", "additionalProperties": false,
+              "required": ["sentence", "start", "end"],
+              "properties": {
+                "sentence": { "type": "string", "minLength": 1 },
+                "start": { "type": "integer", "minimum": 0 },
+                "end": { "type": "integer", "minimum": 1 }
+              }
+            }
+          ]
+        },
+        "debut": { "description": "이전 3개 대회(예: 2023–2025)에 같은 이름의 저자가 없는 저자가 있음. 화면: ✦ New to CHI", "type": "boolean" }
+      }
+    }
+  }
+}
