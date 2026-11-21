@@ -96,7 +96,7 @@ export function Received({ payload }: { payload: string }) {
       <p className="mt-2 inline-flex items-center gap-1.5 self-start rounded-2xl border border-arc-line bg-arc-surface py-1.5 pr-3 pl-2.5 text-[13px] font-semibold"><Pic src={linkIcon} size={14} />Shared Arc</p>
       <h1 className="mt-3 text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
       {missing > 0 && <p className="mt-2 text-[14px] text-arc-text-2">{missing} {missing === 1 ? 'talk is' : 'talks are'} not in this programme and were left out.</p>}
-      <div className="-mx-6 mt-4"><ArcView arc={arc} states={states} info={info} scale={0.78} readOnly /></div>
+      <div className="-mx-6 mt-4"><ArcView arc={arc} states={states} info={info} scale={0.78} readOnly fit /></div>
     </Screen>
   );
 }
