@@ -10,7 +10,15 @@ test('share page: preview tags from the link, escaped, then on to #/r/<payload>'
   const p = encodeLink(arc);
   const html = sharePage(p, 'https://arc.example');
   assert.match(html, /<meta property="og:title" content="Does &lt;VR&gt; &quot;fidelity&quot; raise presence\?">/);
-  assert.match(html, /↑ 1 Supports · ↻ 0 Reframes · ⊣ 1 Challenges · from the CHI 2026 programme\. Unofficial\./);
+  // Figma 16b: real counts, the first known talk's day, site arc2027.com
+  const talks = { edition: 'chi2026', papers: { 2: ['Tue 14', 'r1', 0] } };
+  const desc = 'ARC · ↑ 1 support · ↻ 0 reframe · ⊣ 1 challenge · Tue 14';
+  const withDay = sharePage(p, 'https://arc.example', talks);
+  for (const tag of ['property="og:description"', 'name="twitter:description"', 'name="description"']) assert.ok(withDay.includes(`<meta ${tag} content="${desc}">`), tag);
+  assert.ok(withDay.includes('<meta property="og:site_name" content="arc2027.com">'));
+  assert.ok(withDay.includes('<meta name="twitter:title" content="Does &lt;VR&gt; &quot;fidelity&quot; raise presence?">'));
+  assert.ok(sharePage(p, 'https://arc.example', null).includes('content="ARC · ↑ 1 support · ↻ 0 reframe · ⊣ 1 challenge">'), 'no index: no day');
+  assert.ok(sharePage(p, 'https://arc.example', { ...talks, edition: 'chi2027' }).includes('challenge">'), 'another edition\'s index: no day');
   assert.ok(html.includes(`location.replace("/#/r/${p}")`));
   assert.ok(!html.includes('<VR>'), 'no raw question in the page');
   const broken = sharePage('not!valid', 'https://arc.example');
