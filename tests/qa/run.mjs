@@ -17,6 +17,7 @@ const CHECKS = [
   ['press', 'tests/qa/press-check.mjs'],
   ['orb', 'tests/qa/orb-check.mjs'],
   ['webkit', 'tests/qa/webkit-check.mjs'], // Playwright WebKit (npx playwright install webkit once)
+  ['cards', 'tests/qa/cards-check.mjs'], // 16 card paging: dots, arrow keys, WebKit touch swipe, desktop drag
   ['a11y', 'tests/arc/a11y-check.mjs'],
   ['create', 'tests/arc/create-check.mjs'],
   ['arc', 'tests/arc/arc-check.mjs'],
