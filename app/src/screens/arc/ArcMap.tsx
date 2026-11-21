@@ -48,7 +48,7 @@ export function ArcMap({ id }: { id: string }) {
             <img src={spinner} alt="" width={16} height={16} />Sorting angles…{/* Figma 25: a still 3/4 arc */}
           </p>
         )}
-        <ArcView arc={arc} states={states} info={info} scale={fit} onNode={k => go(`talk/${k}`)} onBundle={() => go(`arc/${id}/list`)} />
+        <ArcView arc={arc} states={states} info={info} scale={fit} fit onNode={k => go(`talk/${k}`)} onBundle={() => go(`arc/${id}/list`)} />
       </div>
       <AngleHelp open={help} onClose={closeHelp} />
     </Screen>

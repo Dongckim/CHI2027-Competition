@@ -57,6 +57,8 @@ export function layout(arc, edit = false) {
   // from the sides' lower seats (66 / 324, 358) into them, from them into the middle one, and from that one into the
   // Next-up card at y 660: those titles keep one line.
   if (r.placed.some(x => x.at[0] === 100)) for (const x of [s.placed[1], t.placed[1], ...r.placed]) if (x) x.oneLine = true;
+  // A lone Reframe (195, 470) sits lowest: two lines would end 3 px under the bottom area's top on 12 (Figma: one line)
+  if (r.placed.length === 1 && r.placed[0].at[1] === 470) r.placed[0].oneLine = true;
   const bundles = [['S', s], ['T', t], ['R', r]].filter(([, x]) => x.bundle).map(([angle, x]) => ({ angle, ...x.bundle }));
   return { nodes: [...s.placed, ...r.placed, ...t.placed], bundles, emptyT: arc.tension === 'none' ? RIGHT.one[0] : null };
 }

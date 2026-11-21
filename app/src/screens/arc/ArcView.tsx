@@ -39,11 +39,14 @@ export type Info = { title: string; short: string; time: string; when: string; r
 export type Pick = { picked: Set<string>; locked: Map<string, 'ended' | 'mine'>; onToggle: (key: string) => void };
 type Edit = { selected: string | null; onSelect: (key: string) => void; onRemove: (key: string) => void; onAdd: (angle: Angle) => void; adding: Angle | null };
 
-export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, pick, picture, readOnly }: {
+export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, pick, picture, readOnly, fit }: {
   arc: Arc; states: Map<string, NodeState>; info: (key: string) => Info; scale?: number;
   onNode?: (key: string) => void; onBundle?: (angle: Angle) => void; edit?: Edit;
   /** picture: a shareable image (16), text scales with the map and nothing is a button. readOnly: shown, not tappable (18). */
   pick?: Pick; picture?: boolean; readOnly?: boolean;
+  /** fit: only Figma's 530 box takes room (12, 18 fit one screen as in Figma); the bottom labels hang into the gap above
+   *  the bottom area (tests/qa/height-check.mjs keeps every node above it) */
+  fit?: boolean;
 }) {
   type Seat = [number, number];
   const l = layout(arc, !!edit) as { nodes: { node: Arc['nodes'][number]; at: Seat; oneLine?: boolean }[]; bundles: { angle: Angle | null; at: Seat; count: number }[]; emptyT: Seat | null }; // map.js is untyped JS
@@ -69,7 +72,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   for (const n of arc.nodes) counts[n.angle]++;
 
   return (
-    <div className="relative mx-auto" style={{ width: BOX.w * scale, height: (BOX.h + BELOW) * scale }} inert={picture || undefined} aria-hidden={picture || undefined}>
+    <div className="relative mx-auto" style={{ width: BOX.w * scale, height: (BOX.h + (fit ? 0 : BELOW)) * scale }} inert={picture || undefined} aria-hidden={picture || undefined}>
       <div className="absolute top-0 left-0 origin-top-left" style={{ width: BOX.w, height: BOX.h, transform: scale === 1 ? undefined : `scale(${scale})`, '--map-scale': picture ? 1 : scale } as CSSProperties}>
         {!picture && <> {/* Figma 16's picture has no orbits */}
           <img src={outerOrbit} alt="" aria-hidden="true" style={{ position: 'absolute', left: -25, top: 20, width: 440, height: 440 }} />
