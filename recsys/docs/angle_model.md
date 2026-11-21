@@ -136,6 +136,24 @@ python angles.py '{"screen": "questions", "id": 223179, "questions": ["Over time
 
 질문 묶기는 8 MB 인코더로 하므로 영어 문장이어야 한다. 다른 언어 질문은 앱이 먼저 영어로 옮긴다(브라우저의 온디바이스 번역기). 이 인코더는 "train station"과 "airports"처럼 뜻만 가까운 질문은 잘 묶지 못한다.
 
+## 결과 문장만 근거로, 종족은 입력한 말로 (11/22)
+
+팀 확인에서 두 가지가 나왔다.
+
+**결과가 아닌 문장의 카드.** 222623의 Challenge 근거가 "This study investigated how haptic feedback influences …"였다. LLM이 목표·방법 문장을 `result`, `no_effect`로 저장한 것이다. 이제 `build_angles.py`가 `result` 카드의 문장을 한 번 더 읽는다. 연구 공백·선행 연구 문장("little is known", "prior work")은 `prior`가 된다. 결과 표현(found, results show, significantly, % 등)이 없는 문장 가운데 초록 첫 문장도 `prior`가 된다. 시스템 소개("We present X that …")는 `claim`(Support는 Try it까지만), 목표·방법("This study investigated", "We conducted interviews with 20 …")은 `aim`이다. "unlike prior work, we did not find …"처럼 우리 결과를 말하는 문장은 그대로 `result`다. Challenge와 Evidence Support는 `result` 카드에서만 나오므로, 이런 문장은 더 이상 근거가 되지 않는다. 카드 14,666개 가운데 약 1,600개가 `result`에서 빠졌다(aim 878, prior 387, claim 335). 정답 세트의 Challenge 하나(229929)가 사라졌는데, 그 근거도 초록 첫 문장("Social isolation … challenge older adults' wellbeing")이었다.
+
+**종족.** 주제("privacy of smart home devices")로 만든 Arc는 가장 날카로운 질문 하나로 만들어진다. 그런데 종족도 그 질문으로 계산해서, 질문이 다른 데로 흐르면 종족도 함께 흘렀다("Do parent-child tensions …" → Learning). 이제 종족은 언제나 사람이 입력한 말로 정한다(`arc`, `edit`의 Wildcard, `shared`). `ask`의 종족과 같아진다.
+
+| 입력 | 전 | 지금 |
+|---|---|---|
+| accessible indoor navigation for blind people | Society & communities | Accessibility & aging (margin 0.94) |
+| privacy of smart home devices | Learning & families | Society & communities (0.47) |
+| Robotics could be helpful to the human daily life? | Design & creativity | Health & wellbeing (0.16, 다음은 Accessibility & aging) |
+
+로봇 질문은 맞는 발표가 여러 분야에 흩어져 있어 차이가 작다. 11 화면의 Change 목록 맨 위에 2등 종족이 나온다.
+
+Support 기준을 풀어 본 결과(정답 세트, 바꾸지는 않음): Support가 X·Y 둘 다 0.70 대신 0.65 이상이면 48문항 precision .619→.625, recall .228→.263이다. 0.55까지 내리면 recall은 .298로 오르지만 holdout precision이 .50→.17로 떨어진다. 80개 질문의 Arc 노드 가운데 Support 비율은 7%(0.70), 8%(0.65), 10%(0.55)로 거의 그대로다. Support가 적은 것은 기준 탓보다 "X가 Y를 올린다"고 직접 말하는 결과 카드가 적어서다.
+
 ## 다시 만들기
 
 ```bash
