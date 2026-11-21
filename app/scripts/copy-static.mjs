@@ -38,9 +38,10 @@ console.log(`copied ${EDITION} data, app-data/${EDITION}/${current.path}, venue,
 // app-data folder (schedule, every day's abstracts, people, topics, institutions, debut: what the engine and the Arc
 // screens read, so a first visit works in airplane mode too, A4) and the venue graph with its names. The files are
 // immutable-cached, so the worker mostly gets them from the browser's HTTP cache. Not the 3D view (view3d-*.js, with
-// three.js): it loads when 09 opens, and the worker keeps it then.
+// three.js): it loads when 09 opens, and the worker keeps it then. Nor the on-device engine (ondevice*.js, 65 KB gzip):
+// only ?engine=ondevice loads it while the engines are compared (user 11/21). shortcut: precache it once it is the default.
 export function precacheList(assets, appDataPath, venue, appDataFiles = ['schedule.json']) {
-  return ['/', '/index.html', ...assets.filter(f => /\.(js|css|woff2|svg)$/.test(f) && !/^view3d-/.test(f)).sort().map(f => `/assets/${f}`),
+  return ['/', '/index.html', ...assets.filter(f => /\.(js|css|woff2|svg)$/.test(f) && !/^(view3d|ondevice)[-.]/.test(f)).sort().map(f => `/assets/${f}`),
     ...[...appDataFiles].sort().map(f => `/app-data/${EDITION}/${appDataPath}${f}`), `/data/venue/${EDITION}.json`, `/data/venue/${venue}.json`, `/data/venue/${venue}.labels.json`];
 }
 const appDataDir = from(`dist/app-data/${EDITION}/${current.path}`);

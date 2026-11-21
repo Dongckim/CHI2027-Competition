@@ -50,7 +50,7 @@ export function Edit({ id }: { id: string }) {
             onRemove: k => { setNodes(nodes.filter(n => n.key !== k)); if (selected === k) setSelected(null); },
             onAdd: a => { setAdding(x => (x === a ? null : a)); setSelected(null); } }} />
       </div>
-      {target && <AddSheet key={selected ?? adding} query={arc.query} target={target} exclude={exclude} swap={!!selected} info={info} paper={paper} clash={clash} onPick={pick} />}
+      {target && <AddSheet key={selected ?? adding} query={arc.query} engineName={arc.engine} target={target} exclude={exclude} swap={!!selected} info={info} paper={paper} clash={clash} onPick={pick} />}
     </Screen>
   );
 }

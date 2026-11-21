@@ -68,6 +68,10 @@ async function main() {
   const out = join(dist, 'model');
   rmSync(out, { recursive: true, force: true });
   for (const f of files) { const to = join(out, f.name); mkdirSync(dirname(to), { recursive: true }); writeFileSync(to, f.data); }
+  // The model's file list and version, outside /model/ (that path is cached for a year): the worker answers the engine's
+  // "is this file there?" from it (a missing file under /model/ can come back as the app page) and asks each file with
+  // ?v=<sha>, so a new release is new URLs.
+  writeFileSync(join(dist, 'model.json'), JSON.stringify({ sha256: got, files: Object.fromEntries(files.map(f => [f.name, f.data.length])) }));
   console.log(`model: ${(pkg.length / 1e6).toFixed(1)} MB, ${files.length} files → dist/model/ (sha256 ${got.slice(0, 12)}…)`);
 }
 

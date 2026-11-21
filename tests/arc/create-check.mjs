@@ -9,7 +9,8 @@ import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { tempProfile } from '../qa/cdp.mjs';
-const PORT = 4331, BASE = `http://localhost:${PORT}/`;
+// ARC_SEARCH="?engine=ondevice" runs the same flow on the on-device engine (needs dist/model/)
+const PORT = 4331, BASE = `http://localhost:${PORT}/${process.env.ARC_SEARCH ?? ''}`;
 const SHOTS = process.argv.includes('--shots') ? process.argv[process.argv.indexOf('--shots') + 1] : null;
 const CHROME = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -34,7 +35,7 @@ const click = text => ev(`(() => { const b = [...document.querySelectorAll('butt
   if (!b) return 'missing'; if (b.disabled) return 'disabled'; b.click(); return 'clicked'; })()`);
 const shot = async name => { if (!SHOTS) return; mkdirSync(SHOTS, { recursive: true }); await sleep(300);
   const r = await send('Page.captureScreenshot', { format: 'png' }); writeFileSync(`${SHOTS}/${name}.png`, Buffer.from(r.result.data, 'base64')); };
-const fresh = async () => { await ev(`localStorage.clear(); indexedDB.deleteDatabase('arc'); true`); await send('Page.navigate', { url: BASE + '?fresh=' + Date.now() }); await waitFor(`document.readyState === 'complete'`); };
+const fresh = async () => { await ev(`localStorage.clear(); indexedDB.deleteDatabase('arc'); true`); await send('Page.navigate', { url: BASE + (BASE.includes('?') ? '&' : '?') + 'fresh=' + Date.now() }); await waitFor(`document.readyState === 'complete'`); };
 
 try {
   await send('Page.enable'); await send('Runtime.enable');

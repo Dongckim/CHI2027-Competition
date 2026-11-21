@@ -7,7 +7,7 @@ import { TRIBE_ICON } from '../../arc/tribeIcons';
 import { useTribe } from '../../arc/live';
 import { TribeShape } from './TribeShape';
 import { Screen, ArcButton, ArcLink, Sheet, Pic } from '../../components/arc';
-import type { Arc, TribeId } from '../../engine';
+import { engineFor, type Arc, type TribeId } from '../../engine';
 
 const at = (x: number, y: number, w: number) => ({ position: 'absolute' as const, left: x, top: y, width: w, height: w });
 // Figma 593:919/920: radial fills of the tribe colour (stops as Figma) with a 1px white 7% edge
@@ -19,10 +19,18 @@ const OUTER = ring([[30, 0], [14, 70], [2, 100]]), INNER = ring([[75, 0], [35, 6
 export function Hood({ id }: { id: string }) {
   const [arc, setArc] = useState<Arc | null | undefined>(undefined);
   const [picking, setPicking] = useState(false);
+  const [second, setSecond] = useState<TribeId | null>(null);
   const close = useCallback(() => setPicking(false), []);
   useEffect(() => { getArc(id).then(setArc); }, [id]);
   useTribe(arc?.tribe);
   useEffect(() => { if (arc === null) go('home', { replace: true }); }, [arc]);
+  // The engine's second tribe for this question goes first in Change (user 11/21); the mock engine gives none
+  const query = arc?.query, by = arc?.engine;
+  useEffect(() => {
+    let live = true;
+    if (query && by) engineFor(by).tribeOf(query).then(r => { if (live) setSecond(r.runnerUp ?? null); }, () => {});
+    return () => { live = false; };
+  }, [query, by]);
   if (!arc) return null;
   const t = TRIBE[arc.tribe];
   const choose = async (tribe: TribeId) => { const next = { ...arc, tribe }; await saveArc(next); setArc(next); setPicking(false); };
@@ -44,7 +52,7 @@ export function Hood({ id }: { id: string }) {
       <p className="mx-auto mt-3.5 w-[320px] max-w-full text-center text-[16px] leading-[23px] tracking-[-0.006em] text-arc-text/70">Look for the {t.look}.</p>
       <Sheet open={picking} onClose={close} title="Pick your neighborhood">
         <div role="radiogroup" aria-label="Neighborhood" className="mb-2 flex max-h-[50dvh] flex-col overflow-y-auto">
-          {TRIBES.map(x => (
+          {[...TRIBES].sort((a, b) => Number(b.id === second) - Number(a.id === second)).map(x => (
             <button key={x.id} type="button" role="radio" aria-checked={x.id === arc.tribe} onClick={() => choose(x.id as TribeId)}
               className="flex min-h-touch items-center gap-3 rounded-xl px-1 py-2 text-left text-[16px] font-medium">
               <Pic src={TRIBE_ICON[x.id as TribeId]} size={20} />
