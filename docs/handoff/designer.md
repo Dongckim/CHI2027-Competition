@@ -77,3 +77,32 @@ Figma에 없는 상태에 쓸 문구다. 사용자가 정했고, 디자이너 �
 ## 9. 07 입력·예시 질문 (2026-11-20)
 - 입력창 포커스 고리: Figma는 퍼짐 0(그려지지 않음), 앱은 4 px 유지(WCAG 2.4.7 포커스 보임, 사용자 결정 「포커스 고리는 4px 유지」). 디자이너 확인 전.
 - 첫 예시 질문: Figma는 문장이 화살표 밑으로 들어감. 앱은 화살표 앞에서 두 줄로 줄바꿈(사용자 결정 「말줄임 대신 화살표 앞에서 두 줄 줄바꿈」). 두 줄도 52 px 줄 안에 들어감.
+
+## 10. 14 질문 (2026-11-21)
+- **추천 버튼: 접근성 때문에 바꿈.** Figma는 누른 상태 = 카드 채움 + 8% 테두리, 안 누른 상태 = 채움 없음 + 14% 테두리라 어두운 카드에서 거의 같아 보였다. 앱은 누른 상태를 채운 화살표 + 밝은 바탕(#F4F3F8, 카드 #1C1B24 대비 15:1)으로 바꿨다(사용자 결정 「누른 상태가 눈으로 구분되게(아이콘 채움 + 색, 비텍스트 대비 3:1)」). 디자이너 확인 전.
+- **입력 아래 안내**: 한 줄 "Public · No personal info · Deleted 13 Jun 2027" + ⓘ(사용자 결정). 입력은 Figma 위치(y 742), 안내는 그 아래 홈 표시줄 위.
+- **ⓘ 설명 시트 "About questions"** — 문구는 해석(확인 전), 결정 007과 functions/qa.mjs 기준:
+  - Anyone who opens this talk in ARC can read its questions.
+  - Only the question, its votes and reports are kept, with a scrambled code for this phone so you can vote once and delete your own. No name, email, IP address or browser details.
+  - A question reported by three people is hidden.
+  - You can delete your own questions from this phone.
+  - Everything is deleted on 13 June 2027.
+
+## 11. Figma와 남은 작은 차이 (사용자 「나머지 작은 차이는 디자이너 목록에만」)
+| 화면 | 차이 | 이유 |
+|---|---|---|
+| 08 | "?" 버튼 x 133.5(Figma 135) | Chromium이 "Supports"를 1.5 px 좁게 그림 |
+| 08·09 | 안 고른 칩 폭 = 글자 + 30(Figma + 28) | 1 px 테두리가 여백에 더해짐(공통 Chip) |
+| 08–09 | 단계 막대 모서리 4 px(Figma 2) | 공통 StepBar, 4 px 막대에서는 같아 보임 |
+| 10 | 상태 줄 가운데 정렬(Figma 왼쪽 고정, 중심 174) | 숫자가 바뀌는 글이라 가운데 둠 |
+| 11 | YOU'RE IN·제목 가운데(Figma 중심 192·190) | 종족 이름 길이가 바뀜 |
+| 11 | XR 색 #6E8BFF(Figma 프레임 #5C7CFF) | 종족 색은 Figma 아이콘 색으로 통일(§8) |
+| 14 | 구분선·"Questions" 위치 | 그 위에 사용자가 남긴 줄(세션, 저자 전원, I heard it, Full abstract) |
+| 14 | 아래 배경·가장자리 빛 | §2 |
+| 16 | 개인정보 줄 첫 줄 y 767 | 사용자가 넣은 둘째 줄 |
+| 16·19·21 | 글 몇 개가 1.5–2 px 가운데로 | Figma 상자가 가운데에서 조금 벗어나 있음 |
+| 18·19 | 질문 아래 종족 아이콘 1.8 px 아래 | 공통 ArcView |
+| 19 | 고른 노드 고리 59(Figma 54) | 공통 .arc-node-selected |
+| 19 | Skip 원 테두리 1 px로 보임(Figma 1.5) | 1× 화면에서만, 폰은 1.5 |
+| 17·18·21 | 화면마다 아래 간격이 다름(20, 10·12, 20) | 화면별로 맞춤 |
+| 22 | 없음 | |
