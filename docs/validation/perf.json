@@ -2,11 +2,11 @@
   "_": "tests/qa/perf-check.mjs writes this: per target (local vite preview, deploy), the current and the previous run",
   "local": {
     "current": {
-      "at": "2026-11-20T23:56",
-      "commit": "a189361",
+      "at": "2026-11-21T00:04",
+      "commit": "0541913",
       "target": "local vite preview (gzip)",
       "firstScreenKB": 88,
-      "shown01Ms": 1089,
+      "shown01Ms": 1083,
       "bytesUntil01KB": 113,
       "pageBytesKB": 1459,
       "pageRequests": 34,
@@ -14,8 +14,8 @@
       "network": "Slow 4G (150 ms, 1.6 Mbps down, 750 kbps up), CPU 4×"
     },
     "previous": {
-      "at": "2026-11-20T23:34",
-      "commit": "1159c92",
+      "at": "2026-11-20T23:56",
+      "commit": "a189361",
       "target": "local vite preview (gzip)",
       "firstScreenKB": 88,
       "shown01Ms": 1089,
@@ -28,6 +28,18 @@
   },
   "deploy": {
     "current": {
+      "at": "2026-11-21T00:07",
+      "commit": "4ca32c8",
+      "target": "deploy",
+      "firstScreenKB": 88,
+      "shown01Ms": 1141,
+      "bytesUntil01KB": 115,
+      "pageBytesKB": 1481,
+      "pageRequests": 34,
+      "workerCacheKB": 7256,
+      "network": "Slow 4G (150 ms, 1.6 Mbps down, 750 kbps up), CPU 4×"
+    },
+    "previous": {
       "at": "2026-11-20T23:34",
       "commit": "1159c92",
       "target": "deploy",
@@ -38,7 +50,6 @@
       "pageRequests": 34,
       "workerCacheKB": 7255,
       "network": "Slow 4G (150 ms, 1.6 Mbps down, 750 kbps up), CPU 4×"
-    },
-    "previous": null
+    }
   }
 }
