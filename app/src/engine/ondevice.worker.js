@@ -10,11 +10,14 @@ const abstractOf = id => eng.items[eng.pos.get(id)]?.abstract ?? '';
 
 // The engine asks "is this file there?" with HEAD and reads files with plain fetch. Answer HEAD from the model's file
 // list (a missing file under /model/ can come back as the app page) and add ?v=<sha> so each release is its own URLs
-// (the service worker keeps them for offline). Progress = bytes of the files read so far.
+// (the service worker keeps them for offline). Progress = bytes read so far of the data files the loader reads (the
+// top-level .json/.npy, 36 MB), counted as they arrive so a slow big file still moves the number (10 waits on it).
 async function modelFetch(base) {
   const manifest = await (await fetch('/model.json')).json();
-  const total = Object.values(manifest.files).reduce((a, b) => a + b, 0);
-  let done = 0;
+  const read = name => !name.includes('/') && /\.(json|npy)$/.test(name) && !name.startsWith('example_');
+  const total = Object.entries(manifest.files).filter(([n]) => read(n)).reduce((a, [, b]) => a + b, 0);
+  let done = 0, told = 0;
+  const tell = () => { const r = Math.min(0.99, done / total); if (r - told >= 0.01) { told = r; self.postMessage({ progress: { stage: 'download', ratio: r } }); } };
   const plain = self.fetch.bind(self);
   self.fetch = async (input, init) => {
     const url = new URL(typeof input === 'string' ? input : input.url, self.location.href);
@@ -23,9 +26,14 @@ async function modelFetch(base) {
     if (init?.method === 'HEAD') return new Response(null, { status: name in manifest.files ? 200 : 404 });
     url.searchParams.set('v', manifest.sha256.slice(0, 12));
     const res = await plain(url, init);
-    done += manifest.files[name] ?? 0;
-    self.postMessage({ progress: { stage: 'download', ratio: Math.min(1, done / total) } });
-    return res;
+    if (!res.ok || !res.body) return res;
+    const chunks = [], reader = res.body.getReader();
+    for (;;) {
+      const { done: end, value } = await reader.read();
+      if (end) break;
+      chunks.push(value); done += value.length; tell();
+    }
+    return new Response(new Blob(chunks), { status: res.status, headers: res.headers });
   };
   return manifest;
 }
@@ -40,6 +48,11 @@ const ops = {
   async tribeOf({ query }) {
     return toTribe(await eng.handle({ screen: 'ask', text: query }));
   },
+  // 07b: the engine's sharper questions for a topic and how many talks match it (all days, user 11/21 「N talks」)
+  async topic({ topic, now }) {
+    const res = await eng.handle({ screen: 'ask', text: topic, now: engineNow(now, ctx.timeZone) });
+    return { count: res.matching ?? 0, questions: (res.suggestions ?? []).map(s => s.question) };
+  },
   async angleTopics({ query }) {
     return toTopics(await eng.handle({ screen: 'angles', question: query }));
   },
@@ -49,7 +62,8 @@ const ops = {
   },
   // 15 Add / 12b Hold: the "edit" screen's cards carry no quote, so each card's quote comes from the "node" screen
   async suggest({ query, angle, excludeKeys, limit = 5 }) {
-    return cards({ screen: 'edit', question: query, days: 'week', nodes: idsOf(excludeKeys, ctx.edition), add: angleKey(angle), k: limit });
+    // a Challenge whose quote is not a result turns into a Reframe (toNode): not one for this angle then
+    return (await cards({ screen: 'edit', question: query, days: 'week', nodes: idsOf(excludeKeys, ctx.edition), add: angleKey(angle), k: limit })).filter(n => n.angle === angle);
   },
   async wildcard({ query, excludeKeys, limit = 5 }) {
     return cards({ screen: 'edit', question: query, days: 'week', nodes: idsOf(excludeKeys, ctx.edition), add: 'reframe', filter: 'wildcard', k: limit });
@@ -60,8 +74,8 @@ async function cards(req) {
   const out = [];
   for (const c of res.cards) {
     if (!c.angle) continue; // a search hit "not about your question": no angle to put it under
-    const n = await eng.handle({ screen: 'node', question: req.question, id: c.id, angle: c.angle });
-    out.push(toNode({ ...n, angle: c.angle, label: c.label || n.label }, ctx.edition, abstractOf));
+    const n = await eng.handle({ screen: 'node', question: req.question, id: c.id });
+    out.push(toNode({ ...n, angle: c.angle, subtype: c.subtype ?? n.subtype, label: c.label || n.label }, ctx.edition, abstractOf));
   }
   return out;
 }

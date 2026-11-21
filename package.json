@@ -9,7 +9,7 @@
     "qa:auto": "node tests/qa/run.mjs",
     "qa:clean": "node functions/qa-admin.mjs clean",
     "qa:expiry": "node functions/qa-admin.mjs expiry",
-    "build:deploy": "npm run data:fetch chi2023 chi2024 chi2025 chi2026 && npm run data:build chi2026 && npm run build && node app/scripts/fetch-model.mjs",
+    "build:deploy": "npm run data:fetch chi2023 chi2024 chi2025 chi2026 && npm run data:build chi2026 && VITE_ENGINE=ondevice npm run build && node app/scripts/fetch-model.mjs --required",
     "preview": "vite preview",
     "typecheck": "tsc",
     "data:fetch": "node data/scripts/fetch.mjs",

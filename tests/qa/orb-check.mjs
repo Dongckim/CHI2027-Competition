@@ -72,10 +72,11 @@ try {
   for (const t of TRIBES) R.check(`12 map, ${t}: question ${map[t]?.ratio ?? '—'}:1 ≥ 4.5`, (map[t]?.ratio ?? 0) >= 4.5, {});
   // 10 building (5 s with ?mock=slow): measure all 8 while it shows
   await tab.send('Page.navigate', { url: `${server.base}?at=2026-04-14T12:00&mock=slow#/building` });
-  const ten = (await tab.waitFor(`/Reading/.test(document.body.innerText) && !!document.querySelector(${JSON.stringify(QUESTION)})`, 30000)) != null;
+  // "Sorting angles… N%" while the engine gets ready (11/21), then "Reading N talks": both are 10
+  const ten = (await tab.waitFor(`/Reading|Sorting angles/.test(document.body.innerText) && !!document.querySelector(${JSON.stringify(QUESTION)})`, 30000)) != null;
   const b = {};
   if (ten) for (const t of TRIBES) { b[t] = await measure(t); await shot('10', t); }
-  const still = await tab.ev(`/Reading/.test(document.body.innerText)`);
+  const still = await tab.ev(`/Reading|Sorting angles/.test(document.body.innerText)`);
   R.check('10 stayed on screen while measured', ten && still, {});
   for (const t of TRIBES) R.check(`10 building, ${t}: question ${b[t]?.ratio ?? '—'}:1 ≥ 4.5`, (b[t]?.ratio ?? 0) >= 4.5, {});
   code = R.done();

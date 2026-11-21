@@ -1,7 +1,7 @@
 // Deploy check (A3/A4): a real Vercel deploy, not vite preview. /s/<payload> → share page tags, /api/og picture, → 18 in headless Chrome,
 // and a Q&A round trip (ask → list → vote → delete) on a test paper key nobody sees (chi2026:0).
 //   VERCEL_BYPASS_TOKEN=… node --experimental-websocket tests/arc/preview-check.mjs <deploy url> [--expect-upstash]
-//   node --experimental-websocket tests/arc/preview-check.mjs <production url> --public [--expect-upstash]
+//   node --experimental-websocket tests/arc/preview-check.mjs <production url> --public [--expect-upstash] [--expect-ondevice]
 // The bypass token (Vercel "Protection Bypass for Automation") goes only in request headers: never in a URL, never
 // printed (every message is masked). --public sends no token and fails if the deploy asks for a login (the submission
 // address must open in a browser that is not signed in). --expect-upstash fails unless Q&A answers from Upstash.
@@ -14,7 +14,7 @@ import { readFileSync } from 'node:fs';
 
 const args = process.argv.slice(2);
 const BASE = args.find(a => /^https?:\/\//.test(a))?.replace(/\/+$/, '');
-const PUBLIC = args.includes('--public'), UPSTASH = args.includes('--expect-upstash');
+const PUBLIC = args.includes('--public'), UPSTASH = args.includes('--expect-upstash'), ONDEVICE = args.includes('--expect-ondevice');
 const TOKEN = PUBLIC ? '' : (process.env.VERCEL_BYPASS_TOKEN ?? '');
 if (!BASE) { console.error('usage: preview-check.mjs <deploy url> [--public] [--expect-upstash]'); process.exit(2); }
 if (!PUBLIC && !TOKEN) { console.error('VERCEL_BYPASS_TOKEN is not set (or use --public for an address without protection)'); process.exit(2); }
@@ -42,6 +42,16 @@ try {
   const og = await fetch(`${BASE}/api/og?d=${PAYLOAD}`, { headers, redirect: 'manual' });
   const png = og.status === 200 ? Buffer.from(await og.arrayBuffer()) : Buffer.alloc(0);
   check('/api/og → 1200×630 PNG', og.headers.get('content-type') === 'image/png' && png.subarray(1, 4).toString() === 'PNG' && png.readUInt32BE(16) === 1200, { status: og.status, bytes: png.length });
+
+  // 2c. the on-device engine is the default (built with VITE_ENGINE=ondevice: its code precached) and its model is served
+  if (ONDEVICE) {
+    const sw = await (await fetch(`${BASE}/sw.js`, { headers })).text();
+    const mj = await fetch(`${BASE}/model.json`, { headers });
+    const manifest = mj.ok && /json/.test(mj.headers.get('content-type') ?? '') ? await mj.json() : null;
+    const file = manifest ? await fetch(`${BASE}/model/config.json?v=${manifest.sha256.slice(0, 12)}`, { headers }) : null;
+    check('ondevice: default engine (its code precached), model.json and a model file served', /ondevice[-.]/.test(sw) && !!manifest?.files?.['angles.json'] && file?.status === 200 && /json/.test(file.headers.get('content-type') ?? ''),
+      { sha256: manifest?.sha256?.slice(0, 12), files: manifest ? Object.keys(manifest.files).length : 0, file: file?.status });
+  }
 
   // 3. Q&A round trip on chi2026:0 (no talk has that id), deleted at the end
   const device = `deploycheck${Math.random().toString(36).slice(2, 14).padEnd(12, '0')}`;
