@@ -13,6 +13,7 @@ import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { ARC, NONE, PEND, CROWD, STORED, device, SCREENS, seedArcs, buttonsProbe } from '../qa/screens.mjs';
+import { tempProfile } from '../qa/cdp.mjs';
 
 const SHOTS = process.argv.includes('--shots') ? process.argv[process.argv.indexOf('--shots') + 1] : null;
 if (SHOTS) mkdirSync(SHOTS, { recursive: true });
@@ -24,7 +25,7 @@ const EXCEPT = JSON.parse(readFileSync(new URL('../qa/a11y-exceptions.json', imp
 
 const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { stdio: 'ignore', detached: true });
 for (let i = 0; i < 60; i++) { try { if ((await fetch(BASE)).ok) break; } catch {} await sleep(250); }
-const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=9361', `--user-data-dir=${tmpdir()}/arc-a11y-${Date.now()}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=9361', `--user-data-dir=${tempProfile('arc-a11y')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 let targets;
 for (let i = 0; i < 40; i++) { try { targets = await (await fetch('http://127.0.0.1:9361/json')).json(); break; } catch { await sleep(250); } }
 const ws = new WebSocket(targets.find(t => t.type === 'page').webSocketDebuggerUrl);

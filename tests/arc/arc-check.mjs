@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { buildCorpus } from '../engine/corpus.mjs';
 import { buildIndex, buildArc } from '../../app/src/engine/mock-core.js';
+import { tempProfile } from '../qa/cdp.mjs';
 
 const PORT = 4333, BASE = `http://localhost:${PORT}/`, AT = '?at=2026-04-14T12:00';
 const SHOTS = process.argv.includes('--shots') ? process.argv[process.argv.indexOf('--shots') + 1] : null;
@@ -19,7 +20,7 @@ const ARCS = { normal: make('check-normal-0001', 'Does VR fidelity raise presenc
 
 const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { stdio: 'ignore', detached: true });
 for (let i = 0; i < 60; i++) { try { if ((await fetch(BASE)).ok) break; } catch {} await sleep(250); }
-const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=9353', `--user-data-dir=${tmpdir()}/arc-a2-${Date.now()}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=9353', `--user-data-dir=${tempProfile('arc-a2')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 let targets;
 for (let i = 0; i < 40; i++) { try { targets = await (await fetch('http://127.0.0.1:9353/json')).json(); break; } catch { await sleep(250); } }
 const ws = new WebSocket(targets.find(t => t.type === 'page').webSocketDebuggerUrl);

@@ -20,8 +20,16 @@ export async function startServer(port) {
   throw new Error(`vite preview did not start on ${port} (run npm run build first)`);
 }
 
+// A Chrome profile in the temp folder that is deleted when this process ends, however it ends (user 11/21: 443 left-over
+// profiles, 12 GB, filled the disk). shortcut: a SIGKILL still leaves it; qa:auto sweeps what a check leaves behind.
+const profiles = new Set();
+const sweep = () => { for (const p of profiles) try { rmSync(p, { recursive: true, force: true }); } catch {} profiles.clear(); };
+process.on('exit', sweep);
+for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { sweep(); process.exit(130); });
+export function tempProfile(prefix = 'arc-qa') { const p = mkdtempSync(join(tmpdir(), `${prefix}-`)); profiles.add(p); return p; }
+
 export async function launchChrome({ args = [] } = {}) {
-  const profile = mkdtempSync(join(tmpdir(), 'arc-qa-'));
+  const profile = tempProfile('arc-qa');
   const proc = spawn(CHROME, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run', '--no-default-browser-check', ...args, 'about:blank'], { stdio: 'ignore' });
   let port;
   for (let i = 0; i < 80 && !port; i++) {
