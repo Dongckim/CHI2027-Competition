@@ -88,26 +88,39 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   background: var(--arc-orb-fill);
   border: 2px solid color-mix(in srgb, var(--c) 85%, transparent);
   box-shadow: 0 0 20px color-mix(in srgb, var(--c) 30%, transparent), inset 0 0 12px color-mix(in srgb, var(--c) 28%, transparent); } /* a wider glow lifted node text near the orb on 25 under 4.5:1 */
-.arc-ring { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.08);
-  background: radial-gradient(circle, color-mix(in srgb, var(--tribe-now, #5c7cff) 28%, transparent) 0%, transparent 70%); }
+.arc-ring { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.045); /* Figma 12 inner orbit (300) */
+  --c: var(--tribe-now, #5c7cff);
+  background: radial-gradient(circle, color-mix(in srgb, var(--c) 32%, transparent) 0%, color-mix(in srgb, var(--c) 14%, transparent) 70%, color-mix(in srgb, var(--c) 2%, transparent) 100%); }
 :root[data-tribe] { --tribe-now: var(--tribe); }
 
 /* 12 map nodes (Figma Node 588:644/652/660/668): a 64 box with a 46 core and the angle symbol.
-   next = white core + 1px pulse ring · upcoming = glass · heard = tribe colour · ended = dashed (something to read). */
-.arc-holo { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.1);
-  background: radial-gradient(circle, transparent 60%, color-mix(in srgb, var(--tribe-now, #5c7cff) 18%, transparent) 100%); }
+   next = white core + a still 1px ring · upcoming = glass · heard = tribe colour · ended = dashed (something to read). */
+.arc-holo { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.08); /* Figma holo (164): layer 0.5 × radial 0.55 → 0.30 → 0.05 */
+  --c: var(--tribe-now, #5c7cff);
+  background: radial-gradient(circle, color-mix(in srgb, var(--c) 27.5%, transparent) 0%, color-mix(in srgb, var(--c) 15%, transparent) 70%, color-mix(in srgb, var(--c) 2.5%, transparent) 100%); }
 .arc-node { position: relative; display: flex; width: 64px; height: 64px; align-items: center; justify-content: center; border-radius: 9999px; }
-.arc-node-core { display: flex; width: 46px; height: 46px; align-items: center; justify-content: center; border-radius: 9999px;
+.arc-node-core { position: relative; display: flex; width: 46px; height: 46px; align-items: center; justify-content: center; border-radius: 9999px;
   background: var(--arc-surface); border: 1px solid var(--arc-line); }
+/* the angle symbol as a mask, so each state can colour it exactly (Figma: #F4F6FF, #15121F on the white Next core) */
+.arc-node-symbol { width: 24px; height: 24px; background: #f4f6ff; mask: center / 24px 24px no-repeat; -webkit-mask: center / 24px 24px no-repeat; }
 .arc-node-next .arc-node-core { background: rgba(255, 255, 255, 0.96); border-color: transparent; box-shadow: 0 8px 22px -6px rgba(10, 5, 32, 0.55); }
-.arc-node-next .arc-node-core img { filter: brightness(0) saturate(100%); opacity: 0.9; } /* dark symbol on the white core */
-.arc-node-next::before { content: ""; position: absolute; inset: 0; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.28);
-  animation: arc-pulse 2.4s ease-out infinite; }
-@keyframes arc-pulse { 0% { transform: scale(0.9); opacity: 1; } 100% { transform: scale(1.12); opacity: 0; } }
+.arc-node-next .arc-node-symbol { background: #15121f; }
+.arc-node-next::before { content: ""; position: absolute; inset: 0; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.28); } /* Figma: a still ring */
+/* Figma 588:660 on #6E8BFF: #A3B5FF (64 % tribe + white) to the tribe; shadow #3A4BD6 at 0.5 (the tribe darker, oklch L −0.178, C ×1.21) */
 .arc-node-heard .arc-node-core { border-color: rgba(255, 255, 255, 0.35);
-  background: linear-gradient(color-mix(in srgb, var(--tribe-now, #6e8bff) 55%, white), var(--tribe-now, #6e8bff));
-  box-shadow: 0 8px 22px -6px color-mix(in srgb, var(--tribe-now, #6e8bff) 50%, transparent); }
-.arc-node-ended .arc-node-core { background: transparent; border: 1.5px dashed rgba(244, 246, 255, 0.35); }
-.arc-node-ended .arc-node-core img { opacity: 0.6; }
-.arc-node-selected::after { content: ""; position: absolute; inset: -6px; border-radius: 9999px; border: 1.5px solid rgba(255, 255, 255, 0.9); }
-@media (prefers-reduced-motion: reduce) { .arc-node-next::before { animation: none; } }
+  background: linear-gradient(color-mix(in srgb, var(--tribe-now, #6e8bff) 64%, white), var(--tribe-now, #6e8bff));
+  box-shadow: 0 8px 22px -6px color-mix(in srgb, var(--tribe-now, #6e8bff) 50%, transparent);
+  box-shadow: 0 8px 22px -6px oklch(from var(--tribe-now, #6e8bff) calc(l - 0.178) calc(c * 1.21) h / 0.5); }
+/* Dashed rings as Figma draws them (16 dashes of about 3 px; the browser's dashed border makes about 34):
+   the Ended core (588:668, 1.5 px white 0.28), the empty Challenge slot (23, 1 px 0.30), the + slot (15, 1 px 0.08, 4 on / 2 off) */
+.arc-node-dash, .arc-node-add, .arc-node-ended .arc-node-core { position: relative; }
+.arc-node-dash::before, .arc-node-add::before, .arc-node-ended .arc-node-core::before { content: ""; position: absolute; inset: 0; border-radius: 9999px; pointer-events: none;
+  --w: 1px; --c: rgba(244, 246, 255, 0.3); --on: 8deg; --period: 22.5deg;
+  background: repeating-conic-gradient(from 86deg, var(--c) 0 var(--on), transparent var(--on) var(--period));
+  mask: radial-gradient(farthest-side, transparent calc(100% - var(--w)), #000 calc(100% - var(--w))); }
+.arc-node-add::before { --w: calc(1px / var(--map-scale, 1)); --c: rgba(255, 255, 255, 0.08); --on: 13.9deg; --period: 20.8deg; }
+.arc-node-ended .arc-node-core { background: transparent; border-color: transparent; }
+.arc-node-ended .arc-node-core::before { inset: -1px; --w: 1.5px; --c: rgba(255, 255, 255, 0.28); }
+.arc-node-ended .arc-node-symbol { opacity: 0.4; } /* measured on Figma's render: 109 on #121119 */
+/* selected (15) and picked (19): Figma 52 / 54 on screen round the 64 node (70 in map px), 1.5 px on screen at any scale */
+.arc-node-selected::after { content: ""; position: absolute; inset: -3px; border-radius: 9999px; border: calc(1.5px / var(--map-scale, 1)) solid rgba(255, 255, 255, 0.9); }

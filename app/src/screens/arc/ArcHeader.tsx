@@ -9,13 +9,13 @@ export function ArcHeader({ id, view, onHelp }: { id: string; view: 'map' | 'lis
   const seg = (v: 'map' | 'list', icon: string, label: string) => (
     <a href={href(v === 'map' ? `arc/${id}` : `arc/${id}/list`)} aria-label={label} aria-current={view === v ? 'page' : undefined}
       className={`relative flex h-9 w-[52px] items-center justify-center rounded-[18px] before:absolute before:inset-x-0 before:-inset-y-[5px] before:content-[''] ${view === v ? 'border border-arc-line bg-[#2b2a35]' : ''}`}>
-      <Pic src={icon} size={20} />
+      <Pic src={icon} size={20} className={view === v ? '' : 'opacity-55'} />
     </a>
   );
   return (
     <>
       <BackButton href={href('home')} />
-      <nav aria-label="View" className="flex gap-0.5 rounded-[22px] border border-arc-line bg-arc-surface p-[3px]">{seg('map', mapIcon, 'Map')}{seg('list', listIcon, 'List')}</nav>
+      <nav aria-label="View" className="mt-0.5 flex gap-0.5 rounded-[22px] border border-arc-line bg-arc-surface p-[3px]">{seg('map', mapIcon, 'Map')}{seg('list', listIcon, 'List')}</nav>
       <IconButton icon={helpIcon} label="What are the three angles?" onClick={onHelp} />
     </>
   );

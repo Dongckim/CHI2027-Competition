@@ -1,7 +1,7 @@
 // The Arc map (Figma 597:711; states 23/24/25; Edit 15 at 0.74). Question orb in the middle, Supports left, Reframes
 // below, Challenges right. Positions come from arc/map.js; the orb, rings and node fills take the tribe colour (Figma's
 // pictures are drawn in the sample tribe's blue). Every node is a button named "<angle> · <title> · <time>".
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { layout, connector, BOX, type NodeState } from '../../arc/map.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
 import { ANGLE_NAME } from './AngleHelp';
@@ -20,7 +20,7 @@ export const ANGLE_ICON: Record<Angle, string> = { S: support, R: reframe, T: ch
 const STATE_WORD: Record<NodeState, string> = { next: 'Next', upcoming: 'Upcoming', heard: 'Heard', ended: 'Ended' };
 const SEATS: Record<Angle, number> = { S: 2, R: 3, T: 2 };
 const FREE: Record<Angle, [number, number][][]> = { // where an add slot goes when an angle has 0 / 1 / 2 talks (Edit)
-  S: [[[66, 236]], [[66, 358]]], T: [[[324, 236]], [[324, 358]]], R: [[[195, 470]], [[252, 446]], [[195, 500]]],
+  S: [[[66, 236]], [[66, 350]]], T: [[[324, 236]], [[324, 350]]], R: [[[195, 470]], [[252, 446]], [[195, 452]]],
 };
 // Figma 15 keeps a "+" for every angle; when its seats are full it sits here (Figma's add slots on the 390 map)
 const FULL: Record<Angle, [number, number]> = { S: [66, 236], T: [324, 236], R: [195, 395] }; // R: Figma's (195, 452) would cover the − of a third Reframe
@@ -46,18 +46,21 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   pick?: Pick; picture?: boolean; readOnly?: boolean;
 }) {
   type Seat = [number, number];
-  const l = layout(arc) as { nodes: { node: Arc['nodes'][number]; at: Seat }[]; bundles: { angle: Angle | null; at: Seat; count: number }[]; emptyT: Seat | null }; // map.js is untyped JS
+  const l = layout(arc, !!edit) as { nodes: { node: Arc['nodes'][number]; at: Seat; oneLine?: boolean }[]; bundles: { angle: Angle | null; at: Seat; count: number }[]; emptyT: Seat | null }; // map.js is untyped JS
   const pending = arc.tension === 'pending';
   const at = (x: number, y: number, w: number, h = w) => ({ position: 'absolute' as const, left: x - w / 2, top: y - h / 2, width: w, height: h });
   const lines: ReactNode[] = [];
-  for (const { node, at: p } of l.nodes) {
+  // Figma Lines: Reframes dashed 3.84 / 4.8 and sorting dotted 1 / 5 (both starting on half a dash), the rest solid;
+  // Challenges (and the empty Challenge slot, 23) end in an 18 px bar at the holo ring
+  const line = (key: string, p: Seat, angle: Angle | null) => {
     const c = connector(p);
-    const style = pending ? { strokeOpacity: 0.26, strokeDasharray: '1 5' } : node.angle === 'R' ? { strokeOpacity: 0.26, strokeDasharray: '5 5' } : { strokeOpacity: 0.32 };
-    lines.push(<line key={node.key} x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} {...style} />);
-    if (!pending && node.angle === 'T') lines.push(<line key={`${node.key}-tick`} x1={c.x1 - c.uy * 6} y1={c.y1 + c.ux * 6} x2={c.x1 + c.uy * 6} y2={c.y1 - c.ux * 6} strokeOpacity={0.32} />);
-  }
-  for (const b of l.bundles) { const c = connector(b.at, 24); lines.push(<line key={`b-${b.angle}`} x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} strokeOpacity={b.angle ? 0.32 : 0.26} strokeDasharray={b.angle === 'R' ? '5 5' : b.angle ? undefined : '1 5'} />); }
-  if (l.emptyT) { const c = connector(l.emptyT, 23); lines.push(<line key="emptyT" x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} strokeOpacity={0.2} strokeDasharray="3 4" />); }
+    const style = !angle ? { strokeOpacity: 0.26, strokeDasharray: '1 5', strokeDashoffset: 0.5 } : angle === 'R' ? { strokeOpacity: 0.26, strokeDasharray: '3.84 4.8', strokeDashoffset: 1.92 } : { strokeOpacity: 0.32 };
+    lines.push(<line key={key} x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} {...style} />);
+    if (angle === 'T') lines.push(<line key={`${key}-bar`} x1={c.x1 - c.uy * 9} y1={c.y1 + c.ux * 9} x2={c.x1 + c.uy * 9} y2={c.y1 - c.ux * 9} strokeOpacity={0.32} />);
+  };
+  for (const { node, at: p } of l.nodes) line(node.key, p, pending ? null : node.angle);
+  for (const b of l.bundles) line(`b-${b.angle}`, b.at, b.angle);
+  if (l.emptyT) line('emptyT', l.emptyT, 'T');
 
   // The map may be drawn smaller (15 at 0.74), but text and touch targets keep their real size: never under 12px / 44px.
   const real = (n: number) => (picture ? n : n / scale);
@@ -67,18 +70,22 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
 
   return (
     <div className="relative mx-auto" style={{ width: BOX.w * scale, height: (BOX.h + BELOW) * scale }} inert={picture || undefined} aria-hidden={picture || undefined}>
-      <div className="absolute top-0 left-0 origin-top-left" style={{ width: BOX.w, height: BOX.h, transform: scale === 1 ? undefined : `scale(${scale})` }}>
-        <img src={outerOrbit} alt="" aria-hidden="true" style={{ position: 'absolute', left: -25, top: 20, width: 440, height: 440 }} />
-        <span aria-hidden="true" className="arc-ring" style={at(BOX.cx, BOX.cy, 300)} />
+      <div className="absolute top-0 left-0 origin-top-left" style={{ width: BOX.w, height: BOX.h, transform: scale === 1 ? undefined : `scale(${scale})`, '--map-scale': picture ? 1 : scale } as CSSProperties}>
+        {!picture && <> {/* Figma 16's picture has no orbits */}
+          <img src={outerOrbit} alt="" aria-hidden="true" style={{ position: 'absolute', left: -25, top: 20, width: 440, height: 440 }} />
+          <span aria-hidden="true" className="arc-ring" style={at(BOX.cx, BOX.cy, 300)} />
+        </>}
         <span aria-hidden="true" className="arc-holo" style={at(BOX.cx, BOX.cy, 164)} />
         <span aria-hidden="true" className="arc-orb" style={at(BOX.cx, BOX.cy, 144)} />
-        <svg aria-hidden="true" width={BOX.w} height={BOX.h} className="absolute top-0 left-0" stroke="#fff" strokeWidth={1.2} strokeLinecap="round" fill="none">{lines}</svg>
-        <div aria-hidden="true" className="absolute flex flex-col items-center" style={{ left: BOX.cx - 54, top: 206, width: 108 }}>
-          <p data-orb-question className="line-clamp-3 text-center font-semibold tracking-[-0.006em]" /* white on the near-black orb: ≥ 4.5:1 in every tribe (tests/qa/orb-check.mjs) */ style={{ fontSize: real(Math.max(12, 14 * scale)), lineHeight: `${real(Math.max(15, 18 * scale))}px` }}>{arc.query}</p>
-          <img src={TRIBE_ICON[arc.tribe]} alt="" width={12} height={12} className="mt-1.5" />
+        {/* Figma draws the lines 1 px on screen, also on the scaled 15 */}
+        <svg aria-hidden="true" width={BOX.w} height={BOX.h} className="absolute top-0 left-0" stroke="#fff" strokeWidth={real(1)} strokeLinecap="round" fill="none">{lines}</svg>
+        <div aria-hidden="true" className="absolute flex flex-col items-center" style={{ left: BOX.cx - 54, top: 214, width: 108 }}>
+          {/* the picture (16) is an image: Figma's 14 / 18 scaled with it; elsewhere 12 / 15 on screen at least */}
+          <p data-orb-question className="line-clamp-3 text-center font-semibold tracking-[-0.006em]" /* white on the near-black orb: ≥ 4.5:1 in every tribe (tests/qa/orb-check.mjs) */ style={picture ? { fontSize: 14, lineHeight: '18px' } : { fontSize: real(Math.max(12, 14 * scale)), lineHeight: `${real(Math.max(15, 18 * scale))}px` }}>{arc.query}</p>
+          <img src={TRIBE_ICON[arc.tribe]} alt="" width={12} height={12} className="mt-2" />
         </div>
 
-        {l.nodes.map(({ node, at: [x, y] }) => {
+        {l.nodes.map(({ node, at: [x, y], oneLine }) => {
           const i = info(node.key), st = states.get(node.key) ?? 'upcoming';
           const selected = edit?.selected === node.key;
           const lock = pick?.locked.get(node.key), kept = !!pick?.picked.has(node.key);
@@ -91,25 +98,28 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
                 aria-pressed={edit ? selected : pick && !lock ? kept : undefined} aria-disabled={pick && lock ? true : undefined} disabled={readOnly && !pick}
                 className={`flex w-[104px] flex-col items-center gap-0.5 ${pick && lock ? 'opacity-35 blur-[0.78px]' : pick && !kept ? 'opacity-50' : ''}`}>
                 <span className={`arc-node ${pending ? '' : `arc-node-${st}`} ${selected || (pick && kept && !lock) ? 'arc-node-selected' : ''}`}>
-                  {pending ? <img src={sortingOrb} alt="" width={64} height={64} /> : <span className="arc-node-core"><img src={ANGLE_ICON[node.angle]} alt="" width={24} height={24} /></span>}
+                  {pending ? <img src={sortingOrb} alt="" width={64} height={64} /> : <span className="arc-node-core"><span className="arc-node-symbol" style={{ WebkitMaskImage: `url("${ANGLE_ICON[node.angle]}")`, maskImage: `url("${ANGLE_ICON[node.angle]}")` }} /></span>}
                 </span>
                 <span className="sr-only">{ANGLE_NAME[node.angle]} · </span>
-                <span style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`line-clamp-2 text-center font-semibold ${st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
+                <span style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`${oneLine ? 'line-clamp-1' : 'line-clamp-2'} text-center font-semibold ${st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
                   {node.debut && <span aria-hidden="true">✦ </span>}{i.title}{/* the whole title, cut to two lines (was the 24-character label) */}
                 </span>
-                {/* Figma 10px; 12px is the floor. Editing (Figma 15) shows the title only */}
-                {!edit && <span style={{ fontSize: real(12) }} className="block max-w-[104px] truncate font-medium text-arc-text-3">{i.when}</span>}
+                {/* Figma 10px; 12px is the floor. Editing (Figma 15) shows the title only.
+                    Sorting (25): 0.7, not 0.55, as the two-line title puts the time over the holo ring's edge (3.6:1 at 0.55) */}
+                {!edit && <span style={{ fontSize: picture ? 10 : real(12) }} className={`block max-w-[104px] truncate font-medium ${pending ? 'text-arc-text/70' : 'text-arc-text-3'}`}>{i.when}</span>}
               </button>
               {pick && ( /* Figma 19 badge at the orb's top-right; the whole node is the button */
-                // Figma 19 draws the badges at 24px outside the scaled map: real() keeps them 24 on screen
-                <span aria-hidden="true" style={{ width: real(24), height: real(24), top: -4, left: 82 - real(12) }} className={`absolute flex items-center justify-center rounded-full ${lock ? 'border border-white/25 bg-[#2b2a35]' : kept ? 'bg-arc-text' : 'border border-white/25 bg-[#2b2a35]'}`}>
+                // Figma 19 draws the badges at 24px outside the scaled map, centred +22, −18 from the orb: real() keeps screen px
+                <span aria-hidden="true" style={{ width: real(24), height: real(24), top: 32 - real(30), left: 52 + real(10) }} className={`absolute flex items-center justify-center rounded-full ${lock ? 'border border-white/25 bg-[#2b2a35]' : kept ? 'bg-arc-text' : 'border border-white/25 bg-[#2b2a35]'}`}>
                   {lock ? <img src={lockIcon} alt="" width={real(14)} height={real(14)} /> : kept ? <img src={check} alt="" width={real(16)} height={real(16)} className="brightness-0" /> : null}
                 </span>
               )}
               {edit && (
                 <button type="button" onClick={() => edit.onRemove(node.key)} aria-label={`Remove ${i.title}`}
-                  className="absolute flex items-center justify-center" style={{ width: real(44), height: real(44), left: 85 - real(22), top: 0 - real(22) + 11 }}>
-                  <span className="flex size-[22px] items-center justify-center rounded-full border border-white/24 bg-[rgba(34,29,54,0.94)]"><img src={minus} alt="" width={14} height={14} /></span>
+                  // Figma 15: 22 px with a 14 px icon outside the 0.74 scale, centred +21, −15 from the orb (screen px). The 44 px
+                  // area starts just right of the node's middle (so the node keeps its own 44 px), the badge 2 px left in it
+                  className="absolute z-[2] flex items-center justify-center" style={{ width: real(44), height: real(44), left: 52 + real(1), top: 32 - real(15) - real(22) }}>
+                  <span className="flex items-center justify-center rounded-full border-solid border-white/24 bg-[rgba(34,29,54,0.94)]" style={{ width: real(22), height: real(22), borderWidth: real(1), transform: `translateX(${-real(2)}px)` }}><img src={minus} alt="" width={real(14)} height={real(14)} /></span>
                 </button>
               )}
             </div>
@@ -119,14 +129,14 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
         {l.bundles.map(b => (
           <button key={b.angle ?? 'all'} type="button" disabled={still} onClick={() => onBundle?.(b.angle as Angle)}
             className="absolute flex flex-col items-center gap-0.5" style={{ left: b.at[0] - 40, top: b.at[1] - 24, width: 80 }}>
-            <span aria-hidden="true" data-a11y-decor="bundle-count" className="flex size-12 items-center justify-center rounded-full border border-arc-line bg-arc-surface text-[15px] font-semibold">+{b.count}</span>
+            <span aria-hidden="true" data-a11y-decor="bundle-count" className="flex size-12 items-center justify-center rounded-full border border-arc-line bg-arc-surface text-[15px] font-semibold tracking-[-0.006em]">+{b.count}</span>
             <span style={{ fontSize: real(12) }} className="font-semibold text-arc-text/80">{b.count} more<span className="sr-only"> {b.angle ? ANGLE_NAME[b.angle] : 'talks'}</span></span>
           </button>
         ))}
 
         {l.emptyT && !edit && (
           <div className="absolute flex flex-col items-center" style={{ left: l.emptyT[0] - 56, top: l.emptyT[1] - 23, width: 112 }}>
-            <span className="flex size-[46px] items-center justify-center rounded-full border border-dashed border-arc-text/30"><img src={challenge} alt="" width={24} height={24} /></span>
+            <span className="arc-node-dash flex size-[46px] items-center justify-center rounded-full"><img src={challenge} alt="" width={24} height={24} /></span>
             <p style={{ fontSize: real(12), lineHeight: `${real(16)}px` }} className="mt-2 text-center text-arc-text/60">No clear challenge at CHI this year.</p>
           </div>
         )}
@@ -136,8 +146,9 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           const [x, y] = !full ? FREE[a][counts[a]][0] : a === 'S' && l.bundles.some(b => b.angle === 'S') ? [96, 236] : FULL[a];
           return (
             <button key={`add-${a}`} type="button" onClick={() => edit.onAdd(a)} aria-label={`Add a talk to ${ANGLE_NAME[a]}`} aria-pressed={edit.adding === a}
-              className="absolute flex items-center justify-center" style={{ left: x - real(22), top: y - real(22), width: real(44), height: real(44) }}>
-              <span className={`flex size-[34px] items-center justify-center rounded-full border border-dashed bg-arc-surface ${edit.adding === a ? 'border-white/90' : 'border-white/30'}`}><img src={plus} alt="" width={16} height={16} /></span>
+              className="absolute z-[2] flex items-center justify-center" style={{ left: x - real(22), top: y - real(22), width: real(44), height: real(44) }}>
+              {/* Figma 15 add slot: 34 px with a 16 px +, outside the scale, a faint dashed edge; chosen = the selected ring */}
+              <span className={`arc-node-add flex items-center justify-center rounded-full bg-arc-surface ${edit.adding === a ? 'arc-node-selected' : ''}`} style={{ width: real(34), height: real(34) }}><img src={plus} alt="" width={real(16)} height={real(16)} /></span>
             </button>
           );
         })}
