@@ -95,37 +95,37 @@ export function TalkDetail({ paperKey }: { paperKey: string }) {
   return (
     <Screen clock header={header(p.doi)} label="Talk"
       bottom={<QandAAsk qa={qa} />}>
-      <div className="mt-1 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap gap-2">
         {found && <Tag icon={ANGLE_ICON[found.node.angle]}>{ANGLE_NAME[found.node.angle]}</Tag>}
         <Tag icon={fIcon}>{fName}</Tag>
       </div>
-      <h1 className="mt-3.5 text-[24px] leading-[30px] font-semibold tracking-[-0.02em]">{p.title}</h1>
+      <h1 className="mt-3 text-[24px] leading-[30px] font-semibold tracking-[-0.02em]">{p.title}</h1>
 
       {found && (
         <section aria-labelledby="why" className="mt-4 flex flex-col gap-1.5 rounded-[20px] border border-arc-line bg-arc-surface px-4 pt-3.5 pb-4">
-          {/* Figma 11px; 12px is the floor */}
-          <h2 id="why" className="text-[12px] font-medium tracking-[0.08em] text-arc-text/50">{WHY[found.node.angle]}</h2>
-          {ev ? <p className="text-[15px] leading-[22px] text-arc-text/90">“{keySegments(ev.sentence, found.arc.query, found.node.angle).map((x, i) => x.mark
-            ? <strong key={i} className="font-semibold underline decoration-1 underline-offset-2">{x.text}</strong> : <span key={i}>{x.text}</span>)}”</p>
+          {/* Figma 11px at 50%; 12px and 55% are the floor (in Figma's 13px line) */}
+          <h2 id="why" className="text-[12px] leading-[13px] font-medium tracking-[0.08em] text-arc-text-3">{WHY[found.node.angle]}</h2>
+          {ev ? <p className="text-[15px] leading-[22px] tracking-[-0.0064em] text-arc-text/90">“{keySegments(ev.sentence, found.arc.query, found.node.angle).map((x, i) => x.mark
+            ? <strong key={i} className="font-semibold underline decoration-from-font [text-decoration-skip-ink:none] [text-underline-position:from-font]">{x.text}</strong> : <span key={i}>{x.text}</span>)}”</p>
             : <p className="text-[15px] leading-[22px] text-arc-text-2">No sentence of the abstract was clear enough to quote.</p>}
         </section>
       )}
 
-      <ul className="mt-6 flex flex-col gap-3.5">
-        <li className="flex items-start gap-3 text-[15px] font-medium"><Pic src={clock} size={20} />
+      <ul className="mt-[35px] flex flex-col gap-3.5">
+        <li className="flex items-center gap-3 text-[15px] font-medium tracking-[-0.006em]"><Pic src={clock} size={20} className="opacity-70" />
           <span>{slot ? `${dateOf(slot.start, tz)} · ${clockOf(slot.start, tz)}` : 'Time to be announced'}{room && ` · ${room}`}</span></li>
-        {session && <li className="flex items-start gap-3 text-[15px]"><Pic src={pin} size={20} />
+        {session && <li className="flex items-center gap-3 text-[15px] tracking-[-0.006em]"><Pic src={pin} size={20} className="opacity-70" />
           <span>{session.name}{pos && <span className="text-arc-text-2"> · talk {pos.index} of {pos.count}</span>}</span></li>}
         {authors.map(k => {
           const a = people[k]!, isNew = debut.has(k);
           return (
             <li key={k} className="flex flex-col gap-1">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] font-medium">
-                <Pic src={person} size={20} />
-                <span>{a.name}{a.affiliations[0] && <span className="text-arc-text-2"> · {a.affiliations[0].institution}</span>}</span>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] font-medium tracking-[-0.006em]">
+                <Pic src={person} size={20} className="opacity-70" />
+                <span>{a.name}{a.affiliations[0] && ` · ${a.affiliations[0].institution}`}</span>
                 {isNew && (
                   <button type="button" onClick={() => setDebutNote(n => (n === k ? null : k))} aria-expanded={debutNote === k}
-                    className="relative inline-flex h-6 items-center gap-1 rounded-xl border border-arc-line bg-arc-surface pr-2.5 pl-2 text-[12px] font-semibold before:absolute before:inset-x-0 before:-inset-y-2.5 before:content-['']">
+                    className="relative inline-flex h-[25px] items-center gap-1 rounded-xl border border-arc-line bg-arc-surface pr-2.5 pl-2 text-[12px] font-semibold before:absolute before:inset-x-0 before:-inset-y-2.5 before:content-['']">
                     <Pic src={sparkle} size={12} />New to CHI
                   </button>
                 )}

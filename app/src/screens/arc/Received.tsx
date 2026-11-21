@@ -84,19 +84,19 @@ export function Received({ payload }: { payload: string }) {
   if (!ok) return <Broken why={(r as { error: string }).error} />;
   const { arc, missing } = ok;
   return (
-    <Screen clock label="Shared Arc" bottom={<>
+    <Screen clock label="Shared Arc" bottom={<div className="flex flex-col">{/* Figma 18: 10 under Add, 12 above Just read */}
       <ArcButton onClick={() => keep(arc)} disabled={!arc.nodes.length}>Add to my Arcs</ArcButton>
       {/* Figma 18: Pick some · Make it mine side by side; with larger text each takes its own row rather than breaking its words */}
-      <div className="flex flex-wrap gap-3">
+      <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-2.5">
         <ArcButton kind="secondary" className="min-w-fit grow basis-[calc(50%-6px)]" onClick={() => go(`r/${payload}/pick`)} disabled={!arc.nodes.length}>Pick some</ArcButton>
         <ArcButton kind="secondary" className="min-w-fit grow basis-[calc(50%-6px)]" onClick={() => makeMine(arc)} disabled={!arc.nodes.length}>Make it mine</ArcButton>
       </div>
-      <ArcButton kind="ghost" onClick={() => go(`r/${payload}/read`)} disabled={!arc.nodes.length}>Just read</ArcButton>
-    </>}>
-      <p className="mt-4 inline-flex items-center gap-1.5 self-start rounded-2xl border border-arc-line bg-arc-surface py-1.5 pr-3 pl-2.5 text-[13px] font-semibold"><Pic src={linkIcon} size={14} />Shared Arc</p>
-      <h1 className="mt-4 text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
+      <ArcButton kind="ghost" className="mt-3" onClick={() => go(`r/${payload}/read`)} disabled={!arc.nodes.length}>Just read</ArcButton>
+    </div>}>
+      <p className="mt-2 inline-flex items-center gap-1.5 self-start rounded-2xl border border-arc-line bg-arc-surface py-1.5 pr-3 pl-2.5 text-[13px] font-semibold"><Pic src={linkIcon} size={14} />Shared Arc</p>
+      <h1 className="mt-3 text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
       {missing > 0 && <p className="mt-2 text-[14px] text-arc-text-2">{missing} {missing === 1 ? 'talk is' : 'talks are'} not in this programme and were left out.</p>}
-      <div className="-mx-6 mt-3"><ArcView arc={arc} states={states} info={info} scale={0.78} readOnly /></div>
+      <div className="-mx-6 mt-4"><ArcView arc={arc} states={states} info={info} scale={0.78} readOnly /></div>
     </Screen>
   );
 }
@@ -142,16 +142,18 @@ export function Pick({ payload }: { payload: string }) {
   return (
     <Screen clock label="Pick some" header={<><BackButton href={href(`r/${payload}`)} /><span /></>}
       bottom={<ArcButton onClick={save} disabled={!picked.size}>{picked.size ? `Add ${picked.size} to my Arcs` : 'Pick at least one talk'}</ArcButton>}>
-      <h1 className="mt-3 text-[26px] leading-8 font-semibold tracking-[-0.02em]">Pick what to keep.</h1>
-      <div className="-mx-6 mt-2"><ArcView arc={arc} states={states} info={info} scale={0.78} readOnly pick={{ picked, locked, onToggle: toggle }} /></div>
-      <div className="flex flex-wrap justify-center gap-x-[18px] gap-y-2" aria-hidden="true">
+      <h1 className="mt-2.5 text-[26px] leading-8 font-semibold tracking-[-0.02em]">Pick what to keep.</h1>
+      <div className="-mx-6 mt-7"><ArcView arc={arc} states={states} info={info} scale={0.78} readOnly pick={{ picked, locked, onToggle: toggle }} /></div>
+      {/* the map box keeps room for two-line labels below the bottom row; Figma's legend sits 30 under its one-line labels */}
+      <div className="-mt-8 flex flex-wrap justify-center gap-x-[18px] gap-y-2" aria-hidden="true">
         {legend(<span className="flex size-4 items-center justify-center rounded-full bg-arc-text"><img src={checkIcon} alt="" width={12} height={12} className="brightness-0" /></span>, 'Keep')}
         {legend(<span className="size-4 rounded-full border-[1.5px] border-arc-text/60" />, 'Skip')}
-        {legend(<Pic src={lockIcon} size={14} />, 'Ended')}
-        {[...locked.values()].includes('mine') && legend(<Pic src={lockIcon} size={14} />, 'Already yours')}
+        {legend(<span className="flex size-4 items-center justify-center"><Pic src={lockIcon} size={14} /></span>, 'Ended')}
+        {[...locked.values()].includes('mine') && legend(<span className="flex size-4 items-center justify-center"><Pic src={lockIcon} size={14} /></span>, 'Already yours')}
       </div>
       {hidden > 0 && (
-        <section aria-label="All talks" className="mt-5 flex flex-col gap-2 pb-2">
+        <section aria-label="All talks" className="mt-[34px] flex flex-col gap-2 pb-2">
+          {/* not in Figma: keeps the place it had before the legend moved up (a row cut by the bottom bar failed axe target-size) */}
           <h2 className="text-[15px] font-semibold">All {arc.nodes.length} talks</h2>
           {arc.nodes.map(n => {
             const lock = locked.get(n.key), on = picked.has(n.key), i = info(n.key);
