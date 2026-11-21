@@ -20,6 +20,7 @@ const Edit = named(() => import('./screens/arc/Edit'), 'Edit');
 const Share = named(() => import('./screens/arc/Share'), 'Share');
 const Qr = named(() => import('./screens/arc/Share'), 'Qr');
 const Received = named(() => import('./screens/arc/Received'), 'Received');
+const JustRead = named(() => import('./screens/arc/Received'), 'JustRead');
 const Pick = named(() => import('./screens/arc/Received'), 'Pick');
 const Legacy = named(() => import('./legacy/Legacy'), 'Legacy');
 
@@ -49,7 +50,7 @@ export function App() {
       case 'talk': return step ? <TalkDetail paperKey={step} /> : <Home />; // 14 (the planner's 06 is replaced)
       case 'share': return step ? <Share id={step} /> : <Home />;
       case 'qr': return step ? <Qr id={step} /> : <Home />;
-      case 'r': return sub === 'pick' ? <Pick payload={step ?? ''} /> : <Received payload={step ?? ''} />; // a share link (18, 19)
+      case 'r': return sub === 'pick' ? <Pick payload={step ?? ''} /> : sub === 'read' ? <JustRead payload={step ?? ''} /> : <Received payload={step ?? ''} />; // a share link (18, 19)
       default: return <Legacy />;
     }
   })();

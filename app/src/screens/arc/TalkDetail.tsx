@@ -8,7 +8,7 @@ import { keySegments } from '../../arc/keyPhrase.js';
 import { abstractFileDay, firstSlot, dateOf, clockOf } from '../../explore/format';
 import { talkPosition } from '../../today/card.js';
 import { getArc, loadArcs } from '../../arc/store';
-import { currentArcId, useTribe } from '../../arc/live';
+import { currentArcId, useTribe, viewingArc } from '../../arc/live';
 import { useDevice, update } from '../../state/useDevice';
 import { heardOf, toggleHeard } from '../../arc/draft.js';
 import { useNow } from '../../clock.js';
@@ -59,7 +59,8 @@ export function TalkDetail({ paperKey }: { paperKey: string }) {
   useEffect(() => { // the Arc opened last, else the newest Arc with this talk
     (async () => {
       const id = currentArcId();
-      const arcs = [...(id ? [await getArc(id)] : []), ...(await loadArcs())].filter((a): a is Arc => !!a);
+      const v = viewingArc(); // 18 Just read: not saved
+      const arcs = [...(v && v.id === id ? [v] : []), ...(id ? [await getArc(id)] : []), ...(await loadArcs())].filter((a): a is Arc => !!a);
       const arc = arcs.find(a => a.nodes.some(n => n.key === paperKey));
       setFound(arc ? { arc, node: arc.nodes.find(n => n.key === paperKey)! } : null);
     })();

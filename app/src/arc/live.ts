@@ -29,3 +29,7 @@ export const previewTribe = () => preview;
 let currentArc: string | null = null;
 export const setCurrentArc = (id: string | null) => { currentArc = id; };
 export const currentArcId = () => currentArc;
+// 18 "Just read": the shared Arc being looked at without saving it, so 14 can show why each talk is there
+let viewing: import('../engine').Arc | null = null;
+export const setViewingArc = (arc: typeof viewing) => { viewing = arc; };
+export const viewingArc = () => viewing;

@@ -52,6 +52,9 @@
 /* The page behind the Arc screens is dark too, and iOS does not bounce it: pulling or dragging sideways showed the
    white planner background and shook the whole page (user, 11/20). The planner (Legacy) keeps its light page. */
 html, body { overscroll-behavior: none; }
+/* Figma uses Inter's normal line height for text without one; Arc pictures are sized by their own width/height */
+.arc { line-height: normal; }
+.arc img { max-width: none; }
 html { background: var(--arc-bg); color: var(--text); font-family: var(--font-sans); font-size: var(--text-body); -webkit-text-size-adjust: 100%; }
 body { margin: 0; padding-top: env(safe-area-inset-top, 0px); }
 :root[data-legacy], :root[data-legacy] body::before { background: var(--bg); }

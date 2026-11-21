@@ -6,7 +6,9 @@ import { href } from '../../router';
 import { encodeLink, angleCounts } from '../../arc/link.js';
 import { TRIBE } from '../../arc/tribes.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
-import { Screen, IconButton, Pic } from '../../components/arc';
+import { Screen, IconButton, Pic, ArcButton } from '../../components/arc';
+import { lockScreenPng, saveLockScreen } from '../../arc/lockscreen';
+import lockIcon from '../../assets/arc/icon-lock.svg';
 import { ArcView, ANGLE_ICON } from './ArcView';
 import { useArc } from './useArc';
 import type { Arc } from '../../engine';
@@ -108,10 +110,17 @@ export function qrPath(url: string) {
 export function Qr({ id }: { id: string }) {
   const { arc } = useArc(id);
   const qr = useMemo(() => (arc ? qrPath(shareUrl(arc)) : null), [arc]);
+  const [saved, setSaved] = useState(false);
   useEffect(() => { document.title = 'QR · ARC'; }, []);
   if (!arc || !qr) return null;
+  const lockScreen = async () => { await saveLockScreen(await lockScreenPng(arc, qr), `arc-${arc.tribe}.png`); setSaved(true); };
   return (
-    <Screen label="QR code" header={<><span /><IconButton icon={closeIcon} label="Close" href={href(`share/${id}`)} /></>}>
+    // Figma 17 also has "Print badge": out of scope for now (planned for the finals), so Lock screen is full width
+    <Screen label="QR code" header={<><span /><IconButton icon={closeIcon} label="Close" href={href(`share/${id}`)} /></>}
+      bottom={<>
+        <p className="text-center text-[14px] font-medium text-arc-text-2" aria-live="polite">{saved ? 'Image ready to save' : ''}</p>
+        <ArcButton kind="secondary" onClick={lockScreen}><Pic src={lockIcon} size={20} />Lock screen</ArcButton>
+      </>}>
       <div className="mt-[14px] flex justify-center"><TribeChip arc={arc} /></div>
       <h1 className="mx-auto mt-4 w-[320px] max-w-full text-center text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
       <div className="relative mx-auto mt-6 flex size-[248px] items-center justify-center rounded-[28px] bg-white">
