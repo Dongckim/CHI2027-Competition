@@ -29,7 +29,7 @@ export function DemoBanner() {
  *  clock: a screen whose content depends on the time (shows the demo banner when the demo day is on). */
 export function Screen({ header, children, bottom, label, clock }: { header?: ReactNode; children: ReactNode; bottom?: ReactNode; label?: string; clock?: boolean }) {
   return (
-    <div className="arc mx-auto flex min-h-dvh max-w-[480px] flex-col overflow-x-clip bg-arc-bg font-sans text-arc-text">{/* nothing scrolls sideways (QA V7) */}
+    <div className="arc mx-auto flex min-h-[calc(100dvh-env(safe-area-inset-top,0px))] max-w-[480px] flex-col overflow-x-clip bg-arc-bg font-sans text-arc-text">{/* nothing scrolls sideways (QA V7); the screen minus body's top safe-area padding, so a short screen never scrolls (user 11/20) */}
       {/* Figma: buttons 44 at y 56 (54 + 2), so a 48 row centred */}
       {header && <header className="flex min-h-[48px] items-center justify-between px-4">{header}</header>}
       {clock && <DemoBanner />}
