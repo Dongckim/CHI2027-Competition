@@ -1,7 +1,7 @@
 // 07b "Make it a question": the topic test, the question part of a title, and the picking over the real CHI 2026 titles.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { isTopic, questionOf } from '../../app/src/arc/topic.js';
+import { isTopic, questionOf, brokenQuestion } from '../../app/src/arc/topic.js';
 import { buildIndex, topicQuestions } from '../../app/src/engine/mock-core.js';
 import { buildCorpus } from './corpus.mjs';
 
@@ -37,4 +37,12 @@ test('picks: real title questions that hold a topic word, best TF-IDF match firs
   const titles = new Map(corpus.papers.map(p => [p.key, p.title]));
   for (const q of questions) assert.ok(titles.get(q.key).includes(q.text.replace(/["“”`]+\?$/, '?').slice(0, -1)), `"${q.text}" is in its title`);
   assert.equal(new Set(questions.map(q => q.text)).size, questions.length, 'each question once');
+});
+
+test('07b composed questions: drop the ones that read wrong', () => {
+  for (const q of ['Do older adults improve participate in the gig economy?', 'Do digitalisation of public services improve exclusion of older adults?',
+    'Does older adults improve trust?', 'Do haptic feedback improve immersion?']) assert.equal(brokenQuestion(q), true, q);
+  for (const q of ['Do haptics improve VR experience?', 'Does session duration improve VR presence?', 'How do personalized avatars affect VR presence?',
+    'How do older adults affect portal use?', 'Do LLM agents improve trust?', 'Does privacy reduce AI adoption?', 'How does privacy affect cognitive load?',
+    'Do children improve use of tablets?', 'Does the use of robots improve wellbeing?']) assert.equal(brokenQuestion(q), false, q);
 });

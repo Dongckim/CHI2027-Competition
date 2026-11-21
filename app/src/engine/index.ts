@@ -1,4 +1,5 @@
-// The one place that picks the engine: mock (default) or ondevice (?engine=ondevice, or VITE_ENGINE=ondevice at build).
+// The one place that picks the engine: ondevice in the deploy build (VITE_ENGINE=ondevice, user 11/21 「기본 엔진 ondevice로
+// 전환」), mock in a plain build (no model there). ?engine=mock|ondevice picks one for that visit.
 // Screens import `engine` from here and nothing else from app/src/engine.
 import type { Engine } from './types';
 
@@ -32,5 +33,7 @@ export const engine: Engine = {
   wildcard: (q, x, l) => pick().then(e => e.wildcard(q, x, l)),
 };
 export type * from './types';
-// 07b reads the mock index for its counts whatever engine is chosen (approved 11/21); loaded only when 07b shows.
-export const topicHelp = () => import('./mock');
+// 07b: the chosen engine's topic questions and their preview Arcs (ondevice: composed questions, user 11/21); loaded only
+// when 07b shows.
+export const topicHelp = (): Promise<{ topicQuestions(t: string): Promise<{ count: number; questions: { text: string; key: string }[] }>; questionArc(q: string): Promise<import('./types').Arc> }> =>
+  ENGINE_NAME === 'ondevice' ? import('./ondevice') : import('./mock');
