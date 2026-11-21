@@ -130,3 +130,10 @@
 - 전환할 때:
   - `ondevice*.js`를 precache에 넣는다(지금은 뺌).
   - 온보딩 01–07 동안 미리 받는다(`warm()`이 이미 01에서 엔진을 켬). 다 못 받았으면 25.
+
+## 뒤에 한 것 (2026-11-21, 사용자 승인 뒤)
+사용자 결정 「기본 엔진 ondevice로 전환하되, 먼저 이것부터」에 따라:
+- Challenge 근거가 결과 문장이 아니면 Reframe(Same subject)으로 옮긴다(`resultQuote`). 결과가 아닌 것: 카드가 result가 아님, 초록 첫 문장, 목표("This study investigated …"), 선행 연구, 연구 공백. #52와 같은 규칙이고 테스트가 있다. 222623은 이제 Reframe이다.
+- Reframe 종류를 Arc 0.2.0 `kind`로 12·13·14에 표시한다.
+- 07b는 원준 조합 문장이다. 문법이 깨진 것(`brokenQuestion`)은 빼고, 남는 게 없으면 실제 제목 질문을 쓴다. 카드에 "Suggested"를 붙였다.
+- 배포 빌드의 기본 엔진을 ondevice로 바꿨다. 모델은 01부터 받고, 10은 다 받을 때까지 "Sorting angles… N%"를 보여 준다. 오프라인이거나 30초 동안 진행이 없으면 연결 안내를 띄운다(`tests/arc/setup-check.mjs` 5/5).

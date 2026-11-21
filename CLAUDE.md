@@ -9,8 +9,8 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 ## 현재 상태 (Arc, 결정 006)
 - 질문 하나 → 세 관점의 발표 묶음(Arc). 화면 이름 Supports ↑ / Reframes ↻ / Challenges ⊣, 코드·계약 키 S/R/T (개발 지시서의 "Tension" = 화면의 Challenges). 8개 종족 색 테두리, 링크·QR 공유·받기
 - 단계 A0~A4 (`stage/A0-arc-contract`…), 11/23 동결, 마감 12/4. A0~A4 코드 끝, 남은 것은 동결 전 체크리스트(docs/stages/A4-ship.md ⑦: 토큰·Upstash·폰)
-- 계약: `contracts/Arc.schema.json` 0.1.0과 엔진 인터페이스 `app/src/engine/types.ts`(사용자 승인). 그 밖의 필드는 임의로 추가하지 말고 물어볼 것. 계약을 바꾸면 PR에 "원준 확인 필요"
-- 추천(무엇을 어떤 관점으로)은 `app/src/engine/`에만. `index.ts`가 mock(기본) / ondevice(`?engine=ondevice`, `VITE_ENGINE`) 선택. 시간·방·저자·세션은 엔진이 아니라 data/build에서 key로 붙임. mock은 "VR" 수정·어근 처리(-s/-ing/-ed/-ic, 11/20 사용자 요청) 뒤 동결(더 다듬지 않음)
+- 계약: `contracts/Arc.schema.json` 0.2.0(0.1.0에 Reframe `kind` 선택 필드, 11/21)과 엔진 인터페이스 `app/src/engine/types.ts`(사용자 승인). 그 밖의 필드는 임의로 추가하지 말고 물어볼 것. 계약을 바꾸면 PR에 "원준 확인 필요"
+- 추천(무엇을 어떤 관점으로)은 `app/src/engine/`에만. `index.ts`가 엔진 선택: 배포 빌드(`build:deploy`, `VITE_ENGINE=ondevice`)는 ondevice가 기본(11/21 전환), 그냥 `npm run build`·qa:auto는 mock(모델 없음). `?engine=mock|ondevice`로 바꿔 볼 수 있음. 한 Arc는 한 엔진(편집은 `engineFor(arc.engine)`). 시간·방·저자·세션은 엔진이 아니라 data/build에서 key로 붙임. mock은 "VR" 수정·어근 처리(-s/-ing/-ed/-ic, 11/20 사용자 요청) 뒤 동결(더 다듬지 않음)
 - 원준 엔진: 소스·생성 스크립트는 `recsys/`, 모델 zip은 git 밖 → `build:deploy`가 `MODEL_URL`·`MODEL_SHA256`으로 `dist/model/`에 풂(`/model/` 서빙). 없으면 mock (recsys/README.md)
 - 옛 플래너(S0~S5b)는 지우지 않고 진입점에서만 뺌: 화면 `app/src/legacy/`, 직접 주소로 열림. 기록 `docs/stages/legacy-planner/`
 - 데모 시계: 학회 기간 밖이면 자동으로 둘째 날 10:00(배너 표시), `?at=2026-04-14T12:00`(개최지 시각)이 우선. mock 상태 `?mock=slow|none|pending|crowded`
@@ -21,7 +21,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 검사: `npm test`(하나만 `node --test --test-name-pattern="talk slots" tests/`) · `npm run typecheck` · `npm run contracts:check`
 - 헤드리스(빌드 먼저, 서버를 스스로 켜고 끔): `node --experimental-websocket tests/arc/create-check.mjs [--shots <dir>]`(01 → 12 → 14) · `tests/arc/arc-check.mjs`(12·13·14·15·23–25, mock Arc를 IndexedDB에 넣고 데모 시계) · `tests/arc/share-check.mjs`(16–20, /s/ 링크, 14 Q&A; vite preview가 /api/share·/api/qa·/api/og를 붙임) · `tests/arc/offline-check.mjs`(첫 방문 뒤 서버를 끄고 07 → 12 → 14) · `tests/arc/a11y-check.mjs [--shots <dir>]`(axe 24개 화면 + 글자 획 밑 픽셀 대비)
 - QA 한 번에: `npm run qa:auto [-- --no-build] [--only two-tabs,perf] [--deploy <주소>]`(빌드 → 두 탭·성능·바깥 요청·링크·실제 터치(press)·원 대비 8종족(orb)·WebKit(넘침·버튼 한 줄·터치·01→14, 처음 한 번 `npx playwright install webkit`)·a11y(넘침·44px·12px)·create·arc·share·offline, 알려진 실패는 tests/qa/known-failures.json, 결과 docs/validation/V7-qa.md·perf.json). 비밀·링크 인코딩은 npm test(tests/qa/*.test.mjs)
-- 배포 확인: `VERCEL_BYPASS_TOKEN=… node --experimental-websocket tests/arc/preview-check.mjs <미리보기 주소> [--expect-upstash]` (보호 해제 토큰은 헤더로만, 출력은 가림. 토큰은 커밋·로그 금지) · 프로덕션은 `… preview-check.mjs <주소> --public`(로그인 없이 열리는지)
+- 배포 확인: `VERCEL_BYPASS_TOKEN=… node --experimental-websocket tests/arc/preview-check.mjs <미리보기 주소> [--expect-upstash] [--expect-ondevice]` (보호 해제 토큰은 헤더로만, 출력은 가림. 토큰은 커밋·로그 금지) · 프로덕션은 `… preview-check.mjs <주소> --public`(로그인 없이 열리는지)
 - 엔진: `node tests/engine/try.mjs ["질문" ...] [--mode none|pending|crowded] [--no-t]`(mock Arc JSON + 계약 검사) · `node tests/engine/tribes-report.mjs`(종족 분포)
 - 앱: `npm run dev`(같은 Wi-Fi 폰에서도 열림) · `npm run build`(dist/, data/build/chi2026 필요) · `npm run build:deploy`(Vercel: 피드 받기 → 빌드 → 앱 → 모델)
 - 벤치: `npm run bench`(tests/serve.mjs, functions/를 /api/로) → `/tests/legacy/…` 페이지(`.env.local`에 `SONIOX_API_KEY=...`, git 무시)
@@ -159,3 +159,6 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - A5 ondevice 엔진 연결 (2026-11-21, stage/A5-ondevice): 원준 엔진(recsys/src/web, 모델 model-2026-11-21)을 Web Worker로 Engine 뒤에. `?engine=ondevice`일 때만 모델 받음(기본 mock). 한 Arc엔 한 엔진(편집은 arc.engine을 따름), 11 Change 맨 위에 2위 종족
 - 인용은 코드포인트 → UTF-16 + 우리 초록에서 다시 찾기(패키지 초록은 strip, 15,484문장 모두 맞음). 패키지 시각이 2시간 늦어 `engineNow`로 보정(원준 확인 필요). 14개 질문 계약 14/14, Arc 중간값 56.5 ms(WebKit, Mac)
 - 남은 것: 기본 엔진 전환은 사용자 승인 뒤, 07b 방식 선택, Challenge 목표 문장 1건·어색한 종족·라이선스 2칸은 원준 (docs/validation/V9-ondevice.md)
+- A5 기본 엔진 전환 (2026-11-21, stage/A5-ondevice-default): 배포 빌드 기본 ondevice(`MODEL_URL` 없으면 빌드 실패). Challenge는 결과 문장만(아니면 Reframe), Arc 0.2.0 `kind`를 12·13·14에, 07b는 원준 조합 문장(문법 깨진 것 빼고, 없으면 제목), 10은 모델 받는 동안 "Sorting angles… N%", 오프라인·30초 정체면 연결 안내
+- `node tests/arc/setup-check.mjs`(10 진행률·오프라인·정체, ondevice 빌드+모델 필요) 5/5, 배포 확인에 `--expect-ondevice`
+- 남은 것: 종족 3개·시각 2시간·라이선스 2칸은 원준, 새 표시는 디자이너(docs/handoff/designer.md §13), 링크 v2 보류(docs/handoff/on-hold.md)

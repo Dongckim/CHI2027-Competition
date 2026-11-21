@@ -121,3 +121,18 @@ Figma에 없는 상태에 쓸 문구다. 사용자가 정했고, 디자이너 �
 - 문구는 Figma 그대로다(다른 것 없음). 06 → 06b → 06c → 07, 점 6·7번째. Skip은 홈.
 - 06b 칩 이름은 Figma의 짧은 이름("Accessibility", "Health & care", "Learning", "Society", "Devices", "Design")이다. 07·11 등 다른 화면의 종족 이름은 긴 이름("Accessibility & aging" 등, `tribes.js`)이라 둘이 다르다. 어느 쪽으로 맞출지 디자이너 확인 전.
 - 16b 링크 미리보기(743:1697): 공유 링크의 설명을 Figma대로 "ARC · ↑ n support · ↻ n reframe · ⊣ n challenge · Tue 14"(실제 개수, 첫 발표 요일), 사이트 이름 "arc2027.com"으로 바꿨다. 예전 설명 끝의 "Unofficial."은 빠졌다(og 그림의 출처 줄에는 그대로 있음).
+
+## 13. ondevice 엔진으로 생긴 새 표시 (2026-11-21, 디자이너 확인 전)
+기본 엔진을 원준 엔진(ondevice)으로 바꾸면서 생긴 표시다. Figma에 없다. 문구는 사용자가 정했거나(인용) 원준 엔진의 말을 그대로 썼다.
+
+| 화면 | 표시 | 어디에 | 출처 |
+|---|---|---|---|
+| 12 지도 | Reframe 종류: "Same subject" · "Other factor" · "Other measure" · "Other people" (**새 표시**) | Reframe 노드의 제목 둘째 줄 자리(제목은 한 줄로). 지도가 좁아 이미 제목이 한 줄인 노드에는 안 보이고 화면 읽기 도구로만 읽힘(아래 버튼과 겹치지 않게) | 사용자 「Reframe 노드에 원준이 주는 종류 … 짧은 글자로 표시. 13 목록과 14에도. 디자이너 목록에 "새 표시"로」, 글자는 원준 엔진의 이름 |
+| 13 목록 | 같은 글자 (**새 표시**) | 시간 줄 앞: "Other factor · 11:24 · Rm 116" | 같음 |
+| 14 상세 | 같은 글자 (**새 표시**) | 관점 태그 안: "Reframes · Other factor" | 같음 |
+| 07b | "Suggested" | 카드의 각도 수 앞 | 사용자 「제안 카드라는 게 보이게」, 문구는 해석(확인 전) |
+| 10 | "Sorting angles… 62%" | 원 아래 상태 줄(모델을 받는 동안) | 사용자 「10에서 "Sorting angles… 62%"처럼 진행률을 보여 주고」 |
+| 10 | "Connect to the internet to finish setting up ARC." + "Try again" | 상태 줄 + 아래 버튼(오프라인이거나 30초 동안 진행이 없을 때, 입력한 질문은 그대로) | 사용자 같은 메시지 |
+
+- 07b 질문은 원준 엔진이 결과 카드로 만든 조합 문장이다("Do haptics improve VR experience?"). 문법이 깨진 문장은 빼고, 남는 게 없으면 실제 논문 제목 질문을 쓴다.
+- 25("Sorting angles…" 지도)는 원래 뜻(Tension 각도 판정 중)으로만 쓴다. 사용자 「25는 원래 뜻(각도 판정 중)으로만 써」
