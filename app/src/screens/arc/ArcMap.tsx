@@ -7,24 +7,29 @@ import { AngleHelp, ANGLE_NAME } from './AngleHelp';
 import { ArcView, ANGLE_ICON, useFitScale } from './ArcView';
 import { ArcHeader } from './ArcHeader';
 import { useArc } from './useArc';
+import { useHoldSwap, SwapFan, SwapUndo } from './HoldSwap';
 import editIcon from '../../assets/arc/icon-edit.svg';
 import chevron from '../../assets/arc/icon-chevron-right.svg';
 import spinner from '../../assets/arc/25-spinner.svg';
 
 export function ArcMap({ id }: { id: string }) {
-  const { arc, states, info } = useArc(id);
+  const use = useArc(id);
+  const { arc, states, info } = use;
+  const hs = useHoldSwap(use);
   const [help, setHelp] = useState(false);
   const fit = useFitScale();
   const closeHelp = useCallback(() => setHelp(false), []);
   if (!arc) return null;
   const pending = arc.tension === 'pending';
+  const held = hs.fan?.key ?? null;
   const next = pending ? null : arc.nodes.find(n => states.get(n.key) === 'next') ?? null;
   const ni = next ? info(next.key) : null;
   return (
     <Screen clock label="My Arc" header={<ArcHeader id={id} view="map" onHelp={() => setHelp(true)} />}
       bottom={<>
+        <SwapUndo hs={hs} />
         {next && ni && (
-          <a href={href(`talk/${next.key}`)} aria-description={`Next up: ${ANGLE_NAME[next.angle]} · ${ni.title} · ${ni.time}`}
+          <a href={href(`talk/${next.key}`)} inert={!!held || undefined} aria-description={`Next up: ${ANGLE_NAME[next.angle]} · ${ni.title} · ${ni.time}`}
             className="flex min-h-[68px] items-center gap-3.5 rounded-[20px] border border-arc-line bg-arc-surface pr-4 pl-3.5">
             {/* Figma: a 38 circle in a 40 frame, 18 px symbol */}
             <span className="m-px flex size-[38px] shrink-0 items-center justify-center rounded-full border border-arc-line bg-arc-surface"><Pic src={ANGLE_ICON[next.angle]} size={18} /></span>
@@ -35,7 +40,7 @@ export function ArcMap({ id }: { id: string }) {
             <Pic src={chevron} size={20} className="opacity-50" />
           </a>
         )}
-        <div className="flex gap-3">
+        <div className="flex gap-3" inert={!!held || undefined}>
           <ArcLink kind="secondary" href={href(`arc/${id}/edit`)} className="min-w-[128px] shrink-0"><Pic src={editIcon} size={20} />Edit</ArcLink>
           <ArcLink href={href(`share/${id}`)}>Share</ArcLink>
         </div>
@@ -48,8 +53,10 @@ export function ArcMap({ id }: { id: string }) {
             <img src={spinner} alt="" width={16} height={16} />Sorting angles…{/* Figma 25: a still 3/4 arc */}
           </p>
         )}
-        <ArcView arc={arc} states={states} info={info} scale={fit} fit onNode={k => go(`talk/${k}`)} onBundle={() => go(`arc/${id}/list`)} />
+        <ArcView arc={arc} states={states} info={info} scale={fit} fit onNode={k => hs.tap() && go(`talk/${k}`)} onBundle={() => go(`arc/${id}/list`)}
+          hold={pending ? undefined : { held, press: hs.press, onSwap: k => hs.open(k, true) }} />
       </div>
+      {held && <SwapFan hs={hs} title={info(held).title} />}
       <AngleHelp open={help} onClose={closeHelp} />
     </Screen>
   );

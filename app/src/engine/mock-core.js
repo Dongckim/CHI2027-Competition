@@ -9,6 +9,7 @@ import { buildIndex as baselineIndex, recommend, terms as baseTerms, sentences }
 import { verifiedReasons } from '../explore/quotes.js';
 import { localDay } from '../planner/plan.js';
 import { tribeOfText, tribeByCount, majority } from '../arc/tribes.js';
+import { questionOf } from '../arc/topic.js';
 // Word roots (A4, user request; anything smarter is the real engine's job): after the baseline's plural rule, drop
 // -ing, -ed and -ic so robotics / robotic / robot / robots, haptics / haptic and designed / designing / design meet.
 const root = w => w.replace(/(?<=.{3})(ing|ed)$/, '').replace(/(?<=.{3})ic$/, '');
@@ -257,4 +258,24 @@ export function wildcard(index, query, excludeKeys, limit = 5) {
   const step = Math.max(1, Math.floor(band.length / limit));
   return band.filter((_, i) => i % step === 0).slice(0, limit).map(({ paper: p }) =>
     ({ key: p.key, angle: 'R', label: labelOf(p.title), evidence: evidenceOf(p.abstract, bestSentence(p.abstract, q)), debut: index.debut.has(p.authors[0]) }));
+}
+
+/**
+ * 07b: for a topic, how many talks the search matches (whole conference) and the question part of the best matching
+ * titles that ask one, best first by the same TF-IDF as candidates(). Real titles only; the same question once.
+ * @returns {{ count: number, questions: { text: string, key: string }[] }}
+ */
+export function topicQuestions(index, topic, limit = 8) {
+  const all = candidates(index, topic, { limit: index.base.N });
+  // the question sentence itself must hold a word of the (expanded) topic: whole-paper TF-IDF alone offered "Who Explains
+  // Privacy Policies to Me?" for "VR presence" (the rest of its title is about VR)
+  const want = new Set(baseTerms(expandQuery(topic)));
+  const seen = new Set(), questions = [];
+  for (const { paper } of all) {
+    const text = questionOf(paper.title);
+    if (!text || !baseTerms(text).some(t => want.has(t))) continue;
+    if (!seen.has(text) && seen.add(text)) questions.push({ text, key: paper.key });
+    if (questions.length >= limit) break;
+  }
+  return { count: all.length, questions };
 }

@@ -124,3 +124,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .arc-node-ended .arc-node-symbol { opacity: 0.4; } /* measured on Figma's render: 109 on #121119 */
 /* selected (15) and picked (19): Figma 52 / 54 on screen round the 64 node (70 in map px), 1.5 px on screen at any scale */
 .arc-node-selected::after { content: ""; position: absolute; inset: -3px; border-radius: 9999px; border: calc(1.5px / var(--map-scale, 1)) solid rgba(255, 255, 255, 0.9); }
+/* 12b: a node can be held (no text selection or iOS callout); the three choices rise in, still with reduced motion */
+.arc-hold { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.arc-fan-in { animation: arc-fan-in 0.18s ease-out both; }
+@keyframes arc-fan-in { from { opacity: 0; transform: translateY(12px); } }
+@media (prefers-reduced-motion: reduce) { .arc-fan-in { animation: none; } }

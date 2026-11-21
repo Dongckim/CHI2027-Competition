@@ -1,10 +1,13 @@
 // 07 · Ask: one question (a word or a sentence). While typing, the tribe it would land in shows as a chip (engine.tribeOf).
 // First time this is step 6 of the onboarding dots with Skip; from home it has a back button instead.
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { go, href } from '../../router';
 import { update, useDevice } from '../../state/useDevice';
 import { arcOf, setQuery, setOnboarded, QUERY_MAX } from '../../arc/draft.js';
-import { engine, type TribeId } from '../../engine';
+import { engine, topicHelp, type Arc, type Angle, type TribeId } from '../../engine';
+import { isTopic } from '../../arc/topic.js';
+import { layout } from '../../arc/map.js';
+import { ANGLE_NAME } from './AngleHelp';
 import { TRIBE } from '../../arc/tribes.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
 import { useWarm, warm, useTribe, setPreviewTribe } from '../../arc/live';
@@ -17,6 +20,50 @@ import chevron from '../../assets/arc/icon-chevron-right.svg';
 const STARTERS: [TribeId, string][] = [['access', 'What is accessibility research asking now?'], ['ai', 'Which CHI work can I use in industry?'], ['design', 'My first CHI: how do I spend a day?']];
 
 const hasWords = (q: string) => /[\p{L}\p{N}]/u.test(q);
+type Help = { topic: string; count: number; cards: { text: string; arc: Arc }[] };
+const yieldToTyping = () => new Promise(r => setTimeout(r));
+
+// 07b: the topic's talk count, then up to three title questions whose Arc is not empty (one Arc at a time, so typing
+// stays smooth; mock.ts caches them).
+async function helpFor(topic: string, live: () => boolean): Promise<Help | null> {
+  const m = await topicHelp();
+  const { count, questions } = await m.topicQuestions(topic);
+  const cards: Help['cards'] = [];
+  for (const q of questions) {
+    if (cards.length === 3) break;
+    await yieldToTyping();
+    if (!live()) return null;
+    const arc = await m.questionArc(q.text);
+    if (arc.nodes.length) cards.push({ text: q.text, arc });
+  }
+  return { topic, count, cards };
+}
+
+// Figma 741:1638: the 12 map shrunk to 60 (x 0.155, y 0.117 round the orb); the first talk filled in the tribe colour
+function MiniArc({ arc }: { arc: Arc }) {
+  const id = useId(), c = TRIBE[arc.tribe].color;
+  const l = layout(arc) as { nodes: { node: Arc['nodes'][number]; at: [number, number] }[]; bundles: { angle: Angle; at: [number, number] }[] };
+  const pts = [...l.nodes.map(n => ({ at: n.at, angle: n.node.angle })), ...l.bundles.map(b => ({ at: b.at, angle: b.angle }))]
+    .map(p => ({ angle: p.angle, x: 30 + (p.at[0] - 195) * 0.155, y: 30 + (p.at[1] - 240) * 0.117 }));
+  return (
+    <svg width={60} height={60} viewBox="0 0 60 60" aria-hidden="true" className="shrink-0">
+      <defs>
+        <radialGradient id={`${id}b`} cx="30" cy="30" r="30" gradientUnits="userSpaceOnUse"><stop stopColor={c} stopOpacity={0.35} /><stop offset={0.7} stopColor={c} stopOpacity={0.14} /><stop offset={1} stopColor={c} stopOpacity={0.06} /></radialGradient>
+        <radialGradient id={`${id}o`} cx="30" cy="30" r="9" gradientUnits="userSpaceOnUse"><stop stopColor={c} stopOpacity={0.95} /><stop offset={0.55} stopColor={c} stopOpacity={0.6} /><stop offset={1} stopColor={c} stopOpacity={0.22} /></radialGradient>
+      </defs>
+      <rect width={60} height={60} rx={12} fill={`url(#${id}b)`} />
+      {pts.map((p, i) => {
+        const dx = p.x - 30, dy = p.y - 30, d = Math.hypot(dx, dy) || 1;
+        return <line key={`l${i}`} x1={30 + (dx / d) * 9} y1={30 + (dy / d) * 9} x2={p.x - (dx / d) * 3} y2={p.y - (dy / d) * 3} stroke="#f4f6ff" strokeOpacity={0.45} strokeWidth={0.6} strokeDasharray={p.angle === 'R' ? '0.7 1.4' : undefined} />;
+      })}
+      <circle cx={30} cy={30} r={9} fill={`url(#${id}o)`} />
+      <circle cx={30} cy={30} r={8.7} stroke="#fff" strokeOpacity={0.55} strokeWidth={0.6} fill="none" />
+      {pts.map((p, i) => (i === 0 ? <circle key={i} cx={p.x} cy={p.y} r={3} fill={c} />
+        : <circle key={i} cx={p.x} cy={p.y} r={2.7} fill="#f4f6ff" fillOpacity={0.06} stroke="#f4f6ff" strokeOpacity={0.6} strokeWidth={0.6} />))}
+      <rect x={0.3} y={0.3} width={59.4} height={59.4} rx={11.7} stroke="#fff" strokeOpacity={0.1} strokeWidth={0.6} fill="none" />
+    </svg>
+  );
+}
 
 export function Ask() {
   const state = useDevice();
@@ -32,8 +79,19 @@ export function Ask() {
     const t = setTimeout(() => engine.tribeOf(q).then(r => { if (live) { setTribeChip(r.tribe); setPreviewTribe(r.tribe); } }, () => {}), 500);
     return () => { live = false; clearTimeout(t); };
   }, [draft.query]);
+  const topic = isTopic(draft.query) ? draft.query.trim() : null;
+  const [help, setHelp] = useState<Help | null>(null);
+  useEffect(() => { // 07b, half a second after typing stops; typing more or a question hides it
+    if (!topic) { setHelp(null); return; }
+    let live = true;
+    const t = setTimeout(() => helpFor(topic, () => live).then(h => { if (live && h) setHelp(h); }, () => {}), 500);
+    return () => { live = false; clearTimeout(t); };
+  }, [topic]);
+  const shown = help && help.topic === topic && help.count > 0 ? help : null;
   const ready = hasWords(draft.query);
   const next = () => { if (!ready) return; update(setOnboarded); go('angles'); };
+  const ask = (q: string) => { update(s => setQuery(s, q)); update(setOnboarded); go('angles'); };
+  const count = (arc: Arc, a: Angle) => arc.nodes.filter(n => n.angle === a).length;
   const t = tribe ? TRIBE[tribe] : null;
 
   return (
@@ -62,6 +120,33 @@ export function Ask() {
           </span>
         )}
       </div>
+      {shown ? <>
+        {/* Figma 741:1605: the note at y 348, cards 86 high every 96 from 428, the line under them at 724 */}
+        <p id="topic-note" className="mt-[15px] min-h-16 rounded-2xl bg-gradient-to-b from-white/6 via-white/3 via-55% to-white/0 px-4 py-[13px] text-[13px] leading-[19px] font-medium text-arc-text/72">
+          That’s a topic. {shown.count} {shown.count === 1 ? 'talk matches' : 'talks match'} it.{shown.cards.length > 0 && <><br />Pick a sharper question:</>}
+        </p>
+        <ul className="mt-4 flex flex-col gap-2.5" aria-labelledby="topic-note">
+          {shown.cards.map(({ text, arc }) => (
+            <li key={text}>
+              <button type="button" onClick={() => ask(text)}
+                className="relative flex h-[86px] w-full items-start gap-3.5 rounded-[20px] border border-arc-line bg-arc-surface pt-[11px] pr-[30px] pl-[10px] text-left">
+                <MiniArc arc={arc} />
+                <span className="line-clamp-2 min-w-0 flex-1 pt-px text-[15px] leading-[19px] font-semibold tracking-[-0.006em]">{text}</span>
+                {/* Figma: the counts at y 57 in the card, the angle symbols as text; read out by name */}
+                <span aria-hidden="true" className="absolute top-[56px] left-[84px] text-[12px] font-medium whitespace-pre text-arc-text/60">{`↑ ${count(arc, 'S')}   ↻ ${count(arc, 'R')}   ⊣ ${count(arc, 'T')}`}</span>
+                <span className="sr-only">{` · ${(['S', 'R', 'T'] as Angle[]).map(a => `${count(arc, a)} ${ANGLE_NAME[a]}`).join(', ')}`}</span>
+                <Pic src={chevron} size={16} className="absolute top-[34px] right-[11px]" />
+              </button>
+            </li>
+          ))}
+        </ul>
+        {/* user 11/21: a word stays a valid start. Not in Figma (designer to confirm) */}
+        <button type="button" onClick={next}
+          className="mt-4 min-h-touch w-full rounded-full border border-arc-line bg-arc-surface px-5 py-2.5 text-[15px] font-semibold tracking-[-0.006em] text-arc-text">
+          Keep ‘{shown.topic}’ as a topic
+        </button>
+        <p className="mt-[18px] mb-4 text-[13px] font-medium text-arc-text-3">Or keep typing your own.</p>{/* Figma 0.5; 0.55 is the floor */}
+      </> : <>
       <p id="starters" className="mt-[37px] text-[12px] font-medium text-arc-text-3">Or start from one of these</p>
       <ul className="mt-[9.5px] flex flex-col gap-2" aria-labelledby="starters">
         {STARTERS.map(([tid, q]) => (
@@ -73,6 +158,7 @@ export function Ask() {
           </li>
         ))}
       </ul>
+      </>}
     </Screen>
   );
 }

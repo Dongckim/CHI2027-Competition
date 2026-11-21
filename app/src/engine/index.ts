@@ -19,3 +19,5 @@ export const engine: Engine = {
   wildcard: (q, x, l) => pick().then(e => e.wildcard(q, x, l)),
 };
 export type * from './types';
+// 07b reads the mock index for its counts whatever engine is chosen (approved 11/21); loaded only when 07b shows.
+export const topicHelp = () => import('./mock');

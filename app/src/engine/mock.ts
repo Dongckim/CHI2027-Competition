@@ -61,3 +61,13 @@ export const mockEngine: Engine = {
   suggest: (query, angle, excludeKeys, limit) => answer(i => core.suggest(i, query, angle, excludeKeys, limit) as ArcNode[]),
   wildcard: (query, excludeKeys, limit) => answer(i => core.wildcard(i, query, excludeKeys, limit) as ArcNode[]),
 };
+
+// 07b "Make it a question" (approved 11/21): not part of the Engine contract. It reads the mock index directly, with no
+// delay, so the counts on its cards are what the mock engine builds for that question. Arcs are cached per question.
+const questionArcs = new Map<string, Arc>();
+export const topicQuestions = async (topic: string) => core.topicQuestions(await index(), topic) as { count: number; questions: { text: string; key: string }[] };
+export async function questionArc(question: string): Promise<Arc> {
+  const i = await index();
+  if (!questionArcs.has(question)) questionArcs.set(question, (core.buildArc as (...a: unknown[]) => Arc)(i, question, { angles: ['S', 'R', 'T'] }, { id: 'preview', createdAt: 0 }));
+  return questionArcs.get(question)!;
+}
