@@ -87,7 +87,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .arc-orb { border-radius: 9999px; --c: var(--tribe-now, #5c7cff);
   background: var(--arc-orb-fill);
   border: 2px solid color-mix(in srgb, var(--c) 85%, transparent);
-  box-shadow: 0 0 20px color-mix(in srgb, var(--c) 35%, transparent), inset 0 0 12px color-mix(in srgb, var(--c) 28%, transparent); } /* a wider glow lifted node text near the orb on 25 under 4.5:1 */
+  box-shadow: 0 0 20px color-mix(in srgb, var(--c) 30%, transparent), inset 0 0 12px color-mix(in srgb, var(--c) 28%, transparent); } /* a wider glow lifted node text near the orb on 25 under 4.5:1 */
 .arc-ring { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.08);
   background: radial-gradient(circle, color-mix(in srgb, var(--tribe-now, #5c7cff) 28%, transparent) 0%, transparent 70%); }
 :root[data-tribe] { --tribe-now: var(--tribe); }

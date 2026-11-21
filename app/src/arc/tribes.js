@@ -7,21 +7,21 @@
 // look: 11 "Look for the {look}." (colour + shape words, so the tribe is never colour alone).
 // Order matters: field keywords first, AI last; otherwise AI takes half of CHI (most sessions mention it somewhere).
 export const TRIBES = [
-  { id: 'access', name: 'Accessibility & aging', shape: '●', color: '#2FBF71', look: 'green circle',
+  { id: 'access', name: 'Accessibility & aging', shape: '●', color: '#4CCF9E', look: 'green circle',
     keywords: ['accessib', 'disabilit', 'blind', 'low vision', 'deaf', 'hard of hearing', 'sign language', 'caption', 'screen reader', 'older adult', 'aging', 'ageing', 'later life', 'neurodiver', 'autis', 'adhd', 'dyslexi', 'assistive', 'wheelchair', 'sensory access', 'inclusion', 'impair'] },
-  { id: 'health', name: 'Health & wellbeing', shape: '✚', color: '#FF6B6B', look: 'coral cross',
+  { id: 'health', name: 'Health & wellbeing', shape: '✚', color: '#FF8E86', look: 'coral cross',
     keywords: ['health', 'wellbeing', 'well-being', 'mental', 'clinic', 'patient', 'care', 'therap', 'medical', 'stress', 'mindful', 'biofeedback', 'illness', 'diagnos', 'physical activity', 'behavior change', 'behaviour change', 'self-tracking', 'eating', 'food', 'sleep', 'reproductive'] },
-  { id: 'learning', name: 'Learning & families', shape: '■', color: '#FFC234', look: 'yellow square',
+  { id: 'learning', name: 'Learning & families', shape: '■', color: '#FFCC70', look: 'yellow square',
     keywords: ['learning', 'education', 'student', 'teach', 'tutor', 'classroom', 'school', 'child', 'youth', 'teen', 'famil', 'parent', 'literacy', 'training'] },
-  { id: 'xr', name: 'XR & immersive', shape: '◆', color: '#4C7DFF', look: 'blue diamond',
+  { id: 'xr', name: 'XR & immersive', shape: '◆', color: '#6E8BFF', look: 'blue diamond',
     keywords: ['virtual reality', 'vr', 'augmented reality', 'ar', 'mixed reality', 'xr', 'immersive', 'spatial computing', 'metaverse', 'headset', '3dui', 'social vr', 'virtual world'] },
-  { id: 'devices', name: 'Devices & interaction', shape: '⬢', color: '#19C3D6', look: 'teal hexagon',
+  { id: 'devices', name: 'Devices & interaction', shape: '⬢', color: '#6CCFE3', look: 'teal hexagon',
     keywords: ['haptic', 'wearable', 'tangible', 'fabrication', 'sensing', 'shape-chang', 'gesture', 'gaze', 'touch', 'input', 'device', 'robot', 'electrical stimulation', 'textile', 'thermal', 'mobile', 'driving', 'vehicle', 'pcb', 'hand pose'] },
-  { id: 'society', name: 'Society & communities', shape: '★', color: '#FF7AC6', look: 'pink star',
+  { id: 'society', name: 'Society & communities', shape: '★', color: '#F49CCB', look: 'pink star',
     keywords: ['privacy', 'security', 'social media', 'communit', 'justice', 'ethic', 'governance', 'policy', 'labor', 'labour', 'gender', 'identity', 'marginal', 'moderation', 'online harm', 'misinformation', 'deepfake', 'scam', 'dark pattern', 'sustainab', 'religio', 'culture', 'critical', 'equity', 'surveillance', 'workplace', 'collaborat', 'group work', 'relationship', 'social impact'] },
-  { id: 'design', name: 'Design & creativity', shape: '⬟', color: '#E6E6E6', look: 'white pentagon', // TODO(designer): confirm, near the white angle icons
+  { id: 'design', name: 'Design & creativity', shape: '⬟', color: '#E6E0F6', look: 'white pentagon', // TODO(designer): confirm, near the white angle icons
     keywords: ['design', 'creativ', 'art', 'music', 'sound', 'dance', 'game', 'play', 'player', 'visualization', 'visualisation', 'craft', 'speculative', 'fashion', 'heritage', 'more-than-human', 'storytelling', 'writing'] },
-  { id: 'ai', name: 'AI & agents', shape: '▲', color: '#9B6BFF', look: 'purple triangle',
+  { id: 'ai', name: 'AI & agents', shape: '▲', color: '#A78BFF', look: 'purple triangle',
     keywords: ['ai', 'artificial intelligence', 'llm', 'language model', 'genai', 'generative', 'agent', 'chatbot', 'conversational', 'machine learning', 'prompt', 'algorithm', 'model', 'automation'] },
 ];
 

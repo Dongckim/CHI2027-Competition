@@ -17,6 +17,23 @@ cpSync(from(`data/build/app-data/${EDITION}/${current.path}`), from(`dist/app-da
 cpSync(from('app/src'), from('dist/app/src'), { recursive: true, filter: s => !/\.(tsx?|css)$/.test(s) });
 console.log(`copied ${EDITION} data, app-data/${EDITION}/${current.path}, venue, tests and app/src modules into dist/`);
 
+// The link preview picture (functions/og.mjs) says "5 talks · 4 rooms · Tue 14 · CHI 2026" (Figma OG frames 746:1913…):
+// per talk its first day, room and whether it is a demo, from this edition's schedule. Written next to the function so the
+// deploy's file tracing carries it; not in git (a build output).
+{
+  const sched = JSON.parse(readFileSync(from(`dist/app-data/${EDITION}/${current.path}schedule.json`)));
+  const tz = JSON.parse(readFileSync(from(`data/venue/${EDITION}.json`))).timeZone;
+  const day = ms => new Intl.DateTimeFormat('en-GB', { timeZone: tz, weekday: 'short', day: 'numeric' }).format(ms).replace(',', '');
+  const papers = {};
+  for (const p of sched.papers) {
+    const slot = [...(p.slots ?? [])].filter(x => x.start).sort((a, b) => a.start - b.start)[0];
+    if (!slot) continue;
+    papers[p.paperKey.split(':')[1]] = [day(slot.start), slot.roomKey ?? '', p.feedType === 'Interactive Demos' || p.type === 'demo' ? 1 : 0];
+  }
+  writeFileSync(from('functions/og-data.json'), JSON.stringify({ edition: EDITION, year: EDITION.replace(/\D/g, ''), papers }));
+  console.log(`functions/og-data.json: ${Object.keys(papers).length} talks`);
+}
+
 // Service worker with this deploy's precache list: the page, its hashed JS/CSS/woff2/SVG (Final UI pictures), the whole
 // app-data folder (schedule, every day's abstracts, people, topics, institutions, debut: what the engine and the Arc
 // screens read, so a first visit works in airplane mode too, A4) and the venue graph with its names. The files are

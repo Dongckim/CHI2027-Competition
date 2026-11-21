@@ -48,9 +48,9 @@
   --arc-button-h: 54px;
 
   /* 8 tribes (app/src/arc/tribes.js, same values). Colour is for tribes only, never for angles (↑ ↻ ⊣ stay white). */
-  --tribe-ai: #9b6bff; --tribe-xr: #4c7dff; --tribe-access: #2fbf71; --tribe-health: #ff6b6b;
-  --tribe-learning: #ffc234; --tribe-society: #ff7ac6; --tribe-devices: #19c3d6;
-  --tribe-design: #e6e6e6; /* TODO(designer): confirm; close to the white angle icons */
+  --tribe-ai: #a78bff; --tribe-xr: #6e8bff; --tribe-access: #4ccf9e; --tribe-health: #ff8e86;
+  --tribe-learning: #ffcc70; --tribe-society: #f49ccb; --tribe-devices: #6ccfe3;
+  --tribe-design: #e6e0f6; /* TODO(designer): confirm; close to the white angle icons */
   --tribe: transparent;    /* the current Arc's tribe, set by <html data-tribe> (app/src/arc/theme.ts) */
 }
 :root[data-tribe="ai"] { --tribe: var(--tribe-ai); }

@@ -10,3 +10,4 @@ data/build/
 # Read-only reference prototypes (local only, see CLAUDE.md)
 reference/
 dist/
+functions/og-data.json
