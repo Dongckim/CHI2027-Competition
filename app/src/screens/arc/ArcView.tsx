@@ -74,7 +74,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
         <span aria-hidden="true" className="arc-orb" style={at(BOX.cx, BOX.cy, 144)} />
         <svg aria-hidden="true" width={BOX.w} height={BOX.h} className="absolute top-0 left-0" stroke="#fff" strokeWidth={1.2} strokeLinecap="round" fill="none">{lines}</svg>
         <div aria-hidden="true" className="absolute flex flex-col items-center" style={{ left: BOX.cx - 54, top: 206, width: 108 }}>
-          <p data-contrast-exception="figma-orb" className="line-clamp-3 text-center font-semibold tracking-[-0.006em]" /* white on the orb as in Figma: 1.3–3.7:1, kept by the user's decision (A4 doc) */ style={{ fontSize: real(Math.max(12, 14 * scale)), lineHeight: `${real(Math.max(15, 18 * scale))}px` }}>{arc.query}</p>
+          <p data-orb-question className="line-clamp-3 text-center font-semibold tracking-[-0.006em]" /* white on the near-black orb: ≥ 4.5:1 in every tribe (tests/qa/orb-check.mjs) */ style={{ fontSize: real(Math.max(12, 14 * scale)), lineHeight: `${real(Math.max(15, 18 * scale))}px` }}>{arc.query}</p>
           <img src={TRIBE_ICON[arc.tribe]} alt="" width={12} height={12} className="mt-1.5" />
         </div>
 

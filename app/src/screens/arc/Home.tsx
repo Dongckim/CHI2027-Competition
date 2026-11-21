@@ -104,7 +104,7 @@ export function Home() {
   return (
     <Screen label="My Arcs" header={<>
       <h1 className="pl-2 text-[30px] font-semibold tracking-[-0.024em]">My Arcs</h1>
-      <ArcLink href={href('ask')} className="h-11 w-auto px-5"><Pic src={plusDark} size={20} />New Arc</ArcLink>
+      <ArcLink href={href('ask')} className="h-11 w-[116px] px-0"><Pic src={plusDark} size={20} />New Arc</ArcLink>{/* Figma 20: 116×44 */}
     </>}>
       <DemoBanner />
       {!isPersistent() && <p className="mt-2 text-[14px] text-arc-text-2">This browser does not keep Arcs. They stay until you close the tab.</p>}

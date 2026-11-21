@@ -41,7 +41,7 @@ export function Screen({ header, children, bottom, label, clock }: { header?: Re
 
 type Kind = 'primary' | 'secondary' | 'ghost';
 // Full width unless the caller sets a width ("w-[128px]": Edit next to Share).
-const look = (kind: Kind, cls = '') => `inline-flex h-[var(--arc-button-h)] ${/(^|\s)w-/.test(cls) ? '' : 'w-full'} items-center justify-center gap-2 rounded-full px-5 text-[16px] font-semibold tracking-[-0.006em] ${
+const look = (kind: Kind, cls = '') => `inline-flex ${/(^|\s)h-/.test(cls) ? '' : 'h-[var(--arc-button-h)]'} ${/(^|\s)w-/.test(cls) ? '' : 'w-full'} items-center justify-center gap-2 rounded-full px-5 text-[16px] font-semibold tracking-[-0.006em] ${
   kind === 'primary' ? 'bg-arc-primary text-arc-on-primary shadow-[var(--arc-shadow-primary)]'
   : kind === 'secondary' ? 'border border-arc-line bg-arc-surface text-arc-text'
   : 'text-arc-text/72'} disabled:opacity-40`;
