@@ -102,9 +102,16 @@ try {
   await click(byText('Add to my Arcs'));
   await waitFor(`location.hash.startsWith('#/arc/')`, 10000);
   await open('#/home');
-  const homeMs = await waitFor(`document.querySelectorAll('main li a[aria-description*="shared with you"]').length === 2`, 15000);
+  // 20 shows one period at a time (Today / This week / After CHI): the two shared Arcs are in one of the three tabs each
+  await waitFor(`!!document.querySelector('[role=tab]')`, 15000);
+  const seen = new Set();
+  for (const tab of ['Today', 'This week', 'After CHI']) {
+    await click(`[...document.querySelectorAll('[role=tab]')].find(t => t.innerText.trim() === ${JSON.stringify(tab)})`);
+    await sleep(300);
+    for (const id of await ev(`[...document.querySelectorAll('main li a[aria-description*="shared with you"]')].map(a => a.getAttribute('href'))`) ?? []) seen.add(id);
+  }
   await shot('20');
-  check('20 home: both Arcs as rows, newest first, shared marked', homeMs != null, { rows: await ev(`[...document.querySelectorAll('main li a')].map(a => a.innerText.split('\\n').slice(0, 2).join(' · ').slice(0, 60))`) });
+  check('20 home: both shared Arcs listed (across the period tabs), shared marked', seen.size === 2, { rows: [...seen] });
 
   // 14 Q&A against the memory store
   const talk = (await stored()).find(a => a.query === 'Does VR fidelity raise presence?').nodes[0].key;
