@@ -33,6 +33,7 @@
 
   /* Final UI (Figma 582:7, 588:446): one dark theme for the Arc screens. Values are what the frames use. */
   --arc-bg: #121119;
+  --arc-orb-fill: #0e0e12; /* under the question on the orb: white text ≥ 4.5:1 for every tribe */
   --arc-surface: #1c1b24;    /* chips, cards, secondary button, icon button */
   --arc-sheet: #1a1922;      /* bottom sheets (22) */
   --arc-line: rgba(255, 255, 255, 0.08);

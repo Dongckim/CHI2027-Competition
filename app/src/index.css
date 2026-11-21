@@ -77,12 +77,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 @keyframes arc-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .arc-spin { animation: none; } }
 
-/* Question orb (10, 12) and tribe rings (11): Figma's pictures are drawn in the sample tribe's blue; these take --tribe
-   (falls back to Figma's #5C7CFF before a tribe is known). Radial stops as Figma: 0.95 → 0.6 at 55% → 0.22. */
-.arc-orb { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.08);
-  --c: var(--tribe-now, #5c7cff);
-  /* Figma's glow (user 2026-11-20: "디자인은 figma대로"): white text on it is under 4.5:1, an accepted exception */
-  background: radial-gradient(circle, color-mix(in srgb, var(--c) 95%, transparent) 0%, color-mix(in srgb, var(--c) 60%, transparent) 55%, color-mix(in srgb, var(--c) 22%, transparent) 100%); }
+/* Question orb (10, 12, 15, 18, 19, 23–25) and tribe rings (11). The question on the orb is content (user 11/20), so it
+   must read at 4.5:1 in every tribe: a near-black fill under the white text, the tribe colour only as the edge, its glow
+   and the rings around (falls back to Figma's #5C7CFF before a tribe is known). Figma fills the orb with the colour;
+   designer to confirm (docs/validation/V8-orb). */
+.arc-orb { border-radius: 9999px; --c: var(--tribe-now, #5c7cff);
+  background: var(--arc-orb-fill);
+  border: 2px solid color-mix(in srgb, var(--c) 85%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--c) 35%, transparent), inset 0 0 12px color-mix(in srgb, var(--c) 28%, transparent); } /* a wider glow lifted node text near the orb on 25 under 4.5:1 */
 .arc-ring { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.08);
   background: radial-gradient(circle, color-mix(in srgb, var(--tribe-now, #5c7cff) 28%, transparent) 0%, transparent 70%); }
 :root[data-tribe] { --tribe-now: var(--tribe); }
