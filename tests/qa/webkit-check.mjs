@@ -1,6 +1,6 @@
 // WebKit (Safari's engine) check, the core only (user: "WebKit에서는 핵심만"): an iPhone 14 (Playwright device, touch).
 // Chrome draws Inter narrower, so a label can fit in Chrome and break on an iPhone (V8: "+ New / Arc"). Here:
-//   1 no sideways scroll on the 25 screens at 390, 375 and 360 (16 also while its cards are swiped)
+//   1 no sideways scroll on every screen in screens.mjs at 390, 375 and 360 (16 also while its cards are swiped)
 //   2 button words on one line at 100% and 200% text (tests/qa/screens.mjs buttonsProbe, as Chrome's a11y-check)
 //   3 real touches: Skip on 01, 03, 05, 06 (centre and ±20 px) goes home; 05 Code of Conduct gets the touch
 //   4 01 → 12 → 14 on an empty phone
@@ -43,7 +43,7 @@ try {
       }
     }
   }
-  R.check('25 screens at 390/375/360: no sideways scroll (16 also mid-swipe)', wide.length === 0, wide.length ? { wide: wide.slice(0, 6) } : {});
+  R.check(`${SCREENS.length} screens at 390/375/360: no sideways scroll (16 also mid-swipe)`, wide.length === 0, wide.length ? { wide: wide.slice(0, 6) } : {});
   R.check('buttons: words on one line at 100% and 200% text', wrap.length === 0, wrap.length ? { wrap: wrap.slice(0, 6) } : {});
   await page.setViewportSize({ width: 390, height: 844 });
 

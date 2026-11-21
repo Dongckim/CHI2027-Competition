@@ -43,18 +43,18 @@ try {
   await send('Page.navigate', { url: BASE }); await waitFor(`document.readyState === 'complete'`);
   await fresh();
 
-  // 01 → 02 … 06 → 07
+  // 01 → 02 … 06 → 06b → 06c → 07
   check('fresh phone opens 01', !!(await waitFor(`location.hash === '#/start/1' && /Bring one question/.test(document.body.innerText)`)), { hash: await hash() });
   await shot('01');
   await click("It's my first CHI");
   const seen = [];
-  for (const [n, title] of [[2, 'The biggest week'], [3, '10+ talks run at once'], [4, 'Know what to do'], [5, 'Breaks are'], [6, 'Your question,']]) {
+  for (const [n, title] of [[2, 'The biggest week'], [3, '10+ talks run at once'], [4, 'Know what to do'], [5, 'Breaks are'], [6, 'Your question,'], ['6b', 'Same colour,'], ['6c', 'Before, during,']]) {
     const ok = await waitFor(`location.hash === '#/start/${n}' && document.body.innerText.includes(${JSON.stringify(title)})`);
     seen.push(ok != null); await shot(`0${n}`);
     await click('Next');
   }
-  check('02–06 in order, each with Next', seen.every(Boolean), { seen });
-  check('06 Next → 07 with dots and Skip', !!(await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label="Step 8 of 8"]') && /Skip/.test(document.body.innerText)`)), { hash: await hash() });
+  check('02–06c in order, each with Next', seen.every(Boolean), { seen });
+  check('06c Next → 07 with dots and Skip', !!(await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label="Step 8 of 8"]') && /Skip/.test(document.body.innerText)`)), { hash: await hash() });
 
   // 07: type a question (React needs the native setter + an input event), the tribe chip appears
   await ev(`(() => { const i = document.querySelector('main input'); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;

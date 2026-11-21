@@ -1,25 +1,39 @@
 // GET /s/<payload> (vercel.json rewrites it to /api/share?d=<payload>) → a tiny page with the link preview tags that
-// messengers read (title = the question, description = the angle counts), which sends people straight on to the app's
+// messengers read (Figma 16b 743:1697: title = the question, description "ARC · ↑ 2 support · ↻ 2 reframe · ⊣ 1 challenge ·
+// Tue 14" from the link's real counts and its first talk's day, site "arc2027.com"), which sends people straight on to the app's
 // #/r/<payload> (18). Stateless and silent: nothing is stored or logged; the payload is checked, never trusted.
 // The preview picture is og:image = /api/og?d=<payload> (functions/og.mjs).
+import { readFileSync } from 'node:fs';
 import { decodeLink, angleCounts } from '../app/src/arc/link.js';
 
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const YEAR = { chi2026: '2026', chi2027: '2027' };
+// The build-time talk index og.mjs also reads (app/scripts/copy-static.mjs): day per talk. Missing → no day.
+// A literal URL so the deploy's file tracing ships it with this function.
+let TALKS = null;
+try { TALKS = JSON.parse(readFileSync(new URL('./og-data.json', import.meta.url), 'utf8')); } catch { /* not built */ }
+const SITE = 'arc2027.com'; // Figma 16b and the og picture's credit line
 
-export function sharePage(payload, origin) {
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+/** "ARC · ↑ 2 support · ↻ 2 reframe · ⊣ 1 challenge · Tue 14" (Figma's words). The day only when the index is
+ *  for the link's edition (ids are fixed within one edition) and knows one of its talks. */
+export function describe(n, edition, talks = TALKS) {
+  const c = angleCounts(n);
+  const day = talks?.edition === edition && n.map(([id]) => talks.papers[String(id)]).find(Boolean)?.[0];
+  return [`ARC · ↑ ${c.S} support · ↻ ${c.R} reframe · ⊣ ${c.T} challenge`, day].filter(Boolean).join(' · ');
+}
+
+export function sharePage(payload, origin, talks = TALKS) {
   const d = decodeLink(payload);
   const to = `/#/r/${d.ok ? payload : ''}`; // a broken link still opens the app, which says why
   const title = d.ok ? d.link.q : 'An Arc for CHI';
-  const c = d.ok ? angleCounts(d.link.n) : null;
-  const desc = c ? `↑ ${c.S} Supports · ↻ ${c.R} Reframes · ⊣ ${c.T} Challenges · from the CHI ${YEAR[d.link.e] ?? ''} programme. Unofficial.`.replace('  ', ' ')
-    : 'ARC lays CHI talks around one research question. Unofficial.';
+  const desc = d.ok ? describe(d.link.n, d.link.e, talks) : 'ARC lays CHI talks around one research question. Unofficial.';
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)} · ARC</title>
 <meta name="description" content="${esc(desc)}">
-<meta property="og:type" content="website"><meta property="og:site_name" content="ARC">
+<meta property="og:type" content="website"><meta property="og:site_name" content="${SITE}">
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">
+<meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(desc)}">
 <meta property="og:url" content="${esc(`${origin}/s/${d.ok ? payload : ''}`)}">
 ${d.ok ? `<meta property="og:image" content="${esc(`${origin}/api/og?d=${payload}`)}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="${esc(`${title}: ${desc}`)}">
 <meta name="twitter:card" content="summary_large_image">` : '<meta name="twitter:card" content="summary">'}

@@ -1,5 +1,5 @@
 // Shared by tests/arc/a11y-check.mjs (Chrome) and tests/qa/webkit-check.mjs (WebKit): the Arcs and DeviceState every
-// screen check starts from, the 25 screens (hash and a text that shows it is there), and page probes as plain functions
+// screen check starts from, the 25 screens (23 + onboarding 06b, 06c) (hash and a text that shows it is there), and page probes as plain functions
 // (passed to the page as `(${fn})()`, so Chrome over CDP and Playwright run the same code).
 import { buildCorpus } from '../engine/corpus.mjs';
 import { buildIndex, buildArc } from '../../app/src/engine/mock-core.js';
@@ -22,7 +22,8 @@ export const seedArcs = arcs => `new Promise(r => { const q = indexedDB.open('ar
   q.onsuccess = () => { const t = q.result.transaction('arcs', 'readwrite'); for (const a of ${JSON.stringify(arcs)}) t.objectStore('arcs').put(a); t.oncomplete = () => { q.result.close(); r(true); }; }; })`;
 export const SCREENS = [['10', '#/building', 'Reading'],
   ['01', '#/start/1', 'Bring one question'], ['02', '#/start/2', 'The biggest week'], ['03', '#/start/3', '10+ talks run'], ['04', '#/start/4', 'Know what to do'],
-  ['05', '#/start/5', 'Breaks are'], ['06', '#/start/6', 'three sides'], ['07', '#/ask', 'What are you'], ['08', '#/angles', 'Supports'],
+  ['05', '#/start/5', 'Breaks are'], ['06', '#/start/6', 'three sides'], ['06b', '#/start/6b', 'same neighbourhood'], ['06c', '#/start/6c', 'Before, during'],
+  ['07', '#/ask', 'What are you'], ['08', '#/angles', 'Supports'],
   ['09', '#/when', 'Build my Arc'], ['11', `#/hood/${ARC.id}`, "YOU'RE IN"], ['12', `#/arc/${ARC.id}`, 'Next ·'], ['13', `#/arc/${ARC.id}/list`, 'Reframes'],
   ['14', `#/talk/${ARC.nodes[0].key}`, 'WHY IT'], ['15', `#/arc/${ARC.id}/edit`, 'Editing'], ['16', `#/share/${ARC.id}`, 'Never your name'],
   ['17', `#/qr/${ARC.id}`, 'Scan to get'], ['18', `#/r/${encodeLink(OTHER)}`, 'Shared Arc'], ['19', `#/r/${encodeLink(OTHER)}/pick`, 'Pick what to keep'],
