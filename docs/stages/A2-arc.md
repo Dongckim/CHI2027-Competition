@@ -40,23 +40,30 @@
 | 13 | 메타 11px, 날짜 없음 | 12px, "Heard · Tue 14 · ~09:36 · Rm 116" | 12px, Arc는 일주일 |
 | 13 | 개수 45% (4.28:1) | 55% | 4.5:1 |
 | 14 | 저자 한 줄 + "First CHI paper" | 저자 전원, 새로 온 저자마다 "✦ New to CHI" | 사용자 결정(문구·전원) |
-| 14 | 시간·방만 | 세션 이름 · talk n of m 추가 | 사용자 요청 |
+| 14 | 시간·방만 | 세션 이름 · talk n of m 추가 | 세션: 사용자 요청 「14 나머지(저자 ✦ 전원 표시, 세션, Q&A 자리)」. talk n of m은 해석(확인 전) |
 | 14 | "WHY IT SUPPORTS" 11px | 12px | 12px 이상 |
 | 14 | 문장 안 일부만 강조 | 근거 문장 전체 인용 + 전체 초록에서 그 문장 표시 | 엔진이 주는 단위가 문장 |
 | 14 | 없음 | "I heard it" 버튼(시작한 발표만) | 사용자 결정: Heard는 사용자가 표시 |
 | 14 | Q&A 카드·투표 | 빈 상태 "Be the first to ask" + 입력(비활성) + "Questions are public and anonymous. Don't include personal details." | Q&A 서버는 A3, 가짜 질문 금지 |
 | 14 | 입력 placeholder 45% (4.21:1) | 55% | 4.5:1 |
-| 15 | "First CHI paper" 칩 | "New to CHI" | 사용자 결정 문구로 통일 |
+| 15 | "First CHI paper" 칩 | "New to CHI" | 배지 문구는 사용자 결정 「문구는 "✦ New to CHI"」. 15 Swap 칩에도 쓴 것은 해석(확인 전) |
 | 15 | − 22px, + 34px, Done 40px | 같은 모양, 누르는 영역 44px | 터치 44px |
 | 15 | 카드 메타 11px | 12px | 12px 이상 |
 | 15 | 제거 테두리 24% (2.54:1) | 40% | 비텍스트 3:1 |
 
 ### 그 밖의 결정
 - 노드 상태 (사용자 결정): 지난 발표는 Ended, 14에서 "I heard it"을 누른 것만 Heard. 기록은 DeviceState arc.heard(기기에만)
-- Wildcard (사용자 결정): 엔진 메서드로. mock은 점수 0.15–0.35 구간에서 고르게, 관점은 Reframes
+- Wildcard: 엔진 메서드로는 사용자 결정(고른 보기 「engine에 wildcard 메서드 추가 … mock은 점수 중간대에서 무작위」). 0.15–0.35 구간, 관점 Reframes, 노드마다 엔진이 관점을 정하는 것은 해석(확인 전)
 - 15에서 넣는 검색 결과는 사용자가 고른 관점으로, 근거 문장은 없음(엔진이 고른 것이 아님)
 - 15 저장 후 tension: T 노드가 있으면 found, 없으면 none(off·pending은 그대로)
 - 14의 근거는 마지막으로 연 Arc, 없으면 이 발표가 든 가장 새 Arc
+
+## 확인 필요 (해석(확인 전), 2026-11-20 기록 점검)
+| 무엇 | 원문 | 해석으로 정한 것 | 기록 |
+|---|---|---|---|
+| Wildcard 점수대·관점 | 「engine에 wildcard 메서드 추가 … mock은 점수 중간대에서 무작위」 | 0.15–0.35, 관점 Reframes, 노드마다 엔진이 관점 | 커밋 7b45bfb, contracts/CHANGELOG.md |
+| 15 Swap 칩 문구 | 「문구는 "✦ New to CHI"」(배지) | 15 칩도 "New to CHI" | 이 문서 ③ |
+| 14 "talk n of m" | 「14 나머지(… 세션 …)」 | 세션 안 순서도 보여 줌 | 이 문서 ③ |
 
 ## ④ 남은 문제
 - 15에서 "+N"으로 묶인 노드는 지도에서 고를 수 없음(목록에서 보이지만 편집은 지도만)

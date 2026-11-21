@@ -24,7 +24,8 @@ export const R_BAND = [0.35, 0.8];
 const LABEL_MAX = 24;
 
 // Tension: an abstract sentence that reports a contrary or null result. Only then a T node, and that sentence is its
-// evidence. Not the first sentence, and not background (what prior work or existing systems do), user 11/20:
+// evidence. Not background (what prior work or existing systems do): user 11/20 「배경 문장 제외, "fail to" 조건, 질문 단어
+// 필수」. Not the first sentence: interpretation, to confirm (A4 doc, 확인 필요).
 // - strong cues count alone: no significant, did not, contrary to … (but "prior work did not…" needs this study's finding)
 // - weak cues need a finding of this study in the same sentence: however, fail(s/ed) to, mixed results/findings/…
 // "mixed" only as mixed results/findings/evidence/effects (not mixed-methods, mixed reality).

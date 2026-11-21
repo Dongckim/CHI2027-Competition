@@ -97,6 +97,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 단계마다 브랜치 stage/NN-이름, 끝나면 docs/stages/NN-이름.md 정리
 - 중요한 결정은 docs/decisions/NNN-제목.md (이유 포함)
 - 정리 문서 형식: ① 만든 것 ② 통과 기준 결과(숫자) ③ 결정과 이유 ④ 남은 문제 ⑤ 다음 단계가 알아야 할 것 ⑥ 비용·토큰
+- 결정의 출처 (2026-11-20 사용자): 문서·커밋·주석에 "사용자 결정"이라고 쓸 때는 사용자 메시지 원문을 짧게 인용한다(예: 사용자 결정 「Upstash는 오늘 연결할게」). 원문에 없는 내용을 정했으면 "사용자 결정"이 아니라 "해석(확인 전)"이라고 쓰고, 그 stage 문서의 "확인 필요" 목록에 올린다. 디자인 결정은 "디자이너 확인 전/후"를 같이 적는다
 
 ## Git 규칙
 - 단계가 끝나면 push → PR → 머지까지 한다 (2026-11-20 사용자 결정). 허용 범위는 `.claude/settings.json`과 같다:
@@ -150,7 +151,7 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - A3 공유·받기·Q&A (2026-11-20, stage/A3-share): 데모 시계(기간 밖이면 둘째 날 10:00 + 배너), 23 "No clear challenge", 16 Share·17 QR(uqr 0.1.3)·18 Shared Arc·19 Pick some·20 My Arcs, /s/ share 함수(OG 태그), 14 Q&A(메모리 → Upstash REST)
 - share-check 10/10, create-check 15/15, arc-check 12/12, npm test 136/136, 첫 화면 90.1 KB. 고친 버그: 탭에서 첫 저장 전에 목록을 안 읽어 홈에 예전 Arc가 안 보임
 - 남은 것: Upstash 연결(사용자), og:image·실기기·메신저 미리보기(A4), QR이 촘촘함(긴 링크) (docs/stages/A3-share.md)
-- A4 미리보기 그림·오프라인·접근성 (2026-11-20, stage/A4-ship): /api/og 1200×630(satori + resvg-wasm), share 페이지 og:image·1년 캐시, app-data 전체 precache(132개), 보이는 글자 = 이름(2.5.3), 지도 가운데 원은 Figma대로(흰 글자 대비 미달, 사용자 결정 예외)
+- A4 미리보기 그림·오프라인·접근성 (2026-11-20, stage/A4-ship): /api/og 1200×630(satori + resvg-wasm), share 페이지 og:image·1년 캐시, app-data 전체 precache(132개), 보이는 글자 = 이름(2.5.3), 지도 가운데 원은 그때 Figma대로(흰 글자 대비 미달, 예외; 해석(확인 전)이었고 V8에서 #0E0E12 안쪽으로 바꿈)
 - offline-check 6/6(서버 끈 상태로 07 → 12), a11y-check 24/24 serious 0·대비 최저 4.53, npm test 139/139, 첫 화면 87.8 KB
 - 남은 것: 동결 체크리스트(프로덕션 로그인 없이 열기, 토큰 미리보기 검사, Upstash, QR 폰, 메신저, VoiceOver), 16 카드 마크 로고 확인 (docs/stages/A4-ship.md)
 - A4 뒤 (11/20): iOS 바탕·튕김(#51), Challenge는 연구 자신의 결과 문장만(#52, 13개 질문 T 18 → 5문장), Figma 대조 뒤 01–07·11·14·15·19·20·23 맞춤(A4 문서 ⑧). 가장자리 빛은 Figma 레이어가 비어 있어 사용자 결정 대기
