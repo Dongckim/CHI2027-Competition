@@ -124,6 +124,12 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .arc-node-ended .arc-node-symbol { opacity: 0.4; } /* measured on Figma's render: 109 on #121119 */
 /* selected (15) and picked (19): Figma 52 / 54 on screen round the 64 node (70 in map px), 1.5 px on screen at any scale */
 .arc-node-selected::after { content: ""; position: absolute; inset: -3px; border-radius: 9999px; border: calc(1.5px / var(--map-scale, 1)) solid rgba(255, 255, 255, 0.9); }
+/* 19b: their talks not kept yet, drawn as outlines (Figma 743:1568), like the ended core */
+.arc-node-outline .arc-node-core { position: relative; background: transparent; border-color: transparent; }
+.arc-node-outline .arc-node-core::before { content: ""; position: absolute; inset: -1px; border-radius: 9999px; pointer-events: none; --w: 1.5px; --c: rgba(255, 255, 255, 0.28); --on: 8deg; --period: 22.5deg;
+  background: repeating-conic-gradient(from 86deg, var(--c) 0 var(--on), transparent var(--on) var(--period));
+  mask: radial-gradient(farthest-side, transparent calc(100% - var(--w)), #000 calc(100% - var(--w))); }
+.arc-node-outline .arc-node-symbol { opacity: 0.4; }
 /* 12b: a node can be held (no text selection or iOS callout); the three choices rise in, still with reduced motion */
 .arc-hold { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .arc-fan-in { animation: arc-fan-in 0.18s ease-out both; }

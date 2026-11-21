@@ -22,10 +22,12 @@ const Qr = named(() => import('./screens/arc/Share'), 'Qr');
 const Received = named(() => import('./screens/arc/Received'), 'Received');
 const JustRead = named(() => import('./screens/arc/Received'), 'JustRead');
 const Pick = named(() => import('./screens/arc/Received'), 'Pick');
+const Yours = named(() => import('./screens/arc/Received'), 'Yours');
+const AfterChi = named(() => import('./screens/arc/AfterChi'), 'AfterChi');
 const Legacy = named(() => import('./legacy/Legacy'), 'Legacy');
 
 const TITLES: Record<string, string> = { start: 'Welcome', ask: 'Ask', angles: 'Choose your angles', when: 'When and what', building: 'Building your Arc',
-  hood: 'Your neighborhood', home: 'My Arcs', arc: 'My Arc', talk: 'Talk', share: 'Share', qr: 'QR code', r: 'Shared Arc' };
+  hood: 'Your neighborhood', home: 'My Arcs', arc: 'My Arc', talk: 'Talk', share: 'Share', qr: 'QR code', r: 'Shared Arc', after: 'Your CHI' };
 
 export function App() {
   const route = useRoute();
@@ -50,7 +52,8 @@ export function App() {
       case 'talk': return step ? <TalkDetail paperKey={step} /> : <Home />; // 14 (the planner's 06 is replaced)
       case 'share': return step ? <Share id={step} /> : <Home />;
       case 'qr': return step ? <Qr id={step} /> : <Home />;
-      case 'r': return sub === 'pick' ? <Pick payload={step ?? ''} /> : sub === 'read' ? <JustRead payload={step ?? ''} /> : <Received payload={step ?? ''} />; // a share link (18, 19)
+      case 'after': return <AfterChi />; // 20b
+      case 'r': return sub === 'pick' ? <Pick payload={step ?? ''} /> : sub === 'yours' ? <Yours payload={step ?? ''} /> : sub === 'read' ? <JustRead payload={step ?? ''} /> : <Received payload={step ?? ''} />; // a share link (18, 19)
       default: return <Legacy />;
     }
   })();

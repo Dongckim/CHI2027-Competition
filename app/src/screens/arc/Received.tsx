@@ -6,7 +6,8 @@ import { go, href } from '../../router';
 import { decodeLink, receivedArc } from '../../arc/link.js';
 import { labelOf } from '../../arc/label.js';
 import { nodeStates, layout, type NodeState } from '../../arc/map.js';
-import { setOnboarded } from '../../arc/draft.js';
+import { setOnboarded, QUERY_MAX } from '../../arc/draft.js';
+import { addedWords, mineFrom, tensionFor } from '../../arc/yours.js';
 import { saveArc, useArcs } from '../../arc/store';
 import { useTribe, setCurrentArc, setViewingArc } from '../../arc/live';
 import { update } from '../../state/useDevice';
@@ -17,11 +18,12 @@ import { venueClock } from '../../time.js';
 import { Screen, ArcButton, BackButton, Pic } from '../../components/arc';
 import { ANGLE_NAME } from './AngleHelp';
 import { ArcView, type Info } from './ArcView';
+import { AddSheet } from './AddSheet';
 import { shortRoom } from './useArc';
 import linkIcon from '../../assets/arc/icon-link.svg';
 import lockIcon from '../../assets/arc/icon-lock.svg';
 import checkIcon from '../../assets/arc/icon-check.svg';
-import type { Arc } from '../../engine';
+import type { Arc, ArcNode, Angle } from '../../engine';
 
 type Slot = { start: number | null; end: number; roomKey: string; sessionKey: string };
 type Paper = { title: string; authors: string[]; slots: Slot[] };
@@ -61,13 +63,12 @@ function useReceived(payload: string) {
     return { title: p?.title ?? k, short: labelOf(p?.title ?? k), time: s ? `${dateOf(s.start, tz)} · ${clockOf(s.start, tz)}` : 'Time to be announced',
       when: s ? `${venueClock(s.start, tz)}${room ? ` · ${shortRoom(room)}` : ''}` : '', room: room ? shortRoom(room) : '' };
   };
-  return { r, ok, states, info };
+  const paper = (k: string) => ok?.schedule.index.papers.get(k) as Paper | undefined;
+  return { r, ok, states, info, paper, timeOf };
 }
 
 const keep = async (arc: Arc) => { await saveArc(arc); update(setOnboarded); go(`arc/${arc.id}`, { replace: true }); };
-// 18 "Make it mine" (user 11/20 「Make it mine = 내 Arc로 저장(수정 가능)」, 「Make it mine 뒤에는 15 Edit으로」): one of my own
-// Arcs (no "shared with you"), opened in 15 to change it.
-const makeMine = async (arc: Arc) => { await saveArc({ ...arc, source: 'mine' }); update(setOnboarded); go(`arc/${arc.id}/edit`, { replace: true }); };
+// 18 "Make it mine" opens 19b (user 「18 "Make it mine" → 19b로 변경. 15는 내 Arc 편집용으로 유지」).
 
 function Broken({ why }: { why: string }) {
   return (
@@ -89,7 +90,7 @@ export function Received({ payload }: { payload: string }) {
       {/* Figma 18: Pick some · Make it mine side by side; with larger text each takes its own row rather than breaking its words */}
       <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-2.5">
         <ArcButton kind="secondary" className="min-w-fit grow basis-[calc(50%-6px)]" onClick={() => go(`r/${payload}/pick`)} disabled={!arc.nodes.length}>Pick some</ArcButton>
-        <ArcButton kind="secondary" className="min-w-fit grow basis-[calc(50%-6px)]" onClick={() => makeMine(arc)} disabled={!arc.nodes.length}>Make it mine</ArcButton>
+        <ArcButton kind="secondary" className="min-w-fit grow basis-[calc(50%-6px)]" onClick={() => go(`r/${payload}/yours`)} disabled={!arc.nodes.length}>Make it mine</ArcButton>
       </div>
       <ArcButton kind="ghost" className="mt-3" onClick={() => go(`r/${payload}/read`)} disabled={!arc.nodes.length}>Just read</ArcButton>
     </div>}>
@@ -168,6 +169,79 @@ export function Pick({ payload }: { payload: string }) {
           })}
         </section>
       )}
+    </Screen>
+  );
+}
+
+// 19b · Make it yours (Figma 743:1568). Their talks are outlines until kept (tap: solid, tap again: outline); + adds talks
+// with 15's sheet, marked "Yours"; the question can be changed (the added words underlined), the talks are not recomputed.
+// Save keeps only the kept talks as a new Arc of my own. Kept / Yours live only on this screen.
+export function Yours({ payload }: { payload: string }) {
+  const { r, ok, states, info, paper, timeOf } = useReceived(payload);
+  const [kept, setKept] = useState<Set<string>>(new Set());
+  const [added, setAdded] = useState<ArcNode[]>([]);
+  const [query, setQuery] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [adding, setAdding] = useState<Angle | null>(null);
+  const nodes = useMemo(() => (ok ? [...ok.arc.nodes, ...added] : []), [ok, added]);
+  const exclude = useMemo(() => nodes.map(n => n.key), [nodes]);
+  if (!r) return null;
+  if (!ok) return <Broken why={(r as { error: string }).error} />;
+  const { arc } = ok;
+  const q = query ?? arc.query;
+  const draft: Arc = { ...arc, nodes, tension: tensionFor(arc, nodes) as Arc['tension'] }; // the orb keeps their question (Figma 19b)
+  const yours = new Set(added.map(n => n.key));
+  const toggle = (k: string) => setKept(s => { const x = new Set(s); if (x.has(k)) x.delete(k); else x.add(k); return x; });
+  const clash = (k: string) => {
+    const s = timeOf(k);
+    const other = s && nodes.find(n => kept.has(n.key) && (() => { const o = timeOf(n.key); return o && o.start < s.end && s.start < o.end; })());
+    return other ? info(other.key).short : null;
+  };
+  const save = async () => {
+    const mine = mineFrom(arc, { nodes: nodes.filter(n => kept.has(n.key)), query: q, id: newId(), createdAt: nowMs() }) as Arc;
+    await saveArc(mine); update(setOnboarded); go(`arc/${mine.id}`, { replace: true });
+  };
+  const commit = (v: string) => { const t = v.trim().slice(0, QUERY_MAX); setQuery(t && t !== arc.query ? t : null); setEditing(false); };
+  const [before, words, after] = addedWords(arc.query, q);
+  const theirs = arc.nodes.length;
+  const hidden = nodes.length - (layout(draft) as { nodes: unknown[] }).nodes.length; // bundled on the map (+N): keep them in the list
+  return (
+    <Screen clock label="Make it yours" header={<><BackButton href={href(`r/${payload}`)} /><span /></>}
+      bottom={<div className="flex flex-wrap gap-x-3 gap-y-2.5">
+        <ArcButton kind="secondary" className="min-w-fit grow basis-[calc(50%-6px)]" onClick={() => setKept(new Set([...kept, ...arc.nodes.map(n => n.key)]))}>Keep all theirs</ArcButton>
+        <ArcButton className="min-w-fit grow basis-[calc(50%-6px)]" onClick={save} disabled={!kept.size} aria-describedby={kept.size ? undefined : 'yours-why'}>Save as my Arc</ArcButton>
+      </div>}>
+      <p className="mt-2 inline-flex items-center gap-1.5 self-start rounded-2xl border border-arc-line bg-arc-surface py-1.5 pr-3 pl-2.5 text-[13px] font-semibold"><Pic src={linkIcon} size={14} />Shared Arc</p>
+      {editing
+        ? <input autoFocus defaultValue={q} maxLength={QUERY_MAX} aria-label="Your question" onBlur={e => commit(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); if (e.key === 'Escape') setEditing(false); }}
+            className="mt-3 h-14 w-full rounded-2xl border border-arc-line bg-arc-surface px-4 text-[16px] font-semibold text-arc-text focus:outline-none" />
+        : <h1 className="mt-3 text-[24px] leading-8 font-semibold tracking-[-0.02em]">
+            <button type="button" onClick={() => setEditing(true)} aria-description="Edit the question" className="min-h-touch text-left">
+              {before}{words && <span className="underline">{words}</span>}{after}
+            </button>
+          </h1>}
+      <div className="-mx-6 mt-4"><ArcView arc={draft} states={states} info={info} scale={0.78} fit
+        own={{ kept, yours, onToggle: toggle, adding, onAdd: a => setAdding(x => (x === a ? null : a)) }} /></div>
+      <p className="mt-6 text-[13px] font-medium text-arc-text/62">Their {theirs} {theirs === 1 ? 'stop stays as an outline' : 'stops stay as outlines'} until you keep {theirs === 1 ? 'it' : 'them'}.</p>
+      {!kept.size && <p id="yours-why" className="mt-1 text-[13px] font-medium text-arc-text/62">Keep at least one stop to save.</p>}
+      {hidden > 0 && (
+        <section aria-label="All talks" className="mt-6 flex flex-col gap-2 pb-2">
+          <h2 className="text-[15px] font-semibold">All {nodes.length} talks</h2>
+          {nodes.map(n => {
+            const on = kept.has(n.key), i = info(n.key);
+            return (
+              <button key={n.key} type="button" onClick={() => toggle(n.key)} aria-pressed={on} aria-description="Keep"
+                className="flex min-h-touch items-center gap-3 rounded-2xl border border-arc-line bg-arc-surface px-3.5 py-2 text-left">
+                <span aria-hidden="true" className={`flex size-5 shrink-0 items-center justify-center rounded-full ${on ? 'bg-arc-text' : 'border-[1.5px] border-dashed border-arc-text/60'}`}>{on && <img src={checkIcon} alt="" width={14} height={14} className="brightness-0" />}</span>
+                <span className="min-w-0 flex-1 text-[14px] font-semibold"><span className="line-clamp-2">{i.title}</span>
+                  <span className="block text-[12px] font-medium text-arc-text-3">{ANGLE_NAME[n.angle]} · {i.time}{yours.has(n.key) ? ' · Yours' : ''}</span></span>
+              </button>
+            );
+          })}
+        </section>
+      )}
+      {adding && <AddSheet key={adding} query={q} target={adding} exclude={exclude} swap={false} info={info} paper={paper} clash={clash}
+        onPick={c => { setAdded(a => [...a, c]); setKept(k => new Set([...k, c.key])); setAdding(null); }} />}
     </Screen>
   );
 }

@@ -38,12 +38,14 @@ export type Info = { title: string; short: string; time: string; when: string; r
 // 19: tap a talk to keep or skip it; locked talks (over, or already in one of my Arcs) cannot be picked.
 export type Pick = { picked: Set<string>; locked: Map<string, 'ended' | 'mine'>; onToggle: (key: string) => void };
 type Edit = { selected: string | null; onSelect: (key: string) => void; onRemove: (key: string) => void; onAdd: (angle: Angle) => void; adding: Angle | null };
+// 19b: tap a talk to keep it (solid) or not (outline); talks the person added carry "Yours"; + adds as on 15.
+export type Own = { kept: Set<string>; yours: Set<string>; onToggle: (key: string) => void; onAdd: (angle: Angle) => void; adding: Angle | null };
 
 // 12b: hold a node to swap it (ArcMap). press: the node's pointer handlers; held: the node whose choices are open (the
 // rest dim to Figma's 22% and go inert); onSwap: the keyboard and screen reader way in, a "Swap" button per node.
 type Hold = { held: string | null; press: (key: string) => DOMAttributes<HTMLButtonElement>; onSwap: (key: string) => void };
 
-export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, pick, picture, readOnly, fit, hold }: {
+export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, pick, picture, readOnly, fit, hold, own }: {
   arc: Arc; states: Map<string, NodeState>; info: (key: string) => Info; scale?: number;
   onNode?: (key: string) => void; onBundle?: (angle: Angle) => void; edit?: Edit; hold?: Hold;
   /** picture: a shareable image (16), text scales with the map and nothing is a button. readOnly: shown, not tappable (18). */
@@ -51,6 +53,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   /** fit: only Figma's 530 box takes room (12, 18 fit one screen as in Figma); the bottom labels hang into the gap above
    *  the bottom area (tests/qa/height-check.mjs keeps every node above it) */
   fit?: boolean;
+  own?: Own;
 }) {
   type Seat = [number, number];
   const l = layout(arc, !!edit) as { nodes: { node: Arc['nodes'][number]; at: Seat; oneLine?: boolean }[]; bundles: { angle: Angle | null; at: Seat; count: number }[]; emptyT: Seat | null }; // map.js is untyped JS
@@ -96,21 +99,22 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           const i = info(node.key), st = states.get(node.key) ?? 'upcoming';
           const selected = edit?.selected === node.key;
           const lock = pick?.locked.get(node.key), kept = !!pick?.picked.has(node.key);
+          const mine = own?.kept.has(node.key), yours = own?.yours.has(node.key);
           const dim = !!hold?.held && hold.held !== node.key;
           return (
             <div key={node.key} className="absolute" style={{ left: x - 52, top: y - 32, width: 104, opacity: dim ? 0.22 : undefined }} inert={dim || undefined}>
               {hold?.held === node.key && <span aria-hidden="true" className="absolute top-[-8px] left-3 size-20 rounded-full border-[1.5px] border-arc-text/55" />}{/* Figma 12b held ring */}
-              <button type="button" data-node-key={node.key} {...hold?.press(node.key)} onClick={() => (pick ? !lock && pick.onToggle(node.key) : edit ? edit.onSelect(node.key) : onNode?.(node.key))}
+              <button type="button" data-node-key={node.key} {...hold?.press(node.key)} onClick={() => (own ? own.onToggle(node.key) : pick ? !lock && pick.onToggle(node.key) : edit ? edit.onSelect(node.key) : onNode?.(node.key))}
                 // the name is the node's own text (WCAG 2.5.3 label in name): "<angle> · <title> <time · room>", the angle
                 // as hidden text; day and state as the description
-                aria-description={`${i.time} · ${pick ? (lock === 'mine' ? 'Already in your Arcs' : lock ? 'Ended' : kept ? 'Keep' : 'Skip') : pending ? 'Angle still sorting' : STATE_WORD[st]}`}
-                aria-pressed={edit ? selected : pick && !lock ? kept : undefined} aria-disabled={pick && lock ? true : undefined} disabled={readOnly && !pick}
+                aria-description={own ? `${i.time}${yours ? ' · Yours' : ''} · Keep` : `${i.time} · ${pick ? (lock === 'mine' ? 'Already in your Arcs' : lock ? 'Ended' : kept ? 'Keep' : 'Skip') : pending ? 'Angle still sorting' : STATE_WORD[st]}`}
+                aria-pressed={own ? !!mine : edit ? selected : pick && !lock ? kept : undefined} aria-disabled={pick && lock ? true : undefined} disabled={readOnly && !pick}
                 className={`flex w-[104px] flex-col items-center gap-0.5 ${hold ? 'arc-hold' : ''} ${pick && lock ? 'opacity-35 blur-[0.78px]' : pick && !kept ? 'opacity-50' : ''}`}>
-                <span className={`arc-node ${pending ? '' : `arc-node-${st}`} ${selected || (pick && kept && !lock) ? 'arc-node-selected' : ''}`}>
+                <span className={`arc-node ${pending ? '' : own ? (mine ? 'arc-node-upcoming' : 'arc-node-outline') : `arc-node-${st}`} ${selected || (pick && kept && !lock) ? 'arc-node-selected' : ''}`}>
                   {pending ? <img src={sortingOrb} alt="" width={64} height={64} /> : <span className="arc-node-core"><span className="arc-node-symbol" style={{ WebkitMaskImage: `url("${ANGLE_ICON[node.angle]}")`, maskImage: `url("${ANGLE_ICON[node.angle]}")` }} /></span>}
                 </span>
                 <span className="sr-only">{ANGLE_NAME[node.angle]} · </span>
-                <span style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`${oneLine ? 'line-clamp-1' : 'line-clamp-2'} text-center font-semibold ${st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
+                <span style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`${oneLine ? 'line-clamp-1' : 'line-clamp-2'} text-center font-semibold ${own ? (mine ? 'text-arc-text/85' : 'text-arc-text-3') : st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
                   {node.debut && <span aria-hidden="true">✦ </span>}{i.title}{/* the whole title, cut to two lines (was the 24-character label) */}
                 </span>
                 {/* Figma 10px; 12px is the floor. Editing (Figma 15) shows the title only.
@@ -128,6 +132,10 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
                 <span aria-hidden="true" style={{ width: real(24), height: real(24), top: 32 - real(30), left: 52 + real(10) }} className={`absolute flex items-center justify-center rounded-full ${lock ? 'border border-white/25 bg-[#2b2a35]' : kept ? 'bg-arc-text' : 'border border-white/25 bg-[#2b2a35]'}`}>
                   {lock ? <img src={lockIcon} alt="" width={real(14)} height={real(14)} /> : kept ? <img src={check} alt="" width={real(16)} height={real(16)} className="brightness-0" /> : null}
                 </span>
+              )}
+              {yours && ( /* Figma 19b "Yours" tag at the orb's top-right; 11px there, 12px is the floor */
+                <span aria-hidden="true" style={{ left: 52 + real(10), top: 32 - real(36), height: real(20), fontSize: real(12), paddingInline: real(7), borderRadius: real(10) }}
+                  className="absolute flex items-center bg-arc-primary font-semibold whitespace-nowrap text-arc-on-primary">Yours</span>
               )}
               {edit && (
                 <button type="button" onClick={() => edit.onRemove(node.key)} aria-label={`Remove ${i.title}`}
@@ -149,21 +157,22 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           </button>
         ))}
 
-        {l.emptyT && !edit && (
+        {l.emptyT && !edit && !own && (
           <div className="absolute flex flex-col items-center" style={{ left: l.emptyT[0] - 56, top: l.emptyT[1] - 23, width: 112 }}>
             <span className="arc-node-dash flex size-[46px] items-center justify-center rounded-full"><img src={challenge} alt="" width={24} height={24} /></span>
             <p style={{ fontSize: real(12), lineHeight: `${real(16)}px` }} className="mt-2 text-center text-arc-text/60">No clear challenge at CHI this year.</p>
           </div>
         )}
 
-        {edit && !pending && (['S', 'R', 'T'] as Angle[]).map(a => {
+        {(edit ?? own) && !pending && (['S', 'R', 'T'] as Angle[]).map(a => {
+          const add = (edit ?? own)!;
           const full = counts[a] >= SEATS[a];
           const [x, y] = !full ? FREE[a][counts[a]][0] : a === 'S' && l.bundles.some(b => b.angle === 'S') ? [96, 236] : FULL[a];
           return (
-            <button key={`add-${a}`} type="button" onClick={() => edit.onAdd(a)} aria-label={`Add a talk to ${ANGLE_NAME[a]}`} aria-pressed={edit.adding === a}
+            <button key={`add-${a}`} type="button" onClick={() => add.onAdd(a)} aria-label={`Add a talk to ${ANGLE_NAME[a]}`} aria-pressed={add.adding === a}
               className="absolute z-[2] flex items-center justify-center" style={{ left: x - real(22), top: y - real(22), width: real(44), height: real(44) }}>
               {/* Figma 15 add slot: 34 px with a 16 px +, outside the scale, a faint dashed edge; chosen = the selected ring */}
-              <span className={`arc-node-add flex items-center justify-center rounded-full bg-arc-surface ${edit.adding === a ? 'arc-node-selected' : ''}`} style={{ width: real(34), height: real(34) }}><img src={plus} alt="" width={real(16)} height={real(16)} /></span>
+              <span className={`arc-node-add flex items-center justify-center rounded-full bg-arc-surface ${add.adding === a ? 'arc-node-selected' : ''}`} style={{ width: real(34), height: real(34) }}><img src={plus} alt="" width={real(16)} height={real(16)} /></span>
             </button>
           );
         })}
