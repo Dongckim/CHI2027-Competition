@@ -33,11 +33,11 @@ const LABEL_MAX = 24;
 const STRONG = /\b(no significant|did not(?! (?:merely|just|only)\b)|contrary to)\b/i; // "did not merely X but Y" is a positive result
 const WEAK = /\b(however|fail(?:ed|s)? to|mixed (?:results|findings|evidence|effects))\b/i;
 const FINDING = /\b(we (?:did not |do not )?(?:find|found|observed?|show(?:ed)?|reveal(?:ed)?|identif(?:y|ied))|(?:results?|findings|analysis|study|studies|evaluation|experiment) (?:show(?:s|ed)?|suggest(?:s|ed)?|indicate(?:s|d)?|reveal(?:s|ed)?|found)|our (?:results|findings|analysis|study)|participants)\b/i;
-const BACKGROUND = /\b(prior|previous|past|existing|current|traditional) (?:work|works|studies|research|approaches|systems|tools|methods|care|literature)\b/i;
+export const BACKGROUND = /\b(prior|previous|past|existing|current|traditional) (?:work|works|studies|research|approaches|systems|tools|methods|care|literature)\b/i;
 const challenge = (text, { short }) => FINDING.test(text) ? STRONG.test(text) || (!short && WEAK.test(text)) || (short && /\bfail(?:ed|s)? to\b/i.test(text))
   : STRONG.test(text) && !BACKGROUND.test(text);
 // "However, little is known…" names a gap in the literature, not a different finding.
-const GAP = /\b(lack of|little is known|remains? (?:limited|unclear|unexplored|underexplored|understudied)|few (?:studies|works)|under-?explored|has not been)\b/i;
+export const GAP = /\b(lack of|little is known|remains? (?:limited|unclear|unexplored|underexplored|understudied)|few (?:studies|works)|under-?explored|has not been)\b/i;
 // Abbreviations → the words papers also write. The question is searched with both (shortcut: a fixed list for the mock).
 const EXPAND = { vr: 'virtual reality', ar: 'augmented reality', xr: 'extended reality', mr: 'mixed reality', llm: 'large language model',
   llms: 'large language models', ai: 'artificial intelligence', hci: 'human computer interaction', bci: 'brain computer interface',
@@ -234,7 +234,7 @@ export function buildArc(index, query, { angles, topicIds = [], days = [], types
   const nodes = ['S', 'R', 'T'].filter(a => angles.includes(a)).flatMap(a => (mode === 'crowded' ? groups[a] : groups[a].slice(0, CAPS[a])));
   const hasT = nodes.some(n => n.angle === 'T');
   return {
-    schema_version: '0.1.0', id, edition: index.corpus.meta.edition, query, tribe: tribeOf(index, query).tribe, nodes,
+    schema_version: '0.2.0', id, edition: index.corpus.meta.edition, query, tribe: tribeOf(index, query).tribe, nodes,
     tension: !wantT ? 'off' : mode === 'pending' ? 'pending' : hasT ? 'found' : 'none',
     filters: { days, types }, source: 'mine', engine: ENGINE, createdAt,
   };

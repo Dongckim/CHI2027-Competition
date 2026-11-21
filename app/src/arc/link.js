@@ -69,7 +69,7 @@ export function receivedArc(link, ctx) {
     nodes.push({ key, angle, label: ctx.label(title), evidence, debut: ctx.firstAuthorNew(key) });
   }
   const arc = {
-    schema_version: '0.1.0', id: ctx.id, edition: ctx.edition, query: link.q, tribe: link.t, nodes,
+    schema_version: '0.2.0', id: ctx.id, edition: ctx.edition, query: link.q, tribe: link.t, nodes,
     tension: nodes.some(n => n.angle === 'T') ? 'found' : 'none', // the link does not carry it; no T reads as none (23)
     filters: { days: [], types: [] }, source: 'received', engine: 'shared@1', createdAt: ctx.createdAt,
   };

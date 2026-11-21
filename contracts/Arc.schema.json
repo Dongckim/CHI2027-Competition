@@ -7,7 +7,7 @@
   "additionalProperties": false,
   "required": ["schema_version", "id", "edition", "query", "tribe", "nodes", "tension", "filters", "source", "engine", "createdAt"],
   "properties": {
-    "schema_version": { "const": "0.1.0" },
+    "schema_version": { "description": "0.2.0이 지금 것. 0.1.0(kind 없음)으로 저장된 Arc도 그대로 읽는다", "enum": ["0.1.0", "0.2.0"] },
     "id": { "description": "기기에서 만든 무작위 id", "type": "string", "pattern": "^[A-Za-z0-9_-]{8,64}$" },
     "edition": { "$ref": "#/$defs/edition" },
     "query": { "description": "사용자가 쓴 그대로 (200자까지)", "type": "string", "minLength": 1, "maxLength": 200 },
@@ -55,7 +55,8 @@
             }
           ]
         },
-        "debut": { "description": "제1저자가 이전 3개 대회(예: 2023–2025)에 같은 이름으로 없음 (data/scripts/debut.mjs). 지도·목록의 ✦ New to CHI. 14 상세는 debut.json으로 새로 온 저자 전원을 표시", "type": "boolean" }
+        "debut": { "description": "제1저자가 이전 3개 대회(예: 2023–2025)에 같은 이름으로 없음 (data/scripts/debut.mjs). 지도·목록의 ✦ New to CHI. 14 상세는 debut.json으로 새로 온 저자 전원을 표시", "type": "boolean" },
+        "kind": { "description": "0.2.0. Reframe 노드만: 어떤 식으로 다르게 보나 (subject 같은 주제 · factor 다른 요인 · measure 다른 측정 · people 다른 사람·맥락). 엔진이 모르면 없음", "enum": ["subject", "factor", "measure", "people"] }
       }
     }
   }

@@ -1,4 +1,4 @@
-// The engine contract shared with recsys (Wonjune). Arc matches contracts/Arc.schema.json 0.1.0.
+// The engine contract shared with recsys (Wonjune). Arc matches contracts/Arc.schema.json 0.2.0 (0.1.0 Arcs still read).
 // The engine decides only what to show and under which angle; times, rooms, authors and sessions come from data/build by key.
 
 export type Angle = 'S' | 'R' | 'T'; // Support ↑ · Reframe ↻ · Tension ⊣
@@ -14,10 +14,12 @@ export interface ArcNode {
   label: string;             // short name for the map node, at most 24 characters
   evidence: Evidence | null; // abstract quote; null when not sure
   debut: boolean;            // first author new to CHI (map/list ✦); 14 marks every new author from debut.json
+  kind?: ReframeKind;        // 0.2.0, Reframes only: how it looks at the question differently (12, 13, 14 show it)
 }
+export type ReframeKind = 'subject' | 'factor' | 'measure' | 'people';
 
 export interface Arc {
-  schema_version: '0.1.0';
+  schema_version: '0.1.0' | '0.2.0'; // new Arcs are 0.2.0
   id: string;                // random id made on the device
   edition: string;           // "chi2026"
   query: string;             // as the user wrote it (200 characters at most)

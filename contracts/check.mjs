@@ -72,6 +72,8 @@ export function arcRuleErrors(arc, papers) {
     if (seen.has(n.key)) errors.push(`${at} duplicate key ${n.key}`);
     seen.add(n.key);
     if (!n.key.startsWith(`${arc.edition}:`)) errors.push(`${at} key ${n.key} is not from ${arc.edition}`);
+    if (n.kind && n.angle !== 'R') errors.push(`${at}/kind is only for Reframes (angle ${n.angle})`);
+    if (n.kind && arc.schema_version === '0.1.0') errors.push(`${at}/kind needs schema_version 0.2.0`);
     const p = papers.get(n.key);
     if (!p) { errors.push(`${at} unknown key ${n.key}`); return; }
     const e = n.evidence;
