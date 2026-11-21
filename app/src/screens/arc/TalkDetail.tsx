@@ -29,6 +29,8 @@ import meetup from '../../assets/arc/icon-meetup.svg';
 import keynote from '../../assets/arc/icon-keynote.svg';
 import type { Arc, ArcNode } from '../../engine';
 import { useQandA, QandAList, QandAAsk } from './QandA';
+import { AfterSession, ShowShape, roomLabelOf, takeBackY, type Stop } from './Meet';
+import { previousStop } from '../../arc/talk.js';
 
 type People = Awaited<ReturnType<typeof loadPeople>>;
 type Slot = { start: number | null; end: number; roomKey: string; sessionKey: string };
@@ -43,7 +45,7 @@ const AUTHORS_SHOWN = 4;
 const Tag = ({ icon, children }: { icon: string; children: React.ReactNode }) =>
   <span className="inline-flex items-center gap-1.5 rounded-2xl border border-arc-line bg-arc-surface py-1.5 pr-3 pl-2.5 text-[13px] font-semibold"><Pic src={icon} size={14} />{children}</span>;
 
-export function TalkDetail({ paperKey }: { paperKey: string }) {
+export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shape?: boolean }) {
   const [data, setData] = useState<{ schedule: Schedule; people: People; debut: Set<string> } | null>(null);
   const [failed, setFailed] = useState(false);
   const [abstract, setAbstract] = useState<string | null>(null);
@@ -73,8 +75,18 @@ export function TalkDetail({ paperKey }: { paperKey: string }) {
     return () => { live = false; };
   }, [p, data, paperKey]);
   useTribe(found?.arc.tribe);
+  // App scrolls to the top on every route; coming back from 14f (Show my shape) returns to where 14 was
+  useEffect(() => {
+    const back = shape ? 0 : takeBackY();
+    if (back) requestAnimationFrame(() => scrollTo(0, back));
+  }, [shape]);
 
-  const header = (doi?: string | null) => <><BackButton />{doi ? <IconButton icon={external} label="Open the paper (ACM DL)" href={doi} /> : <span />}</>;
+  // live: 14b's "Now · Room 111 · Talk 3 of 7" next to Back (Figma 744:1677/1678: a 7px dot 12 after Back, the words 7 after it)
+  const header = (doi?: string | null, live?: string | null) => <><BackButton />
+    {live && <p className="ml-3 flex min-w-0 flex-1 items-center gap-[7px] text-[12px] font-medium text-arc-text-2">
+      {/* Figma #FF8E86 (also the Health tribe's colour); the word Now says it, the dot only decorates */}
+      <span aria-hidden="true" className="size-[7px] shrink-0 translate-y-[0.5px] rounded-full bg-[#ff8e86]" /><span className="-translate-y-[1.5px] truncate">{live}</span></p>}
+    {doi ? <IconButton icon={external} label="Open the paper (ACM DL)" href={doi} /> : <span />}</>;
   if (failed) return <Screen header={header()} label="Talk"><p role="alert" className="mt-6 text-[16px]">Could not load the programme.</p></Screen>;
   if (!data) return <Screen header={header()} label="Talk"><p className="mt-6 text-[16px] text-arc-text-3">Loading…</p></Screen>;
   if (!p) return <Screen header={header()} label="Talk"><p className="mt-6 text-[16px]">This talk is not in the programme any more.</p></Screen>;
@@ -83,7 +95,7 @@ export function TalkDetail({ paperKey }: { paperKey: string }) {
   const tz = schedule.meta.timeZone;
   const slot = firstSlot(p.slots);
   const room = slot ? schedule.index.rooms.get(slot.roomKey)?.name : null;
-  const session = slot ? (schedule.sessions as { key: string; name: string }[]).find(s => s.key === slot.sessionKey) : null;
+  const session = slot ? (schedule.sessions as { key: string; name: string; end: number | null }[]).find(s => s.key === slot.sessionKey) : null;
   const pos = slot ? talkPosition({ paperKey, start: slot.start, sessionKey: slot.sessionKey }, schedule.sessionSlots, schedule.timing.get(slot.sessionKey)) : null;
   const [fIcon, fName] = FORMAT[p.feedType] ?? [talk, p.feedType];
   const ev = found?.node.evidence;
@@ -91,15 +103,36 @@ export function TalkDetail({ paperKey }: { paperKey: string }) {
   const named = p.authors.filter(k => people[k]?.name);
   const authors = allAuthors ? named : named.slice(0, AUTHORS_SHOWN);
   const started = slot ? slot.start <= now : false;
+  const roomRow = slot ? schedule.index.rooms.get(slot.roomKey) as { key: string; name: string } | undefined : null;
+  const roomName = roomRow ? roomLabelOf(schedule, roomRow) : null;
+  // 14b: the talk is on now (its own start and end, computed from the session); nothing is saved for it
+  const live = !!slot && slot.start <= now && now < slot.end;
+  const liveText = live ? ['Now', roomName, pos && `Talk ${pos.index} of ${pos.count}`].filter(Boolean).join(' · ') : null;
+  // 14e: the Arc stop right before this talk, the same day (Arc nodes carry no time: their first slot)
+  const stops: Stop[] = (found?.arc.nodes ?? []).flatMap(n => {
+    const s = firstSlot((schedule.index.papers.get(n.key) as Paper | undefined)?.slots ?? []);
+    return s ? [{ key: n.key, start: s.start, roomKey: s.roomKey }] : [];
+  });
+  const prev = slot ? previousStop(stops, paperKey, slot.start, tz) as Stop | null : null;
+
+  if (shape && found && slot && roomName) return <ShowShape schedule={schedule} roomKey={slot.roomKey} roomName={roomName} tribe={found.arc.tribe} paperKey={paperKey} />;
 
   return (
-    <Screen clock header={header(p.doi)} label="Talk"
+    <Screen clock header={header(p.doi, liveText)} label="Talk"
       bottom={<QandAAsk qa={qa} />}>
       <div className="mt-3 flex flex-wrap gap-2">
         {found && <Tag icon={ANGLE_ICON[found.node.angle]}>{ANGLE_NAME[found.node.angle]}</Tag>}
         <Tag icon={fIcon}>{fName}</Tag>
       </div>
       <h1 className="mt-3 text-[24px] leading-[30px] font-semibold tracking-[-0.02em]">{p.title}</h1>
+      {live && (
+        // 14b Figma 744:1681: 44 high, clock 16 at 14, the words at 38, the count on the right
+        <div className="arc-fade mt-4 flex h-[44px] items-center gap-2 rounded-[14px] px-[14px]">
+          <Pic src={clock} size={16} />
+          <span className="text-[13px] font-semibold">Q&amp;A ends in {Math.max(1, Math.ceil((slot.end - now) / 60_000))} min</span>
+          {qa.questions && <span className="ml-auto text-[12px] font-medium text-arc-text-3">{qa.questions.length} asked</span>}
+        </div>
+      )}
 
       {found && (
         <section aria-labelledby="why" className="mt-4 flex flex-col gap-1.5 rounded-[20px] border border-arc-line bg-arc-surface px-4 pt-3.5 pb-4">
@@ -148,6 +181,11 @@ export function TalkDetail({ paperKey }: { paperKey: string }) {
           className={`mt-5 inline-flex min-h-touch items-center gap-2 self-start rounded-full px-4 text-[15px] font-semibold ${heard ? 'bg-arc-chip-on text-arc-on-primary' : 'border border-arc-line bg-arc-surface'}`}>
           {heard && <img src={check} alt="" width={18} height={18} className="brightness-0" />}{heard ? 'Heard' : 'I heard it'}
         </button>
+      )}
+
+      {slot && roomName && (
+        <AfterSession schedule={schedule} roomKey={slot.roomKey} roomName={roomName} sessionEnd={session?.end ?? null} prev={prev}
+          tribe={found?.arc.tribe ?? null} paperKey={paperKey} />
       )}
 
       {abstract && (

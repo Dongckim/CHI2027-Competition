@@ -93,6 +93,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   background: radial-gradient(circle, color-mix(in srgb, var(--c) 32%, transparent) 0%, color-mix(in srgb, var(--c) 14%, transparent) 70%, color-mix(in srgb, var(--c) 2%, transparent) 100%); }
 :root[data-tribe] { --tribe-now: var(--tribe); }
 
+/* Figma style ARC/Surface/Fade (14b Q&A timer and close question, 14e floor, 14f shape card): 6% white fading out */
+.arc-fade { background: linear-gradient(to bottom, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03) 55%, rgba(255, 255, 255, 0)); }
+
 /* 12 map nodes (Figma Node 588:644/652/660/668): a 64 box with a 46 core and the angle symbol.
    next = white core + a still 1px ring · upcoming = glass · heard = tribe colour · ended = dashed (something to read). */
 .arc-holo { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.08); /* Figma holo (164): layer 0.5 × radial 0.55 → 0.30 → 0.05 */

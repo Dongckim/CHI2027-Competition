@@ -4,7 +4,7 @@ import { route } from './route.js';
 
 export const REGISTRATION = 'place:registration'; // edition.places id, where the first walk of the day starts
 
-const areaOf = (edition, key) => (key.startsWith('place:') ? edition.places?.find(p => `place:${p.id}` === key)?.area : edition.rooms?.[key]);
+export const areaOf = (edition, key) => (key.startsWith('place:') ? edition.places?.find(p => `place:${p.id}` === key)?.area : edition.rooms?.[key]);
 
 /** → [low, high] minutes, or null when the venue does not know one of the two (the caller keeps its guess). */
 export function walkMinutes(venue, edition, fromKey, toKey, { wheelchair = false } = {}) {
