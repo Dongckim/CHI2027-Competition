@@ -40,3 +40,25 @@ Figma Final UI(582:7)와 앱이 다르거나, Figma만으로는 정할 수 없�
 ## 함께 보면 좋은 것
 - Figma와 다르게 한 곳의 표: `docs/stages/A4-ship.md` ③·⑧
 - 대비·글자·누르는 영역 예외(장식·그림만): `tests/qa/a11y-exceptions.json`
+
+## 5. 새 문구 (디자이너 확인 필요)
+Figma에 없는 상태에 쓸 문구다. 사용자가 정했고, 디자이너 확인 전이다.
+
+| 화면 | 문구 | 어디에 |
+|---|---|---|
+| 18 Just read | "Not saved · Add to keep it" + Add 버튼 | 읽기 전용 지도 위 한 줄. Add는 "Add to my Arcs"와 같은 동작 |
+| 20 Today 탭이 빌 때 | "Nothing left today in your Arcs." | 탭 아래 가운데 |
+| 20 같은 곳 | "See this week" | 위 문구 아래 버튼, This week 탭으로 |
+| 17 Lock screen 뒤 | "Image ready to save" | Lock screen 버튼 위 |
+
+## 6. 20 Today / This week / After CHI — 무엇을 거르는지 (디자이너 확인 전)
+사용자 결정은 「A안(Arc 단위로 거르기)」이다. 각 탭에 어떤 Arc를 보일지는 내가 정한 해석이다(`app/src/arc/period.js`).
+- Today: 오늘(개최지 날짜) 남은 발표가 있는 Arc
+- This week: 학회 마지막 날까지 남은 발표가 있는 Arc
+- After CHI: 남은 발표가 없는 Arc(다 끝났거나 다 들음). 학회가 끝나면 모든 Arc
+- 처음 열리는 탭: 오늘 해당하는 Arc가 있으면 Today, 없으면 This week, 그것도 없으면 After CHI
+
+## 7. 이번 범위 밖(본선 예정): Figma에는 있고 앱에는 넣지 않은 것
+- 17 "Print badge"(그래서 Lock screen이 전체 폭)
+- 16 "Follow along / Read only"(그 자리를 없애고 아래 공유 버튼 줄을 Figma의 다른 간격으로 당김)
+- 09 "How you walk: Calm route / Step-free"(빈 자리 없음)
