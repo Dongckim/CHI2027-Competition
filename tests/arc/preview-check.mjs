@@ -5,6 +5,7 @@
 // The bypass token (Vercel "Protection Bypass for Automation") goes only in request headers: never in a URL, never
 // printed (every message is masked). --public sends no token and fails if the deploy asks for a login (the submission
 // address must open in a browser that is not signed in). --expect-upstash fails unless Q&A answers from Upstash.
+import { tempProfile } from '../qa/cdp.mjs';
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { rmSync } from 'node:fs';
@@ -24,7 +25,7 @@ const check = (name, ok, detail = {}) => { out[name] = { ok, ...detail }; if (!o
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const example = JSON.parse(readFileSync(new URL('../../contracts/examples/Arc.chi2026-presence.json', import.meta.url)));
 const PAYLOAD = encodeLink(example);
-const profile = `${tmpdir()}/arc-deploy-${Date.now()}`;
+const profile = tempProfile('arc-deploy');
 let chrome, ws;
 
 try {
