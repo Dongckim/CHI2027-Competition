@@ -88,16 +88,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   background: var(--arc-orb-fill);
   border: 2px solid color-mix(in srgb, var(--c) 85%, transparent);
   box-shadow: 0 0 20px color-mix(in srgb, var(--c) 35%, transparent), inset 0 0 12px color-mix(in srgb, var(--c) 28%, transparent); } /* a wider glow lifted node text near the orb on 25 under 4.5:1 */
-.arc-ring { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.045); /* Figma 12 inner orbit (300) */
-  --c: var(--tribe-now, #5c7cff);
-  background: radial-gradient(circle, color-mix(in srgb, var(--c) 32%, transparent) 0%, color-mix(in srgb, var(--c) 14%, transparent) 70%, color-mix(in srgb, var(--c) 2%, transparent) 100%); }
+.arc-ring { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.08);
+  background: radial-gradient(circle, color-mix(in srgb, var(--tribe-now, #5c7cff) 28%, transparent) 0%, transparent 70%); }
 :root[data-tribe] { --tribe-now: var(--tribe); }
 
 /* 12 map nodes (Figma Node 588:644/652/660/668): a 64 box with a 46 core and the angle symbol.
    next = white core + 1px pulse ring · upcoming = glass · heard = tribe colour · ended = dashed (something to read). */
-.arc-holo { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.08); /* Figma holo (164): layer 0.5 × radial 0.55 → 0.30 → 0.05 */
-  --c: var(--tribe-now, #5c7cff);
-  background: radial-gradient(circle, color-mix(in srgb, var(--c) 27.5%, transparent) 0%, color-mix(in srgb, var(--c) 15%, transparent) 70%, color-mix(in srgb, var(--c) 2.5%, transparent) 100%); }
+.arc-holo { border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.1);
+  background: radial-gradient(circle, transparent 60%, color-mix(in srgb, var(--tribe-now, #5c7cff) 18%, transparent) 100%); }
 .arc-node { position: relative; display: flex; width: 64px; height: 64px; align-items: center; justify-content: center; border-radius: 9999px; }
 .arc-node-core { display: flex; width: 46px; height: 46px; align-items: center; justify-content: center; border-radius: 9999px;
   background: var(--arc-surface); border: 1px solid var(--arc-line); }
