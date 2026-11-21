@@ -13,7 +13,10 @@ import { useTribe } from '../../arc/live';
 import { useNow } from '../../clock.js';
 import { loadSchedule, type Schedule } from '../../data/load';
 import { firstSlot } from '../../explore/format';
-import { Screen, ArcLink, Pic, DemoBanner } from '../../components/arc';
+import { Screen, ArcLink, ArcButton, Pic, DemoBanner } from '../../components/arc';
+import { periodsOf, firstPeriod } from '../../arc/period.js';
+import { DEMO_TZ } from '../../arc/demoClock';
+import current from '../../../../data/build/app-data/chi2026/current.json';
 import type { Arc } from '../../engine';
 import holo from '../../assets/arc/21-holo-ring.svg';
 import orbit from '../../assets/arc/21-empty-orbit.svg';
@@ -24,6 +27,8 @@ import book from '../../assets/arc/icon-book.svg';
 import chevron from '../../assets/arc/icon-chevron-right.svg';
 
 const at = (x: number, y: number, w: number) => ({ position: 'absolute' as const, left: x, top: y, width: w, height: w });
+type Period = 'today' | 'week' | 'after';
+const PERIOD_TABS: [Period, string][] = [['today', 'Today'], ['week', 'This week'], ['after', 'After CHI']];
 type Slot = { start: number | null; end: number; roomKey: string; sessionKey: string };
 // Figma 20 "Mini Arc" (app/src/assets/arc/20-mini-arc-{xr,ai,accessibility}.svg, the same drawing in three tribes):
 // seats and connectors in a 100 box, 2 Supports left, 1 Challenge right, 2 Reframes below (dashed).
@@ -79,7 +84,13 @@ export function Home() {
   const [schedule, setSchedule] = useState<Schedule | null>(null);
   useEffect(() => { if (arcs?.length) loadSchedule().then(setSchedule, () => {}); }, [arcs?.length]);
   useTribe(null);
-  const rows = useMemo(() => arcs?.map(a => ({ a, day: dayLine(a, schedule, now, heard) })) ?? [], [arcs, schedule, now, heard]);
+  const rows = useMemo(() => arcs?.map(a => {
+    const tz = schedule?.meta.timeZone ?? DEMO_TZ;
+    const timeOf = (k: string) => { const p = schedule?.index.papers.get(k) as { slots: Slot[] } | undefined; const s = p ? firstSlot(p.slots) : null; return s ? { start: s.start as number, end: s.end } : null; };
+    return { a, day: dayLine(a, schedule, now, heard), period: periodsOf(a, timeOf, now, heard, { days: current.days, timeZone: tz }) };
+  }) ?? [], [arcs, schedule, now, heard]);
+  const [picked, setPicked] = useState<Period | null>(null);
+  const period: Period = picked ?? (schedule ? firstPeriod(rows.map(r => r.period)) : 'week');
   if (!arcs) return null;
   const chi101 = (
     <a href={href('start/2')} className="flex h-14 items-center gap-3 rounded-[20px] border border-arc-line bg-arc-surface pr-3.5 pl-4 text-[15px] font-semibold">
@@ -108,8 +119,21 @@ export function Home() {
     </>}>
       <DemoBanner />
       {!isPersistent() && <p className="mt-2 text-[14px] text-arc-text-2">This browser does not keep Arcs. They stay until you close the tab.</p>}
-      <ul className="mt-4 flex flex-col gap-4">
-        {rows.map(({ a, day }) => {
+      {/* Figma 20 (743:1736): Today / This week / After CHI; which Arcs each shows is an interpretation, designer to confirm */}
+      <div role="tablist" aria-label="When" className="mt-[14px] flex h-10 rounded-[20px] border border-arc-line bg-arc-surface p-[3px]">
+        {PERIOD_TABS.map(([k, label]) => (
+          <button key={k} type="button" role="tab" aria-selected={period === k} aria-controls="arc-list" onClick={() => setPicked(k)}
+            className={`relative flex-1 rounded-2xl text-[13px] font-semibold before:absolute before:inset-x-0 before:-inset-y-[3px] before:content-[''] ${period === k ? 'bg-arc-chip-on text-arc-on-primary shadow-[var(--arc-shadow-lift)]' : 'text-arc-text/62'}`}>{label}</button>
+        ))}
+      </div>
+      {period === 'today' && !rows.some(r => r.period.today) && (
+        <div className="mt-8 flex flex-col items-center gap-4">
+          <p className="text-center text-[16px] text-arc-text-2">Nothing left today in your Arcs.</p>
+          <ArcButton kind="secondary" className="min-w-[160px]" onClick={() => setPicked('week')}>See this week</ArcButton>
+        </div>
+      )}
+      <ul id="arc-list" role="tabpanel" className="mt-4 flex flex-col gap-4">
+        {rows.filter(r => r.period[period]).map(({ a, day }) => {
           const t = TRIBE[a.tribe], h = a.nodes.filter(n => heard.has(n.key)).length;
           return (
             <li key={a.id}>
