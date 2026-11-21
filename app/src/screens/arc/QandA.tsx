@@ -47,9 +47,9 @@ export function QandAList({ qa }: { qa: ReturnType<typeof useQandA> }) {
   const { questions, error, online } = qa;
   return (
     <section aria-labelledby="qa" className="mt-[18px]">
-      <h2 id="qa" className="flex items-center gap-2 text-[17px] font-semibold">Questions
+      <h2 id="qa" className="flex items-center gap-2 text-[17px] font-semibold tracking-[-0.012em]">Questions
         {/* Figma 45% (4.28:1); 55% */}
-        <span className="text-[12px] font-medium text-arc-text-3">{questions?.length ?? ''}</span>
+        <span className="text-[12px] font-medium tracking-normal text-arc-text-3">{questions?.length ?? ''}</span>
       </h2>
       {!online && <p className="mt-3 text-[15px] text-arc-text-2">Questions need a connection.</p>}
       {online && error && <p role="alert" className="mt-3 text-[15px] text-arc-text-2">Questions are not available right now.</p>}
@@ -61,16 +61,17 @@ export function QandAList({ qa }: { qa: ReturnType<typeof useQandA> }) {
           return (
             <li key={q.id} className="flex min-h-16 items-center gap-2.5 rounded-[20px] border border-arc-line bg-arc-surface py-2 pr-2.5 pl-4">
               <div className="min-w-0 flex-1">
-                <p className="text-[15px] leading-5 break-words">{q.text}</p>
+                <p className="text-[15px] leading-5 tracking-[-0.006em] break-words">{q.text}</p>
                 <div className="-ml-2 flex">
                   {q.mine
                     ? <button type="button" onClick={() => qa.deleteOn(q)} className="min-h-touch px-2 text-[13px] font-semibold text-arc-text-2 underline">Delete</button>
                     : <button type="button" onClick={() => qa.flagOn(q)} className="min-h-touch px-2 text-[13px] font-semibold text-arc-text-2 underline">Report</button>}
                 </div>
               </div>
-              {/* voted = filled surface + check word for screen readers (Figma differs only by fill) */}
+              {/* Figma 14: voted = surface fill, 0.08 border; not voted = no fill, 0.14 border (on the card both read close: designer to
+                  confirm). Screen readers get aria-pressed and "Voted" */}
               <button type="button" onClick={() => !v && qa.voteOn(q)} aria-pressed={v} aria-label={`${v ? 'Voted' : 'Vote for this question'}, ${q.votes} ${q.votes === 1 ? 'vote' : 'votes'}`}
-                className={`flex h-12 w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border ${v ? 'border-arc-text/60 bg-arc-bg' : 'border-arc-text/30'}`}>
+                className={`flex h-12 w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border ${v ? 'border-arc-line bg-arc-surface' : 'border-arc-text/[0.14]'}`}>
                 <Pic src={voteIcon} size={16} />
                 <span className="text-[12px] font-medium">{q.votes}</span>
               </button>
@@ -87,10 +88,10 @@ export function QandAAsk({ qa }: { qa: ReturnType<typeof useQandA> }) {
   return (
     <form onSubmit={e => { e.preventDefault(); qa.send(); }} className="flex flex-col gap-2">
       <label className="flex h-[52px] items-center gap-2.5 rounded-full border border-arc-line bg-arc-surface pr-2 pl-[18px]">
-        <Pic src={chat} size={18} />
+        <Pic src={chat} size={18} className="opacity-50" />
         <input value={qa.text} onChange={e => qa.setText(e.target.value.slice(0, MAX))} maxLength={MAX} disabled={!qa.online} enterKeyHint="send"
           placeholder="Add a question for the Q&A" aria-describedby="qa-note"
-          className="min-w-0 flex-1 bg-transparent text-[15px] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />
+          className="min-w-0 flex-1 bg-transparent text-[15px] tracking-[-0.006em] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />
         {qa.text.trim() && <button type="submit" disabled={qa.busy} className="h-10 shrink-0 rounded-full bg-arc-primary px-4 text-[14px] font-semibold text-arc-on-primary">Ask</button>}
       </label>
       <p id="qa-note" className="text-center text-[12px] text-arc-text-3" aria-live="polite">
