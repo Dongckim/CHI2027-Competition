@@ -3,7 +3,7 @@
 // 5 s (user 「12b는 바꾼 직후 "Swapped · Undo" 알림을 5초 띄워서 되돌릴 수 있게」). Keyboard and screen readers: each node's
 // "Swap" button opens the same three as buttons; Escape (or a press outside) closes. A short tap still opens 14.
 import { useEffect, useLayoutEffect, useRef, useState, type DOMAttributes } from 'react';
-import { engine, type Angle, type Arc, type ArcNode } from '../../engine';
+import { engineFor, type Angle, type Arc, type ArcNode } from '../../engine';
 import { walkMinutes } from '../../venue/walk.js';
 import { minutesText } from '../../venue/directions.js';
 import { venueClock } from '../../time.js';
@@ -29,7 +29,7 @@ export function useHoldSwap({ arc, save, paper, schedule }: ReturnType<typeof us
   const choices = (key: string) => {
     const node = arc?.nodes.find(n => n.key === key);
     if (!arc || !node) return Promise.resolve([]);
-    if (!asked.current.has(key)) asked.current.set(key, engine.suggest(arc.query, node.angle, arc.nodes.map(n => n.key), 3).catch(() => []));
+    if (!asked.current.has(key)) asked.current.set(key, engineFor(arc.engine).suggest(arc.query, node.angle, arc.nodes.map(n => n.key), 3).catch(() => []));
     return asked.current.get(key)!;
   };
   const open = (key: string, keyboard: boolean) => {

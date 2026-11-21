@@ -35,7 +35,9 @@ export type AngleTopic = { id: string; label: string }; // id = sessionKey
 
 export interface Engine {
   init(onProgress: (p: Progress) => void): Promise<void>;
-  tribeOf(query: string): Promise<{ tribe: TribeId; confidence: number }>;
+  // runnerUp: the second tribe, first in 11's Change list (user 11/21). The ondevice engine gives it; added after Arc
+  // 0.1.0 was shared, outside the Arc contract: Wonjune to confirm.
+  tribeOf(query: string): Promise<{ tribe: TribeId; confidence: number; runnerUp?: TribeId }>;
   angleTopics(query: string): Promise<Record<Angle, AngleTopic[]>>; // 08: 3–5 per angle
   buildArc(query: string, opts: { angles: Angle[]; topicIds?: string[]; days: string[]; types: string[] }): Promise<Arc>;
   suggest(query: string, angle: Angle, excludeKeys: string[], limit?: number): Promise<ArcNode[]>; // 15: same angle

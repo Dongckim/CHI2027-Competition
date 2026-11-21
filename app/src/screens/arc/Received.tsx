@@ -240,7 +240,7 @@ export function Yours({ payload }: { payload: string }) {
           })}
         </section>
       )}
-      {adding && <AddSheet key={adding} query={q} target={adding} exclude={exclude} swap={false} info={info} paper={paper} clash={clash}
+      {adding && <AddSheet key={adding} query={q} engineName={arc.engine} target={adding} exclude={exclude} swap={false} info={info} paper={paper} clash={clash}
         onPick={c => { setAdded(a => [...a, c]); setKept(k => new Set([...k, c.key])); setAdding(null); }} />}
     </Screen>
   );
