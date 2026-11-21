@@ -1,8 +1,8 @@
-// Wonjune's angle engine (recsys/src/web/angles.mjs) → our Engine interface and Arc 0.1.0. Pure, so the worker and the
+// Wonjune's angle engine (recsys/src/web/angles.mjs) → our Engine interface and Arc 0.2.0. Pure, so the worker and the
 // Node checks (tests/engine/) use the same mapping. The engine's screen requests are in recsys/docs/angle_model.md.
 import { TRIBES } from '../arc/tribes.js';
 import { WHAT } from '../arc/draft.js';
-import { labelOf } from './mock-core.js';
+import { labelOf, BACKGROUND, GAP } from './mock-core.js';
 
 const ANGLE = { support: 'S', reframe: 'R', challenge: 'T' };
 const ANGLE_KEY = { S: 'support', R: 'reframe', T: 'challenge' };
@@ -71,20 +71,46 @@ export function onOurAbstract(e, ours) {
 
 const label = (n) => labelOf(n.label || n.title);
 
-/** One engine node (arc, node screens) → ArcNode. abstractOf(id) is the package's abstract for that talk. */
-export const toNode = (n, edition, abstractOf) => ({
-  key: `${edition}:${n.id}`, angle: ANGLE[n.angle], label: label(n),
-  evidence: evidenceOf(abstractOf(n.id), n.why?.sentence), debut: Boolean(n.debut),
-});
+// What a study set out to do, not what it found ("This study investigated how …", "We explore …")
+const AIM = /\b(?:(?:this|our|the present) (?:study|paper|work|research)|we|in this (?:paper|work|study),? we) (?:aim(?:s|ed)? to|set out to|seek(?:s)? to|sought to|investigat(?:e|es|ed)|examin(?:e|es|ed)|explor(?:e|es|ed)|stud(?:y|ies|ied)|present(?:s|ed)?|propos(?:e|es|ed)|introduc(?:e|es|ed))\b/i;
+/**
+ * A Challenge stands only on the study's own result sentence (#52, as the mock): the engine's card says "result", and the
+ * sentence is not the abstract's first, an aim, prior work or a gap in the literature. abstract: the package's.
+ */
+export function resultQuote(n, abstract) {
+  const s = n.why?.sentence;
+  if (!s || n.why?.status !== 'result') return false;
+  const cp = Array.from(abstract ?? '');
+  if (!cp.slice(0, s.start).join('').trim()) return false; // the first sentence
+  const text = cp.slice(s.start, s.end).join('');
+  return !AIM.test(text) && !BACKGROUND.test(text) && !GAP.test(text);
+}
 
-/** The "arc" screen's answer → Arc 0.1.0. Nodes of angles the person did not choose are left out. */
+// The engine's Reframe subtypes → Arc 0.2.0 `kind`
+const KIND = { factor: 'factor', measure: 'measure', people: 'people', related: 'subject' };
+
+/**
+ * One engine node (arc, node screens) → ArcNode. abstractOf(id) is the package's abstract for that talk. A Challenge
+ * without a result sentence becomes a Reframe on the same subject (user 11/21 「Challenge 근거가 결과 문장이 아니면 …
+ * Reframe으로」).
+ */
+export function toNode(n, edition, abstractOf) {
+  let angle = ANGLE[n.angle], kind = angle === 'R' ? KIND[n.subtype] : undefined;
+  if (angle === 'T' && !resultQuote(n, abstractOf(n.id))) { angle = 'R'; kind = 'subject'; }
+  return {
+    key: `${edition}:${n.id}`, angle, label: label(n),
+    evidence: evidenceOf(abstractOf(n.id), n.why?.sentence), debut: Boolean(n.debut), ...(kind ? { kind } : {}),
+  };
+}
+
+/** The "arc" screen's answer → Arc 0.2.0. Nodes of angles the person did not choose are left out. */
 export function toArc(res, query, opts, { id, createdAt, edition, version, abstractOf }) {
   const tribe = tribeId(res.tribe?.name);
   if (!tribe) throw new Error(`ondevice: no tribe for "${query}"`); // never the keyword rule: one engine per Arc
-  const nodes = res.nodes.filter(n => opts.angles.includes(ANGLE[n.angle])).map(n => toNode(n, edition, abstractOf));
+  const nodes = res.nodes.map(n => toNode(n, edition, abstractOf)).filter(n => opts.angles.includes(n.angle));
   const tension = !opts.angles.includes('T') ? 'off' : nodes.some(n => n.angle === 'T') ? 'found' : 'none';
   return {
-    schema_version: '0.1.0', id, edition, query, tribe, nodes, tension,
+    schema_version: '0.2.0', id, edition, query, tribe, nodes, tension,
     filters: { days: opts.days ?? [], types: opts.types ?? [] }, source: 'mine', engine: `ondevice@${version}`, createdAt,
   };
 }

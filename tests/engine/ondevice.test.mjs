@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import Ajv2020 from 'ajv/dist/2020.js';
 import { arcRuleErrors } from '../../contracts/check.mjs';
-import { evidenceOf, onOurAbstract, engineNow, toArc, toNode, venueIso, formatsOf, daysOf, idsOf } from '../../app/src/engine/ondevice-map.js';
+import { evidenceOf, onOurAbstract, engineNow, resultQuote, toArc, toNode, venueIso, formatsOf, daysOf, idsOf } from '../../app/src/engine/ondevice-map.js';
 
 const MODEL = new URL('../../dist/model/', import.meta.url);
 const have = existsSync(new URL('angles.json', MODEL)) && existsSync(new URL('../../data/build/chi2026/papers.json', import.meta.url));
@@ -32,6 +32,23 @@ test('request helpers: venue time with offset, all days and formats when none ch
   assert.deepEqual(formatsOf([]), ['talks', 'posters', 'demos', 'panels', 'sigs']);
   assert.deepEqual(formatsOf(['Paper', 'Journals', 'Interactive Demos']), ['talks', 'demos']);
   assert.deepEqual(idsOf(['chi2026:222304', 'chi2025:1', 'chi2026:7'], 'chi2026'), [222304, 7]);
+});
+
+test('a Challenge stands only on a result sentence (#52); Reframes carry their kind', () => {
+  const abstract = 'Haptics matter. This study investigated how haptic feedback influences experience. We found no effect of haptics on enjoyment. Prior work did not show this.';
+  const at = t => { const i = abstract.indexOf(t); return { start: i, end: i + t.length }; };
+  const node = (sentence, extra = {}) => ({ id: 1, angle: 'challenge', subtype: 'null', label: 'Haptics', debut: false, why: { status: 'result', sentence: at(sentence) }, ...extra });
+  const of = n => toNode(n, 'chi2026', () => abstract);
+  assert.equal(of(node('We found no effect of haptics on enjoyment.')).angle, 'T');
+  assert.equal(resultQuote(node('We found no effect of haptics on enjoyment.'), abstract), true);
+  for (const s of ['This study investigated how haptic feedback influences experience.', 'Prior work did not show this.', 'Haptics matter.']) {
+    const n = of(node(s));
+    assert.deepEqual([n.angle, n.kind], ['R', 'subject'], s);
+  }
+  assert.equal(of(node('We found no effect of haptics on enjoyment.', { why: { status: 'aim', sentence: at('We found no effect of haptics on enjoyment.') } })).angle, 'R');
+  assert.equal(of({ ...node('Haptics matter.'), angle: 'reframe', subtype: 'factor' }).kind, 'factor');
+  assert.equal(of({ ...node('Haptics matter.'), angle: 'reframe', subtype: 'related' }).kind, 'subject');
+  assert.equal(of({ ...node('Haptics matter.'), angle: 'support', subtype: 'evidence' }).kind, undefined);
 });
 
 let eng, papers;
@@ -65,7 +82,7 @@ test('every finding sentence in the model is a quote of our data/build abstract'
   assert.deepEqual(bad.slice(0, 5), [], `${bad.length} of ${checked} sentences are not our abstract's text`);
 });
 
-test('Arcs from the on-device engine pass Arc 0.1.0 and its rules', { skip: !have && 'no dist/model' }, async () => {
+test('Arcs from the on-device engine pass Arc 0.2.0 and its rules', { skip: !have && 'no dist/model' }, async () => {
   await setup();
   const validate = new Ajv2020({ strict: true, allErrors: true }).compile(JSON.parse(readFileSync(new URL('../../contracts/Arc.schema.json', import.meta.url))));
   const now = engineNow(Date.UTC(2026, 3, 14, 8, 0), 'Europe/Madrid');
@@ -80,10 +97,15 @@ test('Arcs from the on-device engine pass Arc 0.1.0 and its rules', { skip: !hav
       for (const n of arc.nodes) n.evidence = onOurAbstract(n.evidence, papers.get(n.key).abstract);
       const errors = validate(arc) ? arcRuleErrors(arc, papers) : validate.errors.map(e => `${e.instancePath} ${e.message}`);
       assert.deepEqual(errors, [], `${q} (${angles.join('')})`);
+      assert.equal(arc.schema_version, '0.2.0');
+      assert.ok(arc.nodes.filter(n => n.angle === 'R').every(n => n.kind), `${q}: every Reframe has a kind`);
       assert.ok(arc.nodes.length > 0, q);
       if (!angles.includes('T')) assert.equal(arc.tension, 'off');
     }
   }
+  // 11/21: 222623's Challenge quoted its aim ("This study investigated how …"); it is a Reframe now
+  const aim = toNode(await eng.handle({ screen: 'node', question: 'haptic feedback for VR', id: 222623 }), 'chi2026', abstractOf);
+  assert.deepEqual([aim.angle, aim.kind], ['R', 'subject']);
   const n = await eng.handle({ screen: 'node', question: 'Does VR fidelity raise presence?', id: 222304 });
   const node = toNode(n, 'chi2026', abstractOf);
   node.evidence = onOurAbstract(node.evidence, papers.get(node.key).abstract);
