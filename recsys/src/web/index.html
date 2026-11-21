@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARC on-device test</title>
+<style>
+  :root { --bg: #fafaf9; --fg: #1c1917; --muted: #78716c; --line: #e7e5e4; --accent: #0f766e; --card: #fff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1c1917; --fg: #f5f5f4; --muted: #a8a29e; --line: #44403c; --accent: #5eead4; --card: #292524; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; background: var(--bg); color: var(--fg);
+         font: 15px/1.45 system-ui, -apple-system, sans-serif; max-width: 760px; margin-inline: auto; }
+  h1 { font-size: 18px; margin: 4px 0 2px; }
+  .muted { color: var(--muted); font-size: 13px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 8px; }
+  button { font: inherit; font-size: 13px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line);
+           background: var(--card); color: var(--fg); cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  textarea { width: 100%; min-height: 120px; font: 13px/1.4 ui-monospace, monospace; padding: 10px;
+             border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--fg); }
+  pre { white-space: pre-wrap; word-break: break-word; font: 12px/1.4 ui-monospace, monospace; background: var(--card);
+        border: 1px solid var(--line); border-radius: 8px; padding: 10px; max-height: 60vh; overflow: auto; }
+  .row { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
+</style>
+</head>
+<body>
+<h1>ARC model on this phone</h1>
+<div class="muted" id="status">Loading the model files…</div>
+<div class="chips" id="examples"></div>
+<textarea id="req" spellcheck="false"></textarea>
+<div class="row"><button class="primary" id="run" disabled>Run</button><span class="muted" id="time"></span></div>
+<pre id="out"></pre>
+<script type="module">
+import { loadARC } from "./load.mjs";
+
+const EXAMPLES = {
+  meta: { screen: "meta" },
+  keywords: { screen: "keywords", research: "I study haptic feedback for virtual reality" },
+  route: { screen: "route", day: "tue", profile: { research: "privacy in wearable cameras", pace: "balanced" } },
+  more: { screen: "more", day: "wed", profile: { research: "LLM coding assistants for novice programmers" } },
+  search: { screen: "search", q: "mental health chatbots" },
+  paper: { screen: "paper", id: 222748, profile: { research: "haptic feedback for virtual reality" } },
+  author: { screen: "author", name: "Geehyuk Lee" },
+  clusters: { screen: "clusters", research: "privacy in wearable cameras" },
+  session_live: { screen: "session_live", id: 222748, now: "2026-04-14T11:30:00+02:00" },
+};
+const $ = (id) => document.getElementById(id);
+for (const [name, req] of Object.entries(EXAMPLES)) {
+  const b = document.createElement("button");
+  b.textContent = name;
+  b.onclick = () => { $("req").value = JSON.stringify(req, null, 2); };
+  $("examples").append(b);
+}
+$("req").value = JSON.stringify(EXAMPLES.route, null, 2);
+
+const t0 = performance.now();
+const arc = await loadARC("../");
+$("status").textContent = `Loaded in ${((performance.now() - t0) / 1000).toFixed(1)} s. Everything below runs on this device, no server.`;
+$("run").disabled = false;
+$("run").onclick = async () => {
+  let req;
+  try {
+    req = JSON.parse($("req").value);
+  } catch (e) {
+    $("out").textContent = `Not JSON: ${e.message}`;
+    return;
+  }
+  const t = performance.now();
+  try {
+    const out = await arc.handle(req);
+    $("time").textContent = `${(performance.now() - t).toFixed(0)} ms`;
+    $("out").textContent = JSON.stringify(out, null, 2);
+  } catch (e) {
+    $("time").textContent = "";
+    $("out").textContent = JSON.stringify({ error: e.message }, null, 2);
+  }
+};
+</script>
+</body>
+</html>

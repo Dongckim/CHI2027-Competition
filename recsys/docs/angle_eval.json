@@ -1,0 +1,1080 @@
+{
+ "params": {
+  "MATCH": 0.7,
+  "STRICT": 0.8,
+  "COS_LO": 0.45,
+  "COS_HI": 0.8
+ },
+ "dev": {
+  "n": 360,
+  "accuracy": 0.697,
+  "support": {
+   "precision": 0.667,
+   "recall": 0.222,
+   "f1": 0.333,
+   "predicted": 12,
+   "gold": 36
+  },
+  "reframe": {
+   "precision": 0.77,
+   "recall": 0.815,
+   "f1": 0.792,
+   "predicted": 269,
+   "gold": 254
+  },
+  "challenge": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "predicted": 1,
+   "gold": 1
+  },
+  "off": {
+   "precision": 0.462,
+   "recall": 0.522,
+   "f1": 0.49,
+   "predicted": 78,
+   "gold": 69
+  },
+  "macro_f1": 0.404,
+  "on_map": {
+   "precision": 0.883,
+   "recall": 0.856
+  },
+  "confusion": {
+   "support": {
+    "support": 8,
+    "reframe": 28,
+    "challenge": 0,
+    "off": 0
+   },
+   "reframe": {
+    "support": 4,
+    "reframe": 207,
+    "challenge": 1,
+    "off": 42
+   },
+   "challenge": {
+    "support": 0,
+    "reframe": 1,
+    "challenge": 0,
+    "off": 0
+   },
+   "off": {
+    "support": 0,
+    "reframe": 33,
+    "challenge": 0,
+    "off": 36
+   }
+  }
+ },
+ "test": {
+  "n": 360,
+  "accuracy": 0.669,
+  "support": {
+   "precision": 0.5,
+   "recall": 0.238,
+   "f1": 0.323,
+   "predicted": 10,
+   "gold": 21
+  },
+  "reframe": {
+   "precision": 0.77,
+   "recall": 0.773,
+   "f1": 0.772,
+   "predicted": 261,
+   "gold": 260
+  },
+  "challenge": {
+   "precision": 0.5,
+   "recall": 0.2,
+   "f1": 0.286,
+   "predicted": 2,
+   "gold": 5
+  },
+  "off": {
+   "precision": 0.391,
+   "recall": 0.459,
+   "f1": 0.422,
+   "predicted": 87,
+   "gold": 74
+  },
+  "macro_f1": 0.451,
+  "on_map": {
+   "precision": 0.853,
+   "recall": 0.815
+  },
+  "confusion": {
+   "support": {
+    "support": 5,
+    "reframe": 16,
+    "challenge": 0,
+    "off": 0
+   },
+   "reframe": {
+    "support": 5,
+    "reframe": 201,
+    "challenge": 1,
+    "off": 53
+   },
+   "challenge": {
+    "support": 0,
+    "reframe": 4,
+    "challenge": 1,
+    "off": 0
+   },
+   "off": {
+    "support": 0,
+    "reframe": 40,
+    "challenge": 0,
+    "off": 34
+   }
+  }
+ },
+ "all": {
+  "n": 720,
+  "accuracy": 0.683,
+  "support": {
+   "precision": 0.591,
+   "recall": 0.228,
+   "f1": 0.329,
+   "predicted": 22,
+   "gold": 57
+  },
+  "reframe": {
+   "precision": 0.77,
+   "recall": 0.794,
+   "f1": 0.782,
+   "predicted": 530,
+   "gold": 514
+  },
+  "challenge": {
+   "precision": 0.333,
+   "recall": 0.167,
+   "f1": 0.222,
+   "predicted": 3,
+   "gold": 6
+  },
+  "off": {
+   "precision": 0.424,
+   "recall": 0.49,
+   "f1": 0.455,
+   "predicted": 165,
+   "gold": 143
+  },
+  "macro_f1": 0.447,
+  "on_map": {
+   "precision": 0.868,
+   "recall": 0.835
+  },
+  "confusion": {
+   "support": {
+    "support": 13,
+    "reframe": 44,
+    "challenge": 0,
+    "off": 0
+   },
+   "reframe": {
+    "support": 9,
+    "reframe": 408,
+    "challenge": 2,
+    "off": 95
+   },
+   "challenge": {
+    "support": 0,
+    "reframe": 5,
+    "challenge": 1,
+    "off": 0
+   },
+   "off": {
+    "support": 0,
+    "reframe": 73,
+    "challenge": 0,
+    "off": 70
+   }
+  }
+ },
+ "holdout": {
+  "n": 480,
+  "accuracy": 0.619,
+  "support": {
+   "precision": 0.5,
+   "recall": 0.038,
+   "f1": 0.071,
+   "predicted": 2,
+   "gold": 26
+  },
+  "reframe": {
+   "precision": 0.605,
+   "recall": 0.724,
+   "f1": 0.659,
+   "predicted": 286,
+   "gold": 239
+  },
+  "challenge": {
+   "precision": null,
+   "recall": 0.0,
+   "f1": 0.0,
+   "predicted": 0,
+   "gold": 3
+  },
+  "off": {
+   "precision": 0.641,
+   "recall": 0.58,
+   "f1": 0.609,
+   "predicted": 192,
+   "gold": 212
+  },
+  "macro_f1": 0.335,
+  "on_map": {
+   "precision": 0.691,
+   "recall": 0.743
+  },
+  "confusion": {
+   "support": {
+    "support": 1,
+    "reframe": 22,
+    "challenge": 0,
+    "off": 3
+   },
+   "reframe": {
+    "support": 1,
+    "reframe": 173,
+    "challenge": 0,
+    "off": 65
+   },
+   "challenge": {
+    "support": 0,
+    "reframe": 2,
+    "challenge": 0,
+    "off": 1
+   },
+   "off": {
+    "support": 0,
+    "reframe": 89,
+    "challenge": 0,
+    "off": 123
+   }
+  }
+ },
+ "parsed": {
+  "Does VR fidelity really raise presence?": {
+   "kind": "relation",
+   "x": "vr fidelity",
+   "y": "presence",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Do self-avatars increase embodiment in VR?": {
+   "kind": "relation",
+   "x": "self-avatars",
+   "y": "embodiment",
+   "dir": "+",
+   "ctx": "vr"
+  },
+  "Does haptic feedback improve performance in virtual reality?": {
+   "kind": "relation",
+   "x": "haptic feedback",
+   "y": "performance",
+   "dir": "+",
+   "ctx": "virtual reality"
+  },
+  "Does longer VR exposure reduce cybersickness?": {
+   "kind": "relation",
+   "x": "longer vr exposure",
+   "y": "cybersickness",
+   "dir": "-",
+   "ctx": ""
+  },
+  "How does social VR use over time affect presence?": {
+   "kind": "relation",
+   "x": "social vr use",
+   "y": "presence",
+   "dir": "?",
+   "ctx": "time"
+  },
+  "Does mixed reality improve remote collaboration?": {
+   "kind": "relation",
+   "x": "mixed reality",
+   "y": "remote collaboration",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Does AI assistance reduce critical thinking?": {
+   "kind": "relation",
+   "x": "ai assistance",
+   "y": "critical thinking",
+   "dir": "-",
+   "ctx": ""
+  },
+  "Do AI explanations increase user trust?": {
+   "kind": "relation",
+   "x": "ai explanations",
+   "y": "user trust",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Do AI writing assistants reduce people's sense of ownership?": {
+   "kind": "relation",
+   "x": "ai writing assistants",
+   "y": "sense of ownership",
+   "dir": "-",
+   "ctx": ""
+  },
+  "Does anthropomorphism in chatbots increase trust?": {
+   "kind": "relation",
+   "x": "anthropomorphism",
+   "y": "trust",
+   "dir": "+",
+   "ctx": "chatbots"
+  },
+  "Do AI coding assistants improve programmer productivity?": {
+   "kind": "relation",
+   "x": "ai coding assistants",
+   "y": "programmer productivity",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Does human-AI collaboration improve decision accuracy?": {
+   "kind": "relation",
+   "x": "human-ai collaboration",
+   "y": "decision accuracy",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Do AI image descriptions help blind screen reader users?": {
+   "kind": "relation",
+   "x": "ai image descriptions",
+   "y": "",
+   "dir": "+",
+   "ctx": "blind screen reader users"
+  },
+  "Does navigation technology increase independence for blind people?": {
+   "kind": "relation",
+   "x": "navigation technology",
+   "y": "independence",
+   "dir": "+",
+   "ctx": "blind people"
+  },
+  "Do older adults trust voice assistants?": {
+   "kind": "relation",
+   "x": "voice assistants",
+   "y": "trust",
+   "dir": "+",
+   "ctx": "older adults"
+  },
+  "Do captions improve communication for deaf and hard of hearing people?": {
+   "kind": "relation",
+   "x": "captions",
+   "y": "communication",
+   "dir": "+",
+   "ctx": "deaf and hard of hearing people"
+  },
+  "Does delegating to a robot reduce blind users' sense of control?": {
+   "kind": "relation",
+   "x": "delegating to a robot",
+   "y": "sense of control",
+   "dir": "-",
+   "ctx": "blind users"
+  },
+  "How does technology affect social isolation in older adults?": {
+   "kind": "relation",
+   "x": "technology",
+   "y": "social isolation",
+   "dir": "?",
+   "ctx": "older adults"
+  },
+  "Do mental health apps reduce stress?": {
+   "kind": "relation",
+   "x": "mental health apps",
+   "y": "stress",
+   "dir": "-",
+   "ctx": ""
+  },
+  "Does self-tracking increase physical activity?": {
+   "kind": "relation",
+   "x": "self-tracking",
+   "y": "physical activity",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Do conversational agents reduce loneliness?": {
+   "kind": "relation",
+   "x": "conversational agents",
+   "y": "loneliness",
+   "dir": "-",
+   "ctx": ""
+  },
+  "Does mindfulness technology improve wellbeing?": {
+   "kind": "relation",
+   "x": "mindfulness technology",
+   "y": "wellbeing",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Does AI decision support improve clinicians' diagnoses?": {
+   "kind": "relation",
+   "x": "ai decision support",
+   "y": "diagnoses",
+   "dir": "+",
+   "ctx": "clinicians"
+  },
+  "Does gamification increase adherence to health routines?": {
+   "kind": "relation",
+   "x": "gamification",
+   "y": "adherence to health routines",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Do AI tutors improve student learning?": {
+   "kind": "relation",
+   "x": "ai tutors",
+   "y": "student learning",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Does using ChatGPT reduce learning in programming courses?": {
+   "kind": "relation",
+   "x": "using chatgpt",
+   "y": "learning",
+   "dir": "-",
+   "ctx": "programming courses"
+  },
+  "How does parental mediation affect children's screen time?": {
+   "kind": "relation",
+   "x": "parental mediation",
+   "y": "screen time",
+   "dir": "?",
+   "ctx": "children"
+  },
+  "Does AI feedback improve student writing?": {
+   "kind": "relation",
+   "x": "ai feedback",
+   "y": "student writing",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Do scaffolds increase persistence in intelligent tutoring systems?": {
+   "kind": "relation",
+   "x": "scaffolds",
+   "y": "persistence",
+   "dir": "+",
+   "ctx": "intelligent tutoring systems"
+  },
+  "Does gamified learning increase children's engagement?": {
+   "kind": "relation",
+   "x": "gamified learning",
+   "y": "engagement",
+   "dir": "+",
+   "ctx": "children"
+  },
+  "Does content moderation reduce online harassment?": {
+   "kind": "relation",
+   "x": "content moderation",
+   "y": "online harassment",
+   "dir": "-",
+   "ctx": ""
+  },
+  "Do privacy nudges change what people disclose?": {
+   "kind": "relation",
+   "x": "privacy nudges",
+   "y": "what people disclose",
+   "dir": "?",
+   "ctx": ""
+  },
+  "Does social media use harm wellbeing?": {
+   "kind": "relation",
+   "x": "social media use",
+   "y": "wellbeing",
+   "dir": "-",
+   "ctx": ""
+  },
+  "Does algorithmic management reduce gig workers' autonomy?": {
+   "kind": "relation",
+   "x": "algorithmic management",
+   "y": "autonomy",
+   "dir": "-",
+   "ctx": "gig workers"
+  },
+  "Do dark patterns increase consent to tracking?": {
+   "kind": "relation",
+   "x": "dark patterns",
+   "y": "consent to tracking",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Do misinformation warning labels reduce sharing?": {
+   "kind": "relation",
+   "x": "misinformation warning labels",
+   "y": "sharing",
+   "dir": "-",
+   "ctx": ""
+  },
+  "Does haptic feedback improve typing on touchscreens?": {
+   "kind": "relation",
+   "x": "haptic feedback",
+   "y": "typing",
+   "dir": "+",
+   "ctx": "touchscreens"
+  },
+  "Does gaze input make target selection faster?": {
+   "kind": "relation",
+   "x": "gaze input",
+   "y": "target selection",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Do smart glasses help with everyday tasks?": {
+   "kind": "relation",
+   "x": "smart glasses",
+   "y": "everyday tasks",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Does mid-air gesture input cause arm fatigue?": {
+   "kind": "relation",
+   "x": "mid-air gesture input",
+   "y": "arm fatigue",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Do wearables increase awareness of one's body?": {
+   "kind": "relation",
+   "x": "wearables",
+   "y": "awareness of one's body",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Do shape-changing interfaces increase engagement?": {
+   "kind": "relation",
+   "x": "shape-changing interfaces",
+   "y": "engagement",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Does generative AI support designers' creativity?": {
+   "kind": "relation",
+   "x": "generative ai",
+   "y": "creativity",
+   "dir": "+",
+   "ctx": "designers"
+  },
+  "Does AI feedback improve design quality?": {
+   "kind": "relation",
+   "x": "ai feedback",
+   "y": "design quality",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Do games increase motivation?": {
+   "kind": "relation",
+   "x": "games",
+   "y": "motivation",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Do visualizations help people understand uncertainty?": {
+   "kind": "relation",
+   "x": "visualizations",
+   "y": "uncertainty understanding",
+   "dir": "+",
+   "ctx": ""
+  },
+  "Does co-design empower communities?": {
+   "kind": "relation",
+   "x": "co-design",
+   "y": "",
+   "dir": "+",
+   "ctx": "communities"
+  },
+  "Does sketching support ideation?": {
+   "kind": "relation",
+   "x": "sketching",
+   "y": "ideation",
+   "dir": "+",
+   "ctx": ""
+  }
+ },
+ "errors_test": [
+  {
+   "qid": 1,
+   "id": 222260,
+   "gold": "support",
+   "pred": "reframe",
+   "sub": "related",
+   "gold_sub": ""
+  },
+  {
+   "qid": 1,
+   "id": 222990,
+   "gold": "support",
+   "pred": "reframe",
+   "sub": "related",
+   "gold_sub": ""
+  },
+  {
+   "qid": 1,
+   "id": 230179,
+   "gold": "support",
+   "pred": "reframe",
+   "sub": "measure",
+   "gold_sub": ""
+  },
+  {
+   "qid": 1,
+   "id": 229895,
+   "gold": "reframe",
+   "pred": "support",
+   "sub": "evidence",
+   "gold_sub": "measure"
+  },
+  {
+   "qid": 1,
+   "id": 223122,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "measure",
+   "gold_sub": ""
+  },
+  {
+   "qid": 3,
+   "id": 229814,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "measure",
+   "gold_sub": ""
+  },
+  {
+   "qid": 3,
+   "id": 222714,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "factor",
+   "gold_sub": ""
+  },
+  {
+   "qid": 3,
+   "id": 221972,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "related",
+   "gold_sub": ""
+  },
+  {
+   "qid": 3,
+   "id": 223439,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "related",
+   "gold_sub": ""
+  },
+  {
+   "qid": 3,
+   "id": 223355,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "measure"
+  },
+  {
+   "qid": 3,
+   "id": 229895,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "measure"
+  },
+  {
+   "qid": 3,
+   "id": 223270,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "measure",
+   "gold_sub": ""
+  },
+  {
+   "qid": 3,
+   "id": 230080,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "measure",
+   "gold_sub": ""
+  },
+  {
+   "qid": 3,
+   "id": 222447,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "measure"
+  },
+  {
+   "qid": 5,
+   "id": 222256,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "related",
+   "gold_sub": ""
+  },
+  {
+   "qid": 5,
+   "id": 223187,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "measure",
+   "gold_sub": ""
+  },
+  {
+   "qid": 5,
+   "id": 222431,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 9,
+   "id": 222852,
+   "gold": "reframe",
+   "pred": "challenge",
+   "sub": "opposite",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 9,
+   "id": 230134,
+   "gold": "challenge",
+   "pred": "reframe",
+   "sub": "factor",
+   "gold_sub": ""
+  },
+  {
+   "qid": 9,
+   "id": 223539,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "factor",
+   "gold_sub": ""
+  },
+  {
+   "qid": 9,
+   "id": 222115,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "measure"
+  },
+  {
+   "qid": 11,
+   "id": 229466,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "factor",
+   "gold_sub": ""
+  },
+  {
+   "qid": 11,
+   "id": 223218,
+   "gold": "reframe",
+   "pred": "support",
+   "sub": "evidence",
+   "gold_sub": "measure"
+  },
+  {
+   "qid": 11,
+   "id": 221979,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 11,
+   "id": 229817,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "measure"
+  },
+  {
+   "qid": 11,
+   "id": 229602,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "measure"
+  },
+  {
+   "qid": 11,
+   "id": 222144,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "measure"
+  },
+  {
+   "qid": 13,
+   "id": 229826,
+   "gold": "challenge",
+   "pred": "reframe",
+   "sub": "measure",
+   "gold_sub": ""
+  },
+  {
+   "qid": 13,
+   "id": 222318,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 13,
+   "id": 230077,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 13,
+   "id": 222725,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "people"
+  },
+  {
+   "qid": 13,
+   "id": 223538,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "measure"
+  },
+  {
+   "qid": 13,
+   "id": 221872,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 15,
+   "id": 223145,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "related",
+   "gold_sub": ""
+  },
+  {
+   "qid": 15,
+   "id": 221902,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 15,
+   "id": 223142,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 15,
+   "id": 222352,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "factor",
+   "gold_sub": ""
+  },
+  {
+   "qid": 15,
+   "id": 222493,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 19,
+   "id": 222602,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "related",
+   "gold_sub": ""
+  },
+  {
+   "qid": 19,
+   "id": 223012,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 19,
+   "id": 223447,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "measure"
+  },
+  {
+   "qid": 21,
+   "id": 221885,
+   "gold": "support",
+   "pred": "reframe",
+   "sub": "related",
+   "gold_sub": ""
+  },
+  {
+   "qid": 21,
+   "id": 225698,
+   "gold": "support",
+   "pred": "reframe",
+   "sub": "factor",
+   "gold_sub": ""
+  },
+  {
+   "qid": 21,
+   "id": 223025,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 21,
+   "id": 223257,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 21,
+   "id": 223418,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "measure"
+  },
+  {
+   "qid": 21,
+   "id": 230279,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 21,
+   "id": 229722,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "factor",
+   "gold_sub": ""
+  },
+  {
+   "qid": 21,
+   "id": 222388,
+   "gold": "support",
+   "pred": "reframe",
+   "sub": "factor",
+   "gold_sub": ""
+  },
+  {
+   "qid": 23,
+   "id": 229767,
+   "gold": "support",
+   "pred": "reframe",
+   "sub": "measure",
+   "gold_sub": ""
+  },
+  {
+   "qid": 23,
+   "id": 225570,
+   "gold": "support",
+   "pred": "reframe",
+   "sub": "factor",
+   "gold_sub": ""
+  },
+  {
+   "qid": 23,
+   "id": 229829,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "measure"
+  },
+  {
+   "qid": 23,
+   "id": 229630,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 23,
+   "id": 222156,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 23,
+   "id": 222462,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 23,
+   "id": 222692,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 23,
+   "id": 223043,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 25,
+   "id": 229943,
+   "gold": "challenge",
+   "pred": "reframe",
+   "sub": "factor",
+   "gold_sub": ""
+  },
+  {
+   "qid": 25,
+   "id": 223443,
+   "gold": "off",
+   "pred": "reframe",
+   "sub": "factor",
+   "gold_sub": ""
+  },
+  {
+   "qid": 27,
+   "id": 223117,
+   "gold": "support",
+   "pred": "reframe",
+   "sub": "measure",
+   "gold_sub": ""
+  }
+ ]
+}

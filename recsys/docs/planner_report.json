@@ -1,0 +1,56 @@
+{
+ "profiles": 52,
+ "days": 5,
+ "pace3": {
+  "routes": 260,
+  "same_route": 0.8,
+  "best_higher": 0.2,
+  "gain_when_higher_pct": 7.5,
+  "greedy": {
+   "total_score": 4.468,
+   "stops": 5.95,
+   "top1_in_route": 0.838,
+   "top16_in_route": 5.85,
+   "top16_as_alternative": 4.52,
+   "mean_rank_of_picks": 4.68,
+   "ms_median": 175.8,
+   "ms_p95": 335.7
+  },
+  "best": {
+   "total_score": 4.518,
+   "stops": 6.0,
+   "top1_in_route": 0.812,
+   "top16_in_route": 5.9,
+   "top16_as_alternative": 5.93,
+   "mean_rank_of_picks": 4.68,
+   "ms_median": 194.5,
+   "ms_p95": 334.9
+  }
+ },
+ "pace5": {
+  "routes": 260,
+  "same_route": 0.842,
+  "best_higher": 0.154,
+  "gain_when_higher_pct": 9.74,
+  "greedy": {
+   "total_score": 7.273,
+   "stops": 9.55,
+   "top1_in_route": 0.915,
+   "top16_in_route": 9.09,
+   "top16_as_alternative": 6.1,
+   "mean_rank_of_picks": 6.69,
+   "ms_median": 170.3,
+   "ms_p95": 321.2
+  },
+  "best": {
+   "total_score": 7.348,
+   "stops": 9.69,
+   "top1_in_route": 0.881,
+   "top16_in_route": 9.22,
+   "top16_as_alternative": 5.96,
+   "mean_rank_of_picks": 6.87,
+   "ms_median": 205.7,
+   "ms_p95": 423.0
+  }
+ }
+}

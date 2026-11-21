@@ -1,0 +1,15 @@
+# Data and model building (GPU node for the gen_*, train_*, embed_* scripts). Versions used for the 11/21 package.
+numpy==2.0.2
+torch==2.5.1
+transformers==4.57.6
+sentence-transformers==5.1.2
+tokenizers==0.22.2
+scikit-learn==1.6.1
+onnx==1.19.1
+onnxruntime==1.19.2
+optimum==2.1.0
+datasets==4.5.0
+accelerate==1.10.1
+rank-bm25==0.2.2
+pillow==11.3.0
+# Running the package itself needs only numpy and tokenizers (Python) or Node 22 (web/).

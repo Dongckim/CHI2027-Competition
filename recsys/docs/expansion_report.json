@@ -1,0 +1,361 @@
+{
+ "n_phrases": 19981,
+ "papers_with_phrases": 2509,
+ "dev": {
+  "none wx=0.0 aspect_w=0.0": {
+   "R@1": 0.7293,
+   "R@8": 0.952
+  },
+  "none wx=0.0 aspect_w=0.3": {
+   "R@1": 0.744,
+   "R@8": 0.952
+  },
+  "separate wx=0.1 aspect_w=0.0": {
+   "R@1": 0.7533,
+   "R@8": 0.9507
+  },
+  "separate wx=0.1 aspect_w=0.3": {
+   "R@1": 0.7627,
+   "R@8": 0.952
+  },
+  "separate wx=0.25 aspect_w=0.0": {
+   "R@1": 0.7547,
+   "R@8": 0.9533
+  },
+  "separate wx=0.25 aspect_w=0.3": {
+   "R@1": 0.7667,
+   "R@8": 0.952
+  },
+  "separate wx=0.5 aspect_w=0.0": {
+   "R@1": 0.7507,
+   "R@8": 0.948
+  },
+  "separate wx=0.5 aspect_w=0.3": {
+   "R@1": 0.7507,
+   "R@8": 0.952
+  },
+  "separate wx=0.75 aspect_w=0.0": {
+   "R@1": 0.7373,
+   "R@8": 0.9293
+  },
+  "separate wx=0.75 aspect_w=0.3": {
+   "R@1": 0.7493,
+   "R@8": 0.936
+  },
+  "separate wx=1.0 aspect_w=0.0": {
+   "R@1": 0.7307,
+   "R@8": 0.9227
+  },
+  "separate wx=1.0 aspect_w=0.3": {
+   "R@1": 0.7333,
+   "R@8": 0.9253
+  },
+  "combined wx=0.0 aspect_w=0.0": {
+   "R@1": 0.764,
+   "R@8": 0.96
+  },
+  "combined wx=0.0 aspect_w=0.3": {
+   "R@1": 0.7853,
+   "R@8": 0.9587
+  }
+ },
+ "chosen": "combined wx=0.0 aspect_w=0.0",
+ "test": {
+  "none (aspect_w=0)": {
+   "R@1": 0.748,
+   "R@8": 0.948
+  },
+  "current (aspect_w=0.3)": {
+   "R@1": 0.76,
+   "R@8": 0.952
+  },
+  "chosen: combined wx=0.0 aspect_w=0.0": {
+   "R@1": 0.7747,
+   "R@8": 0.96
+  },
+  "all": {
+   "none wx=0.0 aspect_w=0.0": {
+    "R@1": 0.748,
+    "R@8": 0.948
+   },
+   "none wx=0.0 aspect_w=0.3": {
+    "R@1": 0.76,
+    "R@8": 0.952
+   },
+   "separate wx=0.1 aspect_w=0.0": {
+    "R@1": 0.756,
+    "R@8": 0.9453
+   },
+   "separate wx=0.1 aspect_w=0.3": {
+    "R@1": 0.7667,
+    "R@8": 0.948
+   },
+   "separate wx=0.25 aspect_w=0.0": {
+    "R@1": 0.7613,
+    "R@8": 0.948
+   },
+   "separate wx=0.25 aspect_w=0.3": {
+    "R@1": 0.768,
+    "R@8": 0.9493
+   },
+   "separate wx=0.5 aspect_w=0.0": {
+    "R@1": 0.7533,
+    "R@8": 0.9413
+   },
+   "separate wx=0.5 aspect_w=0.3": {
+    "R@1": 0.7707,
+    "R@8": 0.9427
+   },
+   "separate wx=0.75 aspect_w=0.0": {
+    "R@1": 0.7373,
+    "R@8": 0.9293
+   },
+   "separate wx=0.75 aspect_w=0.3": {
+    "R@1": 0.756,
+    "R@8": 0.932
+   },
+   "separate wx=1.0 aspect_w=0.0": {
+    "R@1": 0.728,
+    "R@8": 0.9133
+   },
+   "separate wx=1.0 aspect_w=0.3": {
+    "R@1": 0.74,
+    "R@8": 0.916
+   },
+   "combined wx=0.0 aspect_w=0.0": {
+    "R@1": 0.7747,
+    "R@8": 0.96
+   },
+   "combined wx=0.0 aspect_w=0.3": {
+    "R@1": 0.7867,
+    "R@8": 0.9627
+   }
+  }
+ },
+ "hand": {
+  "motion sickness in vr": {
+   "before": [
+    "A Conceptual Re-framing of Sensory Mismatch for Cybersickness",
+    "Continuous Measurement Methods for Transient Physiological Discomfort in VR Locomotion",
+    "Design and Evaluation of a Continuous Interface for Real-time Self-reporting of VR Sickness",
+    "Exploring the Impact of Sensory Conflict on State Mindfulness in VR Meditation Training",
+    "Beyond One-Size-Fits-All: Individual Differences in the Effectiveness of Visual Motion Cues for Mitigating Motion Sickness in a Moving Vehicle",
+    "HumanoidTurk: Expanding VR Haptics with Humanoids for Driving Simulations",
+    "From Disruption to Immersion: Reimagining Vehicle Motion as Environmental Feedback through Force Mappings in In-Car VR",
+    "HieraVisVR: Hierarchical Visual Analytics for Motion-Centric VR Playtesting"
+   ],
+   "after": [
+    "A Conceptual Re-framing of Sensory Mismatch for Cybersickness",
+    "Continuous Measurement Methods for Transient Physiological Discomfort in VR Locomotion",
+    "Beyond One-Size-Fits-All: Individual Differences in the Effectiveness of Visual Motion Cues for Mitigating Motion Sickness in a Moving Vehicle",
+    "Escaping the Valley of Boredom: Efficient User Resizing in Virtual Reality",
+    "Design and Evaluation of a Continuous Interface for Real-time Self-reporting of VR Sickness",
+    "Exploring the Impact of Sensory Conflict on State Mindfulness in VR Meditation Training",
+    "Anticipating Physical Processes in VR: Environment Type and Scale Alter Temporal Expectations",
+    "HumanoidTurk: Expanding VR Haptics with Humanoids for Driving Simulations"
+   ]
+  },
+  "self-driving car": {
+   "before": [
+    "Bloom & Breathe: Exploring Multimodal Olfactory Interventions for In-Car Road Rage Regulation",
+    "Real Roads, Real Attitudes: Preliminary Longitudinal In-Field Assessment of Autonomous Driving from Driver and Passenger Perspectives",
+    "Small Talk, Big Impact? LLM-based Conversational Agents to Mitigate Passive Fatigue in Conditional Automated Driving",
+    "MRDrive: An Open Source Mixed Reality Driving Simulator for Automotive User Research",
+    "When to Explain: Modeling User Need for Explanations in Real-World Autonomous Driving",
+    "\"What Are You Doing?\": Effects of Intermediate Feedback from Agentic LLM In-Car Assistants During Multi-Step Processing",
+    "Actions, Speech, and Looks: What Shapes How We Feel About In-Vehicle AI Assistants?",
+    "To Cooperate or Not to Cooperate: A Systematic Review and Meta-Analysis of Human Driving Behavior in Interactions with Autonomous Vehicles"
+   ],
+   "after": [
+    "Bloom & Breathe: Exploring Multimodal Olfactory Interventions for In-Car Road Rage Regulation",
+    "Real Roads, Real Attitudes: Preliminary Longitudinal In-Field Assessment of Autonomous Driving from Driver and Passenger Perspectives",
+    "Actions, Speech, and Looks: What Shapes How We Feel About In-Vehicle AI Assistants?",
+    "Small Talk, Big Impact? LLM-based Conversational Agents to Mitigate Passive Fatigue in Conditional Automated Driving",
+    "MRDrive: An Open Source Mixed Reality Driving Simulator for Automotive User Research",
+    "\"What Are You Doing?\": Effects of Intermediate Feedback from Agentic LLM In-Car Assistants During Multi-Step Processing",
+    "When to Explain: Modeling User Need for Explanations in Real-World Autonomous Driving",
+    "To Cooperate or Not to Cooperate: A Systematic Review and Meta-Analysis of Human Driving Behavior in Interactions with Autonomous Vehicles"
+   ]
+  },
+  "kids and screen time": {
+   "before": [
+    "Distorted Time: How Fragmented Interface Design Alters User Time Perception Across Contexts",
+    "Seeing Your Mindless Face: How Viewing One’s Live Self Interrupts Mindless Short-Form Video Scrolling",
+    "Tuning into Everyday Ecologies: Children’s Slow Noticing in Food Gardens",
+    "\"In my defense, only three hours on Instagram\": Designing Toward Digital Self-Awareness and Wellbeing",
+    "Endless Swipes and Recommendations: The Impact of Short-Form Video Platforms on Context-Switching and Children’s Working Memory",
+    "Active Silence: Designing Temporal Idle States for Calm Engagement in Public Interactive Displays",
+    "Balancing Attention Support for Early-learners (BASE) in Digital Technology Interactions: A Framework for Design and Use",
+    "From Struggle to Success: Context-Aware Guidance for Screen Reader Users in Computer Use"
+   ],
+   "after": [
+    "No Caste, No Crowds, and Robots for All: Children's Values, Hopes, and Fears in the Designs of their Future Classrooms",
+    "Balancing Attention Support for Early-learners (BASE) in Digital Technology Interactions: A Framework for Design and Use",
+    "AnimAlte: Designing a Multimodal AI-Infused Cartoon Video System to Support Structured Vocabulary Learning for Preschoolers at Home",
+    "Extending the Child-Centered Ethics Framework: Researchers' Reflections on Multiple Projects with Children and Teenagers",
+    "Distorted Time: How Fragmented Interface Design Alters User Time Perception Across Contexts",
+    "\"In my defense, only three hours on Instagram\": Designing Toward Digital Self-Awareness and Wellbeing",
+    "Tuning into Everyday Ecologies: Children’s Slow Noticing in Food Gardens",
+    "Seeing Your Mindless Face: How Viewing One’s Live Self Interrupts Mindless Short-Form Video Scrolling"
+   ]
+  },
+  "LLM coding assistants for novice programmers": {
+   "before": [
+    "From Black Box to Learning Artifact: A Pedagogical Redesign of AI Coding Assistants for Novice Programmers",
+    "Live in the Loop: Rapid Run-time Feedback for Prompts",
+    "Programmers Who Use Screen Readers in the Vibe Coding Era: Adaptation, Empowerment, and New Accessibility Landscape",
+    "When Help Hurts: Verification Load and Fatigue with AI Coding Assistants",
+    "Computer Science Achievement and Writing Skills Predict Vibe Coding Proficiency",
+    "From Code Generation to Conceptual Learning: Student Use of LLMs in a Web Programming Course",
+    "RPGAgent: Driving Coherent Story-to-Play Generation with an LLM-Based Multi-Agent System",
+    "Linting Style and Substance in READMEs"
+   ],
+   "after": [
+    "From Black Box to Learning Artifact: A Pedagogical Redesign of AI Coding Assistants for Novice Programmers",
+    "Live in the Loop: Rapid Run-time Feedback for Prompts",
+    "Programmers Who Use Screen Readers in the Vibe Coding Era: Adaptation, Empowerment, and New Accessibility Landscape",
+    "When Help Hurts: Verification Load and Fatigue with AI Coding Assistants",
+    "From Code Generation to Conceptual Learning: Student Use of LLMs in a Web Programming Course",
+    "Computer Science Achievement and Writing Skills Predict Vibe Coding Proficiency",
+    "RPGAgent: Driving Coherent Story-to-Play Generation with an LLM-Based Multi-Agent System",
+    "Linting Style and Substance in READMEs"
+   ]
+  },
+  "sign language": {
+   "before": [
+    "LaboSignes: an Interactive French Sign Language Recognition Interface",
+    "Reimagining Sign Language Technologies: Analyzing Translation Work of Chinese Deaf Online Content Creators",
+    "Beyond Technical Metrics: Understanding the Gap Between AI Performance and Deaf User Experience in Chinese Natural Sign Language Generation",
+    "AuslanSpell: An Interactive Technology for Improving Auslan Fingerspelling Comprehension",
+    "Exploring AI Opportunities in Deaf Education: Understanding Design Needs Through Teacher and Parent Perspectives in Bangladesh",
+    "ASL Educators’ Perspectives on AI for Enhancing Student Learning in American Sign Language Education",
+    "Toward Equitable ASL Education: Egocentric Stereo Sensing with LLM Feedback for Error-Aware Learning",
+    "``We need a vision first'': Speculating Deaf-Centered Immersive Classrooms"
+   ],
+   "after": [
+    "LaboSignes: an Interactive French Sign Language Recognition Interface",
+    "Reimagining Sign Language Technologies: Analyzing Translation Work of Chinese Deaf Online Content Creators",
+    "Beyond Technical Metrics: Understanding the Gap Between AI Performance and Deaf User Experience in Chinese Natural Sign Language Generation",
+    "AuslanSpell: An Interactive Technology for Improving Auslan Fingerspelling Comprehension",
+    "Exploring AI Opportunities in Deaf Education: Understanding Design Needs Through Teacher and Parent Perspectives in Bangladesh",
+    "ASL Educators’ Perspectives on AI for Enhancing Student Learning in American Sign Language Education",
+    "Toward Equitable ASL Education: Egocentric Stereo Sensing with LLM Feedback for Error-Aware Learning",
+    "``We need a vision first'': Speculating Deaf-Centered Immersive Classrooms"
+   ]
+  },
+  "chatgpt in the classroom": {
+   "before": [
+    "ClassEcho: A Tool for Observing, Visualizing, and Analyzing Student-Teacher Interactions in K-12 Computing Classrooms",
+    "Design and Evaluation of a Photorealistic AI Virtual Peer in Elementary Collaborative Classroom",
+    "An Empirical Study to Understand How Students Use ChatGPT for Writing Essays",
+    "Attentional Focus and Tone in Older-Driver Classroom Instruction Align with Lagged Intersection Behaviors",
+    "\"Bespoke Bots'': Diverse Instructor Needs for Customizing Generative AI Classroom Chatbots",
+    "Adaptive Tutoring Modalities for Supporting Learners’ Reflective Writing Practices",
+    "\"Listen to the Teachers\": Research-Based Personas for Translating Classroom Realities into Actionable HCI Design",
+    "Supporting Learners' Use of Imperfect Generative Pedagogical Chatbots: The Role of Chatbot Response Uncertainty and Reduced Verbosity"
+   ],
+   "after": [
+    "ClassEcho: A Tool for Observing, Visualizing, and Analyzing Student-Teacher Interactions in K-12 Computing Classrooms",
+    "Design and Evaluation of a Photorealistic AI Virtual Peer in Elementary Collaborative Classroom",
+    "An Empirical Study to Understand How Students Use ChatGPT for Writing Essays",
+    "\"Bespoke Bots'': Diverse Instructor Needs for Customizing Generative AI Classroom Chatbots",
+    "Attentional Focus and Tone in Older-Driver Classroom Instruction Align with Lagged Intersection Behaviors",
+    "Adaptive Tutoring Modalities for Supporting Learners’ Reflective Writing Practices",
+    "\"Listen to the Teachers\": Research-Based Personas for Translating Classroom Realities into Actionable HCI Design",
+    "When Scaffolding Breaks: Investigating Student Interaction with LLM-Based Writing Support in Real-Time K-12 EFL Classrooms"
+   ]
+  },
+  "deepfake": {
+   "before": [
+    "If I Change Your Eyes, Are You Still You? Identity Thresholds in Deepfake Perception",
+    "Designing Effective Digital Literacy Interventions for Boosting Deepfake Discernment",
+    "Deepfake, Real Harm: A Participatory Approach for Imagining Infrastructures to Combat Deepfake Sexual Abuse",
+    "DeepAware: Using Experiential Deepfake Simulations to Enhance Cybersecurity Awareness in Older Adults",
+    "Perception of Deepfakes among Bangladeshi Women",
+    "Collab: Fostering Critical Identification of Deepfake Videos on Social Media via Synergistic Annotation",
+    "When Health Messages from Someone Look Like You: Deepfake-Enabled Similarity, Perspective-Taking, and the Moderating Role of AI Literacy",
+    "Seeing, Hearing, and Knowing Together: Multimodal Strategies in Deepfake Videos Detection"
+   ],
+   "after": [
+    "If I Change Your Eyes, Are You Still You? Identity Thresholds in Deepfake Perception",
+    "Designing Effective Digital Literacy Interventions for Boosting Deepfake Discernment",
+    "Perception of Deepfakes among Bangladeshi Women",
+    "Deepfake, Real Harm: A Participatory Approach for Imagining Infrastructures to Combat Deepfake Sexual Abuse",
+    "DeepAware: Using Experiential Deepfake Simulations to Enhance Cybersecurity Awareness in Older Adults",
+    "Collab: Fostering Critical Identification of Deepfake Videos on Social Media via Synergistic Annotation",
+    "Seeing, Hearing, and Knowing Together: Multimodal Strategies in Deepfake Videos Detection",
+    "When Health Messages from Someone Look Like You: Deepfake-Enabled Similarity, Perspective-Taking, and the Moderating Role of AI Literacy"
+   ]
+  },
+  "older people using voice assistants": {
+   "before": [
+    "“Who wants to be nagged by AI?“: Investigating the Effects of Agreeableness on Older Adults’ Perception of LLM-Based Voice Assistants’ Explanations",
+    "Non-Linear Journeys with Voice Assistants: A Multi-Trajectory Analysis of Older Adults’ Long-Term Home Use",
+    "Finding MeBo: Delivering Reminiscence Therapy for Older Adults Using LLM-Based Voice User Interfaces",
+    "Challenges in Automatic Speech Recognition for Adults with Cognitive Impairment",
+    "Privacy Cards: Surfacing mental models and exploring privacy concerns of voice-first ambient interfaces",
+    "I Can Do It: Exploring Voice Assistants for Adults with Intellectual Disabilities",
+    "Deaf and Hard of Hearing Access to Intelligent Personal Assistants: Comparison of Voice-Based Options with an LLM-Powered Touch Interface",
+    "Finding a Home for Voice Assistants: A Domestication Calculus Across Three Years and Thirty Households"
+   ],
+   "after": [
+    "“Who wants to be nagged by AI?“: Investigating the Effects of Agreeableness on Older Adults’ Perception of LLM-Based Voice Assistants’ Explanations",
+    "Non-Linear Journeys with Voice Assistants: A Multi-Trajectory Analysis of Older Adults’ Long-Term Home Use",
+    "Finding MeBo: Delivering Reminiscence Therapy for Older Adults Using LLM-Based Voice User Interfaces",
+    "Challenges in Automatic Speech Recognition for Adults with Cognitive Impairment",
+    "I Can Do It: Exploring Voice Assistants for Adults with Intellectual Disabilities",
+    "Deaf and Hard of Hearing Access to Intelligent Personal Assistants: Comparison of Voice-Based Options with an LLM-Powered Touch Interface",
+    "Privacy Cards: Surfacing mental models and exploring privacy concerns of voice-first ambient interfaces",
+    "Finding a Home for Voice Assistants: A Domestication Calculus Across Three Years and Thirty Households"
+   ]
+  },
+  "AR glasses for blind people": {
+   "before": [
+    "AR Haptic-Audio Conversion for Non-Visual Product Understanding in Smartphone AR",
+    "SoundWeAR: Co-Designing AR Sound Cues to Support Outdoor Awareness for DHH Individuals",
+    "Why Do You Know That About Me?— Ethical Implications of Pervasive AR And Face Recognition",
+    "PeriphAR: Fast and Accurate Real-World Object Selection with Peripheral Augmented Reality Displays",
+    "When Audio Is Enough: Design-Tradeoffs in Multi-Story MR Navigation",
+    "HoloNote: Exploring Augmented Reality Notifications for Ergonomic Feedback in Laparoscopic Training",
+    "Reimagining Wearable AR Gesture Design: Physical Therapy Reasoning in Everyday Contexts",
+    "Wearable AR for Restorative Breaks: How Interactive Narrative Experiences Support Relaxation for Young People"
+   ],
+   "after": [
+    "PeriphAR: Fast and Accurate Real-World Object Selection with Peripheral Augmented Reality Displays",
+    "AR Haptic-Audio Conversion for Non-Visual Product Understanding in Smartphone AR",
+    "Why Do You Know That About Me?— Ethical Implications of Pervasive AR And Face Recognition",
+    "SoundWeAR: Co-Designing AR Sound Cues to Support Outdoor Awareness for DHH Individuals",
+    "Wearable AR for Restorative Breaks: How Interactive Narrative Experiences Support Relaxation for Young People",
+    "HoloNote: Exploring Augmented Reality Notifications for Ergonomic Feedback in Laparoscopic Training",
+    "Reimagining Wearable AR Gesture Design: Physical Therapy Reasoning in Everyday Contexts",
+    "VisGuardian: A Lightweight Group-based Visual Privacy Control Technique For Smart Glasses in Home Environments"
+   ]
+  },
+  "burnout of gig workers": {
+   "before": [
+    "Filtering the Invisible: A Feminist HCI Perspective on Informal Infra-structuring in Gig Labor",
+    "Algorithmic and Gender-Specific Challenges of Gig Work in the Indonesian Ride-Hailing Industry: Preliminary Findings",
+    "“I don't feel lonely because I don't work alone most of the time”: Exploring Gig Work as an Opportunity for Social Participation Among Older Adults",
+    "‘In a Pinch, If You Have Nothing’: An Exploration of Money-Making Apps in Homeless Shelters",
+    "From Future of Work to Future of Workers: Addressing Asymptomatic AI Harms to Foster Dignified Human-AI Interaction",
+    "Understanding Behind the Smile of Emotion Workers: Detecting After-Call Stress in Call Agents",
+    "\"Oops! ChatGPT is Temporarily Unavailable!'': A Diary Study on Knowledge Workers’ Experiences of LLM Withdrawal",
+    "'The plan is just survival': Data Work in Kenya and the Regime of Entrapment"
+   ],
+   "after": [
+    "“I don't feel lonely because I don't work alone most of the time”: Exploring Gig Work as an Opportunity for Social Participation Among Older Adults",
+    "Algorithmic and Gender-Specific Challenges of Gig Work in the Indonesian Ride-Hailing Industry: Preliminary Findings",
+    "Understanding Behind the Smile of Emotion Workers: Detecting After-Call Stress in Call Agents",
+    "Filtering the Invisible: A Feminist HCI Perspective on Informal Infra-structuring in Gig Labor",
+    "‘In a Pinch, If You Have Nothing’: An Exploration of Money-Making Apps in Homeless Shelters",
+    "From Future of Work to Future of Workers: Addressing Asymptomatic AI Harms to Foster Dignified Human-AI Interaction",
+    "\"Oops! ChatGPT is Temporarily Unavailable!'': A Diary Study on Knowledge Workers’ Experiences of LLM Withdrawal",
+    "`I Know I Can Do the Job, It’s Just Putting It Down’: Using Personas as a Mirror to Identify Strengths"
+   ]
+  }
+ },
+ "latency_ms_median": {
+  "before": 32.5,
+  "after": 23.8
+ }
+}

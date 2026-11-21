@@ -1,0 +1,150 @@
+{
+  "model": "models/bge-m3-chi",
+  "n_docs": 2509,
+  "dim": 1024,
+  "encode_seconds": null,
+  "device_built": "cuda",
+  "self_retrieval_at_1": 1.0,
+  "mean_score_separation_top1_vs_100": 0.2972,
+  "mean_top8_diversity": 0.6694,
+  "mean_query_latency_s": 1.4658,
+  "examples": [
+    {
+      "query": "privacy and trust in wearable camera devices",
+      "top3": [
+        {
+          "title": "See Me If You Can: A Multi-Layer Protocol for Bystander Privacy with Consent-Bas",
+          "score": 0.5544
+        },
+        {
+          "title": "Mind the Gap: Mapping Wearer–Bystander Privacy Tensions and Context-Adaptive Pat",
+          "score": 0.5365
+        },
+        {
+          "title": "MlondaCam: Designing Context-Aware Smart Cameras for Supporting Domestic Securit",
+          "score": 0.4293
+        }
+      ]
+    },
+    {
+      "query": "large language models for accessibility",
+      "top3": [
+        {
+          "title": "Identifying, Explaining, and Correcting Ableist Language with AI",
+          "score": 0.4582
+        },
+        {
+          "title": "Understanding the Use of a Large Language Model-Powered Guide to Make Virtual Re",
+          "score": 0.4459
+        },
+        {
+          "title": "How Multimodal Large Language Models Support Access to Visual Information: A Dia",
+          "score": 0.4131
+        }
+      ]
+    },
+    {
+      "query": "virtual reality for education and learning",
+      "top3": [
+        {
+          "title": "Everyone Deserves a Teacher They Like: Designing Personality-Matched Multimodal ",
+          "score": 0.5011
+        },
+        {
+          "title": "AttentiveLearn: Personalized Post-Lecture Support for Gaze-Aware Immersive Learn",
+          "score": 0.498
+        },
+        {
+          "title": "Mapping Design Dimensions for Collaborative Learning in Virtual Reality: A Scopi",
+          "score": 0.4942
+        }
+      ]
+    },
+    {
+      "query": "haptic feedback interfaces",
+      "top3": [
+        {
+          "title": "Next Generation Wearable Haptics Should Balance Virtual & Real-world Fidelity",
+          "score": 0.5666
+        },
+        {
+          "title": "HapPalm : Providing Rich Spatio-Temporal Vibrotactile Feedback on the Palm for L",
+          "score": 0.5598
+        },
+        {
+          "title": "HaptEx: Investigating Haptic Notification Channels for Exoskeletons Across Diffe",
+          "score": 0.5171
+        }
+      ]
+    },
+    {
+      "query": "AI-assisted mental health support",
+      "top3": [
+        {
+          "title": "Standardized Soul: A Mixed-Methods Study on the Efficacy and User Perception of ",
+          "score": 0.6474
+        },
+        {
+          "title": "\"Words are not enough\": Examining Emotional Support by Conversational AI for Car",
+          "score": 0.585
+        },
+        {
+          "title": "When Your Therapist Is an Algorithm: Understanding the Role of AI in Mental Heal",
+          "score": 0.5417
+        }
+      ]
+    },
+    {
+      "query": "child-computer interaction and safety",
+      "top3": [
+        {
+          "title": "Beyond Age-Based Restrictions: Rethinking Children's Online Safety Through Compa",
+          "score": 0.512
+        },
+        {
+          "title": "Player Safety by Design: Co-Designing Child-Centered Safety Mechanisms with Chil",
+          "score": 0.5017
+        },
+        {
+          "title": "Extending the Child-Centered Ethics Framework: Researchers' Reflections on Multi",
+          "score": 0.4797
+        }
+      ]
+    },
+    {
+      "query": "sustainable and eco-friendly computing",
+      "top3": [
+        {
+          "title": "Entangled Life and Code: A Computational Design Taxonomy for Synergistic Bio-Dig",
+          "score": 0.4316
+        },
+        {
+          "title": "Good for the Planet, Bad for Me? Intended and Unintended Consequences of AI Ener",
+          "score": 0.4312
+        },
+        {
+          "title": "Modalities of Regulation in Sustainable HCI: Rethinking the Role of Design in Sh",
+          "score": 0.4248
+        }
+      ]
+    },
+    {
+      "query": "gesture and gaze based interaction",
+      "top3": [
+        {
+          "title": "The People's Gaze: Co-Designing and Refining Gaze Gestures with Users and Expert",
+          "score": 0.5909
+        },
+        {
+          "title": "TinyGaze: Lightweight Gaze-Gesture Recognition on Commodity Mobile Devices",
+          "score": 0.5224
+        },
+        {
+          "title": "Objestures: Everyday Objects Meet Mid-Air Gestures for Expressive Interaction",
+          "score": 0.4561
+        }
+      ]
+    }
+  ],
+  "cross_lingual_overlap_at_8": 0.7083
+}

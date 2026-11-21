@@ -1,0 +1,405 @@
+[
+ {
+  "id": "N01",
+  "group": "normal",
+  "desc": "AI agents",
+  "input": {
+   "research_topic": "trust calibration in AI agents",
+   "top_k": 8
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "N02",
+  "group": "normal",
+  "desc": "VR / education",
+  "input": {
+   "research_topic": "virtual reality for education and learning",
+   "top_k": 8
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "N03",
+  "group": "normal",
+  "desc": "accessibility",
+  "input": {
+   "research_topic": "screen reader accessibility for blind users",
+   "top_k": 8
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "N04",
+  "group": "normal",
+  "desc": "health",
+  "input": {
+   "research_topic": "AI chatbots for mental health support",
+   "top_k": 8
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "N05",
+  "group": "normal",
+  "desc": "children",
+  "input": {
+   "research_topic": "children's online safety and parental control",
+   "top_k": 8
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "N06",
+  "group": "normal",
+  "desc": "haptics",
+  "input": {
+   "research_topic": "haptic feedback for VR",
+   "top_k": 8
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "N07",
+  "group": "normal",
+  "desc": "privacy",
+  "input": {
+   "research_topic": "privacy in wearable cameras",
+   "top_k": 8
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "N08",
+  "group": "normal",
+  "desc": "older adults",
+  "input": {
+   "research_topic": "technology use by older adults living alone",
+   "top_k": 8
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "N09",
+  "group": "normal",
+  "desc": "creativity",
+  "input": {
+   "research_topic": "human-AI co-creativity in art and design",
+   "top_k": 8
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "N10",
+  "group": "normal",
+  "desc": "sustainability",
+  "input": {
+   "research_topic": "sustainable HCI and climate change",
+   "top_k": 8
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "N11",
+  "group": "normal",
+  "desc": "automotive",
+  "input": {
+   "research_topic": "communication between autonomous vehicles and pedestrians",
+   "top_k": 8
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "N12",
+  "group": "normal",
+  "desc": "programming",
+  "input": {
+   "research_topic": "LLM coding assistants for novice programmers",
+   "top_k": 8
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "F01",
+  "group": "form",
+  "desc": "one word",
+  "input": {
+   "research_topic": "haptics"
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "F02",
+  "group": "form",
+  "desc": "long paragraph",
+  "input": {
+   "research_topic": "My research looks at how people with visual impairments navigate unfamiliar indoor spaces such as airports and shopping malls, and how smartphone apps that combine audio cues, vibration and computer vision could help them find their way independently without relying on sighted assistance."
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "F03",
+  "group": "form",
+  "desc": "exact paper title",
+  "input": {
+   "research_topic": "HaRing: A Haptic Ring Interface for One-Handed Interaction with High-Dimensional Spatial Information"
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "F04",
+  "group": "form",
+  "desc": "typos",
+  "input": {
+   "research_topic": "hapitc feedbak for virtal reality"
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "F05",
+  "group": "form",
+  "desc": "caps + punctuation",
+  "input": {
+   "research_topic": "  PRIVACY!!! in WEARABLE cameras???  "
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "F06",
+  "group": "form",
+  "desc": "abbreviations",
+  "input": {
+   "research_topic": "LLM UX for BLV users"
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "O01",
+  "group": "out-of-scope",
+  "desc": "Korean query",
+  "input": {
+   "research_topic": "웨어러블 기기의 프라이버시"
+  },
+  "expect": "warning"
+ },
+ {
+  "id": "O02",
+  "group": "out-of-scope",
+  "desc": "unrelated topic (CHI does not cover it: warn)",
+  "input": {
+   "research_topic": "best pizza recipes in Naples"
+  },
+  "expect": "warning"
+ },
+ {
+  "id": "O03",
+  "group": "out-of-scope",
+  "desc": "gibberish",
+  "input": {
+   "research_topic": "asdf qwer zxcv"
+  },
+  "expect": "warning"
+ },
+ {
+  "id": "O04",
+  "group": "out-of-scope",
+  "desc": "emoji only",
+  "input": {
+   "research_topic": "🥽🤖"
+  },
+  "expect": "warning"
+ },
+ {
+  "id": "O05",
+  "group": "out-of-scope",
+  "desc": "number as topic",
+  "input": {
+   "research_topic": 12345
+  },
+  "expect": "warning"
+ },
+ {
+  "id": "K01",
+  "group": "top_k",
+  "desc": "omitted (default 8)",
+  "input": {
+   "research_topic": "gaze interaction"
+  },
+  "expect": "ok",
+  "expect_top_k": 8
+ },
+ {
+  "id": "K02",
+  "group": "top_k",
+  "desc": "1",
+  "input": {
+   "research_topic": "gaze interaction",
+   "top_k": 1
+  },
+  "expect": "ok",
+  "expect_top_k": 1
+ },
+ {
+  "id": "K03",
+  "group": "top_k",
+  "desc": "20",
+  "input": {
+   "research_topic": "gaze interaction",
+   "top_k": 20
+  },
+  "expect": "ok",
+  "expect_top_k": 20
+ },
+ {
+  "id": "K04",
+  "group": "top_k",
+  "desc": "0",
+  "input": {
+   "research_topic": "gaze interaction",
+   "top_k": 0
+  },
+  "expect": "error"
+ },
+ {
+  "id": "K05",
+  "group": "top_k",
+  "desc": "negative",
+  "input": {
+   "research_topic": "gaze interaction",
+   "top_k": -3
+  },
+  "expect": "error"
+ },
+ {
+  "id": "K06",
+  "group": "top_k",
+  "desc": "larger than corpus",
+  "input": {
+   "research_topic": "gaze interaction",
+   "top_k": 5000
+  },
+  "expect": "ok"
+ },
+ {
+  "id": "K07",
+  "group": "top_k",
+  "desc": "string \"8\"",
+  "input": {
+   "research_topic": "gaze interaction",
+   "top_k": "8"
+  },
+  "expect": "ok",
+  "expect_top_k": 8
+ },
+ {
+  "id": "K08",
+  "group": "top_k",
+  "desc": "string \"abc\"",
+  "input": {
+   "research_topic": "gaze interaction",
+   "top_k": "abc"
+  },
+  "expect": "error"
+ },
+ {
+  "id": "K09",
+  "group": "top_k",
+  "desc": "float 2.7",
+  "input": {
+   "research_topic": "gaze interaction",
+   "top_k": 2.7
+  },
+  "expect": "error"
+ },
+ {
+  "id": "K10",
+  "group": "top_k",
+  "desc": "null",
+  "input": {
+   "research_topic": "gaze interaction",
+   "top_k": null
+  },
+  "expect": "ok",
+  "expect_top_k": 8
+ },
+ {
+  "id": "E01",
+  "group": "invalid",
+  "desc": "research_topic missing",
+  "input": {
+   "top_k": 8
+  },
+  "expect": "error"
+ },
+ {
+  "id": "E02",
+  "group": "invalid",
+  "desc": "empty string",
+  "input": {
+   "research_topic": ""
+  },
+  "expect": "error"
+ },
+ {
+  "id": "E03",
+  "group": "invalid",
+  "desc": "whitespace only",
+  "input": {
+   "research_topic": "   "
+  },
+  "expect": "error"
+ },
+ {
+  "id": "E04",
+  "group": "invalid",
+  "desc": "broken JSON",
+  "raw": "{\"research_topic\": \"haptics\"",
+  "expect": "error"
+ },
+ {
+  "id": "E05",
+  "group": "invalid",
+  "desc": "JSON array instead of object",
+  "raw": "[\"haptics\"]",
+  "expect": "error"
+ },
+ {
+  "id": "E06",
+  "group": "invalid",
+  "desc": "extra unknown field",
+  "input": {
+   "research_topic": "haptics",
+   "top_k": 3,
+   "user": "kim"
+  },
+  "expect": "ok",
+  "expect_top_k": 3
+ },
+ {
+  "id": "E07",
+  "group": "invalid",
+  "desc": "wrong key name",
+  "input": {
+   "topic": "haptics"
+  },
+  "expect": "error"
+ },
+ {
+  "id": "O06",
+  "group": "out-of-scope",
+  "desc": "off-topic science (volcanic ash)",
+  "input": {
+   "research_topic": "volcanic ash dispersion modelling"
+  },
+  "expect": "warning"
+ },
+ {
+  "id": "O07",
+  "group": "out-of-scope",
+  "desc": "off-topic science (protein folding)",
+  "input": {
+   "research_topic": "protein folding prediction"
+  },
+  "expect": "warning"
+ }
+]

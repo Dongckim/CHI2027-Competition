@@ -1,0 +1,59 @@
+{
+ "accuracy_test_half": {
+  "n_queries": 750,
+  "server_finetuned_dense": {
+   "R@1": 0.7267,
+   "R@8": 0.928
+  },
+  "server_finetuned_hybrid_w0.5": {
+   "R@1": 0.8027,
+   "R@8": 0.964
+  },
+  "bge_m3_offshelf_dense": {
+   "R@1": 0.6973,
+   "R@8": 0.8893
+  },
+  "bge_m3_offshelf_hybrid_w0.5": {
+   "R@1": 0.784,
+   "R@8": 0.948
+  },
+  "device_v1_34MB_transformer": {
+   "R@1": 0.776,
+   "R@8": 0.9587
+  },
+  "device_v2_8MB_static": {
+   "R@1": 0.7693,
+   "R@8": 0.9453
+  },
+  "bm25_only": {
+   "R@1": 0.7733,
+   "R@8": 0.9267
+  }
+ },
+ "agreement": {
+  "requests": 51,
+  "routes": 255,
+  "retriever_top8_overlap": 0.7525,
+  "retriever_same_top1": 0.8627,
+  "route_stop_jaccard": 0.4267,
+  "route_same_stops_mean": 3.36,
+  "route_identical": 0.0235,
+  "route_quality_by_server_score": 0.967,
+  "route_quality_p10": 0.8997,
+  "note": "route quality = mean server score of the phone's stops / of the server's stops; server BM25 weight 0.5, phone 1.0 (each tuned for its encoder)"
+ },
+ "size_time": {
+  "server": {
+   "encoder_mb": 2288,
+   "paper_vectors_mb": 11.4,
+   "query_ms_gpu": 22.2,
+   "needs": "GPU server + network"
+  },
+  "device": {
+   "encoder_mb": 8.0,
+   "paper_vectors_mb": 0.37,
+   "retriever_request_ms_cpu_python": 1.7,
+   "needs": "nothing: the phone's browser, offline"
+  }
+ }
+}

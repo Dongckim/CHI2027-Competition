@@ -1,0 +1,1158 @@
+[
+ {
+  "id": "A01",
+  "screen": "meta",
+  "desc": "01-0/02-x/03-1 days, tracks, pace, sponsors",
+  "input": {
+   "screen": "meta"
+  }
+ },
+ {
+  "id": "A02",
+  "screen": "keywords",
+  "desc": "01-2 haptics + VR + older adults",
+  "input": {
+   "screen": "keywords",
+   "research": "I study haptic feedback for virtual reality to help older adults exercise at home"
+  },
+  "expect_keywords": [
+   "haptic feedback",
+   "virtual reality",
+   "older adults"
+  ]
+ },
+ {
+  "id": "A03",
+  "screen": "keywords",
+  "desc": "01-2 short phrase",
+  "input": {
+   "screen": "keywords",
+   "research": "privacy in wearable cameras"
+  },
+  "expect_keywords": [
+   "privacy",
+   "wearable",
+   "cameras"
+  ]
+ },
+ {
+  "id": "A04",
+  "screen": "keywords",
+  "desc": "01-2 acronym LLM",
+  "input": {
+   "screen": "keywords",
+   "research": "LLM coding assistants for novice programmers"
+  },
+  "expect_keywords": [
+   "LLM",
+   "coding assistants"
+  ]
+ },
+ {
+  "id": "A05",
+  "screen": "keywords",
+  "desc": "01-2 Korean sentence (English only)",
+  "input": {
+   "screen": "keywords",
+   "research": "웨어러블 카메라의 프라이버시를 연구합니다"
+  },
+  "expect": "warning"
+ },
+ {
+  "id": "A06",
+  "screen": "nearby",
+  "desc": "01-3 adjacent fields + session topics",
+  "input": {
+   "screen": "nearby",
+   "research": "We design accessible tools for blind people to navigate indoors"
+  }
+ },
+ {
+  "id": "A07",
+  "screen": "days",
+  "desc": "02-1 talks for you per day",
+  "input": {
+   "screen": "days",
+   "profile": {
+    "research": "privacy in wearable cameras",
+    "days": [
+     "tue",
+     "wed"
+    ]
+   }
+  }
+ },
+ {
+  "id": "A08",
+  "screen": "route",
+  "desc": "03 default pace 3, step-free",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "profile": {
+    "research": "I study haptic feedback for virtual reality to help older adults exercise at home",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality",
+     "older adults",
+     "exercise"
+    ],
+    "step_free": true,
+    "pace": "balanced"
+   }
+  }
+ },
+ {
+  "id": "A09",
+  "screen": "route",
+  "desc": "03 pace 5 packed",
+  "input": {
+   "screen": "route",
+   "day": "wed",
+   "profile": {
+    "research": "LLM coding assistants for novice programmers",
+    "pace": "full"
+   }
+  }
+ },
+ {
+  "id": "A10",
+  "screen": "route",
+  "desc": "03 pace 1, papers only",
+  "input": {
+   "screen": "route",
+   "day": "wed",
+   "profile": {
+    "research": "accessible indoor navigation for blind people",
+    "pace": "light",
+    "tracks": [
+     "Papers"
+    ]
+   }
+  }
+ },
+ {
+  "id": "A11",
+  "screen": "route",
+  "desc": "03 added talk overlaps -> Keep one",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ]
+   },
+   "state": {
+    "added": [
+     {
+      "id": 222323,
+      "from": "More picks"
+     }
+    ]
+   }
+  },
+  "expect_overlap": true
+ },
+ {
+  "id": "A12",
+  "screen": "route",
+  "desc": "03 removed stop stays out",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ]
+   },
+   "state": {
+    "removed": [
+     222748
+    ]
+   }
+  },
+  "expect_absent": [
+   222748
+  ]
+ },
+ {
+  "id": "A13",
+  "screen": "route",
+  "desc": "03 departure banner with now",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "now": "2026-04-14T11:30:00+02:00",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ]
+   }
+  },
+  "expect_next": true
+ },
+ {
+  "id": "A14",
+  "screen": "route",
+  "desc": "03 re-plan with filters (country)",
+  "input": {
+   "screen": "route",
+   "day": "wed",
+   "profile": {
+    "research": "privacy in wearable cameras"
+   },
+   "filters": {
+    "countries": [
+     "United States"
+    ]
+   }
+  }
+ },
+ {
+  "id": "A15",
+  "screen": "more",
+  "desc": "03-2 more picks + people to meet",
+  "input": {
+   "screen": "more",
+   "day": "tue",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ]
+   }
+  }
+ },
+ {
+  "id": "A16",
+  "screen": "filters",
+  "desc": "04 CMU -> Carnegie Mellon",
+  "input": {
+   "screen": "filters",
+   "day": "tue",
+   "institution_query": "CMU",
+   "profile": {
+    "research": "LLM coding assistants for novice programmers"
+   },
+   "filters": {
+    "institutions": [
+     "CMU"
+    ]
+   }
+  },
+  "expect_institution": "Carnegie Mellon University"
+ },
+ {
+  "id": "A17",
+  "screen": "filters",
+  "desc": "04 postech",
+  "input": {
+   "screen": "filters",
+   "day": "wed",
+   "institution_query": "postech",
+   "profile": {
+    "research": "haptics"
+   }
+  },
+  "expect_institution": "Pohang University of Science and Technology"
+ },
+ {
+  "id": "A18",
+  "screen": "search",
+  "desc": "05 person name",
+  "input": {
+   "screen": "search",
+   "q": "geehyuk"
+  },
+  "expect_people": "Geehyuk Lee"
+ },
+ {
+  "id": "A19",
+  "screen": "search",
+  "desc": "05 topic",
+  "input": {
+   "screen": "search",
+   "q": "mental health chatbots"
+  }
+ },
+ {
+  "id": "A20",
+  "screen": "search",
+  "desc": "05 by institution",
+  "input": {
+   "screen": "search",
+   "q": "postech",
+   "by": "institution"
+  },
+  "expect_papers": 10
+ },
+ {
+  "id": "A21",
+  "screen": "search",
+  "desc": "05 presenting on Wed",
+  "input": {
+   "screen": "search",
+   "q": "wed",
+   "by": "day"
+  }
+ },
+ {
+  "id": "A22",
+  "screen": "search",
+  "desc": "05 field / major",
+  "input": {
+   "screen": "search",
+   "q": "industrial design",
+   "by": "field"
+  }
+ },
+ {
+  "id": "A23",
+  "screen": "paper",
+  "desc": "06 detail with profile + directions",
+  "input": {
+   "screen": "paper",
+   "id": 222748,
+   "from_room": "P1 - Room 134",
+   "profile": {
+    "research": "haptic feedback for virtual reality"
+   }
+  }
+ },
+ {
+  "id": "A24",
+  "screen": "paper",
+  "desc": "06 poster without profile",
+  "input": {
+   "screen": "paper",
+   "id": 230103
+  }
+ },
+ {
+  "id": "A25",
+  "screen": "author",
+  "desc": "07 author page",
+  "input": {
+   "screen": "author",
+   "name": "Geehyuk Lee",
+   "profile": {
+    "research": "haptic feedback for virtual reality"
+   }
+  }
+ },
+ {
+  "id": "A26",
+  "screen": "author",
+  "desc": "07 lower-case name",
+  "input": {
+   "screen": "author",
+   "name": "seungmoon choi"
+  }
+ },
+ {
+  "id": "A27",
+  "screen": "wrapup",
+  "desc": "08 day wrap-up",
+  "input": {
+   "screen": "wrapup",
+   "day": "tue",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ],
+    "days": [
+     "tue",
+     "wed"
+    ]
+   },
+   "state": {
+    "saved": [
+     222748,
+     222512,
+     230103
+    ],
+    "attended": [
+     222748,
+     222512
+    ],
+    "opened_authors": [
+     "Geehyuk Lee"
+    ]
+   }
+  }
+ },
+ {
+  "id": "A28",
+  "screen": "getting_there",
+  "desc": "09 other level, step-free",
+  "input": {
+   "screen": "getting_there",
+   "from_room": "P1 - Room 119",
+   "to_room": "Area 1 + 2 + 3: posters",
+   "next_start": "2026-04-14T16:15:00+02:00"
+  }
+ },
+ {
+  "id": "A29",
+  "screen": "getting_there",
+  "desc": "09 same level",
+  "input": {
+   "screen": "getting_there",
+   "from_room": "P1 - Room 119",
+   "to_room": "P1 - Room 134"
+  }
+ },
+ {
+  "id": "AE1",
+  "screen": "error",
+  "desc": "unknown screen",
+  "input": {
+   "screen": "home"
+  },
+  "expect": "error"
+ },
+ {
+  "id": "AE3",
+  "screen": "error",
+  "desc": "day outside the conference",
+  "input": {
+   "screen": "route",
+   "day": "saturday",
+   "research": "haptics"
+  },
+  "expect": "error"
+ },
+ {
+  "id": "AE4",
+  "screen": "error",
+  "desc": "pace 7",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "profile": {
+    "research": "haptics",
+    "pace": 7
+   }
+  },
+  "expect": "error"
+ },
+ {
+  "id": "AE5",
+  "screen": "error",
+  "desc": "unknown track",
+  "input": {
+   "screen": "days",
+   "profile": {
+    "research": "haptics",
+    "tracks": [
+     "Talks"
+    ]
+   }
+  },
+  "expect": "error"
+ },
+ {
+  "id": "AE6",
+  "screen": "error",
+  "desc": "unknown paper id",
+  "input": {
+   "screen": "paper",
+   "id": 1
+  },
+  "expect": "error"
+ },
+ {
+  "id": "AE7",
+  "screen": "error",
+  "desc": "unknown author",
+  "input": {
+   "screen": "author",
+   "name": "Nobody Atall"
+  },
+  "expect": "error"
+ },
+ {
+  "id": "AE8",
+  "screen": "error",
+  "desc": "unknown room",
+  "input": {
+   "screen": "getting_there",
+   "from_room": "Room 999",
+   "to_room": "P1 - Room 119"
+  },
+  "expect": "error"
+ },
+ {
+  "id": "AE9",
+  "screen": "error",
+  "desc": "state with unknown id",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "research": "haptics",
+   "state": {
+    "saved": [
+     5
+    ]
+   }
+  },
+  "expect": "error"
+ },
+ {
+  "id": "AE10",
+  "screen": "error",
+  "desc": "broken JSON",
+  "raw": "{\"screen\": \"meta\"",
+  "expect": "error"
+ },
+ {
+  "id": "A30",
+  "screen": "route",
+  "desc": "v2 03 · No plan yet",
+  "input": {
+   "screen": "route",
+   "day": "tue"
+  },
+  "expect_state": "no_plan"
+ },
+ {
+  "id": "A31",
+  "screen": "route",
+  "desc": "v2 03 · Not attending",
+  "input": {
+   "screen": "route",
+   "day": "mon",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ],
+    "days": [
+     "tue",
+     "wed"
+    ],
+    "step_free": true
+   }
+  },
+  "expect_state": "not_attending"
+ },
+ {
+  "id": "A32",
+  "screen": "route",
+  "desc": "v2 03 · Up first (before the day)",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "now": "2026-04-14T08:30:00+02:00",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ],
+    "days": [
+     "tue",
+     "wed"
+    ],
+    "step_free": true
+   }
+  },
+  "expect_state": "today",
+  "expect_card": "FIRST STOP"
+ },
+ {
+  "id": "A33",
+  "screen": "route",
+  "desc": "v2 03 · Leave now (minutes before)",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "now": "2026-04-14T11:15:00+02:00",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ],
+    "days": [
+     "tue",
+     "wed"
+    ],
+    "step_free": true
+   }
+  },
+  "expect_card": "LEAVE NOW"
+ },
+ {
+  "id": "A34",
+  "screen": "route",
+  "desc": "v2 03 · Now (during a stop)",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "now": "2026-04-14T11:30:00+02:00",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ],
+    "days": [
+     "tue",
+     "wed"
+    ],
+    "step_free": true
+   }
+  },
+  "expect_card": "NOW"
+ },
+ {
+  "id": "A35",
+  "screen": "route",
+  "desc": "v2 03 · Other day (preview)",
+  "input": {
+   "screen": "route",
+   "day": "wed",
+   "now": "2026-04-14T10:00:00+02:00",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ],
+    "days": [
+     "tue",
+     "wed"
+    ],
+    "step_free": true
+   }
+  },
+  "expect_state": "preview"
+ },
+ {
+  "id": "A36",
+  "screen": "route",
+  "desc": "v2 03 · Day done + next day",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "now": "2026-04-14T21:00:00+02:00",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ],
+    "days": [
+     "tue",
+     "wed"
+    ],
+    "step_free": true
+   }
+  },
+  "expect_state": "day_done"
+ },
+ {
+  "id": "A37",
+  "screen": "route",
+  "desc": "v2 03 · Removed leaves a free slot",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ],
+    "days": [
+     "tue",
+     "wed"
+    ],
+    "step_free": true
+   },
+   "state": {
+    "removed": [
+     222748
+    ]
+   }
+  },
+  "expect_gap": true
+ },
+ {
+  "id": "A38",
+  "screen": "more",
+  "desc": "v2 03-2 · picks for one free slot",
+  "input": {
+   "screen": "more",
+   "day": "tue",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ],
+    "days": [
+     "tue",
+     "wed"
+    ],
+    "step_free": true
+   },
+   "gap": {
+    "start": "16:10",
+    "end": "16:40"
+   }
+  },
+  "expect_fit": [
+   "16:10",
+   "16:40"
+  ]
+ },
+ {
+  "id": "A39",
+  "screen": "more",
+  "desc": "v2 03-2 · Nothing fits",
+  "input": {
+   "screen": "more",
+   "day": "tue",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ],
+    "days": [
+     "tue",
+     "wed"
+    ],
+    "step_free": true
+   },
+   "gap": {
+    "start": "12:31",
+    "end": "12:40"
+   }
+  },
+  "expect_state": "nothing_fits"
+ },
+ {
+  "id": "A40",
+  "screen": "session_live",
+  "desc": "v2 10 · arrived late",
+  "input": {
+   "screen": "session_live",
+   "id": 222748,
+   "now": "2026-04-14T11:39:00+02:00"
+  },
+  "expect_state": "live"
+ },
+ {
+  "id": "A41",
+  "screen": "search",
+  "desc": "v2 05 · query + filters (KAIST, Wed)",
+  "input": {
+   "screen": "search",
+   "q": "haptic",
+   "filters": {
+    "institutions": [
+     "kaist"
+    ],
+    "days": [
+     "wed"
+    ]
+   }
+  }
+ },
+ {
+  "id": "A42",
+  "screen": "search",
+  "desc": "v2 05 · No results",
+  "input": {
+   "screen": "search",
+   "q": "quantum chromodynamics lattice",
+   "filters": {
+    "institutions": [
+     "Carnegie Mellon University"
+    ],
+    "days": [
+     "wed"
+    ]
+   }
+  },
+  "expect_state": "no_results"
+ },
+ {
+  "id": "A43",
+  "screen": "getting_there",
+  "desc": "v2 11 · from the registration desk",
+  "input": {
+   "screen": "getting_there",
+   "from_room": "registration desk",
+   "to_room": "P1 - Room 134"
+  }
+ },
+ {
+  "id": "AE11",
+  "screen": "error",
+  "desc": "session_live without now",
+  "input": {
+   "screen": "session_live",
+   "id": 222748
+  },
+  "expect": "error"
+ },
+ {
+  "id": "AE12",
+  "screen": "error",
+  "desc": "bad gap",
+  "input": {
+   "screen": "more",
+   "day": "tue",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "keywords": [
+     "haptic feedback",
+     "virtual reality"
+    ],
+    "days": [
+     "tue",
+     "wed"
+    ],
+    "step_free": true
+   },
+   "gap": {
+    "start": "late"
+   }
+  },
+  "expect": "error"
+ },
+ {
+  "id": "A44",
+  "screen": "route",
+  "desc": "10/24 overlaps as sub-nodes · alternatives under stops",
+  "input": {
+   "screen": "route",
+   "day": "wed",
+   "profile": {
+    "research": "haptic feedback for VR",
+    "pace": "balanced"
+   }
+  },
+  "expect_alternatives": true
+ },
+ {
+  "id": "A45",
+  "screen": "route",
+  "desc": "10/24 research question only (no day, no keywords)",
+  "input": {
+   "screen": "route",
+   "profile": {
+    "research": "How can older adults use voice assistants for health?"
+   }
+  }
+ },
+ {
+  "id": "A46",
+  "screen": "route",
+  "desc": "10/24 planner best (highest total score)",
+  "input": {
+   "screen": "route",
+   "day": "wed",
+   "planner": "best",
+   "profile": {
+    "research": "LLM coding assistants for novice programmers",
+    "pace": "full"
+   }
+  }
+ },
+ {
+  "id": "A47",
+  "screen": "clusters",
+  "desc": "08 clusters for a profile",
+  "input": {
+   "screen": "clusters",
+   "profile": {
+    "research": "haptic feedback for VR"
+   },
+   "state": {
+    "saved": [
+     229707
+    ]
+   }
+  },
+  "expect_yours": true
+ },
+ {
+  "id": "A48",
+  "screen": "clusters",
+  "desc": "08 clusters, no profile (map view)",
+  "input": {
+   "screen": "clusters"
+  }
+ },
+ {
+  "id": "A49",
+  "screen": "clusters",
+  "desc": "one cluster, talks ranked for the profile",
+  "input": {
+   "screen": "clusters",
+   "cluster": "c00",
+   "top_k": 5,
+   "profile": {
+    "research": "haptic feedback for VR"
+   }
+  }
+ },
+ {
+  "id": "AE12b",
+  "screen": "error",
+  "desc": "unknown planner",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "planner": "optimal",
+   "profile": {
+    "research": "haptics"
+   }
+  },
+  "expect": "error"
+ },
+ {
+  "id": "AE13",
+  "screen": "error",
+  "desc": "unknown cluster",
+  "input": {
+   "screen": "clusters",
+   "cluster": "c99"
+  },
+  "expect": "error"
+ },
+ {
+  "id": "A50",
+  "screen": "route",
+  "desc": "11/7 grades + choices 1-3 under each stop",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "profile": {
+    "research": "haptic feedback for virtual reality"
+   }
+  },
+  "expect_options": true
+ },
+ {
+  "id": "A51",
+  "screen": "start",
+  "desc": "11/7 start: pick or recommend, shelves (no profile)",
+  "input": {
+   "screen": "start"
+  }
+ },
+ {
+  "id": "A52",
+  "screen": "start",
+  "desc": "11/7 start with picks: shelf like your picks",
+  "input": {
+   "screen": "start",
+   "state": {
+    "cart": [
+     222748,
+     230197
+    ]
+   }
+  }
+ },
+ {
+  "id": "A53",
+  "screen": "browse",
+  "desc": "11/7 browse a topic: its sub-topics",
+  "input": {
+   "screen": "browse",
+   "shelf": "topic:c14"
+  }
+ },
+ {
+  "id": "A54",
+  "screen": "browse",
+  "desc": "11/7 browse a sub-topic ranked for research",
+  "input": {
+   "screen": "browse",
+   "shelf": "topic:c14.2",
+   "research": "haptic feedback",
+   "top_k": 5
+  }
+ },
+ {
+  "id": "A55",
+  "screen": "browse",
+  "desc": "11/7 browse demos, unpersonalized, page 2",
+  "input": {
+   "screen": "browse",
+   "shelf": "demos",
+   "top_k": 5,
+   "offset": 5
+  }
+ },
+ {
+  "id": "A56",
+  "screen": "plan",
+  "desc": "11/7 picks -> plan per day, clash as choice 2-3",
+  "input": {
+   "screen": "plan",
+   "state": {
+    "cart": [
+     222748,
+     222040,
+     221933,
+     222531,
+     230197
+    ]
+   }
+  },
+  "expect_clash": true
+ },
+ {
+  "id": "A57",
+  "screen": "plan",
+  "desc": "11/7 plan one day, ranked by research",
+  "input": {
+   "screen": "plan",
+   "day": "tue",
+   "research": "haptic feedback for virtual reality",
+   "state": {
+    "cart": [
+     222748,
+     222040,
+     221933,
+     222531,
+     230197,
+     230103
+    ]
+   }
+  }
+ },
+ {
+  "id": "A58",
+  "screen": "clusters",
+  "desc": "11/7 sub-topic detail with path",
+  "input": {
+   "screen": "clusters",
+   "cluster": "c14.2",
+   "research": "haptic feedback for VR"
+  }
+ },
+ {
+  "id": "A59",
+  "screen": "clusters",
+  "desc": "11/7 where my recommendations sit",
+  "input": {
+   "screen": "clusters",
+   "research": "privacy in wearable cameras"
+  }
+ },
+ {
+  "id": "AE14",
+  "screen": "error",
+  "desc": "unknown shelf",
+  "input": {
+   "screen": "browse",
+   "shelf": "bestsellers"
+  },
+  "expect": "error"
+ },
+ {
+  "id": "AE15",
+  "screen": "error",
+  "desc": "plan without picks",
+  "input": {
+   "screen": "plan"
+  },
+  "expect": "error"
+ },
+ {
+  "id": "AE16",
+  "screen": "error",
+  "desc": "unknown sub-topic",
+  "input": {
+   "screen": "clusters",
+   "cluster": "c14.9"
+  },
+  "expect": "error"
+ },
+ {
+  "id": "A60",
+  "screen": "route",
+  "desc": "v3 O-4 needs: step-free, fewer room changes, breaks",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "profile": {
+    "research": "haptic feedback for virtual reality",
+    "needs": [
+     "step_free",
+     "fewer_room_changes",
+     "breaks"
+    ]
+   }
+  }
+ },
+ {
+  "id": "A61",
+  "screen": "route",
+  "desc": "v3 03-D NOW card: talk of the session, missed talks",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "now": "2026-04-14T11:28:00+02:00",
+   "profile": {
+    "research": "haptic feedback for virtual reality"
+   }
+  },
+  "expect_card": "NOW"
+ },
+ {
+  "id": "A62",
+  "screen": "places",
+  "desc": "v3 09-1 where are you now",
+  "input": {
+   "screen": "places",
+   "last_room": "P1 - Room 119",
+   "top_k": 5
+  }
+ },
+ {
+  "id": "A63",
+  "screen": "questions",
+  "desc": "v3 11 questions for a talk",
+  "input": {
+   "screen": "questions",
+   "id": 222748
+  }
+ },
+ {
+  "id": "AE17",
+  "screen": "error",
+  "desc": "unknown need",
+  "input": {
+   "screen": "route",
+   "day": "tue",
+   "profile": {
+    "research": "haptics",
+    "needs": [
+     "teleport"
+    ]
+   }
+  },
+  "expect": "error"
+ }
+]

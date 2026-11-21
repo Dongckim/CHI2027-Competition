@@ -1,0 +1,1135 @@
+{
+ "sweep": [
+  {
+   "k": 16,
+   "silhouette": 0.0629,
+   "nmi_vs_sessions": 0.4108,
+   "min_size": 103,
+   "max_size": 227
+  },
+  {
+   "k": 20,
+   "silhouette": 0.0667,
+   "nmi_vs_sessions": 0.436,
+   "min_size": 89,
+   "max_size": 188
+  },
+  {
+   "k": 24,
+   "silhouette": 0.0616,
+   "nmi_vs_sessions": 0.4534,
+   "min_size": 82,
+   "max_size": 158
+  },
+  {
+   "k": 28,
+   "silhouette": 0.0619,
+   "nmi_vs_sessions": 0.4717,
+   "min_size": 68,
+   "max_size": 145
+  },
+  {
+   "k": 32,
+   "silhouette": 0.0636,
+   "nmi_vs_sessions": 0.4995,
+   "min_size": 39,
+   "max_size": 133
+  },
+  {
+   "k": 40,
+   "silhouette": 0.062,
+   "nmi_vs_sessions": 0.505,
+   "min_size": 31,
+   "max_size": 109
+  },
+  {
+   "k": 48,
+   "silhouette": 0.0597,
+   "nmi_vs_sessions": 0.5373,
+   "min_size": 35,
+   "max_size": 92
+  }
+ ],
+ "chosen_k": 20,
+ "sizes": [
+  188,
+  175,
+  169,
+  168,
+  166,
+  160,
+  157,
+  157,
+  154,
+  143,
+  141,
+  137,
+  132,
+  118,
+  111,
+  107,
+  103,
+  96,
+  93,
+  89
+ ],
+ "clusters": [
+  {
+   "id": "c19",
+   "label": "Artificial Intelligence · Human-Ai",
+   "size": 188,
+   "keywords": [
+    "artificial intelligence",
+    "human-ai",
+    "ethics",
+    "responsible",
+    "impact",
+    "collaboration",
+    "role",
+    "trust"
+   ],
+   "top_sessions": [
+    "Human-AI Decision Making",
+    "AI Governance and Safety",
+    "Relationships with AI"
+   ],
+   "examples": [
+    "Understanding, Mitigating, and Leveraging Cognitive Biases to Calibrate Trust in Evolving AI Systems",
+    "Regulating AI: Where U.S. State Policy and HCI (Mis)align",
+    "Understanding AI Developers' Decision Making in Design: The Role of Working Conditions and Uncertainty Mindset"
+   ]
+  },
+  {
+   "id": "c02",
+   "label": "Llm · Large Language",
+   "size": 175,
+   "keywords": [
+    "llm",
+    "large language",
+    "language models",
+    "agents",
+    "trust",
+    "show",
+    "evaluating",
+    "chatbot"
+   ],
+   "top_sessions": [
+    "Conversational AI",
+    "Explaining and Evaluating AI Systems",
+    "Human Behavior with AI Systems"
+   ],
+   "examples": [
+    "The Impact of Response Latency and Task Type on Human-LLM Interaction and Perception",
+    "An Expert Schema for Evaluating Large Language Model Errors in Scholarly Question-Answering Systems",
+    "Seeing the Reasoning: How LLM Rationales Influence User Trust and Decision-Making in Factual Verification Tasks"
+   ]
+  },
+  {
+   "id": "c01",
+   "label": "Practices · Community",
+   "size": 169,
+   "keywords": [
+    "practices",
+    "community",
+    "perspectives",
+    "designers",
+    "designing",
+    "meet-up",
+    "shared",
+    "has"
+   ],
+   "top_sessions": [
+    "Methods, Reviews & Ethical Futures",
+    "More-than-Human & Multispecies Design",
+    "Student Mentoring Program: Dissertation Research Roundtable"
+   ],
+   "examples": [
+    "Bringing Theory Back Home: Revisiting the Pre-Millennial Legacy of Posthumanism in Interaction Design",
+    "Knots & Flows: An Engagement Design Meet-Up",
+    "Growing Bio-HCI at CHI: Exchanging Materials, Tools, Practices, and Artifacts"
+   ]
+  },
+  {
+   "id": "c04",
+   "label": "Creative · Generative",
+   "size": 168,
+   "keywords": [
+    "creative",
+    "generative",
+    "creativity",
+    "collaboration",
+    "generation",
+    "human-ai",
+    "writing",
+    "creation"
+   ],
+   "top_sessions": [
+    "AI-Driven Creativity & Design Methods",
+    "Human-AI Interaction & GenAI",
+    "Role Play, Creativity and AI"
+   ],
+   "examples": [
+    "Visual Storytelling Beyond the Human: Co-Creation, Culture, and Futures",
+    "How Do Human Creators Embrace Human-AI Co-Creation? A Perspective on Human Agency of Screenwriters",
+    "Human-GenAI Collaboration in Creative Tasks: Creative Industry Perspective"
+   ]
+  },
+  {
+   "id": "c11",
+   "label": "Virtual Reality · Immersive",
+   "size": 166,
+   "keywords": [
+    "virtual reality",
+    "immersive",
+    "environments",
+    "effects",
+    "conducted",
+    "significantly",
+    "physical",
+    "presence"
+   ],
+   "top_sessions": [
+    "Social VR",
+    "Extended Reality & Immersive Systems",
+    "VR and Immersive Technologies for Mental Health"
+   ],
+   "examples": [
+    "Finger Tendon Vibration: Finger Movement Illusions for Immersive Virtual Object Interaction",
+    "Determining Perception Thresholds for Real and Virtual Inclinations While Cycling in Virtual Reality",
+    "Anticipating Physical Processes in VR: Environment Type and Scale Alter Temporal Expectations"
+   ]
+  },
+  {
+   "id": "c10",
+   "label": "Conversational · Chatbot",
+   "size": 160,
+   "keywords": [
+    "conversational",
+    "chatbot",
+    "agents",
+    "communication",
+    "emotional",
+    "social",
+    "relationships",
+    "perceived"
+   ],
+   "top_sessions": [
+    "Romance and Relationships in the Age of AI",
+    "Conversational AI, Agency and Control",
+    "Reception and Interactivity Demos"
+   ],
+   "examples": [
+    "Does My Chatbot Have an Agenda? Understanding Human and AI Agency in Human-Human-like Chatbot Interaction",
+    "When Do AI-powered Service Chatbots Feel Natural? The Role of Conversational Embodiment and Relational Orientation",
+    "Two Bots, One Couple: How Surrogate LLM Agents Shape Alliance, Fairness, and Relational Boundaries"
+   ]
+  },
+  {
+   "id": "c14",
+   "label": "Haptic · Tactile",
+   "size": 157,
+   "keywords": [
+    "haptic",
+    "tactile",
+    "touch",
+    "device",
+    "feedback",
+    "input",
+    "wearable",
+    "hand"
+   ],
+   "top_sessions": [
+    "Reception and Interactivity Demos",
+    "Haptic, Touch, and Physical Display",
+    "Electrical Stimulation"
+   ],
+   "examples": [
+    "TactileWalk: Dynamic Electrotactile Patterns for Fingertip-Based Interaction During Walking",
+    "HaRing: A Haptic Ring Interface for One-Handed Interaction with High-Dimensional Spatial Information",
+    "MagBall: Magnetic Rollerball for Multi-Scale Contact Interactions on Diverse Surfaces"
+   ]
+  },
+  {
+   "id": "c15",
+   "label": "Education · Learning",
+   "size": 157,
+   "keywords": [
+    "education",
+    "learning",
+    "students",
+    "teaching",
+    "learners",
+    "teachers",
+    "pedagogical",
+    "school"
+   ],
+   "top_sessions": [
+    "AI Tutors and Learning Support Systems",
+    "Generative AI in Education",
+    "AI for Language Learning & Communication Skills"
+   ],
+   "examples": [
+    "Exploring Teacher-Chatbot Interaction and Affect in Block-Based Programming",
+    "From Code Generation to Conceptual Learning: Student Use of LLMs in a Web Programming Course",
+    "AI meets Mathematics Education: Supporting Instructors in Large Mathematics Classes with Context-Aware AI"
+   ]
+  },
+  {
+   "id": "c03",
+   "label": "Visualization · Interactive",
+   "size": 154,
+   "keywords": [
+    "visualization",
+    "interactive",
+    "techniques",
+    "exploration",
+    "text",
+    "interface",
+    "information",
+    "accuracy"
+   ],
+   "top_sessions": [
+    "Designing Data Visualizations",
+    "Data Visualization Designs and Tools",
+    "Perception & Cognition in Data Visualization"
+   ],
+   "examples": [
+    "Vis-OntoQ: An Ontology-Guided Framework to Support Non-Expert Analysts Formulating Data Questions during Visual Exploration",
+    "Automating Chart Annotations for Data Storytelling: Does It Enhance the Efficiency and Effectiveness of Chart Interpretation?",
+    "Automatic Synthesis of Visualization Design Knowledge Bases"
+   ]
+  },
+  {
+   "id": "c08",
+   "label": "Social Media · Content",
+   "size": 143,
+   "keywords": [
+    "social media",
+    "content",
+    "platforms",
+    "moderation",
+    "community",
+    "strategies",
+    "has",
+    "engagement"
+   ],
+   "top_sessions": [
+    "Scam Experiences",
+    "Social Media Feeds and Algorithms",
+    "Social Media"
+   ],
+   "examples": [
+    "Bans vs. Warning Labels: Examining Bystanders’ Support for Community-wide Moderation Interventions",
+    "\"Social Media Killed Our Generation\": Teenagers' Felt Experiences of Harm on Social Media",
+    "Collective Privacy Sensemaking of Everyday Lived Experiences: A Study of Reddit and Discord Teen Communities"
+   ]
+  },
+  {
+   "id": "c16",
+   "label": "Health · Tracking",
+   "size": 141,
+   "keywords": [
+    "health",
+    "tracking",
+    "monitoring",
+    "daily",
+    "time",
+    "well-being",
+    "tech",
+    "activity"
+   ],
+   "top_sessions": [
+    "Mindfulness, Breathing, and Biofeedback Technologies",
+    "Behavior (Change) and Wellbeing",
+    "Self-Tracking and Personal Health Informatics"
+   ],
+   "examples": [
+    "The Spoonful Workday: Investigating Smartwatch-Supported Energy Management and Its Reflections on Break Behavior",
+    "\"In my defense, only three hours on Instagram\": Designing Toward Digital Self-Awareness and Wellbeing",
+    "Demonstrating Adaptive Cardio-Respiratory Biofeedback Training using a Smart Ring"
+   ]
+  },
+  {
+   "id": "c12",
+   "label": "Community · Communities",
+   "size": 137,
+   "keywords": [
+    "community",
+    "communities",
+    "practices",
+    "infrastructures",
+    "power",
+    "sociotechnical",
+    "platforms",
+    "drawing"
+   ],
+   "top_sessions": [
+    "Context-specific Studies and Perspectives",
+    "Labor, Equity and the Hidden Economy",
+    "Justice, Surveillance and Marginalized Identities"
+   ],
+   "examples": [
+    "Data-Driven Policymaking: Understanding the Needs and Preferences of Disadvantaged Communities",
+    "From Distribution to Contribution: Negotiating Justice Policies in Grassroots FOSS Communities",
+    "Data Migration in HCI: The Politics of Invisible Borders, Informal Networks, and Immigrants’ Data"
+   ]
+  },
+  {
+   "id": "c13",
+   "label": "Healthcare · Clinical",
+   "size": 132,
+   "keywords": [
+    "healthcare",
+    "clinical",
+    "patients",
+    "mental health",
+    "medical",
+    "clinicians",
+    "designing",
+    "therapy"
+   ],
+   "top_sessions": [
+    "AI Explanations and Decision Support in Healthcare",
+    "Emergency and Serious Illness Care",
+    "Family Caregiving and Support Technologies"
+   ],
+   "examples": [
+    "Balancing Efficiency and Empathy: Healthcare Providers' Perspectives on AI-Supported Workflows for Serious Illness Conversations in the Emergency Department",
+    "Self-management for Chronic Illness: A Scoping Review on Designing Virtual Assistants for Patient-Centered Care",
+    "More than Decision Support: Exploring Patients' Longitudinal Usage of Large Language Models in Real-World Healthcare Settings"
+   ]
+  },
+  {
+   "id": "c09",
+   "label": "Accessibility · Blind",
+   "size": 118,
+   "keywords": [
+    "accessibility",
+    "blind",
+    "assistive",
+    "visually impaired",
+    "inclusive",
+    "accessible",
+    "low vision",
+    "disability"
+   ],
+   "top_sessions": [
+    "Power, Values, and the Politics of Accessibility",
+    "Practical and Adaptive Accessibility",
+    "Reading and Writing Accessibility"
+   ],
+   "examples": [
+    "Access Is Not Enough: Toward Developmental Flourishing",
+    "Exploring AI Opportunities in Deaf Education: Understanding Design Needs Through Teacher and Parent Perspectives in Bangladesh",
+    "\"Google Maps can say a lot of things, but it cannot guide us properly\": Exploring Technology Inaccessibility for People with Visual Impairments in Bangladesh"
+   ]
+  },
+  {
+   "id": "c18",
+   "label": "Robot · Driving",
+   "size": 111,
+   "keywords": [
+    "robot",
+    "driving",
+    "vehicle",
+    "autonomous",
+    "driver",
+    "safety",
+    "social",
+    "interface"
+   ],
+   "top_sessions": [
+    "Safe Driving",
+    "Human-Robot Interaction & Embodied Sensing",
+    "Driving Innovation"
+   ],
+   "examples": [
+    "Human-Robot Companionship in the Forest: Understanding the Effects of Engagement and Authority",
+    "Walking with robots: Video analysis of human-robot interactions in transit spaces",
+    "Don't Worry, Just Follow Me: Prototyping and In-the-Wild Evaluation of Smart Pole Interaction Unit with Mobility"
+   ]
+  },
+  {
+   "id": "c17",
+   "label": "Reality · Augmented",
+   "size": 107,
+   "keywords": [
+    "reality",
+    "augmented",
+    "extended",
+    "mixed",
+    "physical",
+    "spatial",
+    "virtual",
+    "visual"
+   ],
+   "top_sessions": [
+    "Reception and Interactivity Demos",
+    "Extended Reality & Immersive Systems II",
+    "Student Mentoring Program: Dissertation Research Roundtable"
+   ],
+   "examples": [
+    "The Co-Living between Reality and Virtuality as a Daily Routine",
+    "Advancing Co-located and Distributed Multi-user Mixed Reality",
+    "DoubleMe: Local Blending in Multi-Display Environments with Augmented Reality to Facilitate Co-Located Collaboration"
+   ]
+  },
+  {
+   "id": "c07",
+   "label": "Privacy · Security",
+   "size": 103,
+   "keywords": [
+    "privacy",
+    "security",
+    "concerns",
+    "risks",
+    "protection",
+    "consent",
+    "sensitive",
+    "personal"
+   ],
+   "top_sessions": [
+    "Privacy Risks and Perceptions",
+    "Security and Privacy Behavior",
+    "Privacy Policies"
+   ],
+   "examples": [
+    "Beyond Privacy Labels: How Users Perceive Different Information Sources for Understanding App's Privacy Practices",
+    "\"Privacy across the boundary\": Examining Perceived Privacy Risk Across Data Transmission and Sharing Ranges of Smart Home Personal Assistants",
+    "Tinker, Tailor, Trust: How Developers Create Privacy Policies With and Without AI"
+   ]
+  },
+  {
+   "id": "c06",
+   "label": "Fabrication · Printing",
+   "size": 96,
+   "keywords": [
+    "fabrication",
+    "printing",
+    "printed",
+    "workflow",
+    "prototyping",
+    "enables",
+    "process",
+    "allows"
+   ],
+   "top_sessions": [
+    "Reception and Interactivity Demos",
+    "Tangible Interfaces for Electronics, PCBs, and Physical Computing",
+    "Interactive Design Systems for Fabrication"
+   ],
+   "examples": [
+    "MetAct: Fabrication Technique for Interactive 3D Objects Using Low-Melting-Point Metal Extrusion on Standard FDM 3D Printers",
+    "Zip-up Print: Rapid and Assemblable 3D printing Using 2D Flattened Zipper-like Structures",
+    "EmbroForm: Digital Fabrication of Soft Freeform Objects with Machine Embroidered Pull-up Strings"
+   ]
+  },
+  {
+   "id": "c05",
+   "label": "Sound · Audio",
+   "size": 93,
+   "keywords": [
+    "sound",
+    "audio",
+    "music",
+    "auditory",
+    "acoustic",
+    "cues",
+    "speech",
+    "real-time"
+   ],
+   "top_sessions": [
+    "Wearable, Audio and Novel Interactive Devices",
+    "Eating Behaviors and Food-Related Technologies",
+    "Reception and Interactivity Demos"
+   ],
+   "examples": [
+    "Touch Through Sound: Ring-Mounted Auditory Pseudo-Haptics for Material Perception",
+    "FingerBar: A Mid-Air Touch Bar Interface for Earphones Using Finger-Generated Acoustics",
+    "SoundSpace: What and Where Through Sound"
+   ]
+  },
+  {
+   "id": "c00",
+   "label": "Game · Players",
+   "size": 89,
+   "keywords": [
+    "game",
+    "players",
+    "gaming",
+    "mechanics",
+    "playing",
+    "impact",
+    "behavior",
+    "video"
+   ],
+   "top_sessions": [
+    "Designing Player Experience",
+    "Toxicity and Moderation in Online Games",
+    "Youth, Families, and Safe Play"
+   ],
+   "examples": [
+    "Game Changers: Exploring Player Perspectives of Digital Game Modification",
+    "Characterising Gaming Group Experiences",
+    "Are Serious Games Engaging? A Case of Motivating Sustainable Household Practices"
+   ]
+  }
+ ],
+ "subclusters": [
+  {
+   "id": "c19",
+   "label": "AI Ethics & Trust",
+   "k": 5,
+   "silhouette": 0.0578,
+   "subs": [
+    [
+     "c19.1",
+     58,
+     "Responsible · Participatory"
+    ],
+    [
+     "c19.2",
+     38,
+     "Decision-Making · Human-Ai"
+    ],
+    [
+     "c19.3",
+     34,
+     "Agents · Perceptions"
+    ],
+    [
+     "c19.4",
+     29,
+     "Workers · Professional"
+    ],
+    [
+     "c19.5",
+     29,
+     "Trust · Ai-Generated"
+    ]
+   ]
+  },
+  {
+   "id": "c02",
+   "label": "LLM Evaluation",
+   "k": 5,
+   "silhouette": 0.0507,
+   "subs": [
+    [
+     "c02.1",
+     53,
+     "Large Language · Chatbot"
+    ],
+    [
+     "c02.2",
+     43,
+     "Large Language · Language Models"
+    ],
+    [
+     "c02.3",
+     30,
+     "Designers · Llm Agents"
+    ],
+    [
+     "c02.4",
+     25,
+     "Collaboration · Management"
+    ],
+    [
+     "c02.5",
+     24,
+     "News Articles · Large Language"
+    ]
+   ]
+  },
+  {
+   "id": "c01",
+   "label": "Design Practices",
+   "k": 5,
+   "silhouette": 0.0547,
+   "subs": [
+    [
+     "c01.1",
+     49,
+     "Community · Meet-Up"
+    ],
+    [
+     "c01.2",
+     34,
+     "Environmental · Ecological"
+    ],
+    [
+     "c01.3",
+     32,
+     "Ethics · Designers"
+    ],
+    [
+     "c01.4",
+     31,
+     "Older Adults · Family"
+    ],
+    [
+     "c01.5",
+     23,
+     "Speculative · Designers"
+    ]
+   ]
+  },
+  {
+   "id": "c04",
+   "label": "Human-AI Creativity",
+   "k": 5,
+   "silhouette": 0.0683,
+   "subs": [
+    [
+     "c04.1",
+     48,
+     "Designers · Workflows"
+    ],
+    [
+     "c04.2",
+     42,
+     "Creativity · Creative"
+    ],
+    [
+     "c04.3",
+     35,
+     "Writing · Human-Ai Collaboration"
+    ],
+    [
+     "c04.4",
+     25,
+     "Storytelling · Narrative"
+    ],
+    [
+     "c04.5",
+     18,
+     "Collaborative · Teams"
+    ]
+   ]
+  },
+  {
+   "id": "c11",
+   "label": "Virtual Reality Experiences",
+   "k": 5,
+   "silhouette": 0.0618,
+   "subs": [
+    [
+     "c11.1",
+     39,
+     "Virtual Reality · Technique"
+    ],
+    [
+     "c11.2",
+     39,
+     "Training · Virtual Reality"
+    ],
+    [
+     "c11.3",
+     32,
+     "Virtual Reality · Immersive"
+    ],
+    [
+     "c11.4",
+     29,
+     "Virtual Reality · Locomotion"
+    ],
+    [
+     "c11.5",
+     27,
+     "Avatar · Agents"
+    ]
+   ]
+  },
+  {
+   "id": "c10",
+   "label": "Conversational AI Relationships",
+   "k": 5,
+   "silhouette": 0.0433,
+   "subs": [
+    [
+     "c10.1",
+     44,
+     "Agent · Conversational"
+    ],
+    [
+     "c10.2",
+     37,
+     "Perceived · Conversational"
+    ],
+    [
+     "c10.3",
+     29,
+     "Emotional · Emotions"
+    ],
+    [
+     "c10.4",
+     25,
+     "Relationships · Relational"
+    ],
+    [
+     "c10.5",
+     25,
+     "Chatbots · Mental Health"
+    ]
+   ]
+  },
+  {
+   "id": "c14",
+   "label": "Tactile Interaction",
+   "k": 4,
+   "silhouette": 0.0722,
+   "subs": [
+    [
+     "c14.1",
+     51,
+     "Perception · Tactile"
+    ],
+    [
+     "c14.2",
+     45,
+     "Techniques · Objects"
+    ],
+    [
+     "c14.3",
+     38,
+     "Wearable · Devices"
+    ],
+    [
+     "c14.4",
+     23,
+     "Muscle Stimulation · Electrical Muscle"
+    ]
+   ]
+  },
+  {
+   "id": "c15",
+   "label": "AI in Education",
+   "k": 4,
+   "silhouette": 0.0556,
+   "subs": [
+    [
+     "c15.1",
+     43,
+     "Large Language · Language Models"
+    ],
+    [
+     "c15.2",
+     40,
+     "Generative · Educational"
+    ],
+    [
+     "c15.3",
+     38,
+     "Children · Kids"
+    ],
+    [
+     "c15.4",
+     36,
+     "Learning · Learners"
+    ]
+   ]
+  },
+  {
+   "id": "c03",
+   "label": "Data Visualization Techniques",
+   "k": 4,
+   "silhouette": 0.0324,
+   "subs": [
+    [
+     "c03.1",
+     50,
+     "Reading · Interactive"
+    ],
+    [
+     "c03.2",
+     42,
+     "Interface · Images"
+    ],
+    [
+     "c03.3",
+     32,
+     "Visualization · Comparison"
+    ],
+    [
+     "c03.4",
+     30,
+     "Visualization · Space"
+    ]
+   ]
+  },
+  {
+   "id": "c08",
+   "label": "Social Media Moderation",
+   "k": 4,
+   "silhouette": 0.0656,
+   "subs": [
+    [
+     "c08.1",
+     44,
+     "Social Media · Behavior"
+    ],
+    [
+     "c08.2",
+     35,
+     "Moderation · Social Media"
+    ],
+    [
+     "c08.3",
+     34,
+     "Security · Safety"
+    ],
+    [
+     "c08.4",
+     30,
+     "Women · Communities"
+    ]
+   ]
+  },
+  {
+   "id": "c16",
+   "label": "Wellness Tech",
+   "k": 4,
+   "silhouette": 0.0518,
+   "subs": [
+    [
+     "c16.1",
+     40,
+     "Personal · Tracking"
+    ],
+    [
+     "c16.2",
+     40,
+     "Conducted · Impact"
+    ],
+    [
+     "c16.3",
+     38,
+     "Detection · Monitoring"
+    ],
+    [
+     "c16.4",
+     23,
+     "Breathing · Guidance"
+    ]
+   ]
+  },
+  {
+   "id": "c12",
+   "label": "Community Data Practices",
+   "k": 4,
+   "silhouette": 0.0571,
+   "subs": [
+    [
+     "c12.1",
+     58,
+     "Women · Practices"
+    ],
+    [
+     "c12.2",
+     29,
+     "Community · Designing"
+    ],
+    [
+     "c12.3",
+     28,
+     "Governance · Equitable"
+    ],
+    [
+     "c12.4",
+     22,
+     "Development · Impact"
+    ]
+   ]
+  },
+  {
+   "id": "c13",
+   "label": "Healthcare Design",
+   "k": 4,
+   "silhouette": 0.0768,
+   "subs": [
+    [
+     "c13.1",
+     46,
+     "Clinical · Large Language"
+    ],
+    [
+     "c13.2",
+     30,
+     "Health · Communities"
+    ],
+    [
+     "c13.3",
+     29,
+     "Mental Health · Therapy"
+    ],
+    [
+     "c13.4",
+     27,
+     "Care · Tech"
+    ]
+   ]
+  },
+  {
+   "id": "c09",
+   "label": "Accessibility Challenges",
+   "k": 3,
+   "silhouette": 0.079,
+   "subs": [
+    [
+     "c09.1",
+     56,
+     "Blind · Low Vision"
+    ],
+    [
+     "c09.2",
+     35,
+     "Disability · Disabled"
+    ],
+    [
+     "c09.3",
+     27,
+     "Learning · Education"
+    ]
+   ]
+  },
+  {
+   "id": "c18",
+   "label": "Human-Robot Interaction",
+   "k": 3,
+   "silhouette": 0.1105,
+   "subs": [
+    [
+     "c18.1",
+     46,
+     "Driving · Vehicle"
+    ],
+    [
+     "c18.2",
+     41,
+     "Robot · Collaboration"
+    ],
+    [
+     "c18.3",
+     24,
+     "Social Robot · Robots"
+    ]
+   ]
+  },
+  {
+   "id": "c17",
+   "label": "Mixed Reality Interactions",
+   "k": 3,
+   "silhouette": 0.0785,
+   "subs": [
+    [
+     "c17.1",
+     39,
+     "Augmented Reality · Visualization"
+    ],
+    [
+     "c17.2",
+     38,
+     "Mixed Reality · Physical"
+    ],
+    [
+     "c17.3",
+     30,
+     "Extended Reality · Beyond"
+    ]
+   ]
+  },
+  {
+   "id": "c07",
+   "label": "Privacy Perceptions",
+   "k": 3,
+   "silhouette": 0.0703,
+   "subs": [
+    [
+     "c07.1",
+     46,
+     "Privacy · Smart Home"
+    ],
+    [
+     "c07.2",
+     39,
+     "Privacy Risks · Large Language"
+    ],
+    [
+     "c07.3",
+     18,
+     "Security · Services"
+    ]
+   ]
+  },
+  {
+   "id": "c06",
+   "label": "3D Printing Innovations",
+   "k": 3,
+   "silhouette": 0.0973,
+   "subs": [
+    [
+     "c06.1",
+     40,
+     "Fabrication · Printing"
+    ],
+    [
+     "c06.2",
+     32,
+     "Creative · Generation"
+    ],
+    [
+     "c06.3",
+     24,
+     "Designers · Cad"
+    ]
+   ]
+  },
+  {
+   "id": "c05",
+   "label": "Sound Interaction",
+   "k": 3,
+   "silhouette": 0.0779,
+   "subs": [
+    [
+     "c05.1",
+     39,
+     "Speech · Voice"
+    ],
+    [
+     "c05.2",
+     34,
+     "Music · Feedback"
+    ],
+    [
+     "c05.3",
+     20,
+     "Sensory · Eating"
+    ]
+   ]
+  },
+  {
+   "id": "c00",
+   "label": "Game Dynamics",
+   "k": 3,
+   "silhouette": 0.0514,
+   "subs": [
+    [
+     "c00.1",
+     32,
+     "Gaming · Player"
+    ],
+    [
+     "c00.2",
+     29,
+     "Learning · Interactive"
+    ],
+    [
+     "c00.3",
+     28,
+     "Game · Players"
+    ]
+   ]
+  }
+ ]
+}

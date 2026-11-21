@@ -1,0 +1,6 @@
+# Built or downloaded, never in git: rebuild with the scripts (README.md)
+data/
+models/
+logs/
+.venv/
+__pycache__/
