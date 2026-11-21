@@ -30,11 +30,30 @@ export function TribeChip({ arc, size = 13 }: { arc: Arc; size?: number }) {
 }
 const tint = (arc: Arc) => ({ background: `linear-gradient(color-mix(in srgb, ${TRIBE[arc.tribe].color} 8%, transparent), color-mix(in srgb, ${TRIBE[arc.tribe].color} 8%, transparent)), var(--arc-surface)` });
 
+const CARDS = ['Arc picture', 'Link preview'];
+
 export function Share({ id }: { id: string }) {
   const { arc, states, info } = useArc(id);
   const [note, setNote] = useState('');
   const [page, setPage] = useState(0);
   const strip = useRef<HTMLDivElement>(null);
+  // 16 cards (user 11/20 「옆으로 안 넘어가」): dots, arrow keys, ‹ › on mouse screens, and a drag or swipe anywhere on a
+  // card (the picture card is inert, so its own content takes no events; the strip pages instead of scrolling freely)
+  const toCard = (i: number) => {
+    const s = strip.current; if (!s) return;
+    const n = Math.max(0, Math.min(CARDS.length - 1, i));
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    s.scrollTo({ left: n * 312, behavior: still ? 'auto' : 'smooth' });
+    setPage(n);
+  };
+  const drag = useRef<{ x: number; y: number; id: number } | null>(null);
+  const onPointerDown = (e: React.PointerEvent) => { drag.current = { x: e.clientX, y: e.clientY, id: e.pointerId }; };
+  const onPointerUp = (e: React.PointerEvent) => {
+    const d = drag.current; drag.current = null;
+    if (!d || d.id !== e.pointerId) return;
+    const dx = e.clientX - d.x, dy = e.clientY - d.y;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) toCard(page + (dx < 0 ? 1 : -1));
+  };
   if (!arc) return null;
   const url = shareUrl(arc);
   const c = angleCounts(arc.nodes.map(n => [n.key, n.angle]));
@@ -55,8 +74,16 @@ export function Share({ id }: { id: string }) {
   return (
     <Screen label="Share your Arc" header={<><IconButton icon={closeIcon} label="Close" href={href(`arc/${id}`)} /><span /></>}>
       <h1 className="sr-only">Share your Arc: {arc.query}</h1>
+      <div className="relative">
+      {/* ‹ › beside the cards where there is a mouse (wide screens); touch screens swipe */}
+      <button type="button" aria-label="Previous card" onClick={() => toCard(page - 1)} disabled={page === 0}
+        className="absolute top-[193px] -left-5 z-10 hidden size-11 items-center justify-center rounded-full border border-arc-line bg-arc-surface text-[22px] disabled:opacity-30 [@media(hover:hover)_and_(pointer:fine)]:flex">‹</button>
+      <button type="button" aria-label="Next card" onClick={() => toCard(page + 1)} disabled={page === CARDS.length - 1}
+        className="absolute top-[193px] -right-5 z-10 hidden size-11 items-center justify-center rounded-full border border-arc-line bg-arc-surface text-[22px] disabled:opacity-30 [@media(hover:hover)_and_(pointer:fine)]:flex">›</button>
       <div ref={strip} onScroll={e => setPage(Math.round(e.currentTarget.scrollLeft / 312))}
-        role="region" tabIndex={0} className="-mx-6 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-[calc(50%-150px)] pb-1 [scrollbar-width:none]" aria-label="What people see">
+        onKeyDown={e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); toCard(page + (e.key === 'ArrowRight' ? 1 : -1)); } }}
+        onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerCancel={() => { drag.current = null; }}
+        role="region" tabIndex={0} aria-roledescription="carousel" className="-mx-6 mt-3 flex cursor-grab touch-pan-y snap-x snap-mandatory gap-3 overflow-x-auto px-[calc(50%-150px)] pb-1 select-none [scrollbar-width:none]" aria-label="What people see">
         <figure className="relative h-[430px] w-[300px] shrink-0 snap-center overflow-hidden rounded-[28px] border border-arc-line" style={tint(arc)}>
           <figcaption className="sr-only">Your Arc as a picture: {c.S} Supports, {c.R} Reframes, {c.T} Challenges.</figcaption>
           <div className="absolute top-4 left-4"><TribeChip arc={arc} /></div>
@@ -80,8 +107,15 @@ export function Share({ id }: { id: string }) {
           </div>
         </figure>
       </div>
-      <div className="mt-4 flex justify-center gap-1.5" aria-hidden="true">
-        {[0, 1].map(i => <span key={i} className={`h-1.5 rounded-full ${i === page ? 'w-[18px] bg-arc-text' : 'w-1.5 bg-arc-text/30'}`} />)}
+      </div>
+      {/* the dots are the card buttons: each 44 × 44, 2 apart, the dot at the inner edge so the dots stay 6 apart */}
+      <div className="relative z-10 mt-[-3px] -mb-[19px] flex justify-center gap-0.5">{/* above the strip, whose bottom it overlaps by 3 */}
+        {CARDS.map((name, i) => (
+          <button key={name} type="button" onClick={() => toCard(i)} aria-label={`Card ${i + 1} of ${CARDS.length}: ${name}`} aria-current={i === page ? 'true' : undefined}
+            className={`flex size-11 items-center ${i === 0 ? 'justify-end pr-[2px]' : 'justify-start pl-[2px]'}`}>
+            <span aria-hidden="true" className={`h-1.5 rounded-full ${i === page ? 'w-[18px] bg-arc-text' : 'w-1.5 bg-arc-text/30'}`} />
+          </button>
+        ))}
       </div>
       <div className="mt-6 flex justify-evenly">
         {round(qrIcon, 'QR code', () => {}, href(`qr/${id}`))}
