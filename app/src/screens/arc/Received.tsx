@@ -8,7 +8,7 @@ import { labelOf } from '../../arc/label.js';
 import { nodeStates, layout, type NodeState } from '../../arc/map.js';
 import { setOnboarded } from '../../arc/draft.js';
 import { saveArc, useArcs } from '../../arc/store';
-import { useTribe } from '../../arc/live';
+import { useTribe, setCurrentArc, setViewingArc } from '../../arc/live';
 import { update } from '../../state/useDevice';
 import { loadSchedule, loadAbstracts, loadDebut, type Schedule } from '../../data/load';
 import { abstractFileDay, firstSlot, dateOf, clockOf } from '../../explore/format';
@@ -65,6 +65,9 @@ function useReceived(payload: string) {
 }
 
 const keep = async (arc: Arc) => { await saveArc(arc); update(setOnboarded); go(`arc/${arc.id}`, { replace: true }); };
+// 18 "Make it mine" (user 11/20 「Make it mine = 내 Arc로 저장(수정 가능)」, 「Make it mine 뒤에는 15 Edit으로」): one of my own
+// Arcs (no "shared with you"), opened in 15 to change it.
+const makeMine = async (arc: Arc) => { await saveArc({ ...arc, source: 'mine' }); update(setOnboarded); go(`arc/${arc.id}/edit`, { replace: true }); };
 
 function Broken({ why }: { why: string }) {
   return (
@@ -83,12 +86,36 @@ export function Received({ payload }: { payload: string }) {
   return (
     <Screen clock label="Shared Arc" bottom={<>
       <ArcButton onClick={() => keep(arc)} disabled={!arc.nodes.length}>Add to my Arcs</ArcButton>
-      <ArcButton kind="secondary" onClick={() => go(`r/${payload}/pick`)} disabled={!arc.nodes.length}>Pick some</ArcButton>
+      <div className="grid grid-cols-2 gap-3">{/* Figma 18: Pick some · Make it mine, then Just read */}
+        <ArcButton kind="secondary" onClick={() => go(`r/${payload}/pick`)} disabled={!arc.nodes.length}>Pick some</ArcButton>
+        <ArcButton kind="secondary" onClick={() => makeMine(arc)} disabled={!arc.nodes.length}>Make it mine</ArcButton>
+      </div>
+      <ArcButton kind="ghost" onClick={() => go(`r/${payload}/read`)} disabled={!arc.nodes.length}>Just read</ArcButton>
     </>}>
       <p className="mt-4 inline-flex items-center gap-1.5 self-start rounded-2xl border border-arc-line bg-arc-surface py-1.5 pr-3 pl-2.5 text-[13px] font-semibold"><Pic src={linkIcon} size={14} />Shared Arc</p>
       <h1 className="mt-4 text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
       {missing > 0 && <p className="mt-2 text-[14px] text-arc-text-2">{missing} {missing === 1 ? 'talk is' : 'talks are'} not in this programme and were left out.</p>}
       <div className="-mx-6 mt-3"><ArcView arc={arc} states={states} info={info} scale={0.78} readOnly /></div>
+    </Screen>
+  );
+}
+
+// 18 "Just read" (user 11/20 「Just read = 저장 없이 보기만」): the map, read-only, nothing stored. Talks open 14; a line on top
+// says it is not saved, with Add (as "Add to my Arcs").
+export function JustRead({ payload }: { payload: string }) {
+  const { r, ok, states, info } = useReceived(payload);
+  useEffect(() => { if (ok) { setViewingArc(ok.arc); setCurrentArc(ok.arc.id); } }, [ok]);
+  if (!r) return null;
+  if (!ok) return <Broken why={(r as { error: string }).error} />;
+  const { arc } = ok;
+  return (
+    <Screen clock label="Shared Arc, not saved" header={<BackButton href={href(`r/${payload}`)} />}>
+      <div className="mt-2 flex items-center gap-3 rounded-[20px] border border-arc-line bg-arc-surface py-2 pr-2 pl-4">
+        <p className="flex-1 text-[14px] font-medium text-arc-text-2">Not saved · Add to keep it</p>
+        <ArcButton kind="primary" className="h-11 min-w-[72px]" onClick={() => keep(arc)}>Add</ArcButton>
+      </div>
+      <h1 className="mt-4 text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
+      <div className="-mx-6 mt-3"><ArcView arc={arc} states={states} info={info} scale={0.78} onNode={k => go(`talk/${k}`)} onBundle={() => {}} /></div>
     </Screen>
   );
 }
