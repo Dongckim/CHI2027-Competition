@@ -144,6 +144,16 @@ in `web/vendor/`. Try it: `python -m http.server` in this folder, then open
 
 R@8 = the right paper is in the top 8. Evaluation queries are also LLM-generated, so
 accuracy on real user queries may be lower.
+
+## Licenses
+
+| Files | License |
+|---|---|
+| Code (`*.py`, `web/*.mjs`), `encoder.json`, `static_*.npy`, `config.json` | MIT. The encoder is our own, distilled from a fine-tuned `BAAI/bge-m3` (MIT) |
+| `tokenizer.json`, `tokenizer_config.json` | MIT, unchanged from `BAAI/bge-small-en-v1.5` (© BAAI) |
+| `web/vendor/tokenizers.min.mjs` | Apache 2.0, the npm package `@huggingface/tokenizers`, bundled unchanged |
+| `program.json`, `papers.json`, `venue.json`, `program_*.npy` | CC BY-NC-SA 4.0: ACM CHI 2026 programme data, and vectors of its abstracts |
+| `angles.json`, `phrase_*.npy`, `summaries.json`, `expansions.json`, `clusters.json` | CC BY-NC-SA 4.0, as derived from the programme data: finding cards and phrases quoted from the abstracts, and text written offline by `Qwen/Qwen3-14B` and `Qwen/Qwen2.5-7B-Instruct` (Apache 2.0, no claim on their outputs) |
 """
 
 

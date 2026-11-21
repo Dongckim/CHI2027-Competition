@@ -800,6 +800,13 @@ export class Angles {
     return tr;
   }
 
+  // The tribe of what the person typed, never of the sharpest question a topic is built on (team 11/22)
+  async _tribeOf(text, types = null) {
+    const score = await this._rank(text);
+    const pool = argsortDesc(score).filter((i) => this.aliveSet.has(i) && (types === null || types.has(this.items[i].type))).slice(0, 20);
+    return this._tribe(score, pool);
+  }
+
   async _judged(q, types, score = null) {
     score = score === null ? await this._rank(q.text) : score;
     const order = argsortDesc(score);
@@ -1238,7 +1245,7 @@ export class Angles {
     const nodes = this._route(placed, reads, chosen, now, heard);
     const counts = new Counter();
     for (const nd of nodes) counts.add(nd.angle);
-    const tribe = this._tribe(score, pool);
+    const tribe = asked ? await this._tribeOf(asked, types) : this._tribe(score, pool);
     let nAll = 0, nDay = 0;
     for (const i of this.aliveSet) {
       if (!types.has(this.items[i].type)) continue;
@@ -1312,7 +1319,7 @@ export class Angles {
     } else if (flt === "debut") {
       cand = judged.filter(([i]) => !nodes.includes(i) && (this.info.get(i) || {}).first_debut).slice(0, k);
     } else if (flt === "wildcard") {
-      cand = this._wildcards(q, pool, score, nodes, k);
+      cand = this._wildcards(q, pool, nodes, k, await this._tribeOf((await this.question(req.question)).text, types));
     } else {
       cand = judged.filter(([i, v]) => v.angle === angle && !nodes.includes(i)).slice(0, k);
     }
@@ -1366,8 +1373,7 @@ export class Angles {
     return out;
   }
 
-  _wildcards(q, pool, score, nodes, k) {
-    const mine = this._tribe(score, pool);
+  _wildcards(q, pool, nodes, k, mine) {
     const mtk = this.tribes.findIndex((t) => mine && t.name === mine.name);
     const mt = mtk < 0 ? null : mtk;
     const out = [];
@@ -1617,8 +1623,7 @@ export class Angles {
     const counts = new Counter();
     for (const nd of nodes) counts.add(nd.angle);
     const nKeep = nodes.filter((nd) => nd.keep).length;
-    const [score, pool] = await this._pool20(q.text);
-    return { question: q.text, shared: true, label: "Shared Arc", tribe: this._tribe(score, pool), nodes,
+    return { question: q.text, shared: true, label: "Shared Arc", tribe: await this._tribeOf((await this.question(req.question)).text), nodes,
              counts: Object.fromEntries(ANGLES.map((a) => [a, counts.count(a)])), line,
              pick: { headline: "Pick what to keep.", legend: ["Keep", "Skip", "Ended"], button: `Add ${nKeep} to my Arcs`, keep: nKeep },
              result: "A new Arc with the sender's question (Q12).", data_version: this.version,
