@@ -5,6 +5,7 @@
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { readFileSync } from 'node:fs';
+import { tempProfile } from '../../qa/cdp.mjs';
 // Talks for the abstract checks, from the built app data: the sample day's planned talk (Tue 14), a talk whose
 // abstract file is another day (not prefetched), and a talk with no abstract in the programme.
 const appData = new URL('../../../data/build/app-data/chi2026/', import.meta.url);
@@ -20,7 +21,7 @@ const startServer = () => spawn('npx', ['vite', 'preview', '--port', String(PORT
 const up = async () => { for (let i = 0; i < 60; i++) { try { if ((await fetch(BASE)).ok) return; } catch {} await sleep(250); } throw new Error('preview did not start'); };
 let server = startServer();
 await up();
-const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=9334', `--user-data-dir=${tmpdir()}/arc-offline-${Date.now()}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=9334', `--user-data-dir=${tempProfile('arc-offline')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 let targets;
 for (let i = 0; i < 40; i++) { try { targets = await (await fetch('http://127.0.0.1:9334/json')).json(); break; } catch { await sleep(250); } }
 const ws = new WebSocket(targets.find(t => t.type === 'page').webSocketDebuggerUrl);
