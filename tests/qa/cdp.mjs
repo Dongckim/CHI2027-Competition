@@ -64,7 +64,7 @@ export async function launchChrome({ args = [] } = {}) {
     /** The browser target, for Target.* (e.g. attaching to service workers). Events carry sessionId (flatten). */
     browser: async () => attach({ webSocketDebuggerUrl: (await (await fetch(`${http}/json/version`)).json()).webSocketDebuggerUrl }),
     openTab: async () => attach(await (await fetch(`${http}/json/new?about:blank`, { method: 'PUT' })).json()),
-    close: async () => { for (const t of tabs) t.close(); proc.kill(); await sleep(300); try { rmSync(profile, { recursive: true, force: true }); } catch {} },
+    close: async () => { for (const t of tabs) t.close(); const gone = proc.exitCode != null ? null : new Promise(r => proc.once('exit', r)); proc.kill(); await Promise.race([gone, sleep(3000)]); try { rmSync(profile, { recursive: true, force: true }); } catch {} }, // after Chrome exits: removing it earlier left files Chrome was still writing
   };
 }
 
