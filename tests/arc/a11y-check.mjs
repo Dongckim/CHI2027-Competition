@@ -86,6 +86,28 @@ const sizes = () => ev(`(async () => {
   scrollTo(0, 0);
   return { small, tiny: tiny.slice(0, 8), tinyCount: tiny.length };
 })()`);
+// Buttons (ArcButton / ArcLink, data-arc-button): their words on one line, at the normal size and with the text at 200%
+// (each button's font size doubled, as Safari's text zoom does); at 200% also nothing cut off or off screen.
+const buttons = () => ev(`(async () => {
+  // line boxes of the words only (an icon beside them has its own top): text nodes' rects, grouped by overlap
+  const lines = el => { const rows = []; const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let t = w.nextNode(); t; t = w.nextNode()) { if (!t.textContent.trim()) continue; const r = document.createRange(); r.selectNodeContents(t);
+      for (const q of r.getClientRects()) { if (q.width < 1) continue; const mid = (q.top + q.bottom) / 2; if (!rows.some(y => Math.abs(y - mid) < q.height / 2)) rows.push(mid); } }
+    return rows.length; };
+  const modal = document.querySelector('[role=dialog]');
+  const all = [...document.querySelectorAll('[data-arc-button]')].filter(b => b.getBoundingClientRect().width > 0 && b.innerText.trim() && !b.closest('[inert]') && (!modal || modal.contains(b)));
+  const out = [];
+  const name = b => b.innerText.replace(/\\s+/g, ' ').trim().slice(0, 30);
+  for (const b of all) { const n = lines(b); if (n > 1) out.push({ el: name(b), zoom: 100, lines: n }); }
+  const was = all.map(b => b.style.fontSize);
+  all.forEach(b => { b.style.fontSize = (parseFloat(getComputedStyle(b).fontSize) * 2) + 'px'; });
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  for (const b of all) { const n = lines(b), r = b.getBoundingClientRect();
+    const cut = b.scrollWidth > b.clientWidth + 1, off = r.right > innerWidth + 1 || r.left < -1;
+    if (n > 1 || cut || off) out.push({ el: name(b), zoom: 200, lines: n, cut, off }); }
+  all.forEach((b, i) => { b.style.fontSize = was[i]; });
+  return { checked: all.length, bad: out };
+})()`);
 // sideways scroll at three widths (and, on 16, while the cards are swiped)
 const overflow = async name => {
   const out = [];
@@ -155,7 +177,7 @@ try {
   await ev(`localStorage.setItem('arc.device', ${JSON.stringify(device(true))}); true`);
   // 21 empty home, before any Arc is stored
   await send('Page.navigate', { url: `${BASE}?at=2026-04-14T12:00&s=21#/home` });
-  if (await waitFor(`document.body.innerText.includes('Start with one question')`, 30000)) { await sleep(600); results['21'] = await axe(); results['21'].pixels = await pixelContrast(results['21'].cc); results['21'].sizes = await sizes(); results['21'].overflow = await overflow('21'); }
+  if (await waitFor(`document.body.innerText.includes('Start with one question')`, 30000)) { await sleep(600); results['21'] = await axe(); results['21'].pixels = await pixelContrast(results['21'].cc); results['21'].sizes = await sizes(); results['21'].buttons = await buttons(); results['21'].overflow = await overflow('21'); }
   else results['21'] = { error: 'did not show "Start with one question"' };
   await ev(`new Promise(r => { const q = indexedDB.open('arc', 1); q.onupgradeneeded = () => q.result.createObjectStore('arcs', { keyPath: 'id' });
     q.onsuccess = () => { const t = q.result.transaction('arcs', 'readwrite'); for (const a of ${JSON.stringify([ARC, NONE, PEND, CROWD])}) t.objectStore('arcs').put(a); t.oncomplete = () => r(true); }; })`);
@@ -165,7 +187,7 @@ try {
     await sleep(name === '10' ? 150 : 600); // pictures and fonts (10 is gone after 5 s)
     results[name] = ok ? await axe() : { error: `did not show "${text}"` };
     if (ok) results[name].pixels = await pixelContrast(results[name].cc);
-    if (ok) { results[name].sizes = await sizes(); if (name !== '10') results[name].overflow = await overflow(name); }
+    if (ok) { results[name].sizes = await sizes(); results[name].buttons = await buttons(); if (name !== '10') results[name].overflow = await overflow(name); }
     if (ok && name === '10') results[name].still = await ev(`document.body.innerText.includes(${JSON.stringify(text)})`); // measured while 10 was showing
     if (SHOTS) { await ev('scrollTo(0, 0), true'); writeFileSync(`${SHOTS}/${name}.png`, Buffer.from((await send('Page.captureScreenshot', { format: 'png' })).result.data, 'base64')); }
     if (name === '08') { // 22: the ? sheet over 08
@@ -174,6 +196,7 @@ try {
       results['22'] = await axe();
       results['22'].pixels = await pixelContrast(results['22'].cc);
       results['22'].sizes = await sizes();
+      results['22'].buttons = await buttons();
     }
   }
 } finally {
@@ -188,7 +211,8 @@ try {
     r.pixels = r.pixels.filter(p => p.ratio != null);
     const sz = r.sizes ?? { small: [], tiny: [], tinyCount: 0 }, of = r.overflow ?? [];
     const gone = name === '10' && r.still === false ? 1 : 0;
-    bad += v.length + low.length + sz.small.length + sz.tinyCount + of.length + gone;
+    const bt = r.buttons ?? { checked: 0, bad: [] };
+    bad += v.length + low.length + sz.small.length + sz.tinyCount + of.length + gone + bt.bad.length;
     console.log(`${name}  ${r.violations.length ? r.violations.map(x => `${x.id}(${x.impact},${x.n})`).join(' ') : 'no violations'}  · contrast from pixels: ${r.pixels.length ? `${r.pixels.length - low.length}/${r.pixels.length}, lowest ${Math.min(...r.pixels.map(p => p.ratio))}` : '—'}${skipped ? ` (${skipped} without glyphs on screen, not measured)` : ''}${r.incomplete.length ? `  · needs a look: ${r.incomplete.map(x => `${x.id}(${x.n})`).join(' ')}` : ''}`);
     for (const x of r.violations) for (const n of x.nodes) console.log(`      [${name}] ${x.id}: ${n.slice(0, 160)}`);
     for (const p of low) console.log(`      [${name}] contrast ${p.ratio} < ${p.need}: "${p.text}"`);
@@ -197,8 +221,9 @@ try {
     if (sz.tinyCount > sz.tiny.length) console.log(`      [${name}] … ${sz.tinyCount - sz.tiny.length} more under 12 px`);
     for (const o of of) console.log(`      [${name}] scrolls sideways at ${o.width}${o.swipe != null ? ` (cards swiped ${o.swipe * 100}%)` : ''}: scrollWidth ${o.sw} > ${o.cw}`);
     if (gone) console.log('      [10] changed screen before the check ended');
+    for (const x of bt.bad) console.log(`      [${name}] button not on one line at ${x.zoom}%: "${x.el}" ${x.lines} lines${x.cut ? ', words cut off' : ''}${x.off ? ', off screen' : ''}`);
   }
-  console.log(bad ? `FAIL: ${bad} (serious/critical, low contrast, target under 44 px, text under 12 px, sideways scroll)` : `PASS: ${rows.length} screens: no serious or critical violations, contrast, 44 px targets, 12 px text, no sideways scroll at 390/375/360`);
+  console.log(bad ? `FAIL: ${bad} (serious/critical, low contrast, target under 44 px, text under 12 px, sideways scroll)` : `PASS: ${rows.length} screens: no serious or critical violations, contrast, 44 px targets, 12 px text, buttons on one line (100% and 200% text), no sideways scroll at 390/375/360`);
   ws.close(); chrome.kill(); try { process.kill(-server.pid); } catch {}
   process.exit(bad ? 1 : 0);
 }
