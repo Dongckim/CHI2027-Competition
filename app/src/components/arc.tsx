@@ -30,11 +30,13 @@ export function DemoBanner() {
 export function Screen({ header, children, bottom, label, clock }: { header?: ReactNode; children: ReactNode; bottom?: ReactNode; label?: string; clock?: boolean }) {
   return (
     <div className="arc mx-auto flex min-h-dvh max-w-[480px] flex-col overflow-x-clip bg-arc-bg font-sans text-arc-text">{/* nothing scrolls sideways (QA V7) */}
-      {header && <header className="flex min-h-[54px] items-center justify-between px-4 pt-0.5">{header}</header>}
+      {/* Figma: buttons 44 at y 56 (54 + 2), so a 48 row centred */}
+      {header && <header className="flex min-h-[48px] items-center justify-between px-4">{header}</header>}
       {clock && <DemoBanner />}
       <main aria-label={label} className="flex flex-1 flex-col px-6">{children}</main>
       {/* the one fixed bottom area: stays on screen while the content scrolls under it */}
-      {bottom && <div className="sticky bottom-0 z-10 flex flex-col gap-3 bg-arc-bg px-6 pt-4 pb-[calc(var(--safe-bottom)+20px)]">{bottom}</div>}
+      {/* Figma: the last button ends 14 above the home indicator, 14 between rows, nothing above the first row */}
+      {bottom && <div className="sticky bottom-0 z-10 flex flex-col gap-[14px] bg-arc-bg px-6 pb-[calc(var(--safe-bottom)+14px)]">{bottom}</div>}
     </div>
   );
 }
@@ -73,7 +75,7 @@ export const BackButton = ({ href, onClick }: { href?: string; onClick?: () => v
 export function Dots({ at, total = 8 }: { at: number; total?: number }) {
   return (
     <div className="flex items-center gap-1.5 px-2" role="img" aria-label={`Step ${at} of ${total}`}>
-      {Array.from({ length: total }, (_, i) => <span key={i} className={`h-1.5 rounded-full ${i + 1 === at ? 'w-[18px] bg-arc-text' : 'w-1.5 bg-arc-text/25'}`} />)}
+      {Array.from({ length: total }, (_, i) => <span key={i} className={`h-1.5 rounded-full ${i + 1 === at ? 'w-[18px] bg-arc-text' : 'w-1.5 bg-arc-text/[0.28]'}`} />)}
     </div>
   );
 }
@@ -91,7 +93,7 @@ export function StepBar({ at, total = 3 }: { at: number; total?: number }) {
 export function Chip({ selected, onClick, children, single }: { selected: boolean; onClick: () => void; children: ReactNode; single?: boolean }) {
   return (
     <button type="button" onClick={onClick} {...(single ? { role: 'radio', 'aria-checked': selected } : { 'aria-pressed': selected })}
-      className={`relative inline-flex h-[38px] max-w-full items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium whitespace-nowrap before:absolute before:inset-x-0 before:-inset-y-[4px] before:content-[''] ${
+      className={`relative inline-flex h-[38px] max-w-full items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium tracking-[-0.006em] whitespace-nowrap before:absolute before:inset-x-0 before:-inset-y-[4px] before:content-[''] ${
         selected ? 'bg-arc-chip-on text-arc-on-primary shadow-[var(--arc-shadow-lift)]' : 'border border-arc-line bg-arc-surface text-arc-text/62'}`}>
       {selected && <Pic src={chipCheck} size={16} />}
       <span className="truncate">{children}</span>
