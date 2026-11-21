@@ -62,3 +62,14 @@ Figma에 없는 상태에 쓸 문구다. 사용자가 정했고, 디자이너 �
 - 17 "Print badge"(그래서 Lock screen이 전체 폭)
 - 16 "Follow along / Read only"(그 자리를 없애고 아래 공유 버튼 줄을 Figma의 다른 간격으로 당김)
 - 09 "How you walk: Calm route / Step-free"(빈 자리 없음)
+
+## 8. 링크 미리보기 그림(og)과 종족 색 (2026-11-20, 사용자 「figma대로 og-image 해줄래?」)
+- og 그림은 Figma "OG · <tribe> · 1200×630"(746:1913 XR, 746:1948 Accessibility, 746:1982 AI)대로 바꿨다.
+- 해석(디자이너 확인 전):
+  - **Figma에 없는 5종족의 모양**: 종족 아이콘을 Figma와 같은 크기로 키우고 모서리를 둥글게 했다. 그라데이션은 Figma 세 장과 같은 규칙(위쪽이 종족 색 + 흰색 36.5%)이다.
+  - **"N talks" 줄**: 형식을 "N talks · N rooms(+ demos) · 첫 발표 요일 · CHI 연도"로 정했다. Figma 세 장은 형식이 조금씩 다르다("· CHI 2026"이 있는 것과 없는 것, "+ demos"). 방이 하나여도 "1 rooms"로 쓴다.
+  - **관점 기호**: ↑ ↻ ⊣를 글자 대신 관점 아이콘(투명도 0.72)으로 그렸다. Inter latin에는 ↻·⊣ 글자가 없다.
+  - 질문 글자 크기는 길이로 고른다: 40자 이하 60 px, 60자 이하 56 px, 그보다 길면 50 px. 최대 세 줄.
+  - 노드 자리: Supports 3, Reframes 2, Challenge 1까지(Figma 자리). 개수 줄은 실제 숫자다.
+- **종족 색**: 앱 코드의 색(`tribes.js`, `tokens.css`)이 Figma 아이콘 색과 8종족 모두 달라서 Figma 값으로 바꿨다. 예: XR #4C7DFF → #6E8BFF, Accessibility #2FBF71 → #4CCF9E. 화면의 종족 색 테두리·타일·빛도 같이 바뀐다.
+- 원 바깥 빛을 35% → 30%로 낮췄다. 색이 밝아져 25 노드 시간 글자 대비가 4.47:1이 됐기 때문이다.
