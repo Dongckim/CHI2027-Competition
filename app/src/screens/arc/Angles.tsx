@@ -41,15 +41,15 @@ export function Angles() {
   return (
     <Screen label="Choose your angles"
       header={<><BackButton href={href('ask')} /><StepBar at={1} /><span className="w-11" /></>}
-      bottom={<ArcButton onClick={() => go('when')} disabled={!loaded || !anyOn}>Next</ArcButton>}>
-      <h1 className="mt-[18px] text-[28px] leading-[34px] font-semibold tracking-[-0.024em]">Choose your angles.</h1>
+      bottom={<ArcButton className="mb-1.5" onClick={() => go('when')} disabled={!loaded || !anyOn}>Next</ArcButton>}>
+      <h1 className="mt-[14px] text-[28px] leading-[34px] font-semibold tracking-[-0.024em]">Choose your angles.</h1>
       {!loaded ? (
         <p className="mt-8 text-[16px] text-arc-text-2" aria-live="polite">{error ? 'Could not read the programme. Check the connection and go back.' : 'Finding angles…'}</p>
       ) : (
         <div className="mt-9 flex flex-col gap-[30px] pb-4">
           {(['S', 'R', 'T'] as Angle[]).map(a => (
             <section key={a} aria-labelledby={`angle-${a}`} className="flex flex-col gap-[18px]">{/* 18 (Figma 12): the ? button (44) and the chips (44 with ::before) do not overlap */}
-              <SectionHeader id={`angle-${a}`} icon={ICON[a]} label={ANGLE_NAME[a]} onHelp={() => setHelp(true)} />
+              <div className="flex h-[21px] items-center"><SectionHeader id={`angle-${a}`} icon={ICON[a]} label={ANGLE_NAME[a]} onHelp={() => setHelp(true)} /></div>{/* Figma row 21; the 17px line renders 20 */}
               {draft.topics[a].length ? (
                 <div className="flex flex-wrap gap-2">
                   {draft.topics[a].map((t: { id: string; label: string; on: boolean }) => (

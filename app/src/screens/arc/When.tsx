@@ -25,17 +25,17 @@ export function When() {
   return (
     <Screen clock label="When and what"
       header={<><BackButton href={href('angles')} /><StepBar at={2} /><span className="w-11" /></>}
-      bottom={<ArcButton onClick={() => go('building')} disabled={!draft.what.length}>Build my Arc</ArcButton>}>
-      <h1 className="mt-[18px] text-[28px] leading-[34px] font-semibold tracking-[-0.024em]">When, and what kind?</h1>
+      bottom={<ArcButton className="mb-1.5" onClick={() => go('building')} disabled={!draft.what.length}>Build my Arc</ArcButton>}>
+      <h1 className="mt-[14px] text-[28px] leading-[34px] font-semibold tracking-[-0.024em]">When, and what kind?</h1>
       <div className="mt-9 flex flex-col gap-[30px]">
         <section aria-labelledby="when-h" className="flex flex-col gap-3">
-          <SectionHeader id="when-h" icon={clock} label="When" />
+          <div className="flex h-[21px] items-center"><SectionHeader id="when-h" icon={clock} label="When" /></div>{/* Figma row 21; the 17px line renders 20 */}
           <div role="radiogroup" aria-labelledby="when-h" className="flex flex-wrap gap-2">
             {options.map(o => <Chip key={o.id} single selected={o.id === chosen.id} onClick={() => update(s => setWhen(s, o.id))}>{o.label}</Chip>)}
           </div>
         </section>
         <section aria-labelledby="what-h" className="flex flex-col gap-3">
-          <SectionHeader id="what-h" icon={talk} label="What" />
+          <div className="flex h-[21px] items-center"><SectionHeader id="what-h" icon={talk} label="What" /></div>
           <div className="flex flex-wrap gap-2">
             {Object.keys(WHAT).map(k => <Chip key={k} selected={draft.what.includes(k)} onClick={() => update(s => toggleWhat(s, k))}>{WHAT_LABEL[k as keyof typeof WHAT_LABEL]}</Chip>)}
           </div>
