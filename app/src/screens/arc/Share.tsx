@@ -65,14 +65,19 @@ export function Share({ id }: { id: string }) {
     copy();
   };
   const round = (icon: string, label: string, onClick: () => void, link?: string) => (
-    <div className="flex w-20 flex-col items-center gap-2.5">
+    <div className="flex w-[60px] flex-col items-center gap-2.5">
       {link ? <a href={link} aria-label={label} className="flex size-[60px] items-center justify-center rounded-full border border-arc-line bg-arc-surface"><Pic src={icon} size={24} /></a>
         : <button type="button" onClick={onClick} aria-label={label} className="flex size-[60px] items-center justify-center rounded-full border border-arc-line bg-arc-surface"><Pic src={icon} size={24} /></button>}
-      <span aria-hidden="true" className="text-[13px] font-medium text-arc-text/75">{label}</span>
+      <span aria-hidden="true" className="text-[13px] font-medium whitespace-nowrap text-arc-text/75">{label}</span>
     </div>
   );
   return (
-    <Screen label="Share your Arc" header={<><IconButton icon={closeIcon} label="Close" href={href(`arc/${id}`)} /><span /></>}>
+    <Screen label="Share your Arc" header={<><IconButton icon={closeIcon} label="Close" href={href(`arc/${id}`)} /><span /></>}
+      bottom={<p className="-mb-[5px] text-center text-[12px] leading-[17px] font-medium text-arc-text-3">
+        {/* Figma 11px at 50%; 12px and 55% are the floor. Second line: user request (A0 B-answers). The fixed bottom keeps it on
+            screen; the last line ends 9 above the home indicator, where Figma's one line does */}
+        Your question and talks only. Never your name.<br />Your question is part of the link.
+      </p>}>
       <h1 className="sr-only">Share your Arc: {arc.query}</h1>
       <div className="relative">
       {/* ‹ › beside the cards where there is a mouse (wide screens); touch screens swipe */}
@@ -83,16 +88,16 @@ export function Share({ id }: { id: string }) {
       <div ref={strip} onScroll={e => setPage(Math.round(e.currentTarget.scrollLeft / 312))}
         onKeyDown={e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); toCard(page + (e.key === 'ArrowRight' ? 1 : -1)); } }}
         onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerCancel={() => { drag.current = null; }}
-        role="region" tabIndex={0} aria-roledescription="carousel" className="-mx-6 mt-3 flex cursor-grab touch-pan-y snap-x snap-mandatory gap-3 overflow-x-auto px-[calc(50%-150px)] pb-1 select-none [scrollbar-width:none]" aria-label="What people see">
+        role="region" tabIndex={0} aria-roledescription="carousel" className="-mx-6 mt-4 flex cursor-grab touch-pan-y snap-x snap-mandatory gap-3 overflow-x-auto px-[calc(50%-126px)] pb-1 select-none [scrollbar-width:none]" aria-label="What people see">
         <figure className="relative h-[430px] w-[300px] shrink-0 snap-center overflow-hidden rounded-[28px] border border-arc-line" style={tint(arc)}>
           <figcaption className="sr-only">Your Arc as a picture: {c.S} Supports, {c.R} Reframes, {c.T} Challenges.</figcaption>
-          <div className="absolute top-4 left-4"><TribeChip arc={arc} /></div>
+          <div className="absolute top-[17px] left-[17px]"><TribeChip arc={arc} /></div>
           <div className="absolute top-[55px] left-[32px]"><ArcView arc={arc} states={states} info={info} scale={0.6} picture /></div>
-          <div aria-hidden="true" className="absolute bottom-4 left-4 flex items-center gap-1.5 text-[12px] font-medium text-arc-text/80">
-            <Pic src={ANGLE_ICON.S} size={14} />{c.S}<span className="w-1" /><Pic src={ANGLE_ICON.R} size={14} />{c.R}<span className="w-1" /><Pic src={ANGLE_ICON.T} size={14} />{c.T}
+          <div aria-hidden="true" className="absolute bottom-[18px] left-[17px] flex items-center gap-1.5 text-[12px] font-medium text-arc-text/80">
+            <Pic src={ANGLE_ICON.S} size={14} />{c.S}<Pic src={ANGLE_ICON.R} size={14} />{c.R}<Pic src={ANGLE_ICON.T} size={14} />{c.T}
           </div>
           {/* TODO(designer): is this gradient mark the ARC logo? At 34×20 it reads like a loading spinner (user, 16 feedback) */}
-          <Pic src={arcMark} w={34} h={20} alt="ARC" className="absolute right-[19px] bottom-4" />
+          <Pic src={arcMark} w={34} h={20} alt="ARC" className="absolute right-[17px] bottom-[17px]" />
         </figure>
         {/* Figma draws only a peek of this card: the messenger preview, as the share page's tags make it (image in A4) */}
         <figure className="relative flex h-[430px] w-[300px] shrink-0 snap-center flex-col overflow-hidden rounded-[28px] border border-arc-line" style={tint(arc)}>
@@ -117,15 +122,12 @@ export function Share({ id }: { id: string }) {
           </button>
         ))}
       </div>
-      <div className="mt-6 flex justify-evenly">
+      {/* Figma's "Follow along / Read only" is out of scope (user): the row keeps the 30 Figma has above it */}
+      <div className="mt-[30px] flex justify-center gap-12">
         {round(qrIcon, 'QR code', () => {}, href(`qr/${id}`))}
         {round(linkIcon, 'Copy link', copy)}
         {round(shareIcon, 'More', more)}
       </div>
-      <p className="mt-auto pt-6 pb-[calc(var(--safe-bottom)+20px)] text-center text-[12px] leading-[17px] font-medium text-arc-text/50">
-        {/* Figma 11px; 12px is the floor. Second line: user request (A0 B-answers) */}
-        Your question and talks only. Never your name.<br />Your question is part of the link.
-      </p>
       <p role="status" className="sr-only">{note}</p>
       {note && <p aria-hidden="true" className="fixed inset-x-0 bottom-24 mx-auto w-fit max-w-[90%] rounded-full bg-arc-primary px-4 py-2 text-[14px] font-semibold break-all text-arc-on-primary">{note}</p>}
     </Screen>
@@ -151,19 +153,19 @@ export function Qr({ id }: { id: string }) {
   return (
     // Figma 17 also has "Print badge": out of scope for now (planned for the finals), so Lock screen is full width
     <Screen label="QR code" header={<><span /><IconButton icon={closeIcon} label="Close" href={href(`share/${id}`)} /></>}
-      bottom={<>
+      bottom={<div className="flex flex-col gap-[14px] pb-1.5">{/* Figma 17: the button ends 20 above the home indicator */}
         <p className="text-center text-[14px] font-medium text-arc-text-2" aria-live="polite">{saved ? 'Image ready to save' : ''}</p>
         <ArcButton kind="secondary" onClick={lockScreen}><Pic src={lockIcon} size={20} />Lock screen</ArcButton>
-      </>}>
+      </div>}>
       <div className="mt-[14px] flex justify-center"><TribeChip arc={arc} /></div>
-      <h1 className="mx-auto mt-4 w-[320px] max-w-full text-center text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
-      <div className="relative mx-auto mt-6 flex size-[248px] items-center justify-center rounded-[28px] bg-white">
+      <h1 className="mx-auto mt-[14px] w-[320px] max-w-full text-center text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
+      <div className="relative mx-auto mt-[38px] flex size-[248px] items-center justify-center rounded-[28px] bg-white">
         <svg role="img" aria-label={`QR code for the link to this Arc: ${arc.query}`} width={200} height={200} viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges">
           <path d={qr.d} fill="#15121F" />
         </svg>
         <img src={TRIBE_ICON[arc.tribe]} alt="" width={36} height={36} className="absolute" />
       </div>
-      <p className="mt-[30px] text-center text-[16px] font-medium text-arc-text/80">Scan to get this Arc</p>
+      <p className="mt-[30px] text-center text-[16px] font-medium tracking-[-0.006em] text-arc-text/80">Scan to get this Arc</p>
     </Screen>
   );
 }
