@@ -8,7 +8,8 @@ import { engine, type TribeId } from '../../engine';
 import { TRIBE } from '../../arc/tribes.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
 import { useWarm, warm, useTribe, setPreviewTribe } from '../../arc/live';
-import { Screen, ArcButton, TextAction, Dots, BackButton, Pic } from '../../components/arc';
+import { Screen, ArcButton, TextAction, BackButton, Pic } from '../../components/arc';
+import { SKIP_CLASS, StepDots } from './Start';
 import offline from '../../assets/arc/icon-offline.svg';
 import chevron from '../../assets/arc/icon-chevron-right.svg';
 
@@ -37,29 +38,32 @@ export function Ask() {
 
   return (
     <Screen label="Ask"
-      header={onboarded ? <BackButton href={href('home')} /> : <><Dots at={8} /><TextAction href={href('home')} onClick={e => { e.preventDefault(); update(setOnboarded); go('home'); }}>Skip</TextAction></>}
+      header={onboarded ? <BackButton href={href('home')} /> : <><StepDots at={8} /><TextAction href={href('home')} className={SKIP_CLASS} onClick={e => { e.preventDefault(); update(setOnboarded); go('home'); }}>Skip</TextAction></>}
       bottom={<>
-        <p className="flex items-center justify-center gap-1.5 text-[12px] font-medium text-arc-text-3" aria-live="polite">
+        {/* Figma: 20 above the button, which ends 20 above the home indicator */}
+        <p className="mb-1.5 flex items-center justify-center gap-1.5 text-[12px] font-medium text-arc-text-3" aria-live="polite">
           <Pic src={offline} size={16} />{warmState === 'ready' ? 'Ready offline' : warmState === 'failed' ? 'Needs a connection to get ready' : 'Getting ready for offline…'}
         </p>
-        <ArcButton onClick={next} disabled={!ready}>Find my angles</ArcButton>
+        <ArcButton className="mb-1.5" onClick={next} disabled={!ready}>Find my angles</ArcButton>
       </>}>
-      <h1 id="ask-title" className="mt-[34px] text-[30px] leading-9 font-semibold tracking-[-0.024em]">What are you<br />bringing to CHI?</h1>
-      <form className="mt-10" onSubmit={e => { e.preventDefault(); next(); }}>
+      <h1 id="ask-title" className="mt-[10px] text-[30px] leading-9 font-semibold tracking-[-0.024em]">What are you<br />bringing to CHI?</h1>
+      {/* Figma 591:680: input at y 226. The 1.5px edge is an inset shadow: Chromium draws a 1.5px border as 1px */}
+      <form className="mt-[42px]" onSubmit={e => { e.preventDefault(); next(); }}>
         <input aria-labelledby="ask-title" value={draft.query} maxLength={QUERY_MAX} enterKeyHint="go" autoComplete="off" placeholder="A word or a question…"
           onChange={e => update(s => setQuery(s, e.target.value))}
-          className="h-16 w-full rounded-[20px] border-[1.5px] border-arc-text/20 bg-arc-surface px-4 text-[17px] font-medium tracking-[-0.012em] text-arc-text placeholder:text-arc-text-3 focus:border-arc-text/60 focus:shadow-[0_0_0_4px_rgba(255,255,255,0.07)] focus:outline-none" />
+          className="h-16 w-full rounded-[20px] bg-arc-surface pr-4 pl-[16.5px] text-[17px] font-medium tracking-[-0.012em] text-arc-text shadow-[inset_0_0_0_1.5px_rgba(244,246,255,0.2)] placeholder:text-arc-text-3 focus:shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.6),0_0_0_4px_rgba(255,255,255,0.07)] focus:outline-none" />
       </form>
-      <div className="mt-[13px] min-h-7" aria-live="polite">
+      {/* Figma 591:684: chip at 26,303, the whole chip at 75%; the row keeps its height so the list below does not jump */}
+      <div className="mt-[13px] h-[30px]" aria-live="polite">
         {t && (
-          <span className="ml-0.5 inline-flex items-center gap-1.5 rounded-2xl border py-1.5 pr-3 pl-2.5 text-[13px] font-semibold text-arc-text/75"
+          <span className="ml-0.5 inline-flex items-center gap-1.5 rounded-2xl border py-1.5 pr-3 pl-2.5 text-[13px] font-semibold text-arc-text opacity-75"
             style={{ background: `color-mix(in srgb, ${t.color} 8%, transparent)`, borderColor: `color-mix(in srgb, ${t.color} 30%, transparent)` }}>
             <Pic src={TRIBE_ICON[t.id as TribeId]} size={14} />{t.name}
           </span>
         )}
       </div>
-      <p id="starters" className="mt-[26px] text-[12px] font-medium text-arc-text-3">Or start from one of these</p>
-      <ul className="mt-3 flex flex-col gap-2" aria-labelledby="starters">
+      <p id="starters" className="mt-[37px] text-[12px] font-medium text-arc-text-3">Or start from one of these</p>
+      <ul className="mt-[9.5px] flex flex-col gap-2" aria-labelledby="starters">
         {STARTERS.map(([tid, q]) => (
           <li key={q}>
             <button type="button" onClick={() => update(s => setQuery(s, q))}
