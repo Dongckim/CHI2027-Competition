@@ -2,13 +2,16 @@
 // tests/qa/known-failures.json; anything else fails qa:auto with the screen and value the check printed.
 //   npm run qa:auto [-- --no-build] [--only two-tabs,perf] [--deploy https://…]   (deploy: preview-check --public --expect-upstash)
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { failuresOf } from './failures.mjs';
 
 const args = process.argv.slice(2);
 const arg = k => (args.includes(k) ? args[args.indexOf(k) + 1] : null);
 const only = arg('--only')?.split(',');
 const deploy = arg('--deploy');
+const profilesNow = () => { try { return readdirSync(tmpdir()).filter(d => d.startsWith('arc-')); } catch { return []; } };
 const CHECKS = [
   ['two-tabs', 'tests/qa/two-tabs-check.mjs'],
   ['perf', 'tests/qa/perf-check.mjs'],
@@ -36,7 +39,10 @@ if (!args.includes('--no-build')) {
 const seen = new Set(), rows = [];
 for (const [name, script, ...rest] of CHECKS) {
   const t = Date.now();
+  const before = new Set(profilesNow());
   const r = spawnSync('node', ['--experimental-websocket', script, ...rest], { encoding: 'utf8', timeout: 15 * 60_000, maxBuffer: 64 << 20 });
+  // a check killed by the timeout (or a crash) leaves its Chrome profile; this check's new ones are done with
+  for (const d of profilesNow()) if (!before.has(d)) try { rmSync(join(tmpdir(), d), { recursive: true, force: true }); } catch {}
   const out = `${r.stdout ?? ''}\n${r.stderr ?? ''}`;
   const fails = failuresOf(out, r.status ?? 1);
   const unknown = fails.filter(l => { const k = known.find(x => x.check === name && l.includes(x.match)); if (k) seen.add(k); return !k; });
