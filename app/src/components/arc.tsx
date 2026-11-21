@@ -41,15 +41,17 @@ export function Screen({ header, children, bottom, label, clock }: { header?: Re
 
 type Kind = 'primary' | 'secondary' | 'ghost';
 // Full width unless the caller sets a width ("w-[128px]": Edit next to Share).
-const look = (kind: Kind, cls = '') => `inline-flex ${/(^|\s)h-/.test(cls) ? '' : 'h-[var(--arc-button-h)]'} ${/(^|\s)w-/.test(cls) ? '' : 'w-full'} items-center justify-center gap-2 rounded-full px-5 text-[16px] font-semibold tracking-[-0.006em] ${
+// A button given a width (w-… or min-w-…) sizes to its words and never breaks them (iPhone: "New / Arc" in a fixed 116 px).
+const sized = (cls: string) => /(^|\s)(min-)?w-/.test(cls);
+const look = (kind: Kind, cls = '') => `inline-flex ${/(^|\s)h-/.test(cls) ? '' : 'h-[var(--arc-button-h)]'} ${sized(cls) ? 'whitespace-nowrap' : 'w-full'} items-center justify-center gap-2 rounded-full px-5 text-[16px] font-semibold tracking-[-0.006em] ${
   kind === 'primary' ? 'bg-arc-primary text-arc-on-primary shadow-[var(--arc-shadow-primary)]'
   : kind === 'secondary' ? 'border border-arc-line bg-arc-surface text-arc-text'
   : 'text-arc-text/72'} disabled:opacity-40`;
 export function ArcButton({ kind = 'primary', className = '', ...rest }: ComponentPropsWithRef<'button'> & { kind?: Kind }) {
-  return <button type="button" className={`${look(kind, className)} ${className}`} {...rest} />;
+  return <button type="button" data-arc-button="" className={`${look(kind, className)} ${className}`} {...rest} />;
 }
 export function ArcLink({ kind = 'primary', className = '', ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { kind?: Kind }) {
-  return <a className={`${look(kind, className)} ${className}`} {...rest} />;
+  return <a data-arc-button="" className={`${look(kind, className)} ${className}`} {...rest} />;
 }
 
 /** Skip / text link in the header: 15px, with a 44px hit area. */
