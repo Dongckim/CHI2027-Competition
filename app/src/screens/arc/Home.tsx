@@ -123,7 +123,7 @@ export function Home() {
       <div role="tablist" aria-label="When" className="mt-[14px] flex h-10 rounded-[20px] border border-arc-line bg-arc-surface p-[3px]">
         {PERIOD_TABS.map(([k, label]) => (
           <button key={k} type="button" role="tab" aria-selected={period === k} aria-controls="arc-list" onClick={() => setPicked(k)}
-            className={`relative flex-1 rounded-2xl text-[13px] font-semibold before:absolute before:inset-x-0 before:-inset-y-[3px] before:content-[''] ${period === k ? 'bg-arc-chip-on text-arc-on-primary shadow-[var(--arc-shadow-lift)]' : 'text-arc-text/62'}`}>{label}</button>
+            className={`relative flex-1 rounded-2xl text-[13px] font-semibold before:absolute before:inset-x-0 before:-inset-y-[6px] before:content-[''] ${period === k ? 'bg-arc-chip-on text-arc-on-primary shadow-[var(--arc-shadow-lift)]' : 'text-arc-text/62'}`}>{label}</button>
         ))}
       </div>
       {period === 'today' && !rows.some(r => r.period.today) && (
@@ -132,7 +132,7 @@ export function Home() {
           <ArcButton kind="secondary" className="min-w-[160px]" onClick={() => setPicked('week')}>See this week</ArcButton>
         </div>
       )}
-      <ul id="arc-list" role="tabpanel" className="mt-4 flex flex-col gap-4">
+      <div id="arc-list" role="tabpanel"><ul className="mt-4 flex flex-col gap-4">
         {rows.filter(r => r.period[period]).map(({ a, day }) => {
           const t = TRIBE[a.tribe], h = a.nodes.filter(n => heard.has(n.key)).length;
           return (
@@ -157,7 +157,7 @@ export function Home() {
             </li>
           );
         })}
-      </ul>
+      </ul></div>
       <div className="mt-[30px] mb-6">{chi101}</div>
     </Screen>
   );

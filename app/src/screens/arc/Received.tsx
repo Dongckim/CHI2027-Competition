@@ -86,9 +86,10 @@ export function Received({ payload }: { payload: string }) {
   return (
     <Screen clock label="Shared Arc" bottom={<>
       <ArcButton onClick={() => keep(arc)} disabled={!arc.nodes.length}>Add to my Arcs</ArcButton>
-      <div className="grid grid-cols-2 gap-3">{/* Figma 18: Pick some · Make it mine, then Just read */}
-        <ArcButton kind="secondary" onClick={() => go(`r/${payload}/pick`)} disabled={!arc.nodes.length}>Pick some</ArcButton>
-        <ArcButton kind="secondary" onClick={() => makeMine(arc)} disabled={!arc.nodes.length}>Make it mine</ArcButton>
+      {/* Figma 18: Pick some · Make it mine side by side; with larger text each takes its own row rather than breaking its words */}
+      <div className="flex flex-wrap gap-3">
+        <ArcButton kind="secondary" className="min-w-fit grow basis-[calc(50%-6px)]" onClick={() => go(`r/${payload}/pick`)} disabled={!arc.nodes.length}>Pick some</ArcButton>
+        <ArcButton kind="secondary" className="min-w-fit grow basis-[calc(50%-6px)]" onClick={() => makeMine(arc)} disabled={!arc.nodes.length}>Make it mine</ArcButton>
       </div>
       <ArcButton kind="ghost" onClick={() => go(`r/${payload}/read`)} disabled={!arc.nodes.length}>Just read</ArcButton>
     </>}>
