@@ -5,6 +5,8 @@ import reframe from '../../assets/arc/22-sheet-reframe.svg';
 import challenge from '../../assets/arc/22-sheet-challenge.svg';
 
 export const ANGLE_NAME = { S: 'Supports', R: 'Reframes', T: 'Challenges' } as const; // screen names; keys stay S/R/T
+// Arc 0.2.0 `kind` of a Reframe, shown on 12, 13, 14 (user 11/21; Wonjune's engine words, new to the design: designer to confirm)
+export const KIND_NAME = { subject: 'Same subject', factor: 'Other factor', measure: 'Other measure', people: 'Other people' } as const;
 const ROWS = [
   { icon: support, name: ANGLE_NAME.S, text: 'Same question, same finding.' },
   { icon: reframe, name: ANGLE_NAME.R, text: 'Same question through a different factor, measure, or group.' },

@@ -68,7 +68,8 @@ try {
   // 12 → 14, "I heard it" → Heard on the map
   const first = await ev(`(() => { const b = ${nodes}.find(b => b.getAttribute('aria-description')?.endsWith(' · Ended')); return b ? ${nameOf}(b) : null; })()`);
   await click(`${nodes}.find(b => ${nameOf}(b) === ${JSON.stringify(first)})`);
-  const want = JSON.stringify((first ?? '').replace(/^\w+ · /, '').replace(/^✦ /, '').replace(/ \d\d:\d\d( · .*)?$/, ''));
+  // the node's text: angle · ✦ title, time · room, and a Reframe's kind on its own line (Arc 0.2.0)
+  const want = JSON.stringify((first ?? '').replace(/^\w+ · /, '').replace(/^✦ /, '').replace(/ (Same subject|Other factor|Other measure|Other people)$/, '').replace(/ \d\d:\d\d( · .*)?$/, ''));
   const talkMs = await waitFor(`document.querySelector('h1')?.innerText === ${want} && !/Loading/.test(document.querySelector('main').innerText)`, 30000);
   const talk = await ev(`({ tags: [...document.querySelectorAll('main > div:first-child span')].map(s => s.innerText), why: document.querySelector('#why')?.innerText,
     authors: [...document.querySelectorAll('main li')].filter(l => l.querySelector('img') && / · |\\w/.test(l.innerText)).length,

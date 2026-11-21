@@ -7,10 +7,13 @@ import { encodeLink } from '../../app/src/arc/link.js';
 
 const index = buildIndex(buildCorpus());
 const opts = { angles: ['S', 'R', 'T'], days: [], types: ['Paper', 'Posters', 'Interactive Demos'] };
-export const ARC = buildArc(index, 'Does VR fidelity raise presence?', opts, { id: 'a11y-normal-001', createdAt: 2 });
+// Reframes with an Arc 0.2.0 kind, as the ondevice engine gives them, so the map, list and detail checks see that line too
+const KINDS = ['factor', 'measure', 'people', 'subject'];
+const withKinds = arc => ({ ...arc, nodes: arc.nodes.map((n, i) => (n.angle === 'R' ? { ...n, kind: KINDS[i % 4] } : n)) });
+export const ARC = withKinds(buildArc(index, 'Does VR fidelity raise presence?', opts, { id: 'a11y-normal-001', createdAt: 2 }));
 export const NONE = buildArc(index, 'sign language', opts, { id: 'a11y-none-0001', createdAt: 1 });
 export const PEND = buildArc(index, 'privacy of smart home devices', opts, { id: 'a11y-pend-0001', createdAt: 0, mode: 'pending' });
-export const CROWD = buildArc(index, 'Does VR fidelity raise presence?', opts, { id: 'a11y-crowd-001', createdAt: 0, mode: 'crowded' });
+export const CROWD = withKinds(buildArc(index, 'Does VR fidelity raise presence?', opts, { id: 'a11y-crowd-001', createdAt: 0, mode: 'crowded' }));
 export const OTHER = buildArc(index, 'haptic feedback', opts, { id: 'a11y-other-001', createdAt: 0 });
 export const STORED = [ARC, NONE, PEND, CROWD];
 const draft = { query: 'Does VR fidelity raise presence?', topicsFor: null, topics: { S: [], R: [], T: [] }, when: 'all', what: ['talks', 'posters', 'demos'] };
