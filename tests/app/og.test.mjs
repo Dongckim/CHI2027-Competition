@@ -28,3 +28,11 @@ test('share page points og:image at /api/og for the same link, large card', () =
   assert.match(html, /summary_large_image/);
   assert.ok(!sharePage('broken', 'https://arc.example').includes('og:image'));
 });
+
+test('og: the talks line counts rooms, notes demos, gives the first day and the edition (Figma OG frames)', async () => {
+  const { talksLine } = await import('../../functions/og.mjs');
+  const data = { year: '2026', papers: { 1: ['Tue 14', 'r1', 0], 2: ['Tue 14', 'r2', 0], 3: ['Wed 15', 'r1', 0], 4: ['Wed 15', 'd', 1] } };
+  assert.equal(talksLine([[1, 'S'], [2, 'R'], [3, 'T']], data), '3 talks · 2 rooms · Tue 14 · CHI 2026');
+  assert.equal(talksLine([[1, 'S'], [4, 'R']], data), '2 talks · 1 rooms + demos · Tue 14 · CHI 2026');
+  assert.equal(talksLine([[1, 'S']], null), '1 talks', 'no index (not built): the count only');
+});

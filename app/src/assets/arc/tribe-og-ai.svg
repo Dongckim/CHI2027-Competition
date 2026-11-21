@@ -1,0 +1,11 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Tribe shape &#194;&#183; ai">
+<path id="Vector" d="M150 18C156.667 18 162 21.3333 166 28L290 254C294 262 294 268.667 290 274C286 279.333 280 282 272 282H28C20 282 14 279.333 10 274C6 268.667 6 262 10 254L134 28C138 21.3333 143.333 18 150 18Z" fill="url(#paint0_linear_0_52)"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_52" x1="7" y1="18" x2="7" y2="282" gradientUnits="userSpaceOnUse">
+<stop stop-color="#C9B5FF"/>
+<stop offset="1" stop-color="#A78BFF"/>
+</linearGradient>
+</defs>
+</svg>
