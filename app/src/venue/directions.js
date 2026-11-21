@@ -4,7 +4,7 @@
 // Lines are short, one per decision, as in Figma v3 09: "Exit right into Foyer 1, pass Room 114", "Elevator 2 up to P1",
 // "Room 121 on your left". Nothing here names a CCIB place: every name comes from the two data files.
 
-const LEVEL_ORDER = ['P0', 'M1', 'P1', 'M2', 'P2']; // stacked levels, bottom to top (AUD stands apart, no coordinates)
+export const LEVEL_ORDER = ['P0', 'M1', 'P1', 'M2', 'P2']; // stacked levels, bottom to top (AUD stands apart, no coordinates)
 const STRAIGHT = 0.7; // cos 45°: a smaller change of direction is "straight on"
 const CORNER_M = 15; // a turn this close before a new corridor is one corner, said once
 const placed = n => n.x != null && n.y != null; // the plan has coordinates for it (the Auditorium and its walkway do not)

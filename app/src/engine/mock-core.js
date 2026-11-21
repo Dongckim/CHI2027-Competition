@@ -13,7 +13,7 @@ import { questionOf } from '../arc/topic.js';
 // Word roots (A4, user request; anything smarter is the real engine's job): after the baseline's plural rule, drop
 // -ing, -ed and -ic so robotics / robotic / robot / robots, haptics / haptic and designed / designing / design meet.
 const root = w => w.replace(/(?<=.{3})(ing|ed)$/, '').replace(/(?<=.{3})ic$/, '');
-const terms = text => baseTerms(text).map(root);
+export const terms = text => baseTerms(text).map(root);
 
 export const ENGINE = 'mock@0.1';
 export const POOL = 30; // candidates per question (top TF-IDF)

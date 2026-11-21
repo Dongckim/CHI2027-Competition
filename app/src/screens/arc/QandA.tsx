@@ -1,11 +1,12 @@
 // 14 Q&A (Figma 597:972, decision 007): questions by votes, one vote per phone, Report (three hide a question), Delete
 // for your own. The ask box is the screen's one bottom element. Text is plain React text, never HTML.
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { update, useDevice } from '../../state/useDevice';
 import { votedOf, addVoted } from '../../arc/draft.js';
 import { useQaToken, listQuestions, ask, vote, flag, remove, type Question } from '../../arc/qa';
 import { useOnline } from '../../data/offline';
-import { Pic, Sheet } from '../../components/arc';
+import { Pic, Sheet, ArcButton } from '../../components/arc';
+import { closeQuestion, closeText } from '../../arc/talk.js';
 import voteIcon from '../../assets/arc/icon-vote.svg';
 import voteOnIcon from '../../assets/arc/icon-vote-on.svg';
 import chat from '../../assets/arc/icon-chat.svg';
@@ -26,17 +27,23 @@ export function useQandA(paperKey: string) {
     listQuestions(token, paperKey).then(q => { setQuestions(q); setError(''); }, e => setError(String(e.message ?? e)));
   }, [token, paperKey]);
   useEffect(() => { reload(); }, [reload, online]);
-  const send = async () => {
+  // 14b: an existing question close to the one being typed, matched on the phone (nothing is sent until a button)
+  const close = useMemo(() => closeQuestion(text, questions) as { question: Question; count: number } | null, [text, questions]);
+  // also: "Me too + add mine" votes for the close question first (the existing vote), then posts the typed one
+  const send = async (also?: Question) => {
     const t = text.trim();
     if (!t || busy || !token) return;
     setBusy(true); setNote('');
-    try { await ask(token, paperKey, t); setText(''); setNote('Question added.'); reload(); }
+    try {
+      if (also && !(also.voted || voted.has(also.id))) { await vote(token, also.id); update(s => addVoted(s, also.id)); }
+      await ask(token, paperKey, t); setText(''); setNote('Question added.'); reload();
+    }
     catch (e) { setNote(String((e as Error).message)); }
     finally { setBusy(false); }
   };
   const act = async (f: () => Promise<unknown>, done: string) => { try { await f(); setNote(done); reload(); } catch (e) { setNote(String((e as Error).message)); } };
   return {
-    questions, error, text, setText, busy, note, send, online,
+    questions, error, text, setText, busy, note, send, online, close,
     voteOn: (q: Question) => act(async () => { await vote(token, q.id); update(s => addVoted(s, q.id)); }, 'Vote counted.'),
     flagOn: (q: Question) => act(() => flag(token, q.id), 'Reported. Three reports hide a question.'),
     deleteOn: (q: Question) => act(() => remove(token, q.id), 'Your question was deleted.'),
@@ -87,21 +94,35 @@ export function QandAList({ qa }: { qa: ReturnType<typeof useQandA> }) {
 export function QandAAsk({ qa }: { qa: ReturnType<typeof useQandA> }) {
   const left = MAX - qa.text.length;
   const [about, setAbout] = useState(false);
+  const close = qa.online && qa.text.trim() ? qa.close : null;
   return (
-    // Figma: the input at y 742; the one-line note goes under it, in the space above the home indicator
+    // Figma: the input at y 742; the one-line note goes under it, in the space above the home indicator.
+    // With a close question shown, Enter is "Post on its own" (the plain Ask).
     <form onSubmit={e => { e.preventDefault(); qa.send(); }} className="-mb-[13px] flex flex-col">
+      {close && (
+        // 14b (Figma 744:1695, buttons 744:1660 at y 676 and 742): the close question, then the two buttons 12 apart, in place of Ask
+        <div className="mb-[14px] flex flex-col">
+          <div role="status" className="arc-fade rounded-[20px] px-4 pt-3.5 pb-[18px]">
+            <p className="text-[14px] font-semibold tracking-[-0.006em]">{closeText(close.count)}</p>
+            {/* Figma 62%; 65% (text-2) */}
+            <p className="mt-[7px] line-clamp-3 text-[13px] leading-[18px] font-medium break-words text-arc-text-2">“{close.question.text}”</p>
+          </div>
+          <ArcButton className="mt-[14px]" disabled={qa.busy} onClick={() => qa.send(close.question)}>Me too + add mine</ArcButton>
+          <ArcButton kind="secondary" className="mt-3" disabled={qa.busy} onClick={() => qa.send()}>Post on its own</ArcButton>
+        </div>
+      )}
       <label className="flex h-[52px] items-center gap-2.5 rounded-full border border-arc-line bg-arc-surface pr-2 pl-[18px]">
         <Pic src={chat} size={18} className="opacity-50" />
         <input value={qa.text} onChange={e => qa.setText(e.target.value.slice(0, MAX))} maxLength={MAX} disabled={!qa.online} enterKeyHint="send"
           placeholder="Add a question for the Q&A" aria-describedby="qa-note"
           className="min-w-0 flex-1 bg-transparent text-[15px] tracking-[-0.006em] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />
-        {qa.text.trim() && <button type="submit" disabled={qa.busy} className="h-10 shrink-0 rounded-full bg-arc-primary px-4 text-[14px] font-semibold text-arc-on-primary">Ask</button>}
+        {qa.text.trim() && !close && <button type="submit" disabled={qa.busy} className="h-10 shrink-0 rounded-full bg-arc-primary px-4 text-[14px] font-semibold text-arc-on-primary">Ask</button>}
       </label>
       <p id="qa-note" className="flex min-h-[15px] items-center justify-center gap-1 text-center text-[12px] leading-[15px] text-arc-text-3" aria-live="polite">
         {/* user 「안내는 한 줄 "Public · No personal info · Deleted 13 Jun 2027" + ⓘ(누르면 자세한 설명)」; a status note takes the
             line's words for a while, the ⓘ stays */}
         {qa.note || (left < 40 ? `${left} characters left` : 'Public · No personal info · Deleted 13 Jun 2027')}
-          <button type="button" onClick={() => setAbout(true)} aria-label="About questions" className="relative px-0.5 text-[13px] leading-[15px] text-arc-text-2 before:absolute before:-inset-[15px] before:content-['']">ⓘ</button>
+          <button type="button" onClick={() => setAbout(true)} aria-label="About questions" className="relative -my-[4.5px] inline-flex size-6 items-center justify-center text-[13px] leading-[15px] text-arc-text-2 before:absolute before:-inset-[10px] before:content-['']">ⓘ</button>{/* 24 px box (axe target-size), 44 px touch area, the line stays 15 */}
       </p>
       <Sheet open={about} onClose={() => setAbout(false)} title="About questions">
         {/* 해석(확인 전): the detail text, from decision 007 and functions/qa.mjs (it keeps sha256(salt + device token)) */}
