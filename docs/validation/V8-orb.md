@@ -51,3 +51,22 @@
   - PR #50
 - 디자이너 확인 기록은 없다. 바로 다음 메시지 "전체 디자인을 그냥 figma대로 해줘"도 원을 따로 말하지 않았다.
 - 그래서 "사용자 결정"은 정확하지 않았다. 정확한 기록은 "사용자의 'Figma대로' 요청을 원에 적용한 해석, 디자이너 확인 전"이다. A4 문서에 정정을 적었다.
+
+## 정정: 20 "New Arc"가 아이폰에서 두 줄 (2026-11-20, fix/button-nowrap)
+- 사용자 실기기(iPhone Safari): 「"+ New / Arc" 두 줄로 꺾이고 높이가 커져」
+- 원인(#56의 내 실수):
+  - `w-[116px] px-0`의 `px-0`이 공통 버튼의 `px-5`를 이기지 못했다. 안쪽 폭은 116 − 40 = 76 px였다.
+  - 내용은 아이콘 20 + 간격 8 + "New Arc"(WebKit 65 px, Chrome은 더 좁음)라 들어가지 않았다.
+  - 나는 상자 크기(116×44)만 재고 "확인"이라고 했다. 줄 수는 재지 않았다.
+- 고친 것:
+  - 공통 버튼(ArcButton·ArcLink)에 `w-`나 `min-w-`를 주면 `white-space: nowrap`이 붙고 `w-full`은 붙지 않는다.
+  - New Arc는 `min-w-[116px]`, 좌우 20 px, 높이 44 px. WebKit(iPhone 14 흉내)에서 133×44, 한 줄이다.
+  - 12·13 Edit도 고정 128 px에서 `min-w-[128px]`로 바꿨다.
+  - Figma의 116 px는 Inter 600 16 px + 좌우 20 px로는 들어가지 않는 값이다. 그래서 최소 폭으로만 쓴다. 디자이너 확인 전.
+- 검사:
+  - a11y-check가 모든 화면의 공통 버튼(`data-arc-button`)을 본다. 글자 줄 수가 1인지, 버튼마다 글자 크기를 두 배로 한 200%에서도 한 줄이고 잘리지 않으며 화면 안인지 확인한다. 25화면 통과.
+  - 대조: Home만 #56 상태(고정 116 px, 줄바꿈 허용)로 되돌리면 200%에서 "글자 잘림"으로 실패한다. 100%의 두 줄은 Chrome에서는 재현되지 않는다(Chrome의 글자 폭이 더 좁음). 그래서 WebKit으로 따로 확인했다.
+- 글꼴:
+  - 앱 본문 글꼴은 Inter 400·500·600이다(`@fontsource/inter`, 자체 호스팅, 서비스 워커가 보관). IBM Plex는 Mono 500만 있고 Arc 화면에서는 쓰지 않는다.
+  - 헤드리스 Chrome과 WebKit(Playwright 1.49.1, iPhone 14 흉내)에서 Inter 세 굵기가 모두 `loaded`이고, `document.fonts.check('600 16px Inter')`는 true다.
+  - 실제 아이폰에서의 로드는 확인하지 못했다. Mac Safari → 개발자용 → iPhone → 콘솔에서 `[...document.fonts].map(f => f.family + ' ' + f.weight + ' ' + f.status)`로 확인할 수 있다.
