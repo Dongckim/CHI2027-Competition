@@ -12,9 +12,7 @@
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { buildCorpus } from '../engine/corpus.mjs';
-import { buildIndex, buildArc } from '../../app/src/engine/mock-core.js';
-import { encodeLink } from '../../app/src/arc/link.js';
+import { ARC, NONE, PEND, CROWD, STORED, device, SCREENS, seedArcs, buttonsProbe } from '../qa/screens.mjs';
 
 const SHOTS = process.argv.includes('--shots') ? process.argv[process.argv.indexOf('--shots') + 1] : null;
 if (SHOTS) mkdirSync(SHOTS, { recursive: true });
@@ -22,26 +20,7 @@ const PORT = 4341, BASE = `http://localhost:${PORT}/`;
 const CHROME = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const AXE = readFileSync(new URL('../../node_modules/axe-core/axe.min.js', import.meta.url), 'utf8');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const index = buildIndex(buildCorpus());
-const opts = { angles: ['S', 'R', 'T'], days: [], types: ['Paper', 'Posters', 'Interactive Demos'] };
-const ARC = buildArc(index, 'Does VR fidelity raise presence?', opts, { id: 'a11y-normal-001', createdAt: 2 });
-const NONE = buildArc(index, 'sign language', opts, { id: 'a11y-none-0001', createdAt: 1 });
-const PEND = buildArc(index, 'privacy of smart home devices', opts, { id: 'a11y-pend-0001', createdAt: 0, mode: 'pending' });
-const CROWD = buildArc(index, 'Does VR fidelity raise presence?', opts, { id: 'a11y-crowd-001', createdAt: 0, mode: 'crowded' });
-const OTHER = buildArc(index, 'haptic feedback', opts, { id: 'a11y-other-001', createdAt: 0 });
-const draft = { query: 'Does VR fidelity raise presence?', topicsFor: null, topics: { S: [], R: [], T: [] }, when: 'all', what: ['talks', 'posters', 'demos'] };
-const device = onboarded => JSON.stringify({ version: 1, edition: 'chi2026', mode: null, step: 'research', builtAt: null,
-  plan: { query: '', topicsFor: null, topics: [], nearbyAdded: [], days: [], needs: { stepFree: false, fewerRoomChanges: false, breaks: false, largerText: false, summaries: false }, language: 'en', see: ['papers'], howFull: 'balanced' },
-  arc: { onboarded, firstChi: true, draft } });
 const EXCEPT = JSON.parse(readFileSync(new URL('../qa/a11y-exceptions.json', import.meta.url), 'utf8')).allow;
-const SCREENS = [['10', '#/building', 'Reading'], 
-  ['01', '#/start/1', 'Bring one question'], ['02', '#/start/2', 'The biggest week'], ['03', '#/start/3', '10+ talks run'], ['04', '#/start/4', 'Know what to do'],
-  ['05', '#/start/5', 'Breaks are'], ['06', '#/start/6', 'three sides'], ['07', '#/ask', 'What are you'], ['08', '#/angles', 'Supports'],
-  ['09', '#/when', 'Build my Arc'], ['11', `#/hood/${ARC.id}`, "YOU'RE IN"], ['12', `#/arc/${ARC.id}`, 'Next ·'], ['13', `#/arc/${ARC.id}/list`, 'Reframes'],
-  ['14', `#/talk/${ARC.nodes[0].key}`, 'WHY IT'], ['15', `#/arc/${ARC.id}/edit`, 'Editing'], ['16', `#/share/${ARC.id}`, 'Never your name'],
-  ['17', `#/qr/${ARC.id}`, 'Scan to get'], ['18', `#/r/${encodeLink(OTHER)}`, 'Shared Arc'], ['19', `#/r/${encodeLink(OTHER)}/pick`, 'Pick what to keep'],
-  ['20', '#/home', 'My Arcs'], ['23', `#/arc/${NONE.id}`, 'No clear challenge'], ['24', `#/arc/${CROWD.id}`, ' more'], ['25', `#/arc/${PEND.id}`, 'Sorting angles'],
-];
 
 const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { stdio: 'ignore', detached: true });
 for (let i = 0; i < 60; i++) { try { if ((await fetch(BASE)).ok) break; } catch {} await sleep(250); }
@@ -86,28 +65,8 @@ const sizes = () => ev(`(async () => {
   scrollTo(0, 0);
   return { small, tiny: tiny.slice(0, 8), tinyCount: tiny.length };
 })()`);
-// Buttons (ArcButton / ArcLink, data-arc-button): their words on one line, at the normal size and with the text at 200%
-// (each button's font size doubled, as Safari's text zoom does); at 200% also nothing cut off or off screen.
-const buttons = () => ev(`(async () => {
-  // line boxes of the words only (an icon beside them has its own top): text nodes' rects, grouped by overlap
-  const lines = el => { const rows = []; const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-    for (let t = w.nextNode(); t; t = w.nextNode()) { if (!t.textContent.trim()) continue; const r = document.createRange(); r.selectNodeContents(t);
-      for (const q of r.getClientRects()) { if (q.width < 1) continue; const mid = (q.top + q.bottom) / 2; if (!rows.some(y => Math.abs(y - mid) < q.height / 2)) rows.push(mid); } }
-    return rows.length; };
-  const modal = document.querySelector('[role=dialog]');
-  const all = [...document.querySelectorAll('[data-arc-button]')].filter(b => b.getBoundingClientRect().width > 0 && b.innerText.trim() && !b.closest('[inert]') && (!modal || modal.contains(b)));
-  const out = [];
-  const name = b => b.innerText.replace(/\\s+/g, ' ').trim().slice(0, 30);
-  for (const b of all) { const n = lines(b); if (n > 1) out.push({ el: name(b), zoom: 100, lines: n }); }
-  const was = all.map(b => b.style.fontSize);
-  all.forEach(b => { b.style.fontSize = (parseFloat(getComputedStyle(b).fontSize) * 2) + 'px'; });
-  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  for (const b of all) { const n = lines(b), r = b.getBoundingClientRect();
-    const cut = b.scrollWidth > b.clientWidth + 1, off = r.right > innerWidth + 1 || r.left < -1;
-    if (n > 1 || cut || off) out.push({ el: name(b), zoom: 200, lines: n, cut, off }); }
-  all.forEach((b, i) => { b.style.fontSize = was[i]; });
-  return { checked: all.length, bad: out };
-})()`);
+// Buttons on one line at 100% and 200% text (tests/qa/screens.mjs buttonsProbe, shared with the WebKit check)
+const buttons = () => ev(`(${buttonsProbe})()`);
 // sideways scroll at three widths (and, on 16, while the cards are swiped)
 const overflow = async name => {
   const out = [];
@@ -179,8 +138,7 @@ try {
   await send('Page.navigate', { url: `${BASE}?at=2026-04-14T12:00&s=21#/home` });
   if (await waitFor(`document.body.innerText.includes('Start with one question')`, 30000)) { await sleep(600); results['21'] = await axe(); results['21'].pixels = await pixelContrast(results['21'].cc); results['21'].sizes = await sizes(); results['21'].buttons = await buttons(); results['21'].overflow = await overflow('21'); }
   else results['21'] = { error: 'did not show "Start with one question"' };
-  await ev(`new Promise(r => { const q = indexedDB.open('arc', 1); q.onupgradeneeded = () => q.result.createObjectStore('arcs', { keyPath: 'id' });
-    q.onsuccess = () => { const t = q.result.transaction('arcs', 'readwrite'); for (const a of ${JSON.stringify([ARC, NONE, PEND, CROWD])}) t.objectStore('arcs').put(a); t.oncomplete = () => r(true); }; })`);
+  await ev(seedArcs(STORED));
   for (const [name, hash, text] of SCREENS) {
     await send('Page.navigate', { url: `${BASE}?at=2026-04-14T12:00${name === '10' ? '&mock=slow' : ''}&s=${name}${hash}` });
     const ok = await waitFor(`document.body.innerText.includes(${JSON.stringify(text)})`, 30000);
