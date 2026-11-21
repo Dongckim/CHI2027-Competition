@@ -62,6 +62,16 @@ Figma에 없는 상태에 쓸 문구다. 사용자가 정했고, 디자이너 �
 - 17 "Print badge"(그래서 Lock screen이 전체 폭)
 - 16 "Follow along / Read only"(그 자리를 없애고 아래 공유 버튼 줄을 Figma의 다른 간격으로 당김)
 - 09 "How you walk: Calm route / Step-free"(빈 자리 없음)
+- 14g 통역 대화(Talk face to face)
+
+사용자 「본선으로(docs/handoff에 "본선 예정"): 14g 통역 대화, Print badge, Follow along/Read only, Calm route/Step-free」
+
+## 빼기 (2026-11-21)
+앱에 넣지 않는 화면이다. 사용자 「빼기: 14c, 14d, 14h, Web · Discussion spots」
+- 14c Questions
+- 14d Author view
+- 14h Conversation summary
+- Web · Discussion spots
 
 ## 8. 링크 미리보기 그림(og)과 종족 색 (2026-11-20, 사용자 「figma대로 og-image 해줄래?」)
 - og 그림은 Figma "OG · <tribe> · 1200×630"(746:1913 XR, 746:1948 Accessibility, 746:1982 AI)대로 바꿨다.
@@ -106,3 +116,8 @@ Figma에 없는 상태에 쓸 문구다. 사용자가 정했고, 디자이너 �
 | 19 | Skip 원 테두리 1 px로 보임(Figma 1.5) | 1× 화면에서만, 폰은 1.5 |
 | 17·18·21 | 화면마다 아래 간격이 다름(20, 10·12, 20) | 화면별로 맞춤 |
 | 22 | 없음 | |
+
+## 12. 06b·06c 온보딩, 16b 링크 미리보기 (2026-11-21, Figma 741:1448·741:1512·743:1697)
+- 문구는 Figma 그대로다(다른 것 없음). 06 → 06b → 06c → 07, 점 6·7번째. Skip은 홈.
+- 06b 칩 이름은 Figma의 짧은 이름("Accessibility", "Health & care", "Learning", "Society", "Devices", "Design")이다. 07·11 등 다른 화면의 종족 이름은 긴 이름("Accessibility & aging" 등, `tribes.js`)이라 둘이 다르다. 어느 쪽으로 맞출지 디자이너 확인 전.
+- 16b 링크 미리보기(743:1697): 공유 링크의 설명을 Figma대로 "ARC · ↑ n support · ↻ n reframe · ⊣ n challenge · Tue 14"(실제 개수, 첫 발표 요일), 사이트 이름 "arc2027.com"으로 바꿨다. 예전 설명 끝의 "Unofficial."은 빠졌다(og 그림의 출처 줄에는 그대로 있음).
