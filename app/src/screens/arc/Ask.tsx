@@ -67,8 +67,8 @@ export function Ask() {
         {STARTERS.map(([tid, q]) => (
           <li key={q}>
             <button type="button" onClick={() => update(s => setQuery(s, q))}
-              className="flex h-[52px] w-full items-center gap-3 rounded-2xl border border-arc-line bg-arc-surface pr-3.5 pl-[15px] text-left text-[14px] font-medium tracking-[-0.006em] text-arc-text/85">
-              <Pic src={TRIBE_ICON[tid]} size={18} /><span className="min-w-0 flex-1 truncate">{q}</span><Pic src={chevron} size={16} />
+              className="flex min-h-[52px] w-full items-center gap-3 rounded-2xl border border-arc-line bg-arc-surface py-2 pr-3.5 pl-[15px] text-left text-[14px] font-medium tracking-[-0.006em] text-arc-text/85">
+              <Pic src={TRIBE_ICON[tid]} size={18} /><span className="min-w-0 flex-1">{q}</span>{/* 사용자 「말줄임 대신 화살표 앞에서 두 줄 줄바꿈」: two lines still fit the 52 row */}<Pic src={chevron} size={16} />
             </button>
           </li>
         ))}
