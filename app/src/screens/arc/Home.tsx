@@ -93,34 +93,36 @@ export function Home() {
   const period: Period = picked ?? (schedule ? firstPeriod(rows.map(r => r.period)) : 'week');
   if (!arcs) return null;
   const chi101 = (
-    <a href={href('start/2')} className="flex h-14 items-center gap-3 rounded-[20px] border border-arc-line bg-arc-surface pr-3.5 pl-4 text-[15px] font-semibold">
+    <a href={href('start/2')} className="flex h-14 items-center gap-3 rounded-[20px] border border-arc-line bg-arc-surface pr-3.5 pl-4 text-[15px] font-semibold tracking-[-0.006em]">
       <Pic src={book} size={20} /><span className="flex-1">CHI 101</span><Pic src={chevron} size={18} />
     </a>
   );
   if (!arcs.length) return (
-    <Screen label="My Arcs" bottom={<>{chi101}<ArcLink href={href('ask')}><Pic src={plusDark} size={20} />New Arc</ArcLink></>}>
+    <Screen label="My Arcs" bottom={<div className="flex flex-col gap-5 pb-1.5">{/* Figma 21: 20 between, New Arc 20 above the home indicator */}{chi101}<ArcLink href={href('ask')}><Pic src={plusDark} size={20} />New Arc</ArcLink></div>}>
       <h1 className="mt-3 text-[30px] font-semibold tracking-[-0.024em]">My Arcs</h1>
       {!isPersistent() && <p className="mt-2 text-[14px] text-arc-text-2">This browser does not keep Arcs. They stay until you close the tab.</p>}
-      <div className="flex flex-1 flex-col items-center justify-center">
+      <div className="mt-[113px] flex flex-col items-center">{/* Figma 21: the art at a fixed 215, not centred */}
         <a href={href('ask')} aria-label="New Arc" className="relative -mx-6 h-[250px] w-[390px] max-w-[100vw]">
           <img src={holo} alt="" style={at(70, 0, 250)} />
           <img src={orbit} alt="" style={at(110, 40, 170)} />
           <img src={newOrb} alt="" style={at(147, 77, 96)} />
           <img src={plus} alt="" style={at(179, 109, 32)} />
         </a>
-        <p className="mt-6 text-center text-[26px] leading-8 font-semibold tracking-[-0.02em]">Start with one question.</p>
+        <p className="mt-[23px] text-center text-[26px] leading-8 font-semibold tracking-[-0.02em]">Start with one question.</p>
       </div>
     </Screen>
   );
   return (
     <Screen label="My Arcs" header={<>
-      <h1 className="pl-2 text-[30px] font-semibold tracking-[-0.024em]">My Arcs</h1>
-      <ArcLink href={href('ask')} className="h-11 min-w-[116px] shrink-0"><Pic src={plusDark} size={20} />New Arc</ArcLink>{/* Figma 20: 116×44, grows with its words */}
+      {/* Figma 20: title at 24, 66; New Arc at 64, 24 from the edge (the header row is 16 from it). mb-1: the button's
+          lower edge is not flush with main, where a press on it landed on main (a11y check) */}
+      <h1 className="mt-3 self-start pl-2 text-[30px] font-semibold tracking-[-0.024em]">My Arcs</h1>
+      <ArcLink href={href('ask')} className="mt-2.5 mr-2 mb-1 h-11 min-w-[116px] shrink-0 self-start"><Pic src={plusDark} size={20} />New Arc</ArcLink>{/* Figma 20: 116×44, grows with its words */}
     </>}>
       <DemoBanner />
       {!isPersistent() && <p className="mt-2 text-[14px] text-arc-text-2">This browser does not keep Arcs. They stay until you close the tab.</p>}
       {/* Figma 20 (743:1736): Today / This week / After CHI; which Arcs each shows is an interpretation, designer to confirm */}
-      <div role="tablist" aria-label="When" className="mt-[14px] flex h-10 rounded-[20px] border border-arc-line bg-arc-surface p-[3px]">
+      <div role="tablist" aria-label="When" className="mt-2.5 flex h-10 rounded-[20px] border border-arc-line bg-arc-surface p-[3px]">
         {PERIOD_TABS.map(([k, label]) => (
           <button key={k} type="button" role="tab" aria-selected={period === k} aria-controls="arc-list" onClick={() => setPicked(k)}
             className={`relative flex-1 rounded-2xl text-[13px] font-semibold before:absolute before:inset-x-0 before:-inset-y-[6px] before:content-[''] ${period === k ? 'bg-arc-chip-on text-arc-on-primary shadow-[var(--arc-shadow-lift)]' : 'text-arc-text/62'}`}>{label}</button>
@@ -132,7 +134,7 @@ export function Home() {
           <ArcButton kind="secondary" className="min-w-[160px]" onClick={() => setPicked('week')}>See this week</ArcButton>
         </div>
       )}
-      <div id="arc-list" role="tabpanel"><ul className="mt-4 flex flex-col gap-4">
+      <div id="arc-list" role="tabpanel"><ul className="mt-5 flex flex-col gap-4">
         {rows.filter(r => r.period[period]).map(({ a, day }) => {
           const t = TRIBE[a.tribe], h = a.nodes.filter(n => heard.has(n.key)).length;
           return (
@@ -149,8 +151,8 @@ export function Home() {
                   <span className="line-clamp-2 text-[16px] leading-[21px] font-semibold tracking-[-0.006em]">{a.query}</span>
                   <span aria-hidden="true" className="flex flex-wrap items-center gap-1">
                     {a.nodes.slice(0, 9).map(n => <span key={n.key} className="size-1.5 rounded-full" style={heard.has(n.key) ? { background: t.color } : { border: '1px solid rgba(244,246,255,0.4)' }} />)}
-                    {/* Figma 11px; 12px is the floor */}
-                    {day && <span className="ml-1.5 text-[12px] font-medium text-arc-text/60">{day}</span>}
+                    {/* Figma 11px at 50% in a 13px line; 12px and 55% are the floor */}
+                    {day && <span className="text-[12px] leading-[13px] font-medium text-arc-text-3">{day}</span>}
                   </span>
                 </span>
               </a>
