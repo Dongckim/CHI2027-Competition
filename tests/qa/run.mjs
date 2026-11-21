@@ -16,6 +16,7 @@ const CHECKS = [
   ['link', 'tests/qa/link-check.mjs'],
   ['press', 'tests/qa/press-check.mjs'],
   ['orb', 'tests/qa/orb-check.mjs'],
+  ['webkit', 'tests/qa/webkit-check.mjs'], // Playwright WebKit (npx playwright install webkit once)
   ['a11y', 'tests/arc/a11y-check.mjs'],
   ['create', 'tests/arc/create-check.mjs'],
   ['arc', 'tests/arc/arc-check.mjs'],
