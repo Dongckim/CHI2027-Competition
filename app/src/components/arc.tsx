@@ -70,8 +70,7 @@ export function IconButton({ icon, label, onClick, href }: { icon: string; label
 export const BackButton = ({ href, onClick }: { href?: string; onClick?: () => void }) =>
   <IconButton icon={chevronLeft} label="Back" href={href} onClick={onClick ?? (href ? undefined : () => history.back())} />;
 
-/** Onboarding dots (6): the active one is a pill. Screen readers get "Step n of 6". */
-/** Onboarding dots: Figma draws 8 (02–06 are 1–5, 07 is 8). */
+/** Onboarding dots: Figma draws 8 (02–06 are 1–5, 06b 6, 06c 7, 07 is 8); the active one is a pill. */
 export function Dots({ at, total = 8 }: { at: number; total?: number }) {
   return (
     <div className="flex items-center gap-1.5 px-2" role="img" aria-label={`Step ${at} of ${total}`}>

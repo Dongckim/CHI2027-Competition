@@ -1,11 +1,14 @@
-// 01 Welcome → 02–05 CHI 101 (first CHI) → 06 How ARC works → 07. "I've been before" goes 01 → 06. Skip → home.
-// Copy and pictures are Figma Final UI (590:453 … 591:586). Pictures are decorative; every meaning is in text.
+// 01 Welcome → 02–05 CHI 101 (first CHI) → 06 How ARC works → 06b Your colour → 06c Before, during, after → 07.
+// "I've been before" goes 01 → 06. Skip → home.
+// Copy and pictures are Figma Final UI (590:453 … 591:586, 741:1448, 741:1512). Pictures are decorative; every meaning is in text.
 import { useEffect } from 'react';
 import { go, href } from '../../router';
 import { update } from '../../state/useDevice';
 import { setOnboarded, setFirstChi } from '../../arc/draft.js';
 import { warm, useTribe } from '../../arc/live';
 import { TRIBES } from '../../arc/tribes.js';
+import { TRIBE_ICON } from '../../arc/tribeIcons';
+import type { TribeId } from '../../engine/types';
 import { Screen, ArcButton, ArcLink, TextAction, Dots, Pic } from '../../components/arc';
 import holoRing from '../../assets/arc/welcome-holo-ring.svg';
 import innerRing from '../../assets/arc/welcome-inner-ring.svg';
@@ -38,6 +41,11 @@ import orb06 from '../../assets/arc/06-question-orb.svg';
 import orbS from '../../assets/arc/06-orb-supports.svg';
 import orbR from '../../assets/arc/06-orb-reframes.svg';
 import orbT from '../../assets/arc/06-orb-challenges.svg';
+import person from '../../assets/arc/icon-person.svg';
+import qr from '../../assets/arc/icon-qr.svg';
+import sparkle from '../../assets/arc/icon-sparkle.svg';
+import mapIcon from '../../assets/arc/icon-map.svg';
+import book from '../../assets/arc/icon-book.svg';
 
 // shortcut: ACM's policy page (Figma has no URL); switch to the CHI 2027 Code of Conduct page once it is published.
 export const CODE_OF_CONDUCT = 'https://www.acm.org/about-acm/policy-against-harassment';
@@ -139,6 +147,9 @@ function ADay() {
   );
 }
 
+// Figma's card fill (Formats, 06b, 06c): fades down from 6% white
+const FADE = { background: 'linear-gradient(to bottom, rgba(255,255,255,0.06), rgba(255,255,255,0.03) 55%, rgba(255,255,255,0))' };
+
 function Formats() {
   const cells: [string, string, string][] = [[talk, 'Listen', 'Paper talk'], [poster, 'Chat', 'Poster'], [demo, 'Try', 'Demo'],
     [panel, 'Debate', 'Panel'], [meetup, 'Join', 'SIG & meetup'], [keynote, 'Zoom out', 'Keynote']];
@@ -146,8 +157,7 @@ function Formats() {
     <Page dot={3} label="Formats" title={['Know what to do', 'where.']} next="start/5">
       <ul className="mt-[64px] grid grid-cols-2 gap-3">{/* Figma 590:650…: 165×132 tiles, radius 20, fade from 6% white */}
         {cells.map(([icon, verb, name]) => (
-          <li key={name} className="flex h-[132px] flex-col items-center justify-center rounded-[20px] px-2 text-center"
-            style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.06), rgba(255,255,255,0.03) 55%, rgba(255,255,255,0))' }}>
+          <li key={name} className="flex h-[132px] flex-col items-center justify-center rounded-[20px] px-2 text-center" style={FADE}>
             <Pic src={icon} size={26} />
             <p className="mt-3 text-[20px] font-semibold tracking-[-0.012em]">{verb}</p>
             <p className="mt-1 text-[13px] font-medium text-arc-text-3">{name}</p>
@@ -194,7 +204,7 @@ function HowArcWorks() {
     </div>
   );
   return (
-    <Page dot={5} label="How ARC works" title={['Your question,', 'seen from three sides.']} next="ask">
+    <Page dot={5} label="How ARC works" title={['Your question,', 'seen from three sides.']} next="start/6b">
       {/* not Frame: the node names are read out, only the pictures are hidden */}
       <div className="pointer-events-none relative h-[462px] w-[390px] shrink-0 self-center">
         <div className="absolute left-0 w-[390px]" style={{ top: -184, height: 844 }}>
@@ -211,7 +221,56 @@ function HowArcWorks() {
   );
 }
 
-const PAGES: Record<string, () => React.JSX.Element> = { '1': Welcome, '2': WhatIsChi, '3': ADay, '4': Formats, '5': HowPeopleTalk, '6': HowArcWorks };
+// 06b chips: Figma's short names (tribes.js has the long ones), in Figma's order; the shapes are the tribe icons at 16, 62%
+const CHIPS: [TribeId, string][] = [['ai', 'AI & agents'], ['xr', 'XR & immersive'], ['access', 'Accessibility'], ['health', 'Health & care'],
+  ['learning', 'Learning'], ['society', 'Society'], ['devices', 'Devices'], ['design', 'Design']];
+function YourColour() {
+  const ways: [string, string, string][] = [[person, 'From afar', 'Spot the colour and shape on their screen.'], [qr, 'Up close', 'Scan their QR to get their Arc.']];
+  return (
+    <Page dot={6} label="Your colour" title={['Same colour,', 'same neighbourhood.']} next="start/6c">
+      <ul className="mt-12 grid grid-cols-2 gap-3">{/* Figma 741:1703…: rows at y 232 / 282 / 332 / 382, columns at x 24 / 201 */}
+        {CHIPS.map(([id, name]) => (
+          <li key={id} className="flex h-[38px] items-center gap-1.5 justify-self-start rounded-full border border-arc-line bg-arc-surface px-3.5 text-[14px] font-medium tracking-[-0.006em] whitespace-nowrap text-arc-text/62">
+            <Pic src={TRIBE_ICON[id]} size={16} className="opacity-62" />{name}
+          </li>
+        ))}
+      </ul>
+      <ul className="mt-9 grid grid-cols-2 gap-3">{/* cards at y 456, 165×150 */}
+        {ways.map(([icon, title, text]) => (
+          <li key={title} className="h-[150px] rounded-[20px] px-4 pt-[18px]" style={FADE}>
+            <Pic src={icon} size={24} />
+            <h2 className="mt-[14px] text-[17px] leading-5 font-semibold tracking-[-0.012em]">{title}</h2>
+            <p className="mt-1.5 text-[13px] leading-[17px] font-medium text-arc-text-3">{text}</p>
+          </li>
+        ))}
+      </ul>
+    </Page>
+  );
+}
+
+function BeforeDuringAfter() {
+  const stages: [string, string, string, string][] = [[sparkle, 'Before', 'Ask', 'Bring one question tonight.'],
+    [mapIcon, 'During', 'Arc', 'Follow it. Swap a stop. Share it.'], [book, 'After', 'Keep', 'CHI’s answer, a reading list, and what’s still open.']];
+  return (
+    <Page dot={7} label="Before, during, after" title={['Before, during,', 'after.']} next="ask">
+      <ul className="mt-12 flex flex-col gap-3">{/* Figma 741:1536…: 342×110 at y 232 / 354 / 476 */}
+        {stages.map(([icon, when, name, text]) => (
+          <li key={name} className="relative h-[110px] rounded-[20px]" style={FADE}>
+            <Pic src={icon} size={24} className="absolute top-5 left-[18px]" />
+            <h2 className="absolute top-[22px] left-14 flex flex-col">
+              <span className="text-[12px] leading-[15px] font-medium text-arc-text-3">{when}</span>
+              <span className="mt-[3px] text-[22px] leading-[27px] font-semibold tracking-[-0.02em]">{name}</span>
+            </h2>
+            <p className="absolute top-[30px] right-[18px] left-[140px] text-[14px] leading-[19px] font-medium tracking-[-0.006em] text-arc-text-2">{text}</p>
+          </li>
+        ))}
+      </ul>
+    </Page>
+  );
+}
+
+const PAGES: Record<string, () => React.JSX.Element> = { '1': Welcome, '2': WhatIsChi, '3': ADay, '4': Formats, '5': HowPeopleTalk, '6': HowArcWorks,
+  '6b': YourColour, '6c': BeforeDuringAfter };
 export const START_PAGES = Object.keys(PAGES);
 
 export function Start({ page }: { page: string }) {
