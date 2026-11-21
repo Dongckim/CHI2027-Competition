@@ -8,9 +8,12 @@ import { nodeStates } from './map.js';
 
 export const PERIODS = /** @type {const} */ (['today', 'week', 'after']);
 
+/** The conference is over: the venue day is after its last day. */
+export const isOver = (now, { days, timeZone }) => localDay(now, timeZone) > days[days.length - 1];
+
 export function periodsOf(arc, timeOf, now, heard, { days, timeZone }) {
   const today = localDay(now, timeZone);
-  const over = today > days[days.length - 1];
+  const over = isOver(now, { days, timeZone });
   const st = nodeStates(arc.nodes, timeOf, now, heard);
   const left = arc.nodes.filter(n => st.get(n.key) !== 'ended' && st.get(n.key) !== 'heard');
   const isToday = left.some(n => { const t = timeOf(n.key); return t && localDay(t.start, timeZone) === today; });

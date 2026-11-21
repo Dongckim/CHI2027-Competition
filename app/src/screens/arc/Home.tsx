@@ -14,7 +14,7 @@ import { useNow } from '../../clock.js';
 import { loadSchedule, type Schedule } from '../../data/load';
 import { firstSlot } from '../../explore/format';
 import { Screen, ArcLink, ArcButton, Pic, DemoBanner } from '../../components/arc';
-import { periodsOf, firstPeriod } from '../../arc/period.js';
+import { periodsOf, firstPeriod, isOver } from '../../arc/period.js';
 import { DEMO_TZ } from '../../arc/demoClock';
 import current from '../../../../data/build/app-data/chi2026/current.json';
 import type { Arc } from '../../engine';
@@ -38,7 +38,7 @@ const LINE: Record<'S' | 'T' | 'R', string[]> = { S: ['M22.8 29.6L36.4 39.8', 'M
     'M61.9258 82.3699L61.5225 81.2754M55.877 65.9518L56.2802 67.0464M57.49 70.33L58.2965 72.5191M59.5063 75.8027L60.3128 77.9918'] };
 
 /** A 100px Arc as Figma draws it: tile and orb in the tribe colour, up to 5 talks, filled when heard. */
-function MiniArc({ arc, heard }: { arc: Arc; heard: Set<string> }) {
+export function MiniArc({ arc, heard }: { arc: Arc; heard: Set<string> }) {
   const c = TRIBE[arc.tribe].color, id = useId().replace(/[^a-zA-Z0-9]/g, ''); // safe inside url(#…)
   const seats = (['S', 'T', 'R'] as const).flatMap(a => arc.nodes.filter(n => n.angle === a).slice(0, SEAT[a].length).map((n, i) => ({ n, a, i, xy: SEAT[a][i] })));
   return (
@@ -134,7 +134,14 @@ export function Home() {
           <ArcButton kind="secondary" className="min-w-[160px]" onClick={() => setPicked('week')}>See this week</ArcButton>
         </div>
       )}
-      <div id="arc-list" role="tabpanel"><ul className="mt-5 flex flex-col gap-4">
+      <div id="arc-list" role="tabpanel">
+      {/* opens 20b (Figma 743:1741) once CHI is over; Figma 20 has no such card: its words are ours, designer to confirm */}
+      {period === 'after' && isOver(now, { days: current.days, timeZone: schedule?.meta.timeZone ?? DEMO_TZ }) && (
+        <a href={href('after')} className="mt-5 flex h-14 items-center gap-3 rounded-[20px] border border-arc-line bg-arc-surface pr-3.5 pl-4 text-[15px] font-semibold tracking-[-0.006em]">
+          <span className="flex-1">Your CHI</span><Pic src={chevron} size={18} />
+        </a>
+      )}
+      <ul className="mt-5 flex flex-col gap-4">
         {rows.filter(r => r.period[period]).map(({ a, day }) => {
           const t = TRIBE[a.tribe], h = a.nodes.filter(n => heard.has(n.key)).length;
           return (
