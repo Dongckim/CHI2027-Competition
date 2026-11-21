@@ -13,7 +13,7 @@ import { useDevice, update } from '../../state/useDevice';
 import { heardOf, toggleHeard } from '../../arc/draft.js';
 import { useNow } from '../../clock.js';
 import { Screen, BackButton, IconButton, Pic } from '../../components/arc';
-import { ANGLE_NAME } from './AngleHelp';
+import { ANGLE_NAME, KIND_NAME } from './AngleHelp';
 import { ANGLE_ICON } from './ArcView';
 import external from '../../assets/arc/icon-external.svg';
 import clock from '../../assets/arc/icon-clock.svg';
@@ -121,7 +121,7 @@ export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shap
     <Screen clock header={header(p.doi, liveText)} label="Talk"
       bottom={<QandAAsk qa={qa} />}>
       <div className="mt-3 flex flex-wrap gap-2">
-        {found && <Tag icon={ANGLE_ICON[found.node.angle]}>{ANGLE_NAME[found.node.angle]}</Tag>}
+        {found && <Tag icon={ANGLE_ICON[found.node.angle]}>{ANGLE_NAME[found.node.angle]}{found.node.kind && <span className="font-medium text-arc-text-2"> · {KIND_NAME[found.node.kind]}</span>}</Tag>}
         <Tag icon={fIcon}>{fName}</Tag>
       </div>
       <h1 className="mt-3 text-[24px] leading-[30px] font-semibold tracking-[-0.02em]">{p.title}</h1>

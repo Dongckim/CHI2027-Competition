@@ -14,6 +14,8 @@ export function warm() {
 }
 const snapshot = () => (failed ? 'failed' : progress.stage === 'ready' ? 'ready' : 'loading');
 export const useWarm = () => useSyncExternalStore(cb => { listeners.add(cb); return () => listeners.delete(cb); }, snapshot);
+/** How much of the engine is in, 0–1 (10 shows it while the on-device model downloads). */
+export const useWarmRatio = () => useSyncExternalStore(cb => { listeners.add(cb); return () => listeners.delete(cb); }, () => (progress.stage === 'ready' ? 1 : progress.ratio));
 
 /** The screen's tribe frame: a tribe lights the edge, null turns it off. */
 export function useTribe(tribe: TribeId | null | undefined) {

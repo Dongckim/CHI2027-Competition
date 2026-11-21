@@ -39,8 +39,8 @@ npm run dev                                          # app on http://localhost:5
 
 - `npm test` · `npm run typecheck` · `npm run contracts:check`: unit tests, types, contract schemas
 - `npm run build` → `dist/`; then `node --experimental-websocket tests/arc/create-check.mjs` and `tests/arc/arc-check.mjs` walk the app in headless Chrome at 390×844
-- `npm run build:deploy` is what Vercel runs (feeds → build → app → on-device model if `MODEL_URL` is set)
-- Outside the conference days the app runs on a demo day (the second day, 10:00 venue time) and says so. Handy URL switches: `?at=2026-04-14T12:00` (demo clock, venue time) · `?mock=slow|none|pending|crowded` · `?engine=ondevice`
+- `npm run build:deploy` is what Vercel runs (feeds → build → app with the on-device engine as default → its model from `MODEL_URL`, required). A plain `npm run build` keeps the mock engine (no model)
+- Outside the conference days the app runs on a demo day (the second day, 10:00 venue time) and says so. Handy URL switches: `?at=2026-04-14T12:00` (demo clock, venue time) · `?mock=slow|none|pending|crowded` · `?engine=mock|ondevice`
 
 ## Data and licence
 
@@ -73,8 +73,8 @@ ARC is an independent competition entry. It is not affiliated with or endorsed b
 | Soniox | live captions (validated, not in the current menu) |
 | Upstash Redis (REST) | talk Q&A store |
 | uqr | QR codes for share links |
-| Mock engine (`app/src/engine/mock-core.js`) | the default engine: TF-IDF over the programme plus simple keyword rules |
-| On-device engine by Wonjune Lee (`recsys/`) | Supports · Reframes · Challenges in the browser (Web Worker), opened with `?engine=ondevice` while it is compared with the mock; model package 22.2 MB zip, 36 MB unpacked, served from `/model/` |
+| Mock engine (`app/src/engine/mock-core.js`) | the engine of a plain build and the tests: TF-IDF over the programme plus simple keyword rules |
+| On-device engine by Wonjune Lee (`recsys/`) | the deployed app's engine: Supports · Reframes · Challenges in the browser (Web Worker); model package 22.2 MB zip, 36 MB unpacked, served from `/model/` and downloaded during onboarding |
 
 ### Models and licences (on-device engine)
 

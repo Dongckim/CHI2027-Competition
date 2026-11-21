@@ -52,6 +52,8 @@ export function unpack(buf) {
 
 async function main() {
   const url = process.env.MODEL_URL?.trim();
+  // --required (build:deploy, where the app is built with the ondevice engine as its default): no model = a broken app
+  if (!url && process.argv.includes('--required')) throw new Error('model: MODEL_URL is required (the deploy build makes ondevice the default engine)');
   if (!url) { console.log('model: MODEL_URL not set, skipped (the app uses the mock engine)'); return; }
   const want = process.env.MODEL_SHA256?.trim().toLowerCase();
   if (!want || !/^[0-9a-f]{64}$/.test(want)) throw new Error('model: MODEL_SHA256 (64 hex characters) is required with MODEL_URL');

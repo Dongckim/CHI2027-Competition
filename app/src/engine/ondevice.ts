@@ -7,6 +7,7 @@ import { now } from '../clock.js';
 import venue from '../../../data/venue/chi2026.json';
 import { newArcId } from './mock';
 import { onOurAbstract } from './ondevice-map.js';
+import { brokenQuestion } from '../arc/topic.js';
 import type { Engine, Progress, Arc, ArcNode } from './types';
 
 let worker: Worker | null = null;
@@ -54,3 +55,16 @@ export const ondeviceEngine: Engine = {
   suggest: (query, angle, excludeKeys, limit) => after<ArcNode[]>('suggest', { query, angle, excludeKeys, limit }).then(placed),
   wildcard: (query, excludeKeys, limit) => after<ArcNode[]>('wildcard', { query, excludeKeys, limit }).then(placed),
 };
+
+// 07b (user 11/21 「원준 방식(조합 문장)」): the engine's composed questions, without those that read wrong; none left →
+// the mock's real-title questions. The preview Arcs (counts, mini map) are this engine's, cached per question.
+export async function topicQuestions(topic: string): Promise<{ count: number; questions: { text: string; key: string }[] }> {
+  const r = await after<{ count: number; questions: string[] }>('topic', { topic, now: now() });
+  const composed = r.questions.filter(q => !brokenQuestion(q)).map(text => ({ text, key: text }));
+  return { count: r.count, questions: composed.length ? composed : (await (await import('./mock')).topicQuestions(topic)).questions };
+}
+const previews = new Map<string, Promise<Arc>>();
+export function questionArc(question: string): Promise<Arc> {
+  if (!previews.has(question)) previews.set(question, ondeviceEngine.buildArc(question, { angles: ['S', 'R', 'T'], days: [], types: [] }).catch(e => { previews.delete(question); throw e; }));
+  return previews.get(question)!;
+}

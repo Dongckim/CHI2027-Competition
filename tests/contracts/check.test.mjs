@@ -48,4 +48,9 @@ test('Arc rules: real keys of its edition once, evidence at its place, tension f
   // shifted evidence, duplicate, other edition (+ unknown), unknown, tension none with a T node
   assert.equal(arcRuleErrors(bad, papers).length, 6);
   assert.deepEqual(arcRuleErrors({ edition: 'chi2026', tension: 'off', nodes: [node('chi2026:1', 'S', null)] }, papers), []);
+  // 0.2.0 kind: Reframes only, not in a 0.1.0 Arc
+  const kinded = (v, angle) => ({ schema_version: v, edition: 'chi2026', tension: 'off', nodes: [{ ...node('chi2026:1', angle, null), kind: 'factor' }] });
+  assert.deepEqual(arcRuleErrors(kinded('0.2.0', 'R'), papers), []);
+  assert.equal(arcRuleErrors(kinded('0.2.0', 'S'), papers).length, 1);
+  assert.equal(arcRuleErrors(kinded('0.1.0', 'R'), papers).length, 1);
 });

@@ -23,8 +23,8 @@ const hasWords = (q: string) => /[\p{L}\p{N}]/u.test(q);
 type Help = { topic: string; count: number; cards: { text: string; arc: Arc }[] };
 const yieldToTyping = () => new Promise(r => setTimeout(r));
 
-// 07b: the topic's talk count, then up to three title questions whose Arc is not empty (one Arc at a time, so typing
-// stays smooth; mock.ts caches them).
+// 07b: the topic's talk count, then up to three questions whose Arc is not empty (one Arc at a time, so typing stays
+// smooth; the engine caches them). ondevice: composed questions, or title questions when none reads right; mock: titles.
 async function helpFor(topic: string, live: () => boolean): Promise<Help | null> {
   const m = await topicHelp();
   const { count, questions } = await m.topicQuestions(topic);
@@ -132,8 +132,11 @@ export function Ask() {
                 className="relative flex h-[86px] w-full items-start gap-3.5 rounded-[20px] border border-arc-line bg-arc-surface pt-[11px] pr-[30px] pl-[10px] text-left">
                 <MiniArc arc={arc} />
                 <span className="line-clamp-2 min-w-0 flex-1 pt-px text-[15px] leading-[19px] font-semibold tracking-[-0.006em]">{text}</span>
-                {/* Figma: the counts at y 57 in the card, the angle symbols as text; read out by name */}
-                <span aria-hidden="true" className="absolute top-[56px] left-[84px] text-[12px] font-medium whitespace-pre text-arc-text/60">{`↑ ${count(arc, 'S')}   ↻ ${count(arc, 'R')}   ⊣ ${count(arc, 'T')}`}</span>
+                {/* Figma: the counts at y 57 in the card, the angle symbols as text; read out by name. "Suggested" before them:
+                    the card is the engine's suggestion, not a talk (user 11/21 「제안 카드라는 게 보이게」; designer to confirm) */}
+                <span className="absolute top-[56px] left-[84px] text-[12px] font-medium whitespace-pre text-arc-text/60">
+                  <span className="font-semibold text-arc-text/75">Suggested</span><span aria-hidden="true">{`   ↑ ${count(arc, 'S')}   ↻ ${count(arc, 'R')}   ⊣ ${count(arc, 'T')}`}</span>
+                </span>
                 <span className="sr-only">{` · ${(['S', 'R', 'T'] as Angle[]).map(a => `${count(arc, a)} ${ANGLE_NAME[a]}`).join(', ')}`}</span>
                 <Pic src={chevron} size={16} className="absolute top-[34px] right-[11px]" />
               </button>

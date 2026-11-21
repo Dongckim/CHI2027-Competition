@@ -2,7 +2,7 @@
 
 ## Arc 엔진 자리 (2026-11-21, 지금 기준)
 - **인터페이스**: `app/src/engine/types.ts`의 `Engine` (`init`, `tribeOf`, `angleTopics`, `buildArc`, `suggest`, `wildcard`), 결과는 `contracts/Arc.schema.json` 0.1.0. 앱은 `app/src/engine/index.ts`를 통해서만 부름
-- **연결**: `app/src/engine/ondevice.ts`가 이 폴더의 코드를 감싼다 (`?engine=ondevice` 또는 빌드 환경변수 `VITE_ENGINE=ondevice`). 기본은 mock(`app/src/engine/mock-core.js`, TF-IDF + 단순 규칙)
+- **연결**: `app/src/engine/ondevice.ts`가 Web Worker(`ondevice.worker.js`)에서 이 폴더의 `src/web`을 돌리고, `ondevice-map.js`가 응답을 Arc로 바꾼다. 배포 빌드(`VITE_ENGINE=ondevice`)의 기본 엔진(11/21). 그냥 빌드는 mock(`app/src/engine/mock-core.js`), `?engine=mock|ondevice`로 바꿀 수 있음
 - **모델 파일**: git에 넣지 않는다. 배포 빌드(`npm run build:deploy`)가 `MODEL_URL`과 `MODEL_SHA256`을 확인해 `dist/model/`에 풀고, 앱은 같은 도메인 `/model/…`에서 받는다(1년 immutable 캐시). `MODEL_URL`이 없으면 mock으로 동작. 스크립트 `app/scripts/fetch-model.mjs`
 
 ### 지금 모델 패키지 (11/21)

@@ -38,16 +38,17 @@ console.log(`copied ${EDITION} data, app-data/${EDITION}/${current.path}, venue,
 // app-data folder (schedule, every day's abstracts, people, topics, institutions, debut: what the engine and the Arc
 // screens read, so a first visit works in airplane mode too, A4) and the venue graph with its names. The files are
 // immutable-cached, so the worker mostly gets them from the browser's HTTP cache. Not the 3D view (view3d-*.js, with
-// three.js): it loads when 09 opens, and the worker keeps it then. Nor the on-device engine (ondevice*.js, 65 KB gzip):
-// only ?engine=ondevice loads it while the engines are compared (user 11/21). shortcut: precache it once it is the default.
-export function precacheList(assets, appDataPath, venue, appDataFiles = ['schedule.json']) {
-  return ['/', '/index.html', ...assets.filter(f => /\.(js|css|woff2|svg)$/.test(f) && !/^(view3d|ondevice)[-.]/.test(f)).sort().map(f => `/assets/${f}`),
+// three.js): it loads when 09 opens, and the worker keeps it then. The on-device engine's code (ondevice*.js, 65 KB gzip)
+// only when it is the default (VITE_ENGINE=ondevice, the deploy build); its model (/model/, 22 MB) is not precached but
+// read from 01 on by the engine itself (warm), and the service worker keeps it.
+export function precacheList(assets, appDataPath, venue, appDataFiles = ['schedule.json'], ondevice = false) {
+  return ['/', '/index.html', ...assets.filter(f => /\.(js|css|woff2|svg)$/.test(f) && !/^view3d-/.test(f) && (ondevice || !/^ondevice[-.]/.test(f))).sort().map(f => `/assets/${f}`),
     ...[...appDataFiles].sort().map(f => `/app-data/${EDITION}/${appDataPath}${f}`), `/data/venue/${EDITION}.json`, `/data/venue/${venue}.json`, `/data/venue/${venue}.labels.json`];
 }
 const appDataDir = from(`dist/app-data/${EDITION}/${current.path}`);
 const appDataFiles = readdirSync(appDataDir, { recursive: true }).map(String).filter(f => f.endsWith('.json')).map(f => f.split(sep).join('/'));
 const venueName = JSON.parse(readFileSync(from(`data/venue/${EDITION}.json`))).venue;
-const precache = precacheList(readdirSync(from('dist/assets')), current.path, venueName, appDataFiles);
+const precache = precacheList(readdirSync(from('dist/assets')), current.path, venueName, appDataFiles, process.env.VITE_ENGINE === 'ondevice');
 const version = createHash('sha256').update(precache.join('\n')).digest('hex').slice(0, 12);
 writeFileSync(from('dist/sw.js'), readFileSync(from('app/sw.js'), 'utf8')
   .replace('self.__VERSION__', JSON.stringify(version)).replace('self.__PRECACHE__', JSON.stringify(precache)));

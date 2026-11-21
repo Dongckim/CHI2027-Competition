@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react';
 import { go, href } from '../../router';
 import { Screen, ArcLink, Pic } from '../../components/arc';
-import { AngleHelp, ANGLE_NAME } from './AngleHelp';
+import { AngleHelp, ANGLE_NAME, KIND_NAME } from './AngleHelp';
 import { ANGLE_ICON } from './ArcView';
 import { ArcHeader } from './ArcHeader';
 import { useArc } from './useArc';
@@ -51,7 +51,7 @@ export function ArcList({ id }: { id: string }) {
                       <span className="sr-only">{ANGLE_NAME[a]} · </span>
                       <span className={`truncate text-[14px] font-semibold tracking-[-0.006em] ${st === 'heard' || st === 'ended' ? 'text-arc-text/70' : ''}`}>{n.debut && <span aria-hidden="true">✦ </span>}{i.title}</span>
                       {/* Figma 11px; 12px is the floor */}
-                      <span className="truncate text-[12px] font-medium text-arc-text-3">{PREFIX[st]}{i.when}</span>{/* Figma: "Heard · 11:26 · Rm 116" (time and room) */}
+                      <span className="truncate text-[12px] font-medium text-arc-text-3">{n.kind && `${KIND_NAME[n.kind]} · `}{PREFIX[st]}{i.when}</span>{/* Figma: "Heard · 11:26 · Rm 116" (time and room) */}
                     </span>
                     <Pic src={chevron} size={18} className="opacity-40" />
                   </button>
