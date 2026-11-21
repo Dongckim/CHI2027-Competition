@@ -1,0 +1,929 @@
+[
+ {
+  "id": "ask_rel_0",
+  "input": {
+   "screen": "ask",
+   "text": "Does VR fidelity really raise presence?"
+  }
+ },
+ {
+  "id": "ask_rel_1",
+  "input": {
+   "screen": "ask",
+   "text": "How does social VR use over time affect presence?"
+  }
+ },
+ {
+  "id": "ask_rel_2",
+  "input": {
+   "screen": "ask",
+   "text": "Do AI writing assistants reduce people's sense of ownership?"
+  }
+ },
+ {
+  "id": "ask_rel_3",
+  "input": {
+   "screen": "ask",
+   "text": "Do AI image descriptions help blind screen reader users?"
+  }
+ },
+ {
+  "id": "ask_rel_4",
+  "input": {
+   "screen": "ask",
+   "text": "Does delegating to a robot reduce blind users' sense of control?"
+  }
+ },
+ {
+  "id": "ask_rel_5",
+  "input": {
+   "screen": "ask",
+   "text": "Do conversational agents reduce loneliness?"
+  }
+ },
+ {
+  "id": "ask_rel_6",
+  "input": {
+   "screen": "ask",
+   "text": "Do AI tutors improve student learning?"
+  }
+ },
+ {
+  "id": "ask_rel_7",
+  "input": {
+   "screen": "ask",
+   "text": "Do scaffolds increase persistence in intelligent tutoring systems?"
+  }
+ },
+ {
+  "id": "ask_rel_8",
+  "input": {
+   "screen": "ask",
+   "text": "Does social media use harm wellbeing?"
+  }
+ },
+ {
+  "id": "ask_rel_9",
+  "input": {
+   "screen": "ask",
+   "text": "Does haptic feedback improve typing on touchscreens?"
+  }
+ },
+ {
+  "id": "ask_rel_10",
+  "input": {
+   "screen": "ask",
+   "text": "Do wearables increase awareness of one's body?"
+  }
+ },
+ {
+  "id": "ask_rel_11",
+  "input": {
+   "screen": "ask",
+   "text": "Do games increase motivation?"
+  }
+ },
+ {
+  "id": "ask_topic_0",
+  "input": {
+   "screen": "ask",
+   "text": "VR presence"
+  }
+ },
+ {
+  "id": "ask_topic_1",
+  "input": {
+   "screen": "ask",
+   "text": "What is accessibility research asking now?"
+  }
+ },
+ {
+  "id": "ask_topic_2",
+  "input": {
+   "screen": "ask",
+   "text": "haptic feedback"
+  }
+ },
+ {
+  "id": "ask_topic_3",
+  "input": {
+   "screen": "ask",
+   "text": "I study privacy in smart homes"
+  }
+ },
+ {
+  "id": "ask_topic_4",
+  "input": {
+   "screen": "ask",
+   "text": "How do we measure presence in immersive studies?"
+  }
+ },
+ {
+  "id": "arc_vr_tue",
+  "input": {
+   "screen": "arc",
+   "question": "Does VR fidelity really raise presence?",
+   "days": [
+    "tue"
+   ],
+   "now": "2026-04-14T13:58:00+02:00"
+  }
+ },
+ {
+  "id": "arc_vr_week9",
+  "input": {
+   "screen": "arc",
+   "question": "Does VR fidelity really raise presence?",
+   "days": "week",
+   "size": 9
+  }
+ },
+ {
+  "id": "arc_ai_ct",
+  "input": {
+   "screen": "arc",
+   "question": "Does AI assistance reduce critical thinking?",
+   "days": [
+    "wed",
+    "thu"
+   ]
+  }
+ },
+ {
+  "id": "arc_formats",
+  "input": {
+   "screen": "arc",
+   "question": "Does haptic feedback improve performance in virtual reality?",
+   "days": [
+    "wed"
+   ],
+   "formats": [
+    "demos",
+    "posters"
+   ]
+  }
+ },
+ {
+  "id": "arc_topic",
+  "input": {
+   "screen": "arc",
+   "question": "VR presence",
+   "days": [
+    "tue"
+   ]
+  }
+ },
+ {
+  "id": "arc_after",
+  "input": {
+   "screen": "arc",
+   "question": "Do AI explanations increase user trust?",
+   "days": [
+    "tue"
+   ],
+   "after": "2026-04-14T13:00:00+02:00"
+  }
+ },
+ {
+  "id": "arc_state",
+  "input": {
+   "screen": "arc",
+   "question": "Does VR fidelity really raise presence?",
+   "days": [
+    "tue"
+   ],
+   "state": {
+    "removed": [
+     222304
+    ],
+    "added": [
+     {
+      "id": 223104,
+      "angle": "challenge"
+     }
+    ],
+    "heard": [
+     222323
+    ]
+   }
+  }
+ },
+ {
+  "id": "arc_help",
+  "input": {
+   "screen": "arc",
+   "question": "Do AI image descriptions help blind screen reader users?",
+   "days": "week"
+  }
+ },
+ {
+  "id": "arc_psych",
+  "input": {
+   "screen": "arc",
+   "question": "Do older adults trust voice assistants?",
+   "days": [
+    "mon",
+    "tue"
+   ]
+  }
+ },
+ {
+  "id": "arc_neg",
+  "input": {
+   "screen": "arc",
+   "question": "Does mid-air gesture input cause arm fatigue?",
+   "days": "week"
+  }
+ },
+ {
+  "id": "edit_vr",
+  "input": {
+   "screen": "edit",
+   "question": "Does VR fidelity really raise presence?",
+   "days": [
+    "tue"
+   ],
+   "nodes": [
+    222304,
+    222323,
+    222447
+   ],
+   "node": 222304,
+   "search": "haptic gloves"
+  }
+ },
+ {
+  "id": "edit_plain",
+  "input": {
+   "screen": "edit",
+   "question": "Do games increase motivation?",
+   "days": [
+    "thu"
+   ],
+   "nodes": []
+  }
+ },
+ {
+  "id": "node_vr",
+  "input": {
+   "screen": "node",
+   "question": "Does VR fidelity really raise presence?",
+   "id": 222304
+  }
+ },
+ {
+  "id": "node_other",
+  "input": {
+   "screen": "node",
+   "question": "Does AI assistance reduce critical thinking?",
+   "id": 229943
+  }
+ },
+ {
+  "id": "shared_vr",
+  "input": {
+   "screen": "shared",
+   "question": "Does VR fidelity really raise presence?",
+   "ids": [
+    222323,
+    222304,
+    222447,
+    229524,
+    229441
+   ],
+   "now": "2026-04-14T09:12:00+02:00"
+  }
+ },
+ {
+  "id": "summary_vr",
+  "input": {
+   "screen": "summary",
+   "question": "Does VR fidelity really raise presence?",
+   "ids": [
+    222323,
+    222304,
+    222447,
+    229524,
+    229441
+   ],
+   "heard": [
+    222323,
+    222304
+   ]
+  }
+ },
+ {
+  "id": "meta",
+  "input": {
+   "screen": "meta"
+  }
+ },
+ {
+  "id": "error_0",
+  "input": {
+   "screen": "arc",
+   "question": ""
+  }
+ },
+ {
+  "id": "error_1",
+  "input": {
+   "screen": "nope"
+  }
+ },
+ {
+  "id": "error_2",
+  "input": {
+   "screen": "arc",
+   "question": "Does VR fidelity really raise presence?",
+   "formats": [
+    "videos"
+   ]
+  }
+ },
+ {
+  "id": "error_3",
+  "input": {
+   "screen": "arc",
+   "question": "Does VR fidelity really raise presence?",
+   "days": [
+    "sat"
+   ]
+  }
+ },
+ {
+  "id": "error_4",
+  "input": {
+   "screen": "node",
+   "question": "Does VR fidelity really raise presence?",
+   "id": 1
+  }
+ },
+ {
+  "id": "error_5",
+  "input": {
+   "screen": "shared",
+   "question": "Does VR fidelity really raise presence?",
+   "ids": []
+  }
+ },
+ {
+  "id": "error_6",
+  "input": {
+   "screen": "arc",
+   "question": "Does VR fidelity really raise presence?",
+   "days": 5
+  }
+ },
+ {
+  "id": "error_7",
+  "input": {
+   "screen": "edit",
+   "question": "VR presence"
+  }
+ },
+ {
+  "id": "error_8",
+  "input": {
+   "screen": "shared",
+   "question": "Does VR fidelity really raise presence?",
+   "ids": [
+    "abc"
+   ]
+  }
+ },
+ {
+  "id": "angles_vr",
+  "input": {
+   "screen": "angles",
+   "question": "Does VR fidelity raise presence?"
+  }
+ },
+ {
+  "id": "angles_topic",
+  "input": {
+   "screen": "angles",
+   "question": "haptic feedback",
+   "formats": [
+    "talks",
+    "demos"
+   ]
+  }
+ },
+ {
+  "id": "arc_chips",
+  "input": {
+   "screen": "arc",
+   "question": "Does VR fidelity raise presence?",
+   "days": "week",
+   "chips": [
+    "support:fidel",
+    "reframe:avatar",
+    "reframe:vr"
+   ]
+  }
+ },
+ {
+  "id": "arc_today",
+  "input": {
+   "screen": "arc",
+   "question": "Does VR fidelity raise presence?",
+   "days": "today",
+   "now": "2026-04-14T13:30:00+02:00",
+   "formats": [
+    "Talks",
+    "Posters",
+    "Demos"
+   ]
+  }
+ },
+ {
+  "id": "arc_tomorrow",
+  "input": {
+   "screen": "arc",
+   "question": "Do AI explanations increase user trust?",
+   "when": "tomorrow",
+   "now": "2026-04-15T08:00:00+02:00"
+  }
+ },
+ {
+  "id": "arc_crowded",
+  "input": {
+   "screen": "arc",
+   "question": "Does VR fidelity raise presence?",
+   "days": "week",
+   "size": 12
+  }
+ },
+ {
+  "id": "edit_swap",
+  "input": {
+   "screen": "edit",
+   "question": "Does VR fidelity raise presence?",
+   "days": [
+    "tue"
+   ],
+   "nodes": [
+    222323,
+    222304,
+    222447,
+    229524,
+    229441
+   ],
+   "node": 222447
+  }
+ },
+ {
+  "id": "edit_add_wild",
+  "input": {
+   "screen": "edit",
+   "question": "Does VR fidelity raise presence?",
+   "days": [
+    "tue"
+   ],
+   "nodes": [
+    222323,
+    222304,
+    222447,
+    229524,
+    229441
+   ],
+   "add": "reframe",
+   "filter": "wildcard"
+  }
+ },
+ {
+  "id": "edit_debut",
+  "input": {
+   "screen": "edit",
+   "question": "Does VR fidelity raise presence?",
+   "days": [
+    "tue"
+   ],
+   "nodes": [
+    222323,
+    222304,
+    222447,
+    229524,
+    229441
+   ],
+   "filter": "debut"
+  }
+ },
+ {
+  "id": "edit_search",
+  "input": {
+   "screen": "edit",
+   "question": "Does VR fidelity raise presence?",
+   "days": [
+    "tue"
+   ],
+   "nodes": [
+    222323,
+    222304,
+    222447,
+    229524,
+    229441
+   ],
+   "search": "avatar embodiment",
+   "k": 4
+  }
+ },
+ {
+  "id": "shared_late",
+  "input": {
+   "screen": "shared",
+   "question": "Does VR fidelity raise presence?",
+   "ids": [
+    222323,
+    222304,
+    222447,
+    229524,
+    229441
+   ],
+   "now": "2026-04-14T17:30:00+02:00"
+  }
+ },
+ {
+  "id": "summary_now",
+  "input": {
+   "screen": "summary",
+   "question": "Does VR fidelity raise presence?",
+   "ids": [
+    222323,
+    222304,
+    222447,
+    229524,
+    229441
+   ],
+   "state": {
+    "heard": [
+     222323
+    ]
+   },
+   "now": "2026-04-14T14:30:00+02:00"
+  }
+ },
+ {
+  "id": "home",
+  "input": {
+   "screen": "home",
+   "now": "2026-04-14T09:00:00+02:00",
+   "arcs": [
+    {
+     "question": "Does VR fidelity raise presence?",
+     "ids": [
+      222323,
+      222304,
+      222447,
+      229524,
+      229441
+     ],
+     "heard": []
+    },
+    {
+     "question": "Can agents explain their choices?",
+     "ids": [
+      222304
+     ],
+     "heard": [
+      222304
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "home_empty",
+  "input": {
+   "screen": "home",
+   "arcs": []
+  }
+ },
+ {
+  "id": "error_add",
+  "input": {
+   "screen": "edit",
+   "question": "Does VR fidelity raise presence?",
+   "nodes": [
+    222323,
+    222304,
+    222447,
+    229524,
+    229441
+   ],
+   "add": "maybe"
+  }
+ },
+ {
+  "id": "error_filter",
+  "input": {
+   "screen": "edit",
+   "question": "Does VR fidelity raise presence?",
+   "nodes": [
+    222323,
+    222304,
+    222447,
+    229524,
+    229441
+   ],
+   "filter": "random"
+  }
+ },
+ {
+  "id": "error_chips",
+  "input": {
+   "screen": "arc",
+   "question": "Does VR fidelity raise presence?",
+   "chips": "support:x"
+  }
+ },
+ {
+  "id": "error_home",
+  "input": {
+   "screen": "home",
+   "arcs": [
+    {
+     "ids": [
+      222304
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "edit_clash",
+  "input": {
+   "screen": "edit",
+   "question": "Does VR fidelity raise presence?",
+   "days": [
+    "tue"
+   ],
+   "nodes": [
+    222323,
+    222304,
+    222447,
+    229524
+   ],
+   "search": "virtual reality",
+   "k": 12
+  }
+ },
+ {
+  "id": "ask_typo",
+  "input": {
+   "screen": "ask",
+   "text": "Does hapitc feedbak improve typing?"
+  }
+ },
+ {
+  "id": "ask_off_topic",
+  "input": {
+   "screen": "ask",
+   "text": "best pasta recipe for dinner"
+  }
+ },
+ {
+  "id": "ask_korean",
+  "input": {
+   "screen": "ask",
+   "text": "VR에서 몰입감을 높이려면?"
+  }
+ },
+ {
+  "id": "edit_topic",
+  "input": {
+   "screen": "edit",
+   "question": "older adults",
+   "days": [
+    "tue"
+   ],
+   "nodes": [
+    222909,
+    221842
+   ],
+   "node": 222909
+  }
+ },
+ {
+  "id": "node_topic",
+  "input": {
+   "screen": "node",
+   "question": "privacy",
+   "id": 222387
+  }
+ },
+ {
+  "id": "shared_hand_angle",
+  "input": {
+   "screen": "shared",
+   "question": "Does VR fidelity really raise presence?",
+   "ids": [
+    222304,
+    229704
+   ],
+   "angles": {
+    "229704": "support"
+   },
+   "now": "2026-04-14T09:00:00+02:00"
+  }
+ },
+ {
+  "id": "summary_hand_angle",
+  "input": {
+   "screen": "summary",
+   "question": "Does VR fidelity really raise presence?",
+   "ids": [
+    222304,
+    229704
+   ],
+   "angles": {
+    "229704": "challenge"
+   }
+  }
+ },
+ {
+  "id": "node_hand_angle",
+  "input": {
+   "screen": "node",
+   "question": "Does VR fidelity really raise presence?",
+   "id": 229704,
+   "angle": "support"
+  }
+ },
+ {
+  "id": "ask_doing",
+  "input": {
+   "screen": "ask",
+   "text": "Can chatbots help older adults feel less lonely?"
+  }
+ },
+ {
+  "id": "arc_doing",
+  "input": {
+   "screen": "arc",
+   "question": "Do screen readers help blind users browse the web faster?",
+   "days": [
+    "tue"
+   ]
+  }
+ },
+ {
+  "id": "ask_topic_anchor",
+  "input": {
+   "screen": "ask",
+   "text": "haptics"
+  }
+ },
+ {
+  "id": "arc_topic_fill",
+  "input": {
+   "screen": "arc",
+   "question": "mixed reality",
+   "days": [
+    "tue"
+   ],
+   "now": "2026-04-14T09:00:00+02:00"
+  }
+ },
+ {
+  "id": "ask_topic_day",
+  "input": {
+   "screen": "ask",
+   "text": "VR presence",
+   "now": "2026-04-14T13:30:00+02:00"
+  }
+ },
+ {
+  "id": "ask_wide_week",
+  "input": {
+   "screen": "ask",
+   "text": "accessibility",
+   "now": "2026-04-14T13:30:00+02:00",
+   "days": "week"
+  }
+ },
+ {
+  "id": "arc_walk_calm",
+  "input": {
+   "screen": "arc",
+   "question": "Does VR fidelity really raise presence?",
+   "now": "2026-04-14T09:00:00+02:00",
+   "walk": [
+    "calm",
+    "step_free"
+   ]
+  }
+ },
+ {
+  "id": "arc_walk_bad",
+  "input": {
+   "screen": "arc",
+   "question": "Does VR fidelity really raise presence?",
+   "now": "2026-04-14T09:00:00+02:00",
+   "walk": [
+    "fast"
+   ]
+  }
+ },
+ {
+  "id": "hold_stop",
+  "input": {
+   "screen": "hold",
+   "question": "Does VR fidelity really raise presence?",
+   "nodes": [
+    222323,
+    223404,
+    222304,
+    222447,
+    229895,
+    222572,
+    222260
+   ],
+   "node": 222447,
+   "now": "2026-04-14T09:00:00+02:00"
+  }
+ },
+ {
+  "id": "hold_calm",
+  "input": {
+   "screen": "hold",
+   "question": "Does VR fidelity really raise presence?",
+   "nodes": [
+    222323,
+    223404,
+    222304,
+    222447,
+    229895,
+    222572,
+    222260
+   ],
+   "node": 222447,
+   "now": "2026-04-14T09:00:00+02:00",
+   "walk": [
+    "calm"
+   ]
+  }
+ },
+ {
+  "id": "hold_missing",
+  "input": {
+   "screen": "hold",
+   "question": "Does VR fidelity really raise presence?",
+   "nodes": [
+    222323,
+    223404,
+    222304,
+    222447,
+    229895,
+    222572,
+    222260
+   ],
+   "now": "2026-04-14T09:00:00+02:00"
+  }
+ },
+ {
+  "id": "questions_themes",
+  "input": {
+   "screen": "questions",
+   "id": 223179,
+   "questions": [
+    "Over time, did participants delegate more to the robot, or less?",
+    "Did people let the robot do more as they got used to it?",
+    "Did blind participants hand over more tasks to the robot over the weeks?",
+    "When should the robot ask before it acts on its own?",
+    "Should the robot ask permission before acting?",
+    "How did trust change after the robot made a mistake?",
+    "Would the same strategies hold in a train station?",
+    "Would this work in airports or busy streets?"
+   ]
+  }
+ },
+ {
+  "id": "questions_new",
+  "input": {
+   "screen": "questions",
+   "id": 223179,
+   "questions": [
+    "Over time, did participants delegate more to the robot, or less?",
+    "Did people let the robot do more as they got used to it?",
+    "Did blind participants hand over more tasks to the robot over the weeks?",
+    "When should the robot ask before it acts on its own?",
+    "Should the robot ask permission before acting?",
+    "How did trust change after the robot made a mistake?",
+    "Would the same strategies hold in a train station?",
+    "Would this work in airports or busy streets?"
+   ],
+   "new": "Did participants trust the robot more over time and delegate more?"
+  }
+ },
+ {
+  "id": "questions_empty",
+  "input": {
+   "screen": "questions",
+   "id": 223179,
+   "questions": [],
+   "new": "Does it work outside?"
+  }
+ }
+]

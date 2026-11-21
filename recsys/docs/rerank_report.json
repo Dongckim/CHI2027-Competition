@@ -1,0 +1,724 @@
+{
+ "grid_dev": {
+  "aspect_w=0.0 mmr=1.0": {
+   "R@1": 0.7267,
+   "R@8": 0.952
+  },
+  "aspect_w=0.0 mmr=0.9": {
+   "R@1": 0.7267,
+   "R@8": 0.9493
+  },
+  "aspect_w=0.0 mmr=0.8": {
+   "R@1": 0.7267,
+   "R@8": 0.9493
+  },
+  "aspect_w=0.0 mmr=0.7": {
+   "R@1": 0.7267,
+   "R@8": 0.948
+  },
+  "aspect_w=0.1 mmr=1.0": {
+   "R@1": 0.74,
+   "R@8": 0.952
+  },
+  "aspect_w=0.1 mmr=0.9": {
+   "R@1": 0.74,
+   "R@8": 0.9493
+  },
+  "aspect_w=0.1 mmr=0.8": {
+   "R@1": 0.74,
+   "R@8": 0.9493
+  },
+  "aspect_w=0.1 mmr=0.7": {
+   "R@1": 0.74,
+   "R@8": 0.9493
+  },
+  "aspect_w=0.2 mmr=1.0": {
+   "R@1": 0.7387,
+   "R@8": 0.9507
+  },
+  "aspect_w=0.2 mmr=0.9": {
+   "R@1": 0.7387,
+   "R@8": 0.9493
+  },
+  "aspect_w=0.2 mmr=0.8": {
+   "R@1": 0.7387,
+   "R@8": 0.9493
+  },
+  "aspect_w=0.2 mmr=0.7": {
+   "R@1": 0.7387,
+   "R@8": 0.948
+  },
+  "aspect_w=0.3 mmr=1.0": {
+   "R@1": 0.7413,
+   "R@8": 0.952
+  },
+  "aspect_w=0.3 mmr=0.9": {
+   "R@1": 0.7413,
+   "R@8": 0.948
+  },
+  "aspect_w=0.3 mmr=0.8": {
+   "R@1": 0.7413,
+   "R@8": 0.948
+  },
+  "aspect_w=0.3 mmr=0.7": {
+   "R@1": 0.7413,
+   "R@8": 0.9467
+  },
+  "aspect_w=0.5 mmr=1.0": {
+   "R@1": 0.7453,
+   "R@8": 0.948
+  },
+  "aspect_w=0.5 mmr=0.9": {
+   "R@1": 0.7453,
+   "R@8": 0.9453
+  },
+  "aspect_w=0.5 mmr=0.8": {
+   "R@1": 0.7453,
+   "R@8": 0.944
+  },
+  "aspect_w=0.5 mmr=0.7": {
+   "R@1": 0.7453,
+   "R@8": 0.9427
+  }
+ },
+ "chosen": {
+  "aspect_w": 0.3,
+  "mmr_lambda": 1.0,
+  "aspect_mode": "keyword"
+ },
+ "test": {
+  "plain": {
+   "R@1": 0.744,
+   "R@8": 0.948
+  },
+  "chosen": {
+   "R@1": 0.756,
+   "R@8": 0.952
+  },
+  "n": 750
+ },
+ "relevance": {
+  "floor": 0.318,
+  "percentile": 1,
+  "by_percentile": {
+   "0.5": {
+    "floor": 0.309,
+    "in_domain_warned": 0.0053,
+    "off_topic_warned": 0.2
+   },
+   "1": {
+    "floor": 0.318,
+    "in_domain_warned": 0.0107,
+    "off_topic_warned": 0.25
+   },
+   "2": {
+    "floor": 0.339,
+    "in_domain_warned": 0.02,
+    "off_topic_warned": 0.35
+   }
+  },
+  "in_domain_warned": 0.0107,
+  "off_topic_warned": 0.25,
+  "in_domain_top_sim_median": 0.493,
+  "off_topic_top_sim": {
+   "diffusion large language models": 0.425,
+   "helping people quit smoking": 0.346,
+   "protein folding prediction": 0.3,
+   "stock market price forecasting": 0.388,
+   "quantum error correction": 0.304,
+   "crop yield estimation from satellites": 0.437,
+   "best pizza recipes in Naples": 0.345,
+   "compiler optimization for GPUs": 0.349,
+   "dark matter detection": 0.325,
+   "medieval European tax law": 0.302,
+   "battery chemistry for electric cars": 0.343,
+   "earthquake early warning seismology": 0.357,
+   "blockchain consensus algorithms": 0.504,
+   "antibiotic resistance in hospitals": 0.386,
+   "football match outcome prediction": 0.403,
+   "volcanic ash dispersion modelling": 0.291,
+   "high frequency trading latency": 0.321,
+   "plant genome sequencing": 0.361,
+   "rocket engine combustion": 0.316,
+   "tax evasion detection in banking": 0.399
+  }
+ },
+ "multi_aspect": {
+  "plain": {
+   "both_aspects_of_8": 3.35,
+   "distinct_sessions_of_8": 6.6,
+   "latency_ms_median": 21.2,
+   "latency_ms_max": 35.5,
+   "per_query": {
+    "kids and screen time": {
+     "both_aspects": 0,
+     "sessions": 7,
+     "titles": [
+      "Distorted Time: How Fragmented Interface Design Alters User Time Perception Across Contexts",
+      "Seeing Your Mindless Face: How Viewing One’s Live Self Interrupts Mindless Short-Form Video Scrolling",
+      "Tuning into Everyday Ecologies: Children’s Slow Noticing in Food Gardens",
+      "\"In my defense, only three hours on Instagram\": Designing Toward Digital Self-Awareness and Wellbeing",
+      "Endless Swipes and Recommendations: The Impact of Short-Form Video Platforms on Context-Switching and Children’s Working Memory",
+      "Active Silence: Designing Temporal Idle States for Calm Engagement in Public Interactive Displays",
+      "Balancing Attention Support for Early-learners (BASE) in Digital Technology Interactions: A Framework for Design and Use",
+      "From Struggle to Success: Context-Aware Guidance for Screen Reader Users in Computer Use"
+     ]
+    },
+    "haptic feedback for older adults": {
+     "both_aspects": 0,
+     "sessions": 7,
+     "titles": [
+      "Look Here, Click Me: Improving Older Adults’ Perception of Manipulable User Interface Components through AI-Based Perceptual Guidance",
+      "Operationalizing Self-Perceptions of Aging Using Reflection Probe and SPA Design Cards with HCI Practitioners",
+      "``What If My Face Gets Scanned Without Consent'': Older Adults' Experiences with Biometric Payment",
+      "Remembering with Reminiscope: Codesigning with Generative AI for Reminiscence Among Older Adults",
+      "Speculating with Older Adults in HCI: A Scoping Review",
+      "Harmonizing the Senses: Designing a Cross-Modal Interactive Art System to Enhance Older Adults’ Affective Experiences",
+      "Rebuilding Life after Spousal Loss: Exploring Challenges and Speculating Future Technologies with Older Women",
+      "Privacy is Not One-Click: Designing Robots That Adapt to Older Adults’ Changing Boundaries"
+     ]
+    },
+    "LLM tutors in programming education": {
+     "both_aspects": 5,
+     "sessions": 5,
+     "titles": [
+      "From Code Generation to Conceptual Learning: Student Use of LLMs in a Web Programming Course",
+      "AmIWrite: Exploring Scalable One-on-One Handwriting-Based Tutoring for Mathematical Problem-Solving with an LLM-Powered AI Tutor",
+      "From Black Box to Learning Artifact: A Pedagogical Redesign of AI Coding Assistants for Novice Programmers",
+      "Toward Scalable and Responsible Integration of Course-Specific AI Tutors: Instructor Experiences with a Campus-Wide Platform",
+      "The Elephant in the Syntax: A Comparative Study of Semantics‑First, Block‑Based, and Textual Programming",
+      "ST-Buddy: Designing and Evaluating a Course-Grounded LLM Chatbot for Academic and Administrative Support",
+      "Exploring Teacher-Chatbot Interaction and Affect in Block-Based Programming",
+      "FAIR: Framing AI’s Role in Programming Competitions — Understanding How LLMs Are Changing the Game in Competitive Programming"
+     ]
+    },
+    "VR for chronic pain": {
+     "both_aspects": 0,
+     "sessions": 7,
+     "titles": [
+      "InterLeaf: A Letter-Based Mobile Platform for Reflection, Connection, and Chronic Pain Support",
+      "CoBreath: Designing a VR-Based Dyadic Biofeedback System to Support Breathing Exercise for Breast Cancer Survivors",
+      "E-Tactile Flow: Exploring A Novel Path of Pain Relief through Interactive Electrotactile Stimulation",
+      "Design and Evaluation of a Continuous Interface for Real-time Self-reporting of VR Sickness",
+      "Responsible Trauma Research: Designing Effective and Sustainable Virtual Reality Exposure Studies",
+      "VR Calm Plus: Coupling a Squeezable Tangible Interaction with Immersive VR for Stress Regulation",
+      "Continuous Measurement Methods for Transient Physiological Discomfort in VR Locomotion",
+      "Defining Reality in Dementia VR: Stakeholder Perspectives on Ecological Validity for Functional Activity Training"
+     ]
+    },
+    "privacy of smart home cameras": {
+     "both_aspects": 6,
+     "sessions": 7,
+     "titles": [
+      "MlondaCam: Designing Context-Aware Smart Cameras for Supporting Domestic Security and Privacy in Malawian Homes",
+      "Building a Private Smart Home: User Motivations and Challenges",
+      "Investigating Bystander Privacy in Chinese Smart Home Apps",
+      "Investigating How Types of Data Associated With Smart Home Devices Influence Privacy Concerns and Perceived Benefits",
+      "VisGuardian: A Lightweight Group-based Visual Privacy Control Technique For Smart Glasses in Home Environments",
+      "Surveillance as Care: Configuring Baby Monitors in the Home",
+      "\"Privacy across the boundary\": Examining Perceived Privacy Risk Across Data Transmission and Sharing Ranges of Smart Home Personal Assistants",
+      "Good Fences Make Good Neighbors: What’s Acceptable (and What’s Not) in Neighborhood Video Surveillance"
+     ]
+    },
+    "accessible data visualization for blind users": {
+     "both_aspects": 5,
+     "sessions": 7,
+     "titles": [
+      "Making Charts Speak: LLM-Based Conversational Chart Question Answering for Blind and Low-Vision Users",
+      "Three Modalities, Two Design Probes, One Prototype, and No Vision: Experience-Based Co-Design of a Multi-modal 3D Data Visualization Tool",
+      "Nonvisual Support for Understanding and Reasoning about Data Structures",
+      "GeoVisA11y: An AI-based Geovisualization Question-Answering System for Screen-Reader Users",
+      "I'm Always a Little Skeptical of It: Verification Practices of Blind Users When Working with Generative AI in Spreadsheets",
+      "Idea11y: Enhancing Accessibility in Collaborative Ideation for Blind or Low Vision Screen Reader Users",
+      "The ORBIT India Dataset: Understanding the Challenges of Collecting a Disability-First AI Dataset in Low-Resource Environments",
+      "ADCanvas: Accessible and Conversational Audio Description Authoring for Blind and Low Vision Creators"
+     ]
+    },
+    "mental health chatbots for students": {
+     "both_aspects": 4,
+     "sessions": 6,
+     "titles": [
+      "The Campus Mental Health Problem Isn't Capacity - It's Access!",
+      "\"Tech'' a Deep Breath: Technology-guided Breathing Practise With or Without a Social Robot for Psychological and Emotional Well-Being",
+      "Cloning the Self for Mental Well-Being: A Framework for Designing Safe and Therapeutic Self-Clone Chatbots",
+      "TherapyProbe: Generating Design Knowledge for Relational Safety in Mental Health Chatbots Through Adversarial Simulation",
+      "Campus AI vs. Commercial AI: Comparing How Students and Employees Perceive their University’s LLM Chatbot vs. ChatGPT",
+      "Standardized Soul: A Mixed-Methods Study on the Efficacy and User Perception of AI-Augmented Peer Support (AAPS) in College Mental Health Support",
+      "Co-designing MESA-Bot: Enhancing Accessibility, Privacy, Security, and Trust in a Mental Health Chatbot for Older Adults",
+      "Affective and Goal-Oriented Factors of Relationship Formation in the Digital Therapeutic Alliance: A Longitudinal Study of Mental Health Chatbots"
+     ]
+    },
+    "deepfake detection by older adults": {
+     "both_aspects": 1,
+     "sessions": 7,
+     "titles": [
+      "DeepAware: Using Experiential Deepfake Simulations to Enhance Cybersecurity Awareness in Older Adults",
+      "Look Here, Click Me: Improving Older Adults’ Perception of Manipulable User Interface Components through AI-Based Perceptual Guidance",
+      "Seeing, Hearing, and Knowing Together: Multimodal Strategies in Deepfake Videos Detection",
+      "If I Change Your Eyes, Are You Still You? Identity Thresholds in Deepfake Perception",
+      "Experiencer, Helper, or Observer: Online Fraud Intervention for Older Adults Through a Role-based Simulation Approach",
+      "Designing Effective Digital Literacy Interventions for Boosting Deepfake Discernment",
+      "Digital Vulnerability in Later Life: How Older Adults in Chennai Experience and Manage Impersonation Scams",
+      "``What If My Face Gets Scanned Without Consent'': Older Adults' Experiences with Biometric Payment"
+     ]
+    },
+    "gesture input on smartwatches": {
+     "both_aspects": 2,
+     "sessions": 7,
+     "titles": [
+      "MultiBand: Adding Multi-Touch to the Smartwatch Wristband for Extended Interaction",
+      "TinyGaze: Lightweight Gaze-Gesture Recognition on Commodity Mobile Devices",
+      "WatchHand: Enabling Continuous Hand Pose Tracking On Off-the-Shelf Smartwatches",
+      "MagFace: Interference-Resistant Facial Gesture Recognition System on Cycling Glasses with Low-Power Magnetic Sensing",
+      "Bevel or Not: Identifying the Potential of Bevels for Touch Input Accuracy on Ring Device",
+      "The People's Gaze: Co-Designing and Refining Gaze Gestures with Users and Experts",
+      "FingerBar: A Mid-Air Touch Bar Interface for Earphones Using Finger-Generated Acoustics",
+      "Increasing Input Accuracy of Embodied Devices via Electrical Muscle Stimulation"
+     ]
+    },
+    "misinformation on social media during elections": {
+     "both_aspects": 1,
+     "sessions": 8,
+     "titles": [
+      "From TikTok to Telegram: Cross-Platform Efficacy and User Acceptance of Erroneous and Flawless Misinformation Interventions",
+      "Through a Live Elections Dashboard, Darkly: Managing Expectations and Trust in Progressive Vote Counting During the 2024 U.S. Election",
+      "Large Language Model (LLM)-driven Adversarial Social Influences in Online Information Spread: Risks and Interventions",
+      "External-Facing Communication on Social Media During the Russia-Ukraine Conflict of 2014",
+      "Timing Matters: Designing Effective Corrections for Short-Form Video Misinformation",
+      "Influencers vs. Legacy Media on Instagram: Effects on Perceived Credibility and Following Intention",
+      "Evaluating Peer Fact-Checking on WhatsApp",
+      "``God says we are right!'': The Interplay between Religion and Propaganda on Arabic Social Media"
+     ]
+    },
+    "sign language translation with AI": {
+     "both_aspects": 6,
+     "sessions": 7,
+     "titles": [
+      "Reimagining Sign Language Technologies: Analyzing Translation Work of Chinese Deaf Online Content Creators",
+      "LaboSignes: an Interactive French Sign Language Recognition Interface",
+      "Beyond Technical Metrics: Understanding the Gap Between AI Performance and Deaf User Experience in Chinese Natural Sign Language Generation",
+      "AuslanSpell: An Interactive Technology for Improving Auslan Fingerspelling Comprehension",
+      "ASL Educators’ Perspectives on AI for Enhancing Student Learning in American Sign Language Education",
+      "Exploring AI Opportunities in Deaf Education: Understanding Design Needs Through Teacher and Parent Perspectives in Bangladesh",
+      "AI as Relational Translator: Rethinking Belonging and Mutual Legibility in Cross-Cultural Contexts",
+      "Designing Beyond Language: Sociotechnical Barriers in AI Health Technologies for Limited English Proficiency"
+     ]
+    },
+    "autonomous vehicles communicating with pedestrians": {
+     "both_aspects": 5,
+     "sessions": 6,
+     "titles": [
+      "eHMI for All - Investigating the Effect of External Communication of Automated Vehicles on Pedestrians, Manual Drivers, and Cyclists",
+      "See What I See: An Attention-Guiding eHMI Approach for Autonomous Vehicles",
+      "Rethinking External Communication of Autonomous Vehicles: Is the Field Converging, Diverging, or Stalling?",
+      "Running into Traffic: Investigating External Human-Machine Interfaces for Automated Vehicle-Runner Interaction",
+      "Exploring the Impacts of Background Noise on Auditory Stimuli of Audio-Visual eHMIs for Hearing, Deaf, and Hard-of-Hearing People",
+      "Designing eHMIs Across Vehicle Sizes for Cyclists in an AR Workshop",
+      "To Cooperate or Not to Cooperate: A Systematic Review and Meta-Analysis of Human Driving Behavior in Interactions with Autonomous Vehicles",
+      "A Collaborative Crowdsourcing Method for Designing External Interfaces for Autonomous Vehicles"
+     ]
+    },
+    "children's online safety and gaming": {
+     "both_aspects": 4,
+     "sessions": 6,
+     "titles": [
+      "Player Safety by Design: Co-Designing Child-Centered Safety Mechanisms with Children",
+      "Beyond Age-Based Restrictions: Rethinking Children's Online Safety Through Comparing Parent–Child Perspectives of Risks in User-Generated Content Games",
+      "Unpacking Children's Perceptions of Their Digital Money Futures",
+      "From \"Fail Fast\" to \"Mature Safely:\" Expert Perspectives as Secondary Stakeholders on Teen-Centered Social Media Risk Detection",
+      "From Vulnerable to Resilient: Examining Parent and Teen Perceptions on How to Respond to Unwanted Cybergrooming Advances",
+      "Exploring the Potential of Disengagement-Friendly Game Design to Support Children's Exit from Play Sessions",
+      "How Well do LLMs Assist Parents in Assessing Child Appropriateness of Videos?",
+      "Teen Vigilance: Navigating Risky Social Interactions on Discord"
+     ]
+    },
+    "crowdworkers and AI labor": {
+     "both_aspects": 8,
+     "sessions": 7,
+     "titles": [
+      "Hidden Labor behind the Hype: Understanding AI Side Hustles through Platform Narratives and Worker Practices",
+      "Worker Discretion Advised: Co-designing Risk Disclosure in Crowdsourced Responsible AI (RAI) Content Work",
+      "From the Lab to the Field: The Role of Motivation in Rigorous XAI User Studies",
+      "Filtering the Invisible: A Feminist HCI Perspective on Informal Infra-structuring in Gig Labor",
+      "'The plan is just survival': Data Work in Kenya and the Regime of Entrapment",
+      "Reimagining Data Work: Participatory Annotation Workshops as Feminist Practice",
+      "“I Am My Own Bot”: Everyday Resistance in Online Fashion Resale",
+      "AI in Webtoon Creation: Challenges, Perceptions, and Design Implications"
+     ]
+    },
+    "eye tracking in virtual reality": {
+     "both_aspects": 5,
+     "sessions": 7,
+     "titles": [
+      "Visualizing Eye-Tracking Dynamics for Predicting Human Error in Virtual Reality",
+      "EyeXRciser: Guiding Eye Exercises without Task Interruption in Virtual Workspaces",
+      "The Ocular Command Center: How Eye Responses to Luminance, Color, Tunneling, and Visual Suppression Mediate Users' Physiological States in VR",
+      "AttentiveLearn: Personalized Post-Lecture Support for Gaze-Aware Immersive Learning",
+      "The Eye–Head Mover Spectrum: Modelling Individual and Population Head Movement Tendencies in Virtual Reality",
+      "SwEYEpinch and Beyond: Exploring Intuitive, Efficient Text Entry for Extended Reality via Eye and Hand Tracking",
+      "Measuring Visual Span in VR and Desktop Reading: A Comparative Study",
+      "HiFiGaze: Improving Eye Tracking Accuracy Using Screen Content Knowledge"
+     ]
+    },
+    "sustainable food practices and technology": {
+     "both_aspects": 2,
+     "sessions": 5,
+     "titles": [
+      "Designing to Support Local Stakeholders in Negotiating about Future Sustainable and Healthy Food Systems",
+      "Modalities of Regulation in Sustainable HCI: Rethinking the Role of Design in Shaping Sustainable Behaviours and Society",
+      "Envisioning Future Food, Technology, and Health: Teens’ Perspectives Through Design Fiction",
+      "Balancing Goals, Health, and Cost: A Food Information System for Managing Complex Choices and Fostering Sustained Food Agency",
+      "Flavor-Aware AI for Pre-Decision Support in Everyday Food Practices",
+      "Comparative Analysis of Digital Food Ecosystems in Bangladesh: Commercial Platforms versus F-Commerce",
+      "HCI for Agroecology: Agri-Tech between Grassroots and Capitalism",
+      "Designing for Proactive Accountability: Lessons on Governing Technology from Detroit’s Food Sovereignty Movement"
+     ]
+    },
+    "AI writing assistants for non-native speakers": {
+     "both_aspects": 0,
+     "sessions": 7,
+     "titles": [
+      "ChatLearn: Leveraging Non-Native Speaker Communication Challenges as Language Learning Opportunities",
+      "Exploring User Expectations for AI-Mediated Second Language Communication: A Formative Participatory Design Study",
+      "LingoQ: Bridging the Gap between EFL Learning and Work through AI-Generated Work-Related Quizzes",
+      "Proactive AI as a Catalyst for Creativity? Balancing Human Agency and AI Contribution in Collaborative Story Writing",
+      "Collaborative Document Editing with Multiple Users and AI Agents",
+      "From Crafting Text to Crafting Thought: Grounding AI Writing Support to Writing Center Pedagogy",
+      "Writing with AI Can Reduce Gender Bias in Hiring Evaluations",
+      "ADCanvas: Accessible and Conversational Audio Description Authoring for Blind and Low Vision Creators"
+     ]
+    },
+    "wearable sensors for stress": {
+     "both_aspects": 6,
+     "sessions": 7,
+     "titles": [
+      "Stress Mindset Matters: Rethinking Mental Stress Detection with Multimodal Wearable Sensors",
+      "Exploring Data-Driven Approaches to Stress Management: A Systematic Review of Stress Tracking, Intervention, and System Evaluation Methods",
+      "StreAM: An LLM-Based System for Stress-Adaptive Meditation at Work",
+      "Knitted Inductive Flex Sensors for Wearable Applications",
+      "The Hidden Load: Parenting Young Children While Leading in Critical Professions",
+      "Understanding Behind the Smile of Emotion Workers: Detecting After-Call Stress in Call Agents",
+      "Context Matters: Investigating Physiological Embeddings for Stress Detection Generalization",
+      "Wearable Sound Technologies for Understanding and Shaping Bodily Perception and Emotional States in Depressive Symptomatology"
+     ]
+    },
+    "dark patterns in mobile apps": {
+     "both_aspects": 3,
+     "sessions": 6,
+     "titles": [
+      "Clicks, Screens, and Control: Dark Patterns in Teen Privacy and Safety Settings on Social Media",
+      "Dark Patterns and the EU Digital Services Act: Mapping Autonomy Violations and Design Factors",
+      "A Systematic Review of User Experiments on the Effects of Dark Patterns",
+      "The Dark Patterns Knowledge Stack: Exploring New Ways to Negotiate Context, Law, and Design",
+      "Access Over Deception: Fighting Deceptive Patterns through Accessibility",
+      "‘In a Pinch, If You Have Nothing’: An Exploration of Money-Making Apps in Homeless Shelters",
+      "The Siren Song of LLMs: How Users Perceive and Respond to Dark Patterns in Large Language Models",
+      "TaskAudit: Detecting Functiona11ity Errors in Mobile Apps via Agentic Task Execution"
+     ]
+    },
+    "explainable AI for doctors": {
+     "both_aspects": 4,
+     "sessions": 6,
+     "titles": [
+      "Ask, Verify, Refine: A Question-Aware Multimodal XUI with Feedback-Guided Refinement for Clinical Verification",
+      "Emergent, not Immanent: A Baradian Reading of Explainable AI",
+      "From Explanation to Action: A Case Study of Agronomist Workflows",
+      "Augmenting Clinical Decision-Making with an Interactive and Interpretable AI Copilot: A Real-World User Study with Clinicians in Nephrology and Obstetrics",
+      "Interactive Explainable Ranking",
+      "The Perceptual Gap: Why We Need Accessible XAI for Assistive Technologies",
+      "Bounding Boxes in Practice: Design and Early Evaluation of a Video-Based PPE Compliance Monitoring Application for Time-Critical Care",
+      "Design and Multi-level Evaluation of MAP-X: a Medically Aligned, Patient-Centered AI Explanation System"
+     ]
+    }
+   }
+  },
+  "chosen": {
+   "both_aspects_of_8": 3.35,
+   "distinct_sessions_of_8": 6.6,
+   "latency_ms_median": 45.3,
+   "latency_ms_max": 70.8,
+   "per_query": {
+    "kids and screen time": {
+     "both_aspects": 0,
+     "sessions": 7,
+     "titles": [
+      "Distorted Time: How Fragmented Interface Design Alters User Time Perception Across Contexts",
+      "Seeing Your Mindless Face: How Viewing One’s Live Self Interrupts Mindless Short-Form Video Scrolling",
+      "Tuning into Everyday Ecologies: Children’s Slow Noticing in Food Gardens",
+      "\"In my defense, only three hours on Instagram\": Designing Toward Digital Self-Awareness and Wellbeing",
+      "Endless Swipes and Recommendations: The Impact of Short-Form Video Platforms on Context-Switching and Children’s Working Memory",
+      "Active Silence: Designing Temporal Idle States for Calm Engagement in Public Interactive Displays",
+      "Balancing Attention Support for Early-learners (BASE) in Digital Technology Interactions: A Framework for Design and Use",
+      "From Struggle to Success: Context-Aware Guidance for Screen Reader Users in Computer Use"
+     ]
+    },
+    "haptic feedback for older adults": {
+     "both_aspects": 0,
+     "sessions": 7,
+     "titles": [
+      "Operationalizing Self-Perceptions of Aging Using Reflection Probe and SPA Design Cards with HCI Practitioners",
+      "Look Here, Click Me: Improving Older Adults’ Perception of Manipulable User Interface Components through AI-Based Perceptual Guidance",
+      "``What If My Face Gets Scanned Without Consent'': Older Adults' Experiences with Biometric Payment",
+      "Privacy is Not One-Click: Designing Robots That Adapt to Older Adults’ Changing Boundaries",
+      "Remembering with Reminiscope: Codesigning with Generative AI for Reminiscence Among Older Adults",
+      "Speculating with Older Adults in HCI: A Scoping Review",
+      "Harmonizing the Senses: Designing a Cross-Modal Interactive Art System to Enhance Older Adults’ Affective Experiences",
+      "Rebuilding Life after Spousal Loss: Exploring Challenges and Speculating Future Technologies with Older Women"
+     ]
+    },
+    "LLM tutors in programming education": {
+     "both_aspects": 5,
+     "sessions": 5,
+     "titles": [
+      "From Code Generation to Conceptual Learning: Student Use of LLMs in a Web Programming Course",
+      "AmIWrite: Exploring Scalable One-on-One Handwriting-Based Tutoring for Mathematical Problem-Solving with an LLM-Powered AI Tutor",
+      "From Black Box to Learning Artifact: A Pedagogical Redesign of AI Coding Assistants for Novice Programmers",
+      "Toward Scalable and Responsible Integration of Course-Specific AI Tutors: Instructor Experiences with a Campus-Wide Platform",
+      "The Elephant in the Syntax: A Comparative Study of Semantics‑First, Block‑Based, and Textual Programming",
+      "ST-Buddy: Designing and Evaluating a Course-Grounded LLM Chatbot for Academic and Administrative Support",
+      "Exploring Teacher-Chatbot Interaction and Affect in Block-Based Programming",
+      "FAIR: Framing AI’s Role in Programming Competitions — Understanding How LLMs Are Changing the Game in Competitive Programming"
+     ]
+    },
+    "VR for chronic pain": {
+     "both_aspects": 0,
+     "sessions": 7,
+     "titles": [
+      "InterLeaf: A Letter-Based Mobile Platform for Reflection, Connection, and Chronic Pain Support",
+      "CoBreath: Designing a VR-Based Dyadic Biofeedback System to Support Breathing Exercise for Breast Cancer Survivors",
+      "E-Tactile Flow: Exploring A Novel Path of Pain Relief through Interactive Electrotactile Stimulation",
+      "Design and Evaluation of a Continuous Interface for Real-time Self-reporting of VR Sickness",
+      "Responsible Trauma Research: Designing Effective and Sustainable Virtual Reality Exposure Studies",
+      "VR Calm Plus: Coupling a Squeezable Tangible Interaction with Immersive VR for Stress Regulation",
+      "Continuous Measurement Methods for Transient Physiological Discomfort in VR Locomotion",
+      "Defining Reality in Dementia VR: Stakeholder Perspectives on Ecological Validity for Functional Activity Training"
+     ]
+    },
+    "privacy of smart home cameras": {
+     "both_aspects": 6,
+     "sessions": 7,
+     "titles": [
+      "MlondaCam: Designing Context-Aware Smart Cameras for Supporting Domestic Security and Privacy in Malawian Homes",
+      "Surveillance as Care: Configuring Baby Monitors in the Home",
+      "Building a Private Smart Home: User Motivations and Challenges",
+      "Investigating Bystander Privacy in Chinese Smart Home Apps",
+      "Investigating How Types of Data Associated With Smart Home Devices Influence Privacy Concerns and Perceived Benefits",
+      "VisGuardian: A Lightweight Group-based Visual Privacy Control Technique For Smart Glasses in Home Environments",
+      "\"Privacy across the boundary\": Examining Perceived Privacy Risk Across Data Transmission and Sharing Ranges of Smart Home Personal Assistants",
+      "Good Fences Make Good Neighbors: What’s Acceptable (and What’s Not) in Neighborhood Video Surveillance"
+     ]
+    },
+    "accessible data visualization for blind users": {
+     "both_aspects": 5,
+     "sessions": 7,
+     "titles": [
+      "Making Charts Speak: LLM-Based Conversational Chart Question Answering for Blind and Low-Vision Users",
+      "Three Modalities, Two Design Probes, One Prototype, and No Vision: Experience-Based Co-Design of a Multi-modal 3D Data Visualization Tool",
+      "Nonvisual Support for Understanding and Reasoning about Data Structures",
+      "GeoVisA11y: An AI-based Geovisualization Question-Answering System for Screen-Reader Users",
+      "I'm Always a Little Skeptical of It: Verification Practices of Blind Users When Working with Generative AI in Spreadsheets",
+      "Idea11y: Enhancing Accessibility in Collaborative Ideation for Blind or Low Vision Screen Reader Users",
+      "The ORBIT India Dataset: Understanding the Challenges of Collecting a Disability-First AI Dataset in Low-Resource Environments",
+      "ADCanvas: Accessible and Conversational Audio Description Authoring for Blind and Low Vision Creators"
+     ]
+    },
+    "mental health chatbots for students": {
+     "both_aspects": 4,
+     "sessions": 6,
+     "titles": [
+      "The Campus Mental Health Problem Isn't Capacity - It's Access!",
+      "\"Tech'' a Deep Breath: Technology-guided Breathing Practise With or Without a Social Robot for Psychological and Emotional Well-Being",
+      "Campus AI vs. Commercial AI: Comparing How Students and Employees Perceive their University’s LLM Chatbot vs. ChatGPT",
+      "Standardized Soul: A Mixed-Methods Study on the Efficacy and User Perception of AI-Augmented Peer Support (AAPS) in College Mental Health Support",
+      "Cloning the Self for Mental Well-Being: A Framework for Designing Safe and Therapeutic Self-Clone Chatbots",
+      "TherapyProbe: Generating Design Knowledge for Relational Safety in Mental Health Chatbots Through Adversarial Simulation",
+      "Co-designing MESA-Bot: Enhancing Accessibility, Privacy, Security, and Trust in a Mental Health Chatbot for Older Adults",
+      "Affective and Goal-Oriented Factors of Relationship Formation in the Digital Therapeutic Alliance: A Longitudinal Study of Mental Health Chatbots"
+     ]
+    },
+    "deepfake detection by older adults": {
+     "both_aspects": 1,
+     "sessions": 7,
+     "titles": [
+      "DeepAware: Using Experiential Deepfake Simulations to Enhance Cybersecurity Awareness in Older Adults",
+      "Look Here, Click Me: Improving Older Adults’ Perception of Manipulable User Interface Components through AI-Based Perceptual Guidance",
+      "Seeing, Hearing, and Knowing Together: Multimodal Strategies in Deepfake Videos Detection",
+      "If I Change Your Eyes, Are You Still You? Identity Thresholds in Deepfake Perception",
+      "Experiencer, Helper, or Observer: Online Fraud Intervention for Older Adults Through a Role-based Simulation Approach",
+      "Designing Effective Digital Literacy Interventions for Boosting Deepfake Discernment",
+      "Digital Vulnerability in Later Life: How Older Adults in Chennai Experience and Manage Impersonation Scams",
+      "``What If My Face Gets Scanned Without Consent'': Older Adults' Experiences with Biometric Payment"
+     ]
+    },
+    "gesture input on smartwatches": {
+     "both_aspects": 2,
+     "sessions": 7,
+     "titles": [
+      "MultiBand: Adding Multi-Touch to the Smartwatch Wristband for Extended Interaction",
+      "TinyGaze: Lightweight Gaze-Gesture Recognition on Commodity Mobile Devices",
+      "WatchHand: Enabling Continuous Hand Pose Tracking On Off-the-Shelf Smartwatches",
+      "MagFace: Interference-Resistant Facial Gesture Recognition System on Cycling Glasses with Low-Power Magnetic Sensing",
+      "Bevel or Not: Identifying the Potential of Bevels for Touch Input Accuracy on Ring Device",
+      "The People's Gaze: Co-Designing and Refining Gaze Gestures with Users and Experts",
+      "FingerBar: A Mid-Air Touch Bar Interface for Earphones Using Finger-Generated Acoustics",
+      "Increasing Input Accuracy of Embodied Devices via Electrical Muscle Stimulation"
+     ]
+    },
+    "misinformation on social media during elections": {
+     "both_aspects": 1,
+     "sessions": 8,
+     "titles": [
+      "From TikTok to Telegram: Cross-Platform Efficacy and User Acceptance of Erroneous and Flawless Misinformation Interventions",
+      "Through a Live Elections Dashboard, Darkly: Managing Expectations and Trust in Progressive Vote Counting During the 2024 U.S. Election",
+      "Large Language Model (LLM)-driven Adversarial Social Influences in Online Information Spread: Risks and Interventions",
+      "External-Facing Communication on Social Media During the Russia-Ukraine Conflict of 2014",
+      "Timing Matters: Designing Effective Corrections for Short-Form Video Misinformation",
+      "Influencers vs. Legacy Media on Instagram: Effects on Perceived Credibility and Following Intention",
+      "Evaluating Peer Fact-Checking on WhatsApp",
+      "``God says we are right!'': The Interplay between Religion and Propaganda on Arabic Social Media"
+     ]
+    },
+    "sign language translation with AI": {
+     "both_aspects": 6,
+     "sessions": 7,
+     "titles": [
+      "Reimagining Sign Language Technologies: Analyzing Translation Work of Chinese Deaf Online Content Creators",
+      "LaboSignes: an Interactive French Sign Language Recognition Interface",
+      "Beyond Technical Metrics: Understanding the Gap Between AI Performance and Deaf User Experience in Chinese Natural Sign Language Generation",
+      "AuslanSpell: An Interactive Technology for Improving Auslan Fingerspelling Comprehension",
+      "ASL Educators’ Perspectives on AI for Enhancing Student Learning in American Sign Language Education",
+      "Designing Beyond Language: Sociotechnical Barriers in AI Health Technologies for Limited English Proficiency",
+      "Exploring AI Opportunities in Deaf Education: Understanding Design Needs Through Teacher and Parent Perspectives in Bangladesh",
+      "AI as Relational Translator: Rethinking Belonging and Mutual Legibility in Cross-Cultural Contexts"
+     ]
+    },
+    "autonomous vehicles communicating with pedestrians": {
+     "both_aspects": 5,
+     "sessions": 6,
+     "titles": [
+      "eHMI for All - Investigating the Effect of External Communication of Automated Vehicles on Pedestrians, Manual Drivers, and Cyclists",
+      "See What I See: An Attention-Guiding eHMI Approach for Autonomous Vehicles",
+      "Rethinking External Communication of Autonomous Vehicles: Is the Field Converging, Diverging, or Stalling?",
+      "Running into Traffic: Investigating External Human-Machine Interfaces for Automated Vehicle-Runner Interaction",
+      "Exploring the Impacts of Background Noise on Auditory Stimuli of Audio-Visual eHMIs for Hearing, Deaf, and Hard-of-Hearing People",
+      "Designing eHMIs Across Vehicle Sizes for Cyclists in an AR Workshop",
+      "To Cooperate or Not to Cooperate: A Systematic Review and Meta-Analysis of Human Driving Behavior in Interactions with Autonomous Vehicles",
+      "A Collaborative Crowdsourcing Method for Designing External Interfaces for Autonomous Vehicles"
+     ]
+    },
+    "children's online safety and gaming": {
+     "both_aspects": 4,
+     "sessions": 6,
+     "titles": [
+      "Player Safety by Design: Co-Designing Child-Centered Safety Mechanisms with Children",
+      "Beyond Age-Based Restrictions: Rethinking Children's Online Safety Through Comparing Parent–Child Perspectives of Risks in User-Generated Content Games",
+      "Unpacking Children's Perceptions of Their Digital Money Futures",
+      "From \"Fail Fast\" to \"Mature Safely:\" Expert Perspectives as Secondary Stakeholders on Teen-Centered Social Media Risk Detection",
+      "From Vulnerable to Resilient: Examining Parent and Teen Perceptions on How to Respond to Unwanted Cybergrooming Advances",
+      "Exploring the Potential of Disengagement-Friendly Game Design to Support Children's Exit from Play Sessions",
+      "How Well do LLMs Assist Parents in Assessing Child Appropriateness of Videos?",
+      "Teen Vigilance: Navigating Risky Social Interactions on Discord"
+     ]
+    },
+    "crowdworkers and AI labor": {
+     "both_aspects": 8,
+     "sessions": 7,
+     "titles": [
+      "Hidden Labor behind the Hype: Understanding AI Side Hustles through Platform Narratives and Worker Practices",
+      "Worker Discretion Advised: Co-designing Risk Disclosure in Crowdsourced Responsible AI (RAI) Content Work",
+      "From the Lab to the Field: The Role of Motivation in Rigorous XAI User Studies",
+      "Filtering the Invisible: A Feminist HCI Perspective on Informal Infra-structuring in Gig Labor",
+      "'The plan is just survival': Data Work in Kenya and the Regime of Entrapment",
+      "Reimagining Data Work: Participatory Annotation Workshops as Feminist Practice",
+      "“I Am My Own Bot”: Everyday Resistance in Online Fashion Resale",
+      "AI in Webtoon Creation: Challenges, Perceptions, and Design Implications"
+     ]
+    },
+    "eye tracking in virtual reality": {
+     "both_aspects": 5,
+     "sessions": 7,
+     "titles": [
+      "Visualizing Eye-Tracking Dynamics for Predicting Human Error in Virtual Reality",
+      "EyeXRciser: Guiding Eye Exercises without Task Interruption in Virtual Workspaces",
+      "The Ocular Command Center: How Eye Responses to Luminance, Color, Tunneling, and Visual Suppression Mediate Users' Physiological States in VR",
+      "AttentiveLearn: Personalized Post-Lecture Support for Gaze-Aware Immersive Learning",
+      "SwEYEpinch and Beyond: Exploring Intuitive, Efficient Text Entry for Extended Reality via Eye and Hand Tracking",
+      "The Eye–Head Mover Spectrum: Modelling Individual and Population Head Movement Tendencies in Virtual Reality",
+      "Can We Infer Object Pose Changes from Hand Movements?",
+      "Measuring Visual Span in VR and Desktop Reading: A Comparative Study"
+     ]
+    },
+    "sustainable food practices and technology": {
+     "both_aspects": 2,
+     "sessions": 5,
+     "titles": [
+      "Designing to Support Local Stakeholders in Negotiating about Future Sustainable and Healthy Food Systems",
+      "Modalities of Regulation in Sustainable HCI: Rethinking the Role of Design in Shaping Sustainable Behaviours and Society",
+      "Envisioning Future Food, Technology, and Health: Teens’ Perspectives Through Design Fiction",
+      "Balancing Goals, Health, and Cost: A Food Information System for Managing Complex Choices and Fostering Sustained Food Agency",
+      "Flavor-Aware AI for Pre-Decision Support in Everyday Food Practices",
+      "Comparative Analysis of Digital Food Ecosystems in Bangladesh: Commercial Platforms versus F-Commerce",
+      "HCI for Agroecology: Agri-Tech between Grassroots and Capitalism",
+      "Designing for Proactive Accountability: Lessons on Governing Technology from Detroit’s Food Sovereignty Movement"
+     ]
+    },
+    "AI writing assistants for non-native speakers": {
+     "both_aspects": 0,
+     "sessions": 7,
+     "titles": [
+      "Exploring User Expectations for AI-Mediated Second Language Communication: A Formative Participatory Design Study",
+      "ChatLearn: Leveraging Non-Native Speaker Communication Challenges as Language Learning Opportunities",
+      "LingoQ: Bridging the Gap between EFL Learning and Work through AI-Generated Work-Related Quizzes",
+      "Proactive AI as a Catalyst for Creativity? Balancing Human Agency and AI Contribution in Collaborative Story Writing",
+      "Collaborative Document Editing with Multiple Users and AI Agents",
+      "From Crafting Text to Crafting Thought: Grounding AI Writing Support to Writing Center Pedagogy",
+      "Writing with AI Can Reduce Gender Bias in Hiring Evaluations",
+      "ADCanvas: Accessible and Conversational Audio Description Authoring for Blind and Low Vision Creators"
+     ]
+    },
+    "wearable sensors for stress": {
+     "both_aspects": 6,
+     "sessions": 7,
+     "titles": [
+      "Stress Mindset Matters: Rethinking Mental Stress Detection with Multimodal Wearable Sensors",
+      "Exploring Data-Driven Approaches to Stress Management: A Systematic Review of Stress Tracking, Intervention, and System Evaluation Methods",
+      "StreAM: An LLM-Based System for Stress-Adaptive Meditation at Work",
+      "Knitted Inductive Flex Sensors for Wearable Applications",
+      "The Hidden Load: Parenting Young Children While Leading in Critical Professions",
+      "Understanding Behind the Smile of Emotion Workers: Detecting After-Call Stress in Call Agents",
+      "Context Matters: Investigating Physiological Embeddings for Stress Detection Generalization",
+      "Wearable Sound Technologies for Understanding and Shaping Bodily Perception and Emotional States in Depressive Symptomatology"
+     ]
+    },
+    "dark patterns in mobile apps": {
+     "both_aspects": 3,
+     "sessions": 6,
+     "titles": [
+      "Clicks, Screens, and Control: Dark Patterns in Teen Privacy and Safety Settings on Social Media",
+      "‘In a Pinch, If You Have Nothing’: An Exploration of Money-Making Apps in Homeless Shelters",
+      "Dark Patterns and the EU Digital Services Act: Mapping Autonomy Violations and Design Factors",
+      "A Systematic Review of User Experiments on the Effects of Dark Patterns",
+      "The Dark Patterns Knowledge Stack: Exploring New Ways to Negotiate Context, Law, and Design",
+      "Access Over Deception: Fighting Deceptive Patterns through Accessibility",
+      "The Siren Song of LLMs: How Users Perceive and Respond to Dark Patterns in Large Language Models",
+      "TaskAudit: Detecting Functiona11ity Errors in Mobile Apps via Agentic Task Execution"
+     ]
+    },
+    "explainable AI for doctors": {
+     "both_aspects": 4,
+     "sessions": 6,
+     "titles": [
+      "Ask, Verify, Refine: A Question-Aware Multimodal XUI with Feedback-Guided Refinement for Clinical Verification",
+      "Emergent, not Immanent: A Baradian Reading of Explainable AI",
+      "From Explanation to Action: A Case Study of Agronomist Workflows",
+      "Augmenting Clinical Decision-Making with an Interactive and Interpretable AI Copilot: A Real-World User Study with Clinicians in Nephrology and Obstetrics",
+      "Interactive Explainable Ranking",
+      "The Perceptual Gap: Why We Need Accessible XAI for Assistive Technologies",
+      "Bounding Boxes in Practice: Design and Early Evaluation of a Video-Based PPE Compliance Monitoring Application for Time-Critical Care",
+      "Design and Multi-level Evaluation of MAP-X: a Medically Aligned, Patient-Centered AI Explanation System"
+     ]
+    }
+   }
+  }
+ }
+}

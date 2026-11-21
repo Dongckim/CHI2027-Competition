@@ -1,11 +1,85 @@
 # recsys: 추천 모델 (Wonjune)
 
-## Arc 엔진 자리 (2026-11-20, 지금 기준)
+## Arc 엔진 자리 (2026-11-21, 지금 기준)
 - **인터페이스**: `app/src/engine/types.ts`의 `Engine` (`init`, `tribeOf`, `angleTopics`, `buildArc`, `suggest`, `wildcard`), 결과는 `contracts/Arc.schema.json` 0.1.0. 앱은 `app/src/engine/index.ts`를 통해서만 부름
 - **연결**: `app/src/engine/ondevice.ts`가 이 폴더의 코드를 감싼다 (`?engine=ondevice` 또는 빌드 환경변수 `VITE_ENGINE=ondevice`). 기본은 mock(`app/src/engine/mock-core.js`, TF-IDF + 단순 규칙)
-- **이 폴더(recsys/)**: 모델 소스와 생성 스크립트(임베딩 만들기, 변환 등)
-- **모델 파일**: git에 넣지 않는다. 배포 빌드(`npm run build:deploy`)가 환경변수 `MODEL_URL`(.zip 또는 .tar.gz)과 `MODEL_SHA256`을 확인해 `dist/model/`에 풀고, 앱은 같은 도메인 `/model/…`에서 받는다(1년 immutable 캐시). `MODEL_URL`이 없으면 건너뛰고 mock으로 동작. 스크립트 `app/scripts/fetch-model.mjs` (.zip 또는 .tar.gz, 안의 경로는 상대 경로만, Node로 풀어서 unzip·tar 명령 필요 없음)
-- 패키지 크기 20.3 MB(원준). 최종 방식(파일 구성, 서비스 워커 보관 여부)은 zip을 보고 확정
+- **모델 파일**: git에 넣지 않는다. 배포 빌드(`npm run build:deploy`)가 `MODEL_URL`과 `MODEL_SHA256`을 확인해 `dist/model/`에 풀고, 앱은 같은 도메인 `/model/…`에서 받는다(1년 immutable 캐시). `MODEL_URL`이 없으면 mock으로 동작. 스크립트 `app/scripts/fetch-model.mjs`
+
+### 지금 모델 패키지 (11/21)
+| | |
+|---|---|
+| 파일 | `chi2026-retriever-2026-11-21.zip` (GitHub Release `model-2026-11-21`) |
+| 크기 | zip 22.2 MB, 풀면 37.5 MB, 파일 117개 (zip 안은 상대 경로만, 맨 위 폴더 없음) |
+| `MODEL_SHA256` | `461f38e421f941de854c1fe9761cf6a9ca7f67b1d84fa58df0e5f460a75685d7` |
+| 소스 | 이 폴더 `src/package/`(Python), `src/web/`(JavaScript, 패키지의 `web/`) |
+| 다시 만들기 | `python scripts/package_model.py` → `dist/chi2026-retriever/` (아래 "데이터 다시 만들기") |
+
+패키지 안 `README.md`에 입력·출력 JSON과 화면별 예시(`arc_examples/`)가 있다. JavaScript로 바로 돌려 보기:
+```bash
+node web/cli.mjs arc '{"screen": "start"}'          # 패키지를 푼 폴더에서
+```
+
+### Q&A 시드 질문 (14)
+엔진이 14 화면에 주는 `questions`(시작 질문)는 **LLM(Qwen2.5-7B-Instruct)이 초록을 읽고 미리 쓴 것**이다(`scripts/gen_summaries.py` → `summaries.json`의 `questions`). 사람이 보낸 질문이 아니므로:
+- 앵글 엔진 출력에서는 `{"text": "...", "votes": 0, "seed": true}`로 표시돼 있다. `seed: true`는 사용자 질문과 섞지 말고 빼거나 "Suggested"로 따로 보여 준다
+- 투표 수·질문 수·테마(14d `questions` 화면)를 셀 때도 넣지 않는다. 14d `questions` 화면에는 사용자 질문만 넣는다
+- 투표와 게시는 앱의 Q&A 서비스 몫이고 이 모델은 다루지 않는다
+
+### 라이선스
+| 모델 | 쓰임 | 라이선스 |
+|---|---|---|
+| `BAAI/bge-m3` | 파인튜닝한 교사 인코더. 논문 벡터를 미리 계산하고, 폰용 정적 인코더(`encoder.json`)가 이것을 증류함 | MIT |
+| `BAAI/bge-small-en-v1.5` | 폰용 정적 인코더의 토크나이저와 시작점(student base) | MIT |
+| `Qwen/Qwen3-14B` | 빌드 때만: 결과 카드, 일반어, 넓은 이름(`gen_findings`, `gen_concepts`, `gen_results`). 앱에는 들어가지 않음 | Apache 2.0 |
+| `Qwen/Qwen2.5-7B-Instruct` | 빌드 때만: 합성 질의, 한 줄 요약과 시드 질문, 확장어(`gen_queries`, `gen_summaries`, `gen_expansions`, `name_clusters`, `gen_offtopic`) | Apache 2.0 |
+
+프로그램 데이터는 ACM CHI 2026 공식 피드, CC BY-NC-SA 4.0.
+
+### 폴더 구성
+| 폴더 | 내용 |
+|---|---|
+| `src/package/` | 패키지의 Python 코드: `retriever.py`(검색), `explorer.py`(기관·나라·저자로 찾기), `arc.py`(Arc 경로·장소·시간), `angles.py`(Supports·Reframes·Challenges, 화면별 응답) |
+| `src/web/` | 같은 모델의 JavaScript 버전(폰 브라우저). `load.mjs`가 진입점, `cli.mjs`는 명령줄 |
+| `src/config.py` | 경로·모델 이름 공통 설정 |
+| `scripts/` | 데이터·모델 만들기(`gen_*` LLM 생성, `train_*` 학습, `build_*` 조립, `eval_*` 평가, `package_model.py` 패키지). `.slurm`은 GPU 노드용 |
+| `tests/` | 케이스와 실행기. Python 케이스 검사와 Python↔JavaScript 일치 검사 |
+| `docs/` | `angle_model.md`(앵글 엔진 설명과 평가), `arc_api.md`(화면별 API), `ondevice_eval.md`(폰 인코더), `training_report.md`(학습) |
+
+### 데이터 다시 만들기
+모든 명령은 이 폴더(`recsys/`)에서 실행한다. `data/`, `models/`, `dist/`는 git에 없다. GPU 단계는 SLURM `sbatch`이고, GPU 한 장이면 `.slurm` 안의 `python …` 줄을 직접 돌려도 된다.
+```bash
+python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+# 0. 원본: 공식 CHI 2026 피드를 data/raw/chi2026_latest.json에 둔다 (저장소 루트의 npm run data:fetch가 받는 것과 같은 피드)
+python scripts/preprocess.py                         # data/processed/corpus.json
+python scripts/build_program.py                      # data/processed/program.json, venue.json (발표 2,782개, 방·층)
+
+# 1. 검색 인코더 (docs/training_report.md, docs/ondevice_eval.md)
+sbatch scripts/gen_queries.slurm                     # 합성 질의 (Qwen2.5-7B)
+sbatch scripts/train_retriever.slurm                 # bge-m3 교사 파인튜닝
+python scripts/embed_program.py                      # 교사로 전체 발표 벡터 → models/program_emb.npy
+sbatch scripts/train_light.slurm --deploy static_d256 --dim 128   # 폰용 정적 인코더 증류
+sbatch scripts/gen_expansions.slurm                  # 확장어
+python scripts/build_clusters.py && python scripts/build_subclusters.py && sbatch scripts/name_clusters.slurm   # 주제 묶음과 이름
+sbatch scripts/gen_offtopic.slurm && python scripts/train_relevance.py   # 주제 밖 판정 (묶음을 씀)
+sbatch scripts/gen_summaries.slurm                   # 한 줄 요약과 14 시드 질문 (Qwen2.5-7B)
+
+# 2. 앵글 엔진 (docs/angle_model.md)
+sbatch scripts/gen_findings.slurm                    # 결과 카드 (Qwen3-14B)
+python scripts/build_angles.py                       # 원문 확인, offsets, 종족, 데뷔
+sbatch scripts/gen_concepts.slurm                    # 일반어
+CHI_TASK=claims sbatch scripts/gen_concepts.slurm    # 질문 말투 claim
+sbatch scripts/gen_results.slurm                     # 넓은 이름, 방향 재확인, 놓친 결과 (11/21, Support 늘림)
+python scripts/build_angles.py                       # 위를 모두 합쳐 data/processed/angles.json
+python scripts/eval_angles.py                        # docs/angle_eval.json
+
+# 3. 패키지와 검사
+python scripts/package_model.py                      # dist/chi2026-retriever/
+python tests/run_cases.py && python tests/run_arc_cases.py && python tests/run_angle_cases.py
+python tests/web_reference.py && node tests/run_web_parity.mjs   # JavaScript = Python
+```
+LLM 생성 단계는 샤드 파일에 이어 쓰므로 다시 돌리면 끝난 항목은 건너뛴다. LLM 출력은 실행마다 조금 달라질 수 있어서, 같은 패키지를 그대로 원하면 Release zip을 쓴다.
+
+11/21 검사 결과: Python↔JavaScript 일치 239/239, 앵글 40/40, Arc 80/80, 검색 42/42.
 
 ## 아래는 옛 플래너 때 문서 (2026-11-20 전)
 

@@ -1,0 +1,152 @@
+# Arc engine: 질문 하나를 Support · Reframe · Challenge로 나누는 모델
+
+11/16 팀 문서("ARC 최종 흐름 · UI/인터랙션 디자인 가이드")와 Figma "final flow" 페이지에 맞춰, 사용자의 연구 질문을 가운데 두고 CHI 발표를 세 각도로 배치하는 모델을 만들었다. 무거운 계산은 서버에서 한 번 해 두고, 폰은 이미 있던 8 MB query encoder만으로 질문을 해석해 맞춰 보게 했다. 그래서 서버 없이 폰 브라우저에서 돈다. 여기 숫자는 `docs/angle_eval.json`, `docs/angle_build.log`에서 나왔고 맨 아래 명령으로 다시 만들 수 있다.
+
+## 무엇을 하나
+
+화면 번호는 11/17에 업데이트된 Figma "ARC Mobile Wireframes"의 "final" 페이지 기준이다. 헤더에 적힌 제안(Q1~Q20)을 그대로 따랐다.
+
+| Figma 화면 | screen | 모델이 내는 것 |
+|---|---|---|
+| 07 첫 질문 | `ask` | 입력 종류(topic / relation / open), 질문에서 찾은 factor X와 outcome Y와 방향, 종족 미리보기. 주제어나 열린 질문이면 더 좁은 질문 3개와 각각의 ↑ ↻ ⊣ 개수. 오타를 프로그램 단어로 고친 문장(`corrected`), CHI가 다루지 않는 주제이거나 영어가 아니면 `warning`(이때는 더 좁은 질문을 내지 않는다) |
+| 08 Choose your angles | `angles` | 각도마다 "비슷한 주제" 칩 최대 3개(예: Supports에 Interaction fidelity), 처음엔 Supports·Reframes 2개, Challenges 1개 선택. 반론이 없으면 "No clear clash at CHI this year." |
+| 09 When and what | `arc`의 `days`, `formats` | `today`(기본) / `tomorrow` / `week`, Talks · Posters · Demos(기본) · Panels · SIGs |
+| 10 Building, 11 종족 공개 | `arc`의 `loading`, `tribe` | "Reading 2,606 talks for you", "Look for the blue diamond." |
+| 12 메인 Arc, 24 노드가 많을 때 | `arc` | 노드마다 각도, 짧은 이름, "14:00 · Rm 119" 줄, 상태(next, upcoming, heard, ended, read). 걷는 시간은 Next 카드에만 넣었다(Q6). 각도마다 3개를 넘으면 나머지는 `bundles`의 "+N"으로 접힌다. 08에서 고른 칩의 발표가 먼저 배치된다. |
+| 13 목록 보기 | `summary` | 각도별 묶음과 "Heard · 11:26 · Rm 116", "Next · 14:00 · Rm 119" 줄, DOI 목록(Markdown, BibTeX) |
+| 14 Talk detail | `node` | "WHY IT SUPPORTS"와 초록 문장, 밑줄 위치, "Tue 14:00 · Room 119", 첫 저자와 First CHI paper 배지, Q&A에 처음 띄울 질문 2개(빌드 때 LLM이 쓴 것). 질문 올리기와 추천 수는 서버가 맡는다. |
+| 15 Edit | `edit` | 노드를 누르면 교체(같은 각도), + 칸이면 추가(Q7). 필터는 각도 / First CHI paper / Wildcard이고 검색도 된다(Q8, Q9). 시간이 겹치는 후보는 빼지 않고 "Same time as …", "Right after …"로 표시한다. |
+| 16·17 공유, 18 받은 Arc, 19 골라 담기 | `shared` | 링크의 질문과 논문 번호만으로 같은 각도를 다시 계산한다. 보낸 사람이 15번에서 직접 각도를 정한 발표는 링크에 그 각도(`angles`)를 같이 담아, 받는 사람에게도 같은 각도로 보인다. 받는 사람 시각에 이미 끝난 발표는 잠기고(Ended), 버튼은 "Add N to my Arcs"다. 결과는 보낸 사람의 질문으로 만든 새 Arc다(Q12). |
+| 20 홈, 21 빈 홈 | `home` | 저장된 Arc마다 종족과 "Today", "Wed", "Mon · all heard". Arc가 없으면 "Start with one question." |
+| 22 ? 각도 설명 | `meta`, 모든 화면의 `help` | Figma 문구 그대로("Same question, same finding." 등)와 한국어 |
+
+## 어떻게 판정하나
+
+빌드 때 Qwen3-14B로 초록 2,780개를 세 번 읽었다. 첫 번째는 결과 카드를 뽑는 일이다. 카드 하나는 factor, outcome, 방향(increase, decrease, no_effect, mixed, associated), 대상, 그리고 그 문장이 이 논문의 결과인지(result), 시스템이 주장하는 효과인지(claim), 배경인지(prior), 목표인지(aim)를 담는다. 구절은 초록에 글자 그대로 있어야 하고, 없으면 같은 문장에서 같은 어간의 단어를 순서대로 덮는 가장 짧은 원문 구간으로 바꾸며, 그것도 없으면 버린다. 그래서 화면에 인용되는 문장과 밑줄은 항상 초록 원문이다. 두 번째와 세 번째는 매칭용 일반어를 붙이는 일이다. 카드 구절마다 연구자가 질문에 쓸 법한 이름 1~3개, 논문 전체가 무엇에 관한지, 그리고 카드를 질문 말투로 다시 쓴 claim을 만든다. 이것들은 매칭에만 쓰고 화면에 인용하지 않는다.
+
+폰은 질문을 X → Y와 방향으로 읽는다("Does VR fidelity really raise presence?"는 vr fidelity, presence, +). 그다음 기존 retriever로 상위 40개를 고르고, 그 카드들을 X·Y와 비교한다. 비교는 머리 단어(같은 어간 포함)와 수식어가 겹치는 정도, 그리고 8 MB encoder의 구절 벡터 cosine 중 큰 값이다. 규칙은 이렇다.
+
+| 각도 | 조건 |
+|---|---|
+| ↑ Support | 같은 X와 Y이고, 이 논문의 결과가 질문 방향과 같다. 데모나 시스템의 claim이면 세부 유형이 Try it이다. |
+| ⊣ Challenge | 같은 X와 Y인데 결과가 반대거나 효과 없음이거나 조건부다. result 문장이어야 하고, X·Y가 모두 0.8 이상 맞아야 하며, 데모·패널·밋업에는 붙지 않는다. |
+| ↻ Reframe | Y는 같고 다른 요인(Other factor), X는 같고 다른 결과나 측정(Other measure), 같은 질문인데 다른 사람이나 맥락(Other people), 또는 방향 없는 관계만 있는 경우(Same subject) |
+| 지도에 안 올림 | 카드도, 논문 전체의 일반어도 X나 Y와 맞지 않는다. |
+
+결과가 섞인 논문은 LLM이 중요하다고 먼저 쓴 카드가 각도를 정하고, 반대 방향의 결과 문장은 `caveat`로 함께 보낸다. 예를 들어 222304(VR System Fidelity)는 Support이고, "scenario fidelity는 효과 없음" 문장이 caveat로 붙는다.
+
+주제어나 열린 질문으로 만든 Arc는 가장 맞는 좁은 질문 하나로 바꿔서 만들고(`asked`에 원래 입력), `edit`, `node`, `shared`, `summary`도 같은 질문으로 바꿔 계산해서 지도와 어긋나지 않는다. 칩과 질문 문구의 약어는 대문자로 보낸다("Wayfinding in VR"). 사용자가 Edit에서 직접 각도를 정한 발표는 `summary`, `shared`의 `angles`({"발표 id": 각도})와 `node`의 `angle`로 그 각도를 받아서, 지도·목록·상세·공유 링크가 모두 같은 각도를 보인다.
+
+## 데이터 규모
+
+| 항목 | 값 |
+|---|---|
+| 카드가 있는 항목 | 2,780 (프로그램 전체) |
+| 원문 확인을 통과한 카드 | 11,052 (원문에 없는 구절로 약 2,600개를 버렸다) |
+| 방향 분포 | associated 7,664 · increase 2,272 · decrease 551 · no_effect 459 · mixed 106 |
+| 일반어가 붙은 구절, claim | 17,373 · 10,742 |
+| 종족 | Society 703 · Devices 382 · Health 344 · Design 342 · AI 314 · XR 249 · Learning 225 · Accessibility 221 |
+| 제1저자가 데뷔인 논문 | 1,033 (2023~2025 CHI 논문 저자 이름과 대조) |
+| 패키지 크기 | 20 MB에서 34 MB(zip 20 MB)로 늘었다. phrase_vec.npy가 9.6 MB, angles.json이 3.7 MB다. |
+| 속도 (Node, 이 서버 CPU) | 처음 로딩 1.4초, Arc 한 번 94 ms |
+
+## 평가
+
+질문 48개(종족마다 6개)에 대해 retriever 상위 15개씩, 720쌍에 정답 각도를 붙였다. 라벨은 Claude 에이전트 6개가 `data/eval/LABELING.md` 기준으로 초록을 하나씩 읽고 붙였다. 사람 라벨이 아니라는 점은 알고 봐야 한다. 정답 분포는 Reframe 514, Off 143, Support 57, Challenge 6이다. 짝수 질문(dev)에서 임계값을 정하고 홀수 질문(test)으로 보고했다. 평가는 Arc 화면과 같은 경로(`_judged`: 검색 상위 40개를 카드로 판정)로 한다.
+
+| test 360쌍 | 모두 Reframe이라고 답하기 | Arc engine (11/17) | Arc engine (11/20) |
+|---|---|---|---|
+| 지도에 올린 것의 precision / recall | 0.80 / 1.00 | 0.88 / 0.70 | 0.86 / 0.81 |
+| Support precision / recall | 0 / 0 | 0.75 / 0.14 | 0.75 / 0.14 |
+| Challenge precision / recall | 0 / 0 | 0.50 / 0.20 | 0.50 / 0.20 (정답이 5개뿐) |
+| Reframe precision / recall | 0.72 / 1.00 | 0.79 / 0.67 | 0.77 / 0.78 |
+| macro-F1 | 0.21 | 0.43 | 0.43 |
+| accuracy | 0.72 | 0.63 | 0.67 |
+
+11/20에 바뀐 것은 검색 순위로 남기는 Reframe이다. 카드로는 X나 Y를 찾지 못했지만 검색 점수가 1.5 이상이거나(코사인과 키워드 점수 합, 최대 2) 고른 형식 안에서 검색 5위 안이면, 확신도 0.2의 Reframe(Same subject)으로 지도 후보에 남긴다(`NEAR_SCORE`, `NEAR_TOP`). 카드에서 나온 각도보다 확신도가 낮아서 Arc를 다 채우지 못할 때만 올라온다. dev에서 이렇게 살린 것의 81%, test에서 79%가 정답에서도 관련 있는 발표였다. 여러 신호를 섞은 작은 로지스틱 회귀도 해 봤지만 test에서 0.864 / 0.822로 단순 규칙과 거의 같아서 규칙을 남겼다.
+
+정확도만 보면 "모두 Reframe"이 더 높다. 정답의 72%가 Reframe이기 때문이다. 이 모델이 하는 일은 관련 없는 발표를 걸러 지도의 precision을 0.80보다 높게 지키고, Support와 Challenge를 틀리지 않게 고르는 것이다. Support는 고르면 4개 중 3개가 맞지만 정답 Support의 14%만 찾는다. 놓친 것은 대부분 사람이 의미로 이어 붙인 경우다. 예를 들어 "AR chatbot이 stress를 줄였다"를 "mental health apps가 stress를 줄이나"의 근거로 보는 판단은 정답 라벨에서는 Support지만 모델은 Reframe(Other factor)으로 둔다. 지금 규칙은 일부러 Support와 Challenge를 아껴 쓰는 쪽이다. 틀린 Support나 Challenge가 Reframe보다 신뢰를 더 잃게 하기 때문이다.
+
+시도했다가 넣지 않은 것도 적어 둔다. 카드 구절 벡터를 teacher(bge-m3-chi)로 만들고 질문만 8 MB encoder로 만드는 방식은 정확도가 0.62에서 0.61로 오히려 낮았다. 논문 전체가 X에 관한 것이면 카드의 factor도 X로 보는 규칙은 Support precision을 0.71에서 0.56으로 떨어뜨렸다. Y의 다른 측정값도 Y로 보는 규칙은 거의 변화가 없었다. cosine 구절 벡터를 아예 빼면 test의 지도 recall이 0.70에서 0.65로 떨어져서 남겼다. 11/20에 Support recall을 올리려고 두 가지를 더 시험했다. 카드의 요인이 그 논문의 시스템 이름(라벨)일 때 논문 전체가 X에 관한 것이면 X로 보는 규칙은 dev에서 맞는 Support 1개를 더 찾고 test에서는 변화가 없었다. 카드에 방향이 없을("associated") 때 원문에서 두 구절 사이의 "enhanced", "reduced" 같은 단어로 방향을 되살리는 규칙은 dev에서 1개를 더 맞히고 test에서 틀린 Support 2개를 새로 만들었다. 둘 다 넣지 않았다.
+
+## 일반 LLM과 비교
+
+같은 질문 48개와 같은 후보 15개(720쌍)를 일반 LLM(Qwen3-14B, thinking 끔)에게도 주고, 위 정답 기준과 같은 각도 정의로 분류하게 했다(`scripts/compare_llm.py`, 결과 `docs/llm_compare.json`). LLM은 채팅 앱처럼 매번 새로 생성(temperature 0.7)해서 5번, 고정(temperature 0)해서 2번 돌렸다. 정확도는 test 360쌍, 반복 일관성은 48개 질문 전체로 쟀다.
+
+| | Arc engine | LLM (5번 평균) |
+|---|---|---|
+| 지도에 올린 것의 precision / recall | 0.86 / 0.81 | 0.94 / 0.76 |
+| Support precision / recall | 0.75 / 0.14 | 0.18 / 0.69 |
+| Challenge precision | 0.50 | 0.16 |
+| macro-F1 | 0.43 | 0.43 |
+| 발표마다 분류가 5번 모두 같음 | 100% | 86% |
+| Support·Challenge 목록이 5번 모두 같은 질문 | 100% | 58% |
+| 실행 | 폰 브라우저, 34 MB, Arc 한 번 40 ms | 서버 GPU(L40S), 28 GB, 질문 하나 약 6초 |
+
+LLM은 관련 없는 발표를 조금 더 잘 거르지만 관련 있는 발표는 엔진보다 덜 올리고, Support를 많이 찾지만, Support라고 한 것의 5개 중 4개가 틀린다. 같은 질문을 다시 물으면 48개 중 42%에서 Support나 Challenge 목록이 바뀌고, 3개 질문에서는 Challenge가 나왔다 안 나왔다 한다. temperature 0으로 고정하면 반복 결과는 같아지지만 Support precision은 0.20으로 그대로다. 그림은 `docs/screenshots/24_llm_vs_engine.png`, 같은 질문 5번의 예시는 `25_llm_repeat_example.png`다.
+
+## 주제어와 문장형 결과 (11/20)
+
+- 주제어("haptics")는 그 주제를 다룬 발표들의 카드에서 가장 흔한 결과(주제가 요인일 때)나 원인(주제가 결과일 때)을 붙여, 사용자의 단어가 남은 질문을 먼저 제안한다("Do haptics improve VR experience?"). 발표 두 개 이상이 받쳐 줄 때만 쓰고, 없으면 예전처럼 카드의 요인→결과 쌍으로 만든다. 주제어 25개로 재면 첫 제안 뒤의 발표가 평균 1.4개에서 1.9개로, 발표 하나뿐인 제안이 16개에서 9개로 줄었다.
+- 주제어나 열린 질문으로 만든 Arc는 좁힌 질문으로 7개를 채우지 못하면 원래 주제의 검색 상위 발표(확신도 0.1의 Reframe)로 나머지를 채운다. 화요일 기준 점검 질문 20개 중 3개 이하이던 9개가 모두 7개가 됐다.
+- "help blind users browse the web faster"처럼 결과가 동사구면 논문이 재는 결과처럼 바꿔 읽는다(web browsing speed, 사람은 대상으로). "feel less lonely"는 loneliness를 줄이는 질문이 된다.
+
+## 한계
+
+- 주제어를 좁힌 질문은 여전히 어색할 때가 있다("Does accessibility reduce performance?"). 긴 열린 질문은 주제어로 제안을 만들지 못해 예전 방식으로 만든다.
+- Support recall이 낮다. Arc 7개 중 Support는 대개 0~3개이고 Reframe이 많다. Figma 시안의 "2 support · 2 reframe · 1 challenge" 모양이 항상 나오지는 않는다.
+- Challenge는 정답 자체가 6개뿐이라 숫자를 믿기 어렵다. 프로그램 전체에서 초록에 반대 결과를 분명히 쓴 논문이 적어서, "이번 CHI에서 뚜렷한 엇갈림을 찾지 못했어요"가 자주 뜨는 것이 정상이다.
+- 종족은 LLM 판정이고, 키워드 규칙과의 일치는 55%다. 화면에서 바꿀 수 있게 2위 종족을 같이 보낸다(팀 문서 Q5).
+- 데뷔 판정은 이름만 맞춘 것이고 2022년 이전은 보지 않았다. 2026 논문 저자의 62%가 2023~2025에 없던 이름이라, 필터가 아니라 상세 페이지의 배지로 쓰는 것이 맞다.
+- 영어 질문만 받는다(Q21).
+
+## 요청 예시
+
+```bash
+cd dist/chi2026-retriever
+python angles.py '{"screen": "ask", "text": "VR presence"}'
+python angles.py '{"screen": "angles", "question": "Does VR fidelity raise presence?"}'
+python angles.py '{"screen": "arc", "question": "Does VR fidelity raise presence?", "days": "today", "formats": ["talks", "posters", "demos"], "chips": ["support:fidel", "reframe:avatar"], "now": "2026-04-14T13:30:00+02:00"}'
+python angles.py '{"screen": "edit", "question": "...", "days": "today", "nodes": [222304, 222323], "node": 222304}'
+python angles.py '{"screen": "edit", "question": "...", "days": "today", "nodes": [222304, 222323], "add": "reframe", "filter": "wildcard"}'
+python angles.py '{"screen": "node", "question": "...", "id": 222304}'
+python angles.py '{"screen": "shared", "question": "...", "ids": [222323, 222304], "now": "2026-04-14T09:12:00+02:00"}'
+python angles.py '{"screen": "summary", "question": "...", "ids": [222323, 222304], "heard": [222323], "now": "..."}'
+python angles.py '{"screen": "home", "arcs": [{"question": "...", "ids": [222323, 222304], "heard": [222323]}], "now": "..."}'
+python angles.py '{"screen": "ask", "text": "VR presence", "now": "2026-04-14T13:30:00+02:00"}'
+python angles.py '{"screen": "arc", "question": "...", "days": "week", "walk": ["calm", "step_free"], "now": "..."}'
+python angles.py '{"screen": "hold", "question": "...", "days": "week", "nodes": [222304, 222323, 222447], "node": 222447, "now": "..."}'
+python angles.py '{"screen": "questions", "id": 223179, "questions": ["Over time, did participants delegate more?", "..."], "new": "Did they delegate more over time?"}'
+```
+
+폰에서는 `web/load.mjs`의 `loadAngles(base)`가 같은 요청을 받는다. `arc`의 `state`로 사용자의 편집을 보낸다. `removed`는 뺀 노드, `locked`는 고정한 노드, `added`는 `{"id", "angle"}`로 사용자가 정한 각도, `heard`는 들은 노드다. 모델은 상태를 저장하지 않는다. 25번 "Sorting angles…"는 모델 파일을 받는 동안 앱이 보여 주는 화면이라 모델 쪽 일은 없다.
+
+## Figma "final" 11/20 추가 화면 (엔진 쪽)
+
+11/20에 Figma "final" 페이지에 화면 16개가 더해졌다. 엔진 요청은 아래처럼 늘었다. Python과 JavaScript 결과가 같은지 확인하는 테스트에 새 케이스 10개를 넣었고, 모두 같다(239/239).
+
+| Figma | 요청 | 하는 일 |
+|---|---|---|
+| 07b 넓은 질문 좁히기 | `ask` + `now` | "That's a topic. 10 Tuesday talks match it. Pick a sharper question:"처럼 그날 맞는 발표 수를 센다(`matching_day`). "What is X research asking now?"의 research, asking, now 같은 말은 세지 않는다. |
+| 09 How you walk | `arc`, `edit`, `hold`의 `walk` | `calm`은 정류장 사이를 10분 이상 비운다(기본 5분). `step_free`는 층을 옮길 때 엘리베이터로 걷고, Next 카드에 "elevator"를 붙인다. |
+| 12b 노드 길게 누르기 | `hold` | 누른 정류장과 같은 각도이면서, 나머지 일정에 맞고, 그 시각 앞뒤 90분 안에 있는 발표를 최대 3개 준다. 각 카드에는 바로 앞 정류장에서 걷는 시간("stay", "2–4 min walk")이 붙는다. 판정한 40개 밖에서도 30개를 더 읽는다. |
+| 14b 발표 중 질문 | `questions` + `new` | 새 질문과 비슷한 질문(코사인 0.50 이상), 그 질문이 들어갈 묶음, 초록의 핵심어("From the abstract · delegate → delegation")를 준다. 핵심어는 제목과 결과 카드에 나온 말만 쓴다. |
+| 14d 저자 화면 | `questions` | 질문을 묶음으로 나눈다(묶음 중심과 코사인 0.45 이상이면 합류). 묶음 이름은 묶음 안에서 가장 많이 나온 두 단어이고, 초록에 나오는 단어를 먼저 쓴다. |
+| 20 Today / This week / After CHI | `home`의 `tab` | 오늘 일정이 남은 Arc는 `today`, 남은 날이 있으면 `week`, 다 들었거나 날이 지났으면 `after`다. |
+
+질문 묶기는 8 MB 인코더로 하므로 영어 문장이어야 한다. 다른 언어 질문은 앱이 먼저 영어로 옮긴다(브라우저의 온디바이스 번역기). 이 인코더는 "train station"과 "airports"처럼 뜻만 가까운 질문은 잘 묶지 못한다.
+
+## 다시 만들기
+
+```bash
+sbatch scripts/gen_findings.slurm                     # 결과 카드 (Qwen3-14B, GPU 4개 약 30분)
+python scripts/build_angles.py                         # 원문 확인, offsets, 종족, 데뷔
+sbatch scripts/gen_concepts.slurm                      # 일반어 (약 15분)
+CHI_TASK=claims sbatch scripts/gen_concepts.slurm      # 질문 말투 claim (약 12분)
+python scripts/build_angles.py                         # 일반어까지 합쳐 다시
+python scripts/eval_angles.py                          # docs/angle_eval.json (--sweep: 임계값 탐색)
+sbatch scripts/compare_llm.slurm && python scripts/compare_llm_report.py   # 일반 LLM과 비교 (GPU 7개 약 15분)
+python scripts/package_model.py
+python tests/run_angle_cases.py                        # 40개 사례
+python tests/web_reference.py && node tests/run_web_parity.mjs   # JavaScript가 Python과 같은지 (229개)
+```

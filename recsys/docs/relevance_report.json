@@ -1,0 +1,78 @@
+{
+ "features": [
+  "top",
+  "gap",
+  "bm25",
+  "coverage",
+  "idf"
+ ],
+ "w": [
+  9.970608,
+  -12.516862,
+  6.176778,
+  8.934453,
+  -14.934681
+ ],
+ "b": -19.472021,
+ "threshold": 0.073,
+ "fields_train": [
+  "accounting",
+  "ancient history",
+  "astronomy",
+  "climatology",
+  "constitutional law",
+  "culinary arts",
+  "exercise physiology",
+  "forestry",
+  "hydrology",
+  "macroeconomics",
+  "materials chemistry",
+  "mining engineering",
+  "music theory",
+  "oceanography",
+  "ornithology",
+  "particle physics",
+  "pharmacology",
+  "soil science",
+  "tax law",
+  "veterinary medicine"
+ ],
+ "fields_test": [
+  "agronomy",
+  "archaeology",
+  "botany",
+  "condensed matter physics",
+  "corporate finance",
+  "entomology",
+  "fisheries science",
+  "historical linguistics",
+  "immunology",
+  "marine biology",
+  "metallurgy",
+  "molecular genetics",
+  "nuclear engineering",
+  "organic chemistry",
+  "paleontology",
+  "petroleum engineering",
+  "plant pathology",
+  "structural civil engineering",
+  "theology",
+  "volcanology"
+ ],
+ "flagged": {
+  "chi_test_queries": 0.0101,
+  "offtopic_unseen_fields": 0.789,
+  "hand_short_chi": "1/25",
+  "hand_offtopic": "29/30"
+ },
+ "cosine_only": {
+  "floor": 0.3083,
+  "chi_test_queries": 0.0124,
+  "offtopic_unseen_fields": 0.0203,
+  "hand_short_chi": "0/25",
+  "hand_offtopic": "1/30"
+ },
+ "flagged_short": [
+  "deepfake"
+ ]
+}
