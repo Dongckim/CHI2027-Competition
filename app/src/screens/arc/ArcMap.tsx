@@ -35,7 +35,7 @@ export function ArcMap({ id }: { id: string }) {
           </a>
         )}
         <div className="flex gap-3">
-          <ArcLink kind="secondary" href={href(`arc/${id}/edit`)} className="w-[128px] shrink-0"><Pic src={editIcon} size={20} />Edit</ArcLink>
+          <ArcLink kind="secondary" href={href(`arc/${id}/edit`)} className="min-w-[128px] shrink-0"><Pic src={editIcon} size={20} />Edit</ArcLink>
           <ArcLink href={href(`share/${id}`)}>Share</ArcLink>
         </div>
       </>}>
