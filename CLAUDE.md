@@ -156,3 +156,6 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 남은 것: 동결 체크리스트(프로덕션 로그인 없이 열기, 토큰 미리보기 검사, Upstash, QR 폰, 메신저, VoiceOver), 16 카드 마크 로고 확인 (docs/stages/A4-ship.md)
 - A4 뒤 (11/20): iOS 바탕·튕김(#51), Challenge는 연구 자신의 결과 문장만(#52, 13개 질문 T 18 → 5문장), Figma 대조 뒤 01–07·11·14·15·19·20·23 맞춤(A4 문서 ⑧). 가장자리 빛은 Figma 레이어가 비어 있어 사용자 결정 대기
 - V7·V8 (11/20): QA 자동화 qa:auto(#54), 찾은 6가지 수정·알려진 실패 0(#55), 원 안쪽 #0E0E12로 질문 대비 8종족 17.7+:1(orb-check), 20 New Arc 116×44. 원은 디자이너 확인 대기 (docs/validation/V8-orb.md)
+- A5 ondevice 엔진 연결 (2026-11-21, stage/A5-ondevice): 원준 엔진(recsys/src/web, 모델 model-2026-11-21)을 Web Worker로 Engine 뒤에. `?engine=ondevice`일 때만 모델 받음(기본 mock). 한 Arc엔 한 엔진(편집은 arc.engine을 따름), 11 Change 맨 위에 2위 종족
+- 인용은 코드포인트 → UTF-16 + 우리 초록에서 다시 찾기(패키지 초록은 strip, 15,484문장 모두 맞음). 패키지 시각이 2시간 늦어 `engineNow`로 보정(원준 확인 필요). 14개 질문 계약 14/14, Arc 중간값 56.5 ms(WebKit, Mac)
+- 남은 것: 기본 엔진 전환은 사용자 승인 뒤, 07b 방식 선택, Challenge 목표 문장 1건·어색한 종족·라이선스 2칸은 원준 (docs/validation/V9-ondevice.md)

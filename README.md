@@ -74,7 +74,20 @@ ARC is an independent competition entry. It is not affiliated with or endorsed b
 | Upstash Redis (REST) | talk Q&A store |
 | uqr | QR codes for share links |
 | Mock engine (`app/src/engine/mock-core.js`) | the default engine: TF-IDF over the programme plus simple keyword rules |
-| On-device engine by Wonjune Lee (`recsys/`) | **to be confirmed**: model, licence and size (package about 20.3 MB) |
+| On-device engine by Wonjune Lee (`recsys/`) | Supports · Reframes · Challenges in the browser (Web Worker), opened with `?engine=ondevice` while it is compared with the mock; model package 22.2 MB zip, 36 MB unpacked, served from `/model/` |
+
+### Models and licences (on-device engine)
+
+From `recsys/README.md` (Wonjune Lee, 11/21). Only the first two ship to the phone, as files derived from them; the LLMs run at build time and are not in the app.
+
+| Model | Role | Ships in the app | Licence |
+|---|---|---|---|
+| `BAAI/bge-m3` (fine-tuned) | teacher encoder: talk vectors, distilled into the phone encoder | as derived vectors and encoder | MIT |
+| `BAAI/bge-small-en-v1.5` | phone encoder's tokenizer and starting point | yes (`tokenizer.json`, static encoder) | MIT |
+| Wonjune Lee's static encoder (`static_*.npy`, `encoder.json`) and finding cards (`angles.json`) | question encoder and angle data | yes | **to be confirmed by Wonjune** (derived from the two above and from CC BY-NC-SA programme data) |
+| `Qwen/Qwen3-14B` | build time only: finding cards, plain-word names | no | Apache 2.0 |
+| `Qwen/Qwen2.5-7B-Instruct` | build time only: synthetic queries, summaries, 14 seed questions (not shown in the app) | no | Apache 2.0 |
+| `@huggingface/tokenizers` build (`recsys/src/web/vendor/tokenizers.min.mjs`) | tokenizer in the browser | yes | **to be confirmed by Wonjune** (no licence notice in the file) |
 
 ## Repository
 
