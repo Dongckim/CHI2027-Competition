@@ -5,8 +5,9 @@ import { update, useDevice } from '../../state/useDevice';
 import { votedOf, addVoted } from '../../arc/draft.js';
 import { useQaToken, listQuestions, ask, vote, flag, remove, type Question } from '../../arc/qa';
 import { useOnline } from '../../data/offline';
-import { Pic } from '../../components/arc';
+import { Pic, Sheet } from '../../components/arc';
 import voteIcon from '../../assets/arc/icon-vote.svg';
+import voteOnIcon from '../../assets/arc/icon-vote-on.svg';
 import chat from '../../assets/arc/icon-chat.svg';
 
 const MAX = 280;
@@ -68,11 +69,11 @@ export function QandAList({ qa }: { qa: ReturnType<typeof useQandA> }) {
                     : <button type="button" onClick={() => qa.flagOn(q)} className="min-h-touch px-2 text-[13px] font-semibold text-arc-text-2 underline">Report</button>}
                 </div>
               </div>
-              {/* Figma 14: voted = surface fill, 0.08 border; not voted = no fill, 0.14 border (on the card both read close: designer to
-                  confirm). Screen readers get aria-pressed and "Voted" */}
+              {/* voted = filled arrow on the primary fill (user 「누른 상태가 눈으로 구분되게(아이콘 채움 + 색, 비텍스트 대비 3:1)」:
+                  #f4f3f8 on the #1c1b24 card is 15:1); Figma's surface fill read the same as not voted. Screen readers: aria-pressed */}
               <button type="button" onClick={() => !v && qa.voteOn(q)} aria-pressed={v} aria-label={`${v ? 'Voted' : 'Vote for this question'}, ${q.votes} ${q.votes === 1 ? 'vote' : 'votes'}`}
-                className={`flex h-12 w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border ${v ? 'border-arc-line bg-arc-surface' : 'border-arc-text/[0.14]'}`}>
-                <Pic src={voteIcon} size={16} />
+                className={`flex h-12 w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border ${v ? 'border-transparent bg-arc-primary text-arc-on-primary' : 'border-arc-text/[0.14]'}`}>
+                <Pic src={v ? voteOnIcon : voteIcon} size={16} />
                 <span className="text-[12px] font-medium">{q.votes}</span>
               </button>
             </li>
@@ -85,8 +86,10 @@ export function QandAList({ qa }: { qa: ReturnType<typeof useQandA> }) {
 
 export function QandAAsk({ qa }: { qa: ReturnType<typeof useQandA> }) {
   const left = MAX - qa.text.length;
+  const [about, setAbout] = useState(false);
   return (
-    <form onSubmit={e => { e.preventDefault(); qa.send(); }} className="flex flex-col gap-2">
+    // Figma: the input at y 742; the one-line note goes under it, in the space above the home indicator
+    <form onSubmit={e => { e.preventDefault(); qa.send(); }} className="-mb-[13px] flex flex-col">
       <label className="flex h-[52px] items-center gap-2.5 rounded-full border border-arc-line bg-arc-surface pr-2 pl-[18px]">
         <Pic src={chat} size={18} className="opacity-50" />
         <input value={qa.text} onChange={e => qa.setText(e.target.value.slice(0, MAX))} maxLength={MAX} disabled={!qa.online} enterKeyHint="send"
@@ -94,9 +97,22 @@ export function QandAAsk({ qa }: { qa: ReturnType<typeof useQandA> }) {
           className="min-w-0 flex-1 bg-transparent text-[15px] tracking-[-0.006em] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />
         {qa.text.trim() && <button type="submit" disabled={qa.busy} className="h-10 shrink-0 rounded-full bg-arc-primary px-4 text-[14px] font-semibold text-arc-on-primary">Ask</button>}
       </label>
-      <p id="qa-note" className="text-center text-[12px] text-arc-text-3" aria-live="polite">
-        {qa.note || (left < 40 ? `${left} characters left` : 'Questions are public and anonymous. Don\'t include personal details.')}
+      <p id="qa-note" className="flex min-h-[15px] items-center justify-center gap-1 text-center text-[12px] leading-[15px] text-arc-text-3" aria-live="polite">
+        {/* user 「안내는 한 줄 "Public · No personal info · Deleted 13 Jun 2027" + ⓘ(누르면 자세한 설명)」; a status note takes the
+            line's words for a while, the ⓘ stays */}
+        {qa.note || (left < 40 ? `${left} characters left` : 'Public · No personal info · Deleted 13 Jun 2027')}
+          <button type="button" onClick={() => setAbout(true)} aria-label="About questions" className="relative px-0.5 text-[13px] leading-[15px] text-arc-text-2 before:absolute before:-inset-[15px] before:content-['']">ⓘ</button>
       </p>
+      <Sheet open={about} onClose={() => setAbout(false)} title="About questions">
+        {/* 해석(확인 전): the detail text, from decision 007 and functions/qa.mjs (it keeps sha256(salt + device token)) */}
+        <ul className="mt-3 flex list-disc flex-col gap-2 pl-5 text-[15px] leading-[21px] text-arc-text-2">
+          <li>Anyone who opens this talk in ARC can read its questions.</li>
+          <li>Only the question, its votes and reports are kept, with a scrambled code for this phone so you can vote once and delete your own. No name, email, IP address or browser details.</li>
+          <li>A question reported by three people is hidden.</li>
+          <li>You can delete your own questions from this phone.</li>
+          <li>Everything is deleted on 13 June 2027.</li>
+        </ul>
+      </Sheet>
     </form>
   );
 }

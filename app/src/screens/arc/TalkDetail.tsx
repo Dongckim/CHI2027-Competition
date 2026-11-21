@@ -120,8 +120,10 @@ export function TalkDetail({ paperKey }: { paperKey: string }) {
           const a = people[k]!, isNew = debut.has(k);
           return (
             <li key={k} className="flex flex-col gap-1">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] font-medium tracking-[-0.006em]">
-                <Pic src={person} size={20} className="opacity-70" />
+              {/* the icon never wraps away from the name (a long name + institution wrapped the whole line under it) */}
+              <div className="flex items-center gap-3 text-[15px] font-medium tracking-[-0.006em]">
+                <Pic src={person} size={20} className="shrink-0 self-start opacity-70" />
+                <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                 <span>{a.name}{a.affiliations[0] && ` · ${a.affiliations[0].institution}`}</span>
                 {isNew && (
                   <button type="button" onClick={() => setDebutNote(n => (n === k ? null : k))} aria-expanded={debutNote === k}
@@ -129,6 +131,7 @@ export function TalkDetail({ paperKey }: { paperKey: string }) {
                     <Pic src={sparkle} size={12} />New to CHI
                   </button>
                 )}
+                </span>
               </div>
               {debutNote === k && <p className="pl-8 text-[13px] text-arc-text-2">No paper under this name in CHI 2023–2025.</p>}
             </li>
