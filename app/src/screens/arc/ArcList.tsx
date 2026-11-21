@@ -1,4 +1,4 @@
-// 13 · My Arc · list (Figma 597:860): the same Arc as rows by angle, whole titles up to two lines, the state as a word
+// 13 · My Arc · list (Figma 597:860): the same Arc as rows by angle, one-line titles (the whole title is the name), the state as a word
 // ("Heard · …", "Next · …", "Ended · …") so it is never colour alone. A row opens 14.
 import { useCallback, useState } from 'react';
 import { go, href } from '../../router';
@@ -27,16 +27,16 @@ export function ArcList({ id }: { id: string }) {
         <ArcLink href={href(`share/${id}`)}>Share</ArcLink>
       </div>}>
       <h1 className="mt-3.5 max-w-[300px] text-[22px] leading-7 font-semibold tracking-[-0.02em]">{arc.query}</h1>
-      <div className="mt-3.5 flex flex-wrap items-center gap-1.5" role="img" aria-label={`${heard} of ${arc.nodes.length} heard`}>
-        {arc.nodes.map(n => <span key={n.key} className={`size-[7px] rounded-full ${states.get(n.key) === 'heard' ? 'bg-tribe' : 'border border-arc-text/40'}`} />)}
+      <div className="mt-1.5 flex flex-wrap items-center gap-1.5" role="img" aria-label={`${heard} of ${arc.nodes.length} heard`}>
+        {arc.nodes.map(n => <span key={n.key} className={`size-2 rounded-full ${states.get(n.key) === 'heard' ? 'bg-tribe' : 'border border-arc-text/40'}`} />)}
       </div>
       {pending && <p className="mt-4 text-[14px] text-arc-text-2" role="status">Sorting angles… The talks are here; their angles come next.</p>}
-      <div className="mt-6 flex flex-col gap-[18px] pb-4">
+      <div className="mt-[26px] flex flex-col gap-[18px] pb-4">
         {(['S', 'R', 'T'] as Angle[]).map(a => {
           const nodes = arc.nodes.filter(n => n.angle === a);
           return (
             <section key={a} aria-labelledby={`list-${a}`} className="flex flex-col gap-2">
-              <h2 id={`list-${a}`} className="flex items-center gap-2 text-[15px] font-semibold">
+              <h2 id={`list-${a}`} className="flex items-center gap-2 text-[15px] font-semibold tracking-[-0.006em]">
                 <Pic src={ANGLE_ICON[a]} size={18} />{ANGLE_NAME[a]}
                 <span className="text-[12px] font-medium text-arc-text-3">{nodes.length}</span>
               </h2>
@@ -46,14 +46,14 @@ export function ArcList({ id }: { id: string }) {
                 return (
                   <button key={n.key} type="button" onClick={() => go(`talk/${n.key}`)} 
                     className="flex min-h-[62px] items-center gap-3 rounded-[20px] border border-arc-line bg-arc-surface py-2.5 pr-3 pl-3.5 text-left">
-                    <span aria-hidden="true" className={`size-2.5 shrink-0 rounded-full ${st === 'heard' ? 'bg-tribe' : st === 'next' ? 'border-2 border-arc-text' : st === 'ended' ? 'border border-dashed border-arc-text/50' : 'border-[1.5px] border-arc-text/45'}`} />
+                    <span aria-hidden="true" className={`size-2.5 shrink-0 rounded-full ${st === 'heard' ? 'bg-tribe' : st === 'next' ? 'border-2 border-arc-text' : st === 'ended' ? 'border border-dashed border-arc-text/50' : 'shadow-[inset_0_0_0_1.5px_rgba(244,246,255,0.45)]' /* Chrome snaps a 1.5px border to 1 */}`} />
                     <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                       <span className="sr-only">{ANGLE_NAME[a]} · </span>
-                      <span className={`line-clamp-2 text-[14px] leading-[18px] font-semibold ${st === 'heard' || st === 'ended' ? 'text-arc-text/70' : ''}`}>{n.debut && <span aria-hidden="true">✦ </span>}{i.title}</span>
+                      <span className={`truncate text-[14px] font-semibold tracking-[-0.006em] ${st === 'heard' || st === 'ended' ? 'text-arc-text/70' : ''}`}>{n.debut && <span aria-hidden="true">✦ </span>}{i.title}</span>
                       {/* Figma 11px; 12px is the floor */}
-                      <span className="text-[12px] font-medium text-arc-text-3">{PREFIX[st]}{i.time}{i.room && ` · ${i.room}`}</span>{/* with the day: an Arc spans the week */}
+                      <span className="truncate text-[12px] font-medium text-arc-text-3">{PREFIX[st]}{i.when}</span>{/* Figma: "Heard · 11:26 · Rm 116" (time and room) */}
                     </span>
-                    <Pic src={chevron} size={18} />
+                    <Pic src={chevron} size={18} className="opacity-40" />
                   </button>
                 );
               })}

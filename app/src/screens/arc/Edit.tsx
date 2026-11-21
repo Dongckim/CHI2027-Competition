@@ -75,10 +75,11 @@ export function Edit({ id }: { id: string }) {
 
   return (
     <Screen clock label="Editing" header={<>
-      <h1 className="pl-2 text-[17px] font-semibold">Editing</h1>
-      <button type="button" onClick={done} className="h-11 rounded-full bg-arc-primary px-5 text-[16px] font-semibold text-arc-on-primary shadow-[var(--arc-shadow-primary)]">Done</button>
+      {/* Figma: "Editing" at y 66, Done 40 high at y 58 ending 24 from the edge */}
+      <h1 className="mb-[3px] pl-2 text-[17px] font-semibold tracking-[-0.012em]">Editing</h1>
+      <button type="button" onClick={done} className="relative z-10 mr-2 h-10 rounded-full tracking-[-0.006em] before:absolute before:inset-x-0 before:-inset-y-0.5 before:content-[''] bg-arc-primary px-5 text-[16px] font-semibold text-arc-on-primary shadow-[var(--arc-shadow-primary)]">Done</button>
     </>}>
-      <div className="-mx-6 mt-1">
+      <div className="-mx-6 -mt-1.5">{/* Figma: the 0.74 map at y 96 */}
         <ArcView arc={draft} states={states} info={info} scale={0.74}
           edit={{ selected, adding, onSelect: k => { setSelected(s => (s === k ? null : k)); setAdding(null); setFilter('angle'); },
             onRemove: k => { setNodes(nodes.filter(n => n.key !== k)); if (selected === k) setSelected(null); },
@@ -87,17 +88,17 @@ export function Edit({ id }: { id: string }) {
       {open && target && (
         <section aria-label="Swap" className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[480px] rounded-t-[32px] border border-arc-line bg-arc-sheet px-6 pt-[9px] pb-[calc(var(--safe-bottom)+16px)] shadow-[0_-8px_40px_rgba(0,0,0,0.4)]">
           <div className="mx-auto mb-3.5 h-1 w-9 rounded-sm bg-arc-text/30" aria-hidden="true" />
-          <h2 className="text-[17px] font-semibold">{selected ? 'Swap' : `Add to ${ANGLE_NAME[target]}`}</h2>
+          <h2 className="text-[17px] font-semibold tracking-[-0.012em]">{selected ? 'Swap' : `Add to ${ANGLE_NAME[target]}`}</h2>
           <label className="mt-3 flex h-11 items-center gap-2 rounded-full border border-arc-line bg-arc-surface pl-3.5">
             <Pic src={searchIcon} size={18} />
             <input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search" aria-label="Search talks"
-              className="h-full min-w-0 flex-1 bg-transparent pr-3 text-[14px] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />
+              className="h-full min-w-0 flex-1 bg-transparent pr-3 text-[14px] tracking-[-0.006em] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />
           </label>
           {!query.trim() && (
             <div role="radiogroup" aria-label="Show" className="-mx-6 mt-3 flex gap-2 overflow-x-auto px-6 pb-1">
               {([['angle', ANGLE_ICON[target], ANGLE_NAME[target]], ['debut', sparkle, 'New to CHI'], ['wild', wild, 'Wildcard']] as [Filter, string, string][]).map(([f, icon, label]) => (
                 <button key={f} type="button" role="radio" aria-checked={filter === f} onClick={() => setFilter(f)}
-                  className={`relative inline-flex h-[38px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium before:absolute before:inset-x-0 before:-inset-y-[4px] before:content-[''] ${filter === f ? 'bg-arc-chip-on text-arc-on-primary shadow-[var(--arc-shadow-lift)]' : 'border border-arc-line bg-arc-surface text-arc-text/62'}`}>
+                  className={`relative inline-flex h-[38px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium tracking-[-0.006em] before:absolute before:inset-x-0 before:-inset-y-[4px] before:content-[''] ${filter === f ? 'bg-arc-chip-on text-arc-on-primary shadow-[var(--arc-shadow-lift)]' : 'border border-arc-line bg-arc-surface text-arc-text/62'}`}>
                   <img src={icon} alt="" width={16} height={16} className={filter === f ? 'brightness-0' : 'opacity-60'} />{label}
                 </button>
               ))}
@@ -115,7 +116,7 @@ export function Edit({ id }: { id: string }) {
                       <Pic src={ANGLE_ICON[c.angle]} size={16} />
                       {clashWith ? <><Pic src={warning} size={14} />Same time as {clashWith}</> : c.debut ? <><Pic src={sparkle} size={12} />New to CHI</> : null}
                     </span>
-                    <span className="line-clamp-2 text-[15px] leading-[19px] font-semibold">{p?.title ?? c.label}</span>
+                    <span className="line-clamp-2 text-[15px] leading-[19px] font-semibold tracking-[-0.006em]">{p?.title ?? c.label}</span>
                     {/* Figma 11px; 12px is the floor */}
                     <span className="text-[12px] font-medium text-arc-text-3">{i.time}{i.room && ` · ${i.room}`}</span>
                   </button>
