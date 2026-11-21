@@ -7,8 +7,8 @@ import { fileURLToPath } from 'node:url';
 
 const repo = resolve(fileURLToPath(new URL('.', import.meta.url)));
 // URL prefix → repo folder, for what the app and the bench pages read in dev. The production build copies the same (app/scripts/copy-static.mjs).
-const STATIC: [string, string][] = [['/app-data/', 'data/build/app-data/'], ['/data/build/', 'data/build/'], ['/data/venue/', 'data/venue/'], ['/tests/', 'tests/'], ['/app/src/', 'app/src/']];
-const TYPES: Record<string, string> = { '.json': 'application/json', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.mjs': 'text/javascript', '.png': 'image/png' };
+const STATIC: [string, string][] = [['/app-data/', 'data/build/app-data/'], ['/data/build/', 'data/build/'], ['/data/venue/', 'data/venue/'], ['/tests/', 'tests/'], ['/app/src/', 'app/src/'], ['/model/', 'dist/model/'], ['/model.json', 'dist/model.json']];
+const TYPES: Record<string, string> = { '.json': 'application/json', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.mjs': 'text/javascript', '.png': 'image/png', '.npy': 'application/octet-stream' };
 
 // functions/ under /api/ in dev and preview (the real host runs api/*.mjs), so the app and the headless checks can call
 // share and qa locally. Same Request → Response handlers; env from .env.local when there is one.
@@ -49,10 +49,22 @@ const repoFiles = (): Plugin => ({
   },
 });
 
+// recsys/src/web/load.mjs (Wonjune's) also runs in Node and can use an ONNX encoder: those imports never run in the
+// browser worker (the package's encoder is "static"), and the ONNX runtime is not in the repo, so they become empty modules.
+const recsysStubs = (): Plugin => ({
+  name: 'arc-recsys-stubs',
+  resolveId(id, importer) {
+    if (importer?.includes('/recsys/src/web/') && (id.startsWith('node:') || id.endsWith('ort.wasm.min.mjs'))) return '\0arc-empty';
+    return null;
+  },
+  load(id) { return id === '\0arc-empty' ? 'export default {};' : null; },
+});
+
 export default defineConfig({
+  worker: { format: 'es', plugins: () => [recsysStubs()] },
   root: 'app',
   publicDir: false,
-  plugins: [react(), tailwindcss(), repoFiles()],
+  plugins: [react(), tailwindcss(), repoFiles(), recsysStubs()],
   server: { host: true, fs: { allow: [repo] } },
   // Final UI pictures (app/src/assets/arc) stay files, not data URLs inside the JS: the first screen's bundle must not grow,
   // and each screen's pictures load with that screen (the service worker precaches them for offline).

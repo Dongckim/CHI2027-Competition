@@ -2,13 +2,15 @@
 // VERSION and PRECACHE with this deploy's files; a new deploy = a new worker that replaces the old cache.
 //   page (navigation)      network first, cached index.html when offline
 //   /assets/, /app-data/   cache first (file names change with their content)
-//   /data/venue/           cached copy at once, refreshed in the background
+//   /data/venue/, /model.json  cached copy at once, refreshed in the background
+//   /model/                cache first in its own cache (on-device engine, only when it is used)
 //   feed revisions         cache first (a revision file never changes); version.json is never cached
 const VERSION = self.__VERSION__;
 const PRECACHE = self.__PRECACHE__;
 const CACHE = `arc-${VERSION}`;
 const FEED = 'arc-feed';
-const KEEP = new Set([CACHE, FEED, 'arc-plan-marker']);
+const MODEL = 'arc-model-v1'; // the on-device engine's files (?v=<sha> in each URL); shortcut: old releases stay until the cache is cleared
+const KEEP = new Set([CACHE, FEED, MODEL, 'arc-plan-marker']);
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
@@ -43,7 +45,9 @@ self.addEventListener('fetch', e => {
       e.respondWith(fetch(req).catch(async () => (await caches.match('/index.html', MATCH)) ?? (await caches.match('/', MATCH)) ?? Response.error()));
     } else if (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/app-data/')) {
       e.respondWith(cacheFirst(req, CACHE));
-    } else if (url.pathname.startsWith('/data/venue/')) {
+    } else if (url.pathname.startsWith('/model/')) {
+      e.respondWith(cacheFirst(req, MODEL));
+    } else if (url.pathname.startsWith('/data/venue/') || url.pathname === '/model.json') {
       e.respondWith(staleWhileRevalidate(req));
     }
     return;
