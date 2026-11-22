@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { buildCorpus } from '../engine/corpus.mjs';
 import { buildIndex, buildArc } from '../../app/src/engine/mock-core.js';
-import { tempProfile } from '../qa/cdp.mjs';
+import { tempProfile, portFree, devtools } from '../qa/cdp.mjs';
 
 const PORT = 4333, BASE = `http://localhost:${PORT}/`, AT = '?at=2026-04-14T12:00';
 const SHOTS = process.argv.includes('--shots') ? process.argv[process.argv.indexOf('--shots') + 1] : null;
@@ -18,11 +18,14 @@ const make = (id, q, mode) => buildArc(index, q, { angles: ['S', 'R', 'T'], days
 const ARCS = { normal: make('check-normal-0001', 'Does VR fidelity raise presence?', 'normal'), none: make('check-none-00001', 'sign language', 'normal'),
   crowded: make('check-crowd-0001', 'haptic feedback', 'crowded'), pending: make('check-pend-00001', 'privacy of smart home devices', 'pending') };
 
+await portFree(PORT);
 const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { stdio: 'ignore', detached: true });
 for (let i = 0; i < 60; i++) { try { if ((await fetch(BASE)).ok) break; } catch {} await sleep(250); }
-const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=9353', `--user-data-dir=${tempProfile('arc-a2')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const PROFILE = tempProfile('arc-a2');
+const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${PROFILE}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 let targets;
-for (let i = 0; i < 40; i++) { try { targets = await (await fetch('http://127.0.0.1:9353/json')).json(); break; } catch { await sleep(250); } }
+const DEVTOOLS = await devtools(PROFILE); // a free port: never a Chrome left by an earlier run
+for (let i = 0; i < 40; i++) { try { targets = await (await fetch(`${DEVTOOLS}/json`)).json(); break; } catch { await sleep(250); } }
 const ws = new WebSocket(targets.find(t => t.type === 'page').webSocketDebuggerUrl);
 await new Promise(r => ws.addEventListener('open', r));
 let id = 0; const pending = new Map(); const errors = [];

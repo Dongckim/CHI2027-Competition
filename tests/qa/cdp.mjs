@@ -26,6 +26,18 @@ const profiles = new Set();
 const sweep = () => { for (const p of profiles) try { rmSync(p, { recursive: true, force: true }); } catch {} profiles.clear(); };
 process.on('exit', sweep);
 for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { sweep(); process.exit(130); });
+/** Stop before starting a server on `port` when something already answers there: a preview left by an interrupted run
+ * would answer instead (11/22: the source of the create and a11y checks failing now and then). */
+export async function portFree(port) {
+  if (await fetch(`http://localhost:${port}/`).then(() => true, () => false)) throw new Error(`port ${port} is already serving (a stale vite preview?); stop it first`);
+}
+/** The DevTools address of a Chrome started with --remote-debugging-port=0 and this profile (a free port, so a Chrome
+ * left by an earlier run is never the one a check talks to). */
+export async function devtools(profile) {
+  const f = join(profile, 'DevToolsActivePort');
+  for (let i = 0; i < 80; i++) { if (existsSync(f)) return `http://127.0.0.1:${Number(readFileSync(f, 'utf8').split('\n')[0])}`; await sleep(125); }
+  throw new Error('Chrome did not open a debugging port');
+}
 export function tempProfile(prefix = 'arc-qa') { const p = mkdtempSync(join(tmpdir(), `${prefix}-`)); profiles.add(p); return p; }
 
 export async function launchChrome({ args = [] } = {}) {

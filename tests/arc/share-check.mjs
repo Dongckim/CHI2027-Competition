@@ -7,7 +7,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { buildCorpus } from '../engine/corpus.mjs';
 import { buildIndex, buildArc } from '../../app/src/engine/mock-core.js';
 import { encodeLink } from '../../app/src/arc/link.js';
-import { tempProfile } from '../qa/cdp.mjs';
+import { tempProfile, portFree, devtools } from '../qa/cdp.mjs';
 
 const PORT = 4335, BASE = `http://localhost:${PORT}/`;
 const SHOTS = process.argv.includes('--shots') ? process.argv[process.argv.indexOf('--shots') + 1] : null;
@@ -18,11 +18,14 @@ const ARC = buildArc(index, 'Does VR fidelity raise presence?', { angles: ['S', 
 const OTHER = buildArc(index, 'privacy of smart home devices', { angles: ['S', 'R', 'T'], days: [], types: ['Paper', 'Posters', 'Interactive Demos'] }, { id: 'share-other-001', createdAt: 1 });
 const PAYLOAD = encodeLink(OTHER), PAYLOAD2 = encodeLink(ARC);
 
+await portFree(PORT);
 const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { stdio: 'ignore', detached: true });
 for (let i = 0; i < 60; i++) { try { if ((await fetch(BASE)).ok) break; } catch {} await sleep(250); }
-const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=9355', `--user-data-dir=${tempProfile('arc-a3')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const PROFILE = tempProfile('arc-a3');
+const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${PROFILE}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 let targets;
-for (let i = 0; i < 40; i++) { try { targets = await (await fetch('http://127.0.0.1:9355/json')).json(); break; } catch { await sleep(250); } }
+const DEVTOOLS = await devtools(PROFILE); // a free port: never a Chrome left by an earlier run
+for (let i = 0; i < 40; i++) { try { targets = await (await fetch(`${DEVTOOLS}/json`)).json(); break; } catch { await sleep(250); } }
 const ws = new WebSocket(targets.find(t => t.type === 'page').webSocketDebuggerUrl);
 await new Promise(r => ws.addEventListener('open', r));
 let id = 0; const pending = new Map(); const errors = [];
