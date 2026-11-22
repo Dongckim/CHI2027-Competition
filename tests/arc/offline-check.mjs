@@ -4,15 +4,18 @@
 // npm run build && node --experimental-websocket tests/arc/offline-check.mjs
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { tempProfile } from '../qa/cdp.mjs';
+import { tempProfile, portFree, devtools } from '../qa/cdp.mjs';
 const PORT = 4337, BASE = `http://localhost:${PORT}/`;
 const CHROME = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+await portFree(PORT);
 let server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { stdio: 'ignore', detached: true });
 for (let i = 0; i < 60; i++) { try { if ((await fetch(BASE)).ok) break; } catch {} await sleep(250); }
-const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=9359', `--user-data-dir=${tempProfile('arc-offline')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const PROFILE = tempProfile('arc-offline');
+const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${PROFILE}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 let targets;
-for (let i = 0; i < 40; i++) { try { targets = await (await fetch('http://127.0.0.1:9359/json')).json(); break; } catch { await sleep(250); } }
+const DEVTOOLS = await devtools(PROFILE); // a free port: never a Chrome left by an earlier run
+for (let i = 0; i < 40; i++) { try { targets = await (await fetch(`${DEVTOOLS}/json`)).json(); break; } catch { await sleep(250); } }
 const ws = new WebSocket(targets.find(t => t.type === 'page').webSocketDebuggerUrl);
 await new Promise(r => ws.addEventListener('open', r));
 let id = 0; const pending = new Map(); const errors = [];
