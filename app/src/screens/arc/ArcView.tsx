@@ -101,7 +101,10 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           const lock = pick?.locked.get(node.key), kept = !!pick?.picked.has(node.key);
           const mine = own?.kept.has(node.key), yours = own?.yours.has(node.key);
           const dim = !!hold?.held && hold.held !== node.key;
-          const showKind = !!node.kind && !oneLine && !edit && !picture;
+          // Drawn smaller than 0.9 (18, 19, 19b at 0.78): Figma's seats leave no room for 12 px two-line labels, which ran into
+          // the next node (independent check 11/22). The title takes one line and the time is only read out (and listed).
+          const compact = !picture && !edit && scale < 0.9;
+          const showKind = !!node.kind && !oneLine && !edit && !picture && !compact;
           return (
             <div key={node.key} className="absolute" style={{ left: x - 52, top: y - 32, width: 104, opacity: dim ? 0.22 : undefined }} inert={dim || undefined}>
               {hold?.held === node.key && <span aria-hidden="true" className="absolute top-[-8px] left-3 size-20 rounded-full border-[1.5px] border-arc-text/55" />}{/* Figma 12b held ring */}
@@ -115,12 +118,12 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
                   {pending ? <img src={sortingOrb} alt="" width={64} height={64} /> : <span className="arc-node-core"><span className="arc-node-symbol" style={{ WebkitMaskImage: `url("${ANGLE_ICON[node.angle]}")`, maskImage: `url("${ANGLE_ICON[node.angle]}")` }} /></span>}
                 </span>
                 <span className="sr-only">{ANGLE_NAME[node.angle]} · </span>
-                <span style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`${oneLine || showKind ? 'line-clamp-1' : 'line-clamp-2'} text-center font-semibold ${own ? (mine ? 'text-arc-text/85' : 'text-arc-text-3') : st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
+                <span style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`${oneLine || showKind || compact ? 'line-clamp-1' : 'line-clamp-2'} text-center font-semibold ${own ? (mine ? 'text-arc-text/85' : 'text-arc-text/70' /* over the holo glow: 0.7 as 25 (text-3 was 4.2:1 on 19b) */) : st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
                   {node.debut && <span aria-hidden="true">✦ </span>}{i.title}{/* the whole title, cut to two lines (was the 24-character label) */}
                 </span>
                 {/* Figma 10px; 12px is the floor. Editing (Figma 15) shows the title only.
                     Sorting (25): 0.7, not 0.55, as the two-line title puts the time over the holo ring's edge (3.6:1 at 0.55) */}
-                {!edit && <span style={{ fontSize: picture ? 10 : real(12) }} className={`block max-w-[104px] truncate font-medium ${pending ? 'text-arc-text/70' : 'text-arc-text-3'}`}>{i.when}</span>}
+                {!edit && !compact && <span style={{ fontSize: picture ? 10 : real(12) }} className={`block max-w-[104px] truncate font-medium ${pending ? 'text-arc-text/70' : 'text-arc-text-3'}`}>{i.when}</span>}
                 {/* Arc 0.2.0: how a Reframe differs (user 11/21), in place of the title's second line so the node keeps its
                     height. Not where the layout already cut the title to one line (no room: 13 and 14 show it), on the share
                     picture or while editing */}

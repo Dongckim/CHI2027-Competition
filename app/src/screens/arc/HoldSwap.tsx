@@ -155,7 +155,8 @@ export function SwapFan({ hs, title }: { hs: HoldSwap; title: string }) {
               );
             })}
           </ul>}
-        <p className="mt-[14px] text-[12px] font-medium text-arc-text/60">{fan.keyboard ? 'Pick a talk to swap.' : 'Release on a talk to swap.'}{keep}</p>
+        {/* no talk to swap to: no "Release on a talk" (independent check 11/22) */}
+        {(cards == null || n > 0) && <p className="mt-[14px] text-[12px] font-medium text-arc-text/60">{fan.keyboard ? 'Pick a talk to swap.' : 'Release on a talk to swap.'}{keep}</p>}
         {fan.keyboard && <button type="button" onClick={hs.close} className="sr-only">Close</button>}
       </section>
     </div>

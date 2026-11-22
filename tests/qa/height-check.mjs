@@ -48,6 +48,31 @@ const mapProbe = () => {
   return { n: targets.length, gap: Math.round(gap), bad };
 };
 
+// In the page: each map node's ring and the text it shows (the drawn letters, not the 104 px box) must not touch another
+// node's (independent check 11/22: 12 px labels ran into the next node on maps drawn at 0.78).
+const OVERLAP = [...MAPS, '19', '19b'];
+const overlapProbe = () => {
+  const parts = b => {
+    const out = [...b.querySelectorAll('.arc-node')].map(e => e.getBoundingClientRect());
+    for (const sp of b.querySelectorAll('span')) {
+      if (sp.closest('.sr-only') || sp.children.length && !sp.textContent.trim() || getComputedStyle(sp).display === 'none') continue;
+      // the letters as drawn: a clamped or truncated span hides the rest, so clip to the span's own box
+      const box = sp.getBoundingClientRect(), r = document.createRange(); r.selectNodeContents(sp);
+      for (const x of r.getClientRects()) {
+        const c = { left: Math.max(x.left, box.left), right: Math.min(x.right, box.right), top: Math.max(x.top, box.top), bottom: Math.min(x.bottom, box.bottom) };
+        if (c.right - c.left > 1 && c.bottom - c.top > 1) out.push(c);
+      }
+    }
+    return out;
+  };
+  const nodes = [...document.querySelectorAll('main [data-node-key], main button:has([data-a11y-decor=bundle-count])')].map(b => ({ label: b.innerText.replace(/\s+/g, ' ').trim().slice(0, 30), rects: parts(b) }));
+  const hit = (a, b) => a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
+  const bad = [];
+  for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++)
+    if (nodes[i].rects.some(a => nodes[j].rects.some(b => hit(a, b)))) bad.push(`${nodes[i].label} × ${nodes[j].label}`);
+  return { n: nodes.length, bad };
+};
+
 const R = reporter('height');
 const server = await startServer(4397);
 const chrome = await launchChrome();
@@ -60,7 +85,7 @@ try {
   await tab.waitFor(`document.readyState === 'complete'`);
   await tab.ev(`localStorage.setItem('arc.device', ${JSON.stringify(device(true))}); true`);
   await tab.ev(seedArcs(STORED));
-  const bad = [], long = [], clear = [], gaps = [];
+  const bad = [], long = [], clear = [], gaps = [], overlaps = [];
   for (const [name, hash, text] of [...SCREENS, ['12·1R', `#/arc/${ONE_R.id}`, 'Next ·']]) {
     if (name === '12·1R') await tab.ev(seedArcs([ONE_R])); // after 20, so its list stays as the other checks see it
     await tab.send('Page.navigate', { url: `${server.base}?at=2026-04-14T12:00${name === '10' ? '&mock=slow' : ''}&s=${encodeURIComponent(name)}${hash}` });
@@ -68,6 +93,10 @@ try {
     await sleep(name === '10' ? 300 : 700);
     const m = await tab.ev(`(${probe})()`);
     if (!m) { bad.push({ screen: name, error: 'no .arc root' }); continue; }
+    if (OVERLAP.includes(name)) {
+      const o = await tab.ev(`(${overlapProbe})()`);
+      if (!o.n || o.bad.length) overlaps.push({ screen: name, nodes: o.n, bad: o.bad });
+    }
     if (MAPS.includes(name)) {
       if (m.scroll > m.view) bad.push({ screen: name, map: 'scrolls', ...m });
       const c = await tab.ev(`(${mapProbe})()`);
@@ -79,6 +108,7 @@ try {
     if (m.scroll > m.view) bad.push({ screen: name, ...m });
   }
   R.check(`short screens do not scroll (iPhone, safe area 54/34); long: ${long.join(' ') || 'none'}`, bad.length === 0, bad.length ? { bad } : {});
+  R.check(`map nodes do not touch each other (${OVERLAP.join(' ')})`, overlaps.length === 0, overlaps.length ? { overlaps } : {});
   R.check(`map nodes and orb clear of the header and bottom area (44 px areas; smallest gap ${gaps.join(' ')})`, clear.length === 0, clear.length ? { clear } : {});
   code = R.done();
 } catch (e) {

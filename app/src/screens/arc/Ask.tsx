@@ -97,7 +97,9 @@ export function Ask() {
   return (
     <Screen label="Ask"
       header={onboarded ? <BackButton href={href('home')} /> : <><StepDots at={8} /><TextAction href={href('home')} className={SKIP_CLASS} onClick={e => { e.preventDefault(); update(setOnboarded); go('home'); }}>Skip</TextAction></>}
-      bottom={<>
+      // 07b (Figma 741:1605) has no bottom bar: "Keep ‘<topic>’ as a topic" is the same step as Find my angles, and the
+      // bar covered it and "Or keep typing your own." (independent check 11/22)
+      bottom={shown ? undefined : <>
         {/* Figma: 20 above the button, which ends 20 above the home indicator */}
         <p className="mb-1.5 flex items-center justify-center gap-1.5 text-[12px] font-medium text-arc-text-3" aria-live="polite">
           <Pic src={offline} size={16} />{warmState === 'ready' ? 'Ready offline' : warmState === 'failed' ? 'Needs a connection to get ready' : 'Getting ready for offline…'}
