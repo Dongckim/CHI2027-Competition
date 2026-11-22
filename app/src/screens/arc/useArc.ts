@@ -44,7 +44,7 @@ export function useArc(id: string) {
     return {
       title: p?.title ?? node?.label ?? key, short: node?.label ?? p?.title ?? key,
       time: s ? `${dateOf(s.start, tz)} · ${clockOf(s.start, tz)}` : 'Time to be announced',
-      when: s ? `${venueClock(s.start, tz)}${room ? ` · ${shortRoom(room)}` : ''}` : '', room: room ? shortRoom(room) : '',
+      when: s ? `${venueClock(s.start, tz)}${room ? ` · ${shortRoom(room)}` : ''}` : 'Time TBA' /* no time in the feed (14: "Time to be announced") */, room: room ? shortRoom(room) : '',
     };
   };
   const save = async (next: Arc) => { await saveArc(next); setArc(next); };

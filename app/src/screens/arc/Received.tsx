@@ -61,7 +61,7 @@ function useReceived(payload: string) {
     const sc = ok!.schedule, p = sc.index.papers.get(k) as Paper | undefined, s = p ? firstSlot(p.slots) : null, tz = sc.meta.timeZone;
     const room = s ? sc.index.rooms.get(s.roomKey)?.name ?? '' : '';
     return { title: p?.title ?? k, short: labelOf(p?.title ?? k), time: s ? `${dateOf(s.start, tz)} · ${clockOf(s.start, tz)}` : 'Time to be announced',
-      when: s ? `${venueClock(s.start, tz)}${room ? ` · ${shortRoom(room)}` : ''}` : '', room: room ? shortRoom(room) : '' };
+      when: s ? `${venueClock(s.start, tz)}${room ? ` · ${shortRoom(room)}` : ''}` : 'Time TBA' /* no time in the feed (14: "Time to be announced") */, room: room ? shortRoom(room) : '' };
   };
   const paper = (k: string) => ok?.schedule.index.papers.get(k) as Paper | undefined;
   return { r, ok, states, info, paper, timeOf };
