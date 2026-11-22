@@ -11,7 +11,7 @@ import { saveArc } from '../../arc/store';
 import { loadSchedule } from '../../data/load';
 import { localDay } from '../../planner/plan.js';
 import { now } from '../../clock.js';
-import { warm, useTribe, previewTribe, useWarm, useWarmRatio } from '../../arc/live';
+import { warm, useTribe, previewTribe, setPreviewTribe, useWarm, useWarmRatio } from '../../arc/live';
 import { Screen, ArcLink, ArcButton } from '../../components/arc';
 import { whenNow, TIME_ZONE } from './When';
 import outer from '../../assets/arc/10-orbit-outer.svg';
@@ -32,7 +32,16 @@ export function Building() {
   const [stuck, setStuck] = useState(false); // the engine could not get ready: no connection, or no progress for 30 s
   const [attempt, setAttempt] = useState(0);
   const warmState = useWarm(), ratio = useWarmRatio();
-  useTribe(previewTribe());
+  // the edge glows in the tribe 07 found while typing; leaving 07 before that answer came (half a second after the last
+  // key, then the engine) left 10 unlit, so 10 asks itself then (it also made create-check fail now and then)
+  const [tribe, setTribeNow] = useState(previewTribe());
+  useTribe(tribe);
+  useEffect(() => {
+    if (tribe || !draft.query.trim()) return;
+    let live = true;
+    engine.tribeOf(draft.query.trim()).then(r => { if (live) { setPreviewTribe(r.tribe); setTribeNow(r.tribe); } }, () => {});
+    return () => { live = false; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { // 30 s with no new progress, or offline, while the engine is not ready
     if (warmState === 'ready' || stuck) return;
     if (!navigator.onLine) { setStuck(true); return; }
