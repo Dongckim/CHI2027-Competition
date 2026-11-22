@@ -136,3 +136,33 @@ Figma에 없는 상태에 쓸 문구다. 사용자가 정했고, 디자이너 �
 
 - 07b 질문은 원준 엔진이 결과 카드로 만든 조합 문장이다("Do haptics improve VR experience?"). 문법이 깨진 문장은 빼고, 남는 게 없으면 실제 논문 제목 질문을 쓴다.
 - 25("Sorting angles…" 지도)는 원래 뜻(Tension 각도 판정 중)으로만 쓴다. 사용자 「25는 원래 뜻(각도 판정 중)으로만 써」
+
+## 14. 새 프레임에서 생긴 새 문구 (#72–#75, 2026-11-21, 디자이너 확인 전)
+Figma 새 프레임(06b·06c·07b·12b·14b·14e·14f·19b·20b)을 앱에 넣으며 Figma에 없던 상태에 쓴 문구다. 문구는 앱 코드 그대로다. 사용자가 원문으로 정한 것만 「」로 적었고 나머지는 해석(확인 전)이다.
+
+| 화면 | 문구 | 언제·어디 |
+|---|---|---|
+| 07b | "That’s a topic. N talks match it." · "Pick a sharper question:" | 주제어를 쳤을 때 안내(사용자 「N talks」, 요일 없음) |
+| 07b | "Keep ‘<topic>’ as a topic" · "Or keep typing your own." | 제안 카드 아래(사용자 「"Keep '<주제어>' as a topic"을 반드시 넣어」) |
+| 07b | "Suggested" | 카드의 각도 수 앞(§13) |
+| 12b | "Pick a talk to swap." · "Release on a talk to swap." | 길게 누른 뒤 안내 |
+| 12b | "Both keep …" · "All three keep …" · "It keeps …" (그 관점 이름) | 대안 카드가 같은 관점을 지킨다는 줄 |
+| 12b | "Looking…" · "Nothing more here." | 대안을 찾는 중 / 없음 |
+| 12b | "Swapped · Undo" | 바꾼 직후 5초(사용자 「"Swapped · Undo" 알림을 5초」) |
+| 14b | "Now · <방> · Talk 3 of 7" | 발표 중 머리줄 |
+| 14b | "N people asked something close." + 그 질문 + "Me too + add mine" · "Post on its own" | 비슷한 질문이 이미 있을 때 |
+| 14b | "N characters left" | 질문 글자 수 |
+| 14e | "Meet the authors after the session" · "Session ends 15:30" · "N min from your previous stop" · "Same room as your previous stop" · "No walking time for this room on the venue plan." | 세션 뒤 카드 |
+| 14e | "Directions" 시트: "Floor P1" · "Rooms on <층>" · "Step-free" · "Escalators on the way" | 요약 카드(사용자 「Directions: (a)」) |
+| 14f | "Show my shape" · "Look for the same shape" · "Find each other." · "Where are you?" · "Found them" · "Cancel" | 종족 모양 크게 보이기 |
+| 14f | 공유 글: "I'm at <방> · look for the <종족> shape on my phone" · "Copied: “…”" · "Send this: “…”" | 공유 시트 / 복사 / 공유 시트가 없을 때 |
+| 19b | "Make it mine" · "Pick what to keep." · "Keep all theirs" · "Save as my Arc" · "Keep at least one stop to save." · "Already yours" | 받은 Arc를 내 것으로(사용자 「18 "Make it mine" → 19b」) |
+| 20 | "Your CHI" 줄 | 홈 목록, Figma 20에 없음 |
+| 20b | "Share my CHI" · "Export reading list" · "Text (.txt)" · "BibTeX (.bib)" · "Still open" · "Nothing left to read." · "Copied." | 학회 뒤 화면(사용자 「.txt와 .bib 둘 다」) |
+| 16b | 링크 미리보기 설명 "ARC · ↑ 2 support · ↻ 3 reframe · ⊣ 2 challenge · Tue 14" | 메신저 미리보기(Figma대로 단수형) |
+
+디자이너에게 같이 물을 것:
+- 14b "Now" 점 색 #FF8E86은 Health 종족 색과 같다(색은 종족 전용 원칙).
+- 19b "+" 버튼은 Figma에 없다.
+- 06b 칩은 Figma의 짧은 종족 이름("Accessibility")이고, 다른 화면은 긴 이름이다.
+- 14e 방 줄은 가로 스크롤(P1 방 23개)이고, Figma의 "You" 점은 뺐다(위치를 모름).
