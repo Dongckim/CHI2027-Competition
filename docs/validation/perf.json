@@ -2,11 +2,11 @@
   "_": "tests/qa/perf-check.mjs writes this: per target (local vite preview, deploy), the current and the previous run",
   "local": {
     "current": {
-      "at": "2026-11-22T23:02",
-      "commit": "c29cd48",
+      "at": "2026-11-22T23:10",
+      "commit": "33097a8",
       "target": "local vite preview (gzip)",
       "firstScreenKB": 92.7,
-      "shown01Ms": 1057,
+      "shown01Ms": 1041,
       "bytesUntil01KB": 119,
       "pageBytesKB": 439,
       "pageRequests": 38,
@@ -14,13 +14,13 @@
       "network": "Slow 4G (150 ms, 1.6 Mbps down, 750 kbps up), CPU 4×"
     },
     "previous": {
-      "at": "2026-11-22T22:27",
+      "at": "2026-11-22T23:02",
       "commit": "c29cd48",
       "target": "local vite preview (gzip)",
       "firstScreenKB": 92.7,
-      "shown01Ms": 1036,
+      "shown01Ms": 1057,
       "bytesUntil01KB": 119,
-      "pageBytesKB": 542,
+      "pageBytesKB": 439,
       "pageRequests": 38,
       "workerCacheKB": 7321,
       "network": "Slow 4G (150 ms, 1.6 Mbps down, 750 kbps up), CPU 4×"
