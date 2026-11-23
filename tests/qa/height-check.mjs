@@ -4,6 +4,8 @@
 // bottom area) is under the viewport. Short screens must not scroll at all; long ones (14, 13 …) may.
 // Map screens (12, 15, 18, 23, 24, 25) fit on one screen as Figma draws them, so they must never scroll, and every node
 // (its 44 px area at least), "+N" bundle and the orb sits between the header and the fixed bottom area.
+// Two heights (user 11/22 「Safari 툴바가 보이는 높이(390×664)를 qa:auto 기본 크기에 추가」): 844 as Figma's frame with the
+// iPhone safe area, and 664, what Safari shows between its toolbars (no safe area then: the bars hold it).
 //   npm run build && node --experimental-websocket tests/qa/height-check.mjs
 import { startServer, launchChrome, phone, reporter, sleep } from './cdp.mjs';
 import { STORED, ARC, device, SCREENS, seedArcs } from './screens.mjs';
@@ -73,43 +75,47 @@ const overlapProbe = () => {
   return { n: nodes.length, bad };
 };
 
+const SIZES = [{ h: 844, top: 54, bottom: 34, label: 'iPhone, safe area 54/34' }, { h: 664, top: 0, bottom: 0, label: 'Safari with its toolbars' }];
 const R = reporter('height');
 const server = await startServer(4397);
 const chrome = await launchChrome();
 let code = 1;
 try {
   const tab = await chrome.first();
-  await phone(tab, { cpu: 1 });
-  await tab.send('Emulation.setSafeAreaInsetsOverride', { insets: { top: 54, bottom: 34, left: 0, right: 0 } });
-  await tab.send('Page.navigate', { url: `${server.base}#/start/1` });
-  await tab.waitFor(`document.readyState === 'complete'`);
-  await tab.ev(`localStorage.setItem('arc.device', ${JSON.stringify(device(true))}); true`);
-  await tab.ev(seedArcs(STORED));
-  const bad = [], long = [], clear = [], gaps = [], overlaps = [];
-  for (const [name, hash, text] of [...SCREENS, ['12·1R', `#/arc/${ONE_R.id}`, 'Next ·']]) {
-    if (name === '12·1R') await tab.ev(seedArcs([ONE_R])); // after 20, so its list stays as the other checks see it
-    await tab.send('Page.navigate', { url: `${server.base}?at=2026-04-14T12:00${name === '10' ? '&mock=slow' : ''}&s=${encodeURIComponent(name)}${hash}` });
-    if (!(await tab.waitFor(`document.body.innerText.includes(${JSON.stringify(text)})`, 30000))) { bad.push({ screen: name, error: `did not show "${text}"` }); continue; }
-    await sleep(name === '10' ? 300 : 700);
-    const m = await tab.ev(`(${probe})()`);
-    if (!m) { bad.push({ screen: name, error: 'no .arc root' }); continue; }
-    if (OVERLAP.includes(name)) {
-      const o = await tab.ev(`(${overlapProbe})()`);
-      if (!o.n || o.bad.length) overlaps.push({ screen: name, nodes: o.n, bad: o.bad });
+  for (const size of SIZES) {
+    await phone(tab, { cpu: 1, height: size.h });
+    await tab.send('Emulation.setSafeAreaInsetsOverride', { insets: { top: size.top, bottom: size.bottom, left: 0, right: 0 } });
+    await tab.send('Page.navigate', { url: `${server.base}#/start/1` });
+    await tab.waitFor(`document.readyState === 'complete'`);
+    await tab.ev(`localStorage.setItem('arc.device', ${JSON.stringify(device(true))}); true`);
+    await tab.ev(seedArcs(STORED));
+    const bad = [], long = [], clear = [], gaps = [], overlaps = [];
+    for (const [name, hash, text] of [...SCREENS, ['12·1R', `#/arc/${ONE_R.id}`, 'Next ·']]) {
+      if (name === '12·1R') await tab.ev(seedArcs([ONE_R])); // after 20, so its list stays as the other checks see it
+      await tab.send('Page.navigate', { url: `${server.base}?at=2026-04-14T12:00${name === '10' ? '&mock=slow' : ''}&s=${encodeURIComponent(name)}${hash}` });
+      if (!(await tab.waitFor(`document.body.innerText.includes(${JSON.stringify(text)})`, 30000))) { bad.push({ screen: name, error: `did not show "${text}"` }); continue; }
+      await sleep(name === '10' ? 300 : 700);
+      const m = await tab.ev(`(${probe})()`);
+      if (!m) { bad.push({ screen: name, error: 'no .arc root' }); continue; }
+      if (OVERLAP.includes(name)) {
+        const o = await tab.ev(`(${overlapProbe})()`);
+        if (!o.n || o.bad.length) overlaps.push({ screen: name, nodes: o.n, bad: o.bad });
+      }
+      if (MAPS.includes(name)) {
+        if (m.scroll > m.view) bad.push({ screen: name, map: 'scrolls', ...m });
+        const c = await tab.ev(`(${mapProbe})()`);
+        gaps.push(`${name}:${c.gap}`);
+        if (!c.n || c.bad.length) clear.push({ screen: name, targets: c.n, bad: c.bad });
+        continue;
+      }
+      if (m.content > m.view) { long.push(`${name}(${m.content}/${m.scroll})`); continue; }
+      if (m.scroll > m.view) bad.push({ screen: name, ...m });
     }
-    if (MAPS.includes(name)) {
-      if (m.scroll > m.view) bad.push({ screen: name, map: 'scrolls', ...m });
-      const c = await tab.ev(`(${mapProbe})()`);
-      gaps.push(`${name}:${c.gap}`);
-      if (!c.n || c.bad.length) clear.push({ screen: name, targets: c.n, bad: c.bad });
-      continue;
-    }
-    if (m.content > m.view) { long.push(`${name}(${m.content}/${m.scroll})`); continue; }
-    if (m.scroll > m.view) bad.push({ screen: name, ...m });
+    const at = `390×${size.h}`;
+    R.check(`${at}: short screens do not scroll (${size.label}); long: ${long.join(' ') || 'none'}`, bad.length === 0, bad.length ? { bad } : {});
+    R.check(`${at}: map nodes do not touch each other (${OVERLAP.join(' ')})`, overlaps.length === 0, overlaps.length ? { overlaps } : {});
+    R.check(`${at}: map nodes and orb clear of the header and bottom area (44 px areas; smallest gap ${gaps.join(' ')})`, clear.length === 0, clear.length ? { clear } : {});
   }
-  R.check(`short screens do not scroll (iPhone, safe area 54/34); long: ${long.join(' ') || 'none'}`, bad.length === 0, bad.length ? { bad } : {});
-  R.check(`map nodes do not touch each other (${OVERLAP.join(' ')})`, overlaps.length === 0, overlaps.length ? { overlaps } : {});
-  R.check(`map nodes and orb clear of the header and bottom area (44 px areas; smallest gap ${gaps.join(' ')})`, clear.length === 0, clear.length ? { clear } : {});
   code = R.done();
 } catch (e) {
   console.error(`stopped: ${e.message.split('\n')[0]}`);

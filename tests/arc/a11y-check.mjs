@@ -39,6 +39,7 @@ const send = (method, params = {}) => new Promise(r => { const i = ++id; pending
 const ev = async expr => { const r = await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true }); if (r.result?.exceptionDetails && process.env.DEBUG) console.error(r.result.exceptionDetails.exception?.description?.slice(0, 300)); return !r.result || r.result.exceptionDetails ? undefined : r.result.result.value; };
 const waitFor = async (expr, ms = 30000) => { const t = Date.now(); while (Date.now() - t < ms) { if (await ev(expr).catch(() => false)) return true; await sleep(150); } return false; };
 const results = {};
+const SHRINK = ['12', '18', '23', '24', '25']; // map screens whose map follows the height (ArcView useMapFit)
 // 44 px targets and 12 px text, in the page. Returns what fails, with a short name for each element.
 const sizes = () => ev(`(async () => {
   const except = ${JSON.stringify(EXCEPT)};
@@ -62,7 +63,10 @@ const sizes = () => ev(`(async () => {
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
     const el = n.parentElement;
     if (!n.textContent.trim() || !el || el.closest('.sr-only, script, style') || exempt(el, 'font') || !shown(el) || (modal && !modal.contains(el))) continue;
-    const scale = el.offsetHeight ? el.getBoundingClientRect().height / el.offsetHeight : 1;
+    // the drawn scale: the CSS transforms above it (a map drawn at 0.62 sets its text at 12 / 0.62); a height ratio
+    // was 2.5 % off on small text, as offsetHeight is a whole number
+    let scale = 1;
+    for (let e = el; e; e = e.parentElement) { const t = getComputedStyle(e).transform; if (t && t !== 'none') { const m = new DOMMatrix(t); scale *= Math.hypot(m.a, m.b); } }
     const px = parseFloat(getComputedStyle(el).fontSize) * (scale || 1);
     if (px < 11.85) tiny.push({ text: n.textContent.trim().slice(0, 30), px: +px.toFixed(1) });
   }
@@ -74,15 +78,16 @@ const buttons = () => ev(`(${buttonsProbe})()`);
 // sideways scroll at three widths (and, on 16, while the cards are swiped)
 const overflow = async name => {
   const out = [];
-  for (const w of [390, 375, 360]) {
-    await send('Emulation.setDeviceMetricsOverride', { width: w, height: 844, deviceScaleFactor: 2, mobile: true });
+  // three widths, each at 844 (Figma's frame) and 664 (Safari with its toolbars, user 11/22): the map's size follows the height
+  for (const [w, h] of [390, 375, 360].flatMap(w => [[w, 844], [w, 664]])) {
+    await send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 2, mobile: true });
     await sleep(250);
     const steps = name === '16' ? [0, 0.25, 0.5, 0.75, 1] : [null];
     for (const f of steps) {
       if (f != null) await ev(`(() => { const s = document.querySelector('[aria-label="What people see"]'); if (s) s.scrollLeft = (s.scrollWidth - s.clientWidth) * ${f}; return true; })()`);
       await sleep(f != null ? 150 : 0);
       const m = await ev(`({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth, bw: document.body.scrollWidth })`);
-      if (m && (m.sw > m.cw || m.bw > m.cw)) out.push({ width: w, swipe: f, ...m });
+      if (m && (m.sw > m.cw || m.bw > m.cw)) out.push({ width: w, height: h, swipe: f, ...m });
     }
   }
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
@@ -151,6 +156,17 @@ try {
     results[name] = ok ? await axe() : { error: `did not show "${text}" (at ${await ev(`location.hash + ' · ' + document.body.innerText.replace(/\\s+/g, ' ').slice(0, 80)`)})` };
     if (ok) results[name].pixels = await pixelContrast(results[name].cc);
     if (ok) { results[name].sizes = await sizes(); results[name].buttons = await buttons(); if (name !== '10') results[name].overflow = await overflow(name); }
+    // maps shrink to the height (Safari 664, user 11/22 「글자 12px·누르는 영역 44px는 유지」): targets and text again there
+    if (ok && SHRINK.includes(name)) {
+      await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 664, deviceScaleFactor: 2, mobile: true });
+      await sleep(400);
+      const s664 = await sizes();
+      results[name].sizes.small.push(...s664.small.map(x => ({ ...x, el: `${x.el} (664)` })));
+      results[name].sizes.tiny.push(...s664.tiny.map(x => ({ ...x, text: `${x.text} (664)` })));
+      results[name].sizes.tinyCount += s664.tinyCount;
+      await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+      await sleep(200);
+    }
     if (ok && name === '10') results[name].still = await ev(`document.body.innerText.includes(${JSON.stringify(text)})`); // measured while 10 was showing
     if (SHOTS) { await ev('scrollTo(0, 0), true'); writeFileSync(`${SHOTS}/${name}.png`, Buffer.from((await send('Page.captureScreenshot', { format: 'png' })).result.data, 'base64')); }
     if (name === '08') { // 22: the ? sheet over 08
@@ -186,7 +202,7 @@ try {
     if (gone) console.log('      [10] changed screen before the check ended');
     for (const x of bt.bad) console.log(`      [${name}] button not on one line at ${x.zoom}%: "${x.el}" ${x.lines} lines${x.cut ? ', words cut off' : ''}${x.off ? ', off screen' : ''}`);
   }
-  console.log(bad ? `FAIL: ${bad} (serious/critical, low contrast, target under 44 px, text under 12 px, sideways scroll)` : `PASS: ${rows.length} screens: no serious or critical violations, contrast, 44 px targets, 12 px text, buttons on one line (100% and 200% text), no sideways scroll at 390/375/360`);
+  console.log(bad ? `FAIL: ${bad} (serious/critical, low contrast, target under 44 px, text under 12 px, sideways scroll)` : `PASS: ${rows.length} screens: no serious or critical violations, contrast, 44 px targets, 12 px text, buttons on one line (100% and 200% text), no sideways scroll at 390/375/360 × 844/664`);
   ws.close(); chrome.kill(); try { process.kill(-server.pid); } catch {}
   process.exit(bad ? 1 : 0);
 }

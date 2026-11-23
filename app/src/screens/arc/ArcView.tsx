@@ -1,7 +1,7 @@
 // The Arc map (Figma 597:711; states 23/24/25; Edit 15 at 0.74). Question orb in the middle, Supports left, Reframes
 // below, Challenges right. Positions come from arc/map.js; the orb, rings and node fills take the tribe colour (Figma's
 // pictures are drawn in the sample tribe's blue). Every node is a button named "<angle> · <title> · <time>".
-import { useEffect, useState, type CSSProperties, type DOMAttributes, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type DOMAttributes, type ReactNode } from 'react';
 import { layout, connector, BOX, type NodeState } from '../../arc/map.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
 import { ANGLE_NAME, KIND_NAME } from './AngleHelp';
@@ -25,11 +25,40 @@ const FREE: Record<Angle, [number, number][][]> = { // where an add slot goes wh
 // Figma 15 keeps a "+" for every angle; when its seats are full it sits here (Figma's add slots on the 390 map)
 const FULL: Record<Angle, [number, number]> = { S: [66, 236], T: [324, 236], R: [195, 395] }; // R: Figma's (195, 452) would cover the − of a third Reframe
 
-/** The map's scale on this screen: Figma's 390 box, shrunk to fit narrower phones (375, 360); text stays real px. */
-export function useFitScale(base = 1) {
-  const [w, setW] = useState(() => (typeof innerWidth === 'number' ? innerWidth : BOX.w));
-  useEffect(() => { const on = () => setW(innerWidth); addEventListener('resize', on); return () => removeEventListener('resize', on); }, []);
-  return base * Math.min(1, w / BOX.w);
+const MIN_SCALE = 0.55;
+/**
+ * The map's scale on a screen that must not scroll (12, 18, 23–25): Figma's 390 box fitted to the width (375, 360), then
+ * shrunk until its lowest node, with its 44 px area, clears the fixed bottom area: Safari shows 390×664 between its
+ * toolbars (user 11/22 「겹치면 지도 크기를 화면 높이(dvh 기준)에 맞춰 줄이되 글자 12px·누르는 영역 44px는 유지」). Text and
+ * touch targets keep their real size whatever the scale (real() below), so it is measured, not computed; again on resize
+ * (the toolbars hide and show). Put `ref` on the box that holds the ArcView.
+ */
+export function useMapFit(base = 1) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [view, setView] = useState(() => (typeof innerWidth === 'number' ? [innerWidth, innerHeight] : [BOX.w, 844]));
+  useEffect(() => {
+    const on = () => setView([innerWidth, innerHeight]);
+    addEventListener('resize', on); visualViewport?.addEventListener('resize', on);
+    return () => { removeEventListener('resize', on); visualViewport?.removeEventListener('resize', on); };
+  }, []);
+  const wide = base * Math.min(1, view[0] / BOX.w);
+  const [scale, setScale] = useState(wide);
+  useLayoutEffect(() => { setScale(wide); }, [wide, view[1]]);
+  useLayoutEffect(() => { // after every render: one more step down while the lowest target reaches the bottom area
+    const el = ref.current;
+    if (!el) return;
+    const bar = el.closest('.arc')?.querySelector(':scope > .sticky.bottom-0');
+    const top = el.getBoundingClientRect().top, floor = (bar ? bar.getBoundingClientRect().top : innerHeight) - 4;
+    let low = top;
+    for (const t of el.querySelectorAll('button, a')) {
+      const r = t.getBoundingClientRect();
+      if (r.width > 2 && r.height > 2) low = Math.max(low, r.top + r.height / 2 + Math.max(44, r.height) / 2);
+    }
+    // and the page itself must not scroll (24: the nodes cleared the bar but the page was 8 px too tall)
+    const over = Math.max(low - floor, document.documentElement.scrollHeight - innerHeight);
+    if (over > 0.5 && low - top > over && scale > MIN_SCALE) setScale(Math.max(MIN_SCALE, (scale * (low - top - over)) / (low - top)));
+  });
+  return [scale, ref] as const;
 }
 
 const BELOW = 80; // the bottom row's labels hang below the 530 box (Figma's labels are one line; real titles two)
@@ -118,7 +147,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
                   {pending ? <img src={sortingOrb} alt="" width={64} height={64} /> : <span className="arc-node-core"><span className="arc-node-symbol" style={{ WebkitMaskImage: `url("${ANGLE_ICON[node.angle]}")`, maskImage: `url("${ANGLE_ICON[node.angle]}")` }} /></span>}
                 </span>
                 <span className="sr-only">{ANGLE_NAME[node.angle]} · </span>
-                <span style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`${oneLine || showKind || compact ? 'line-clamp-1' : 'line-clamp-2'} text-center font-semibold ${own ? (mine ? 'text-arc-text/85' : 'text-arc-text/70' /* over the holo glow: 0.7 as 25 (text-3 was 4.2:1 on 19b) */) : st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
+                <span style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`${oneLine || showKind || compact ? 'line-clamp-1' : 'line-clamp-2'} max-w-full text-center font-semibold ${own ? (mine ? 'text-arc-text/85' : 'text-arc-text/70' /* over the holo glow: 0.7 as 25 (text-3 was 4.2:1 on 19b) */) : st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
                   {node.debut && <span aria-hidden="true">✦ </span>}{i.title}{/* the whole title, cut to two lines (was the 24-character label) */}
                 </span>
                 {/* Figma 10px; 12px is the floor. Editing (Figma 15) shows the title only.

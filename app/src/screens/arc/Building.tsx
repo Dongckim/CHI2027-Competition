@@ -12,7 +12,7 @@ import { loadSchedule } from '../../data/load';
 import { localDay } from '../../planner/plan.js';
 import { now } from '../../clock.js';
 import { warm, useTribe, previewTribe, setPreviewTribe, useWarm, useWarmRatio } from '../../arc/live';
-import { Screen, ArcLink, ArcButton } from '../../components/arc';
+import { Screen, ArcLink, ArcButton, FRAME_ART } from '../../components/arc';
 import { whenNow, TIME_ZONE } from './When';
 import outer from '../../assets/arc/10-orbit-outer.svg';
 import inner from '../../assets/arc/10-orbit-inner.svg';
@@ -78,7 +78,7 @@ export function Building() {
     <Screen label="Building your Arc" bottom={setup ? <ArcButton className="mb-1.5" onClick={retry}>Try again</ArcButton>
       : failed ? <ArcLink href={href('when')} kind="secondary">Try again</ArcLink> : undefined}>
       <div className="pointer-events-none relative mt-[156px] h-[340px] w-[390px] shrink-0 self-center" aria-hidden="true">
-        <div className="absolute left-0 w-[390px]" style={{ top: -210, height: 844 }}>
+        <div className="absolute left-0 w-[390px]" style={{ top: -210, ...FRAME_ART }}>
           <img src={outer} alt="" style={at(25, 210, 340)} />
           <img src={inner} alt="" style={at(70, 255, 250)} />
           <span className="arc-spin arc-progress" style={{ ...at(113, 298, 164), ...RING }} />{/* under the orb, as Figma: the radii show only between ring and orb */}
