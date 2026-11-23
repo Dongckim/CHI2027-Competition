@@ -9,7 +9,7 @@ import { warm, useTribe } from '../../arc/live';
 import { TRIBES } from '../../arc/tribes.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
 import type { TribeId } from '../../engine/types';
-import { Screen, ArcButton, ArcLink, TextAction, Dots, Pic } from '../../components/arc';
+import { Screen, ArcButton, ArcLink, TextAction, Dots, Pic, FRAME_ART } from '../../components/arc';
 import holoRing from '../../assets/arc/welcome-holo-ring.svg';
 import innerRing from '../../assets/arc/welcome-inner-ring.svg';
 import gAi from '../../assets/arc/glow-tribe-ai.svg';
@@ -64,7 +64,7 @@ const Title = ({ lines }: { lines: [string, string] }) =>
 const Frame = ({ top, height, children }: { top: number; height: number; children: React.ReactNode }) => (
   // 390 wide and centred on any screen (overflow is clipped by Screen); pictures take no presses, so Skip and links stay pressable
   <div aria-hidden="true" className="pointer-events-none relative w-[390px] shrink-0 self-center" style={{ height }}>
-    <div className="absolute left-0 w-[390px]" style={{ top: -top, height: 844 }}>{children}</div>
+    <div className="absolute left-0 w-[390px]" style={{ top: -top, ...FRAME_ART }}>{children}</div>
   </div>
 );
 const at = (x: number, y: number, w: number, h = w) => ({ position: 'absolute' as const, left: x, top: y, width: w, height: h });
@@ -207,7 +207,7 @@ function HowArcWorks() {
     <Page dot={5} label="How ARC works" title={['Your question,', 'seen from three sides.']} next="start/6b">
       {/* not Frame: the node names are read out, only the pictures are hidden */}
       <div className="pointer-events-none relative h-[462px] w-[390px] shrink-0 self-center">
-        <div className="absolute left-0 w-[390px]" style={{ top: -184, height: 844 }}>
+        <div className="absolute left-0 w-[390px]" style={{ top: -184, ...FRAME_ART }}>
           <img src={lines06} alt="" aria-hidden="true" style={at(0, 0, 390, 844)} />
           <img src={holo06} alt="" aria-hidden="true" style={at(123, 348, 144)} />
           <img src={orb06} alt="" aria-hidden="true" style={at(133, 358, 124)} />

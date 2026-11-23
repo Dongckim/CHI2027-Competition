@@ -1,7 +1,7 @@
 // Final UI parts (Figma Components 588:446): the dark screen shell, pill buttons, chips, icon buttons, step marks and the
 // bottom sheet. Sizes are Figma's; where Figma is under the accessibility floor (44px touch, 12px text) the hit area or
 // size is raised without changing the look (docs/stages/A1-create.md lists each).
-import { useEffect, useRef, type ReactNode, type ComponentPropsWithRef, type AnchorHTMLAttributes } from 'react';
+import { useEffect, useRef, type CSSProperties, type ReactNode, type ComponentPropsWithRef, type AnchorHTMLAttributes } from 'react';
 import chevronLeft from '../assets/arc/icon-chevron-left.svg';
 import helpIcon from '../assets/arc/icon-help.svg';
 import chipCheck from '../assets/arc/08-chip-check.svg';
@@ -27,6 +27,10 @@ export function DemoBanner() {
 
 /** The dark Final UI page: 24px sides, header row, content, and one bottom area 20px above the home indicator.
  *  clock: a screen whose content depends on the time (shows the demo banner when the demo day is on). */
+// A Figma-frame art layer (390 × 844 from the frame's top, 54 above the content): no taller than the screen, so on a shorter
+// one (Safari 664 with its toolbars, user 11/22) it ends at the bottom edge instead of making a short screen scroll
+export const FRAME_ART: CSSProperties = { height: 'min(844px, calc(100dvh + 54px - env(safe-area-inset-top, 0px)))', overflow: 'hidden' };
+
 export function Screen({ header, children, bottom, label, clock }: { header?: ReactNode; children: ReactNode; bottom?: ReactNode; label?: string; clock?: boolean }) {
   return (
     <div className="arc mx-auto flex min-h-[calc(100dvh-env(safe-area-inset-top,0px))] max-w-[480px] flex-col overflow-x-clip bg-arc-bg font-sans text-arc-text">{/* nothing scrolls sideways (QA V7); the screen minus body's top safe-area padding, so a short screen never scrolls (user 11/20) */}

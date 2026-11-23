@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { go, href } from '../../router';
 import { Screen, ArcLink, Pic } from '../../components/arc';
 import { AngleHelp, ANGLE_NAME } from './AngleHelp';
-import { ArcView, ANGLE_ICON, useFitScale } from './ArcView';
+import { ArcView, ANGLE_ICON, useMapFit } from './ArcView';
 import { ArcHeader } from './ArcHeader';
 import { useArc } from './useArc';
 import { useHoldSwap, SwapFan, SwapUndo } from './HoldSwap';
@@ -17,7 +17,7 @@ export function ArcMap({ id }: { id: string }) {
   const { arc, states, info } = use;
   const hs = useHoldSwap(use);
   const [help, setHelp] = useState(false);
-  const fit = useFitScale();
+  const [fit, mapRef] = useMapFit();
   const closeHelp = useCallback(() => setHelp(false), []);
   if (!arc) return null;
   const pending = arc.tension === 'pending';
@@ -47,7 +47,7 @@ export function ArcMap({ id }: { id: string }) {
       </>}>
       <h1 className="sr-only">{arc.query}</h1>
       {/* Figma: the map box at y 112 on every state; 25's pill sits over its top, its centre 2.75 right of the middle */}
-      <div className="relative -mx-6 mt-[10px]">
+      <div ref={mapRef} className="relative -mx-6 mt-[10px]">
         {pending && (
           <p role="status" className="absolute top-0 left-[calc(50%-73px)] z-10 flex h-9 items-center gap-2 rounded-[18px] border border-arc-line bg-arc-surface pr-3.5 pl-2.5 text-[13px] font-medium whitespace-nowrap text-arc-text/85">
             <img src={spinner} alt="" width={16} height={16} />Sorting angles…{/* Figma 25: a still 3/4 arc */}
