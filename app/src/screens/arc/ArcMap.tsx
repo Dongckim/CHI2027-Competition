@@ -30,11 +30,12 @@ export function ArcMap({ id }: { id: string }) {
         <SwapUndo hs={hs} />
         {next && ni && (
           <a href={href(`talk/${next.key}`)} inert={!!held || undefined} aria-description={`Next up: ${ANGLE_NAME[next.angle]} · ${ni.title} · ${ni.time}`}
-            className="flex min-h-[68px] items-center gap-3.5 rounded-[20px] border border-arc-line bg-arc-surface pr-4 pl-3.5">
+            className="flex min-h-[88px] items-center gap-3.5 rounded-[20px] border border-arc-line bg-arc-surface py-3.5 pr-4 pl-3.5">
             {/* Figma: a 38 circle in a 40 frame, 18 px symbol */}
             <span className="m-px flex size-[38px] shrink-0 items-center justify-center rounded-full border border-arc-line bg-arc-surface"><Pic src={ANGLE_ICON[next.angle]} size={18} /></span>
-            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span className="truncate text-[16px] font-semibold tracking-[-0.006em]">{ni.short}</span>
+            {/* Figma 11/23: the paper's title in two lines (15 / 19), then the time and room */}
+            <span className="flex min-w-0 flex-1 flex-col gap-1">
+              <span className="line-clamp-2 text-[15px] leading-[19px] font-semibold tracking-[-0.006em]">{ni.title}</span>
               <span className="truncate text-[13px] text-arc-text/60">Next · {ni.when}</span>
             </span>
             <Pic src={chevron} size={20} className="opacity-50" />
