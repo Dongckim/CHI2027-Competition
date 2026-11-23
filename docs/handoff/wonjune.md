@@ -22,7 +22,10 @@
    - 부탁: `aim` 분류에 "We assessed/measured/analyzed …" 같은 방법 문장도 넣고, 결과 문장이 빠지지 않았는지 확인.
 
 3. **Challenge가 거의 안 나온다.** 같은 질문 14개(V9)에서 ↑ 10 → 7, ⊣ 1 → 0. 화면 23 "No clear challenge"가 사실상 늘 나온다.
-   - 위 2번처럼 진짜 결과 문장이 빠진 게 원인인지 확인 부탁.
+   - 11-21 모델도 Challenge는 2개뿐이었다. haptic(222623)은 목표 문장이라 앱이 Reframe으로 옮겼고, 진짜는 mental health 1개였다.
+   - 그 1개가 사라진 이유: 엔진이 고른 좁힌 질문이 바뀌었다. "mental health apps" → 11-21 "Does large language models (LLMs) improve mental health support?"(230223이 반대 결과), 11-22 "How does mental health affect overall wellbeing?"(반대할 방향이 없음).
+   - 14개 중 10개가 "How does X affect Y?"로 좁혀진다. 방향이 없는 질문에는 Support·Challenge가 거의 붙지 않는다. 좁힌 질문도 어색한 것이 많다("How does ta agent performance affect design implications?", "How do AI explanations affect daily life insights?").
+   - 부탁: 좁힐 때 방향이 있는 질문("Does X improve Y?")과 반대 결과 카드가 있는 질문을 우선해 줄 수 있는지.
 
 ## 확인해 줄 것
 
