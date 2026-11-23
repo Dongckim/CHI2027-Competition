@@ -47,25 +47,31 @@ export const ADD_AT = {
 // The region's count badge (Figma "Angle · support" etc., 30 tall): its centre
 export const BADGE_AT = { S: [191, 20], R: [40, 502], T: [342, 502] };
 const PENDING = [[70, 140], [320, 140], [60, 360], [330, 360], [195, 456]];
-// 24b (852:2015): the map moved toward one angle, its question at (195, 500) and up to twelve of its talks above, nearest
-// first; the other two angles' badges at the lower corners (left, right as the turned regions put them)
+// 24b: the map moves toward the region that was pressed and shows up to twelve of its talks, nearest first (user 11/23
+// 「좌하단 우하단을 클릭하면 그쪽으로 영역이 커져야지」). Supports as Figma 852:2015: the question drops to (195, 500), the
+// talks above. Reframes: the question goes to the top right (320, 70) and the talks fill the lower left; Challenges the
+// mirror. The other two angles' counts sit in the strip on the far side (clear of the talks). Seats: a 3 × 5 grid, rows 108 apart, inside the region, 150 or more from
+// the question (worked out once; 해석(확인 전), Figma draws Supports only).
+const FOCUS_R = [[170, 36], [170, 144], [278, 252], [170, 252], [62, 36], [62, 144], [278, 360], [62, 252], [170, 360], [62, 360], [170, 468], [62, 468]];
 export const FOCUS = {
-  at: [195, 500],
-  seats: [[195, 340], [90.3, 366], [299.7, 366], [195, 235], [62.5, 270.5], [327.5, 270.5], [195, 130], [56.4, 157], [333.6, 157], [195, 30], [73.4, 46], [316.6, 46]],
-  turn: { S: 0, R: 120, T: -120 }, // degrees the regions turn so the angle's own sits on top
-  others: { S: ['R', 'T'], R: ['T', 'S'], T: ['S', 'R'] },
-  badges: [[54, 496], [328, 496]],
+  S: { at: [195, 500], seats: [[195, 340], [90.3, 366], [299.7, 366], [195, 235], [62.5, 270.5], [327.5, 270.5], [195, 130], [56.4, 157], [333.6, 157], [195, 30], [73.4, 46], [316.6, 46]],
+    others: [['R', [54, 496]], ['T', [328, 496]]] },
+  R: { at: [320, 70], seats: FOCUS_R, others: [['S', [360, 196]], ['T', [360, 300]]] },
+  T: { at: [70, 70], seats: FOCUS_R.map(([x, y]) => [390 - x, y]), others: [['S', [30, 196]], ['R', [30, 300]]] },
 };
-// With more talks than seats the badge steps aside for a chevron that points the way (24: 601:1311, 24c: 856:2106)
-export const MORE_AT = { S: { badge: [195, 34], arrow: [195, 9.5], turn: 0 }, R: { badge: [48, 512], arrow: [21.5, 528], turn: 225 }, T: { badge: [342, 512], arrow: [368.5, 528], turn: 135 } };
+// Where the rest of an angle lies, from its count: up for Supports, down-left for Reframes, down-right for Challenges
+// (prototype "More · …": the chevron turned 0 / 240 / 120 degrees)
+export const TOWARD = { S: 0, R: 240, T: 120 };
+// With more talks than seats the badge steps aside for that chevron (24: 601:1311, 24c: 856:2106)
+export const MORE_AT = { S: { badge: [195, 34], arrow: [195, 9.5] }, R: { badge: [48, 512], arrow: [13, 512] }, T: { badge: [342, 512], arrow: [377, 512] } };
 
 /** 24b: the talks of one angle (up to twelve) and the other two angles' badges. */
 export function focusLayout(arc, angle) {
-  const of = arc.nodes.filter(n => n.angle === angle);
+  const of = arc.nodes.filter(n => n.angle === angle), f = FOCUS[angle];
   return {
-    nodes: of.slice(0, FOCUS.seats.length).map((node, i) => ({ node, at: FOCUS.seats[i], oneLine: true })),
+    nodes: of.slice(0, f.seats.length).map((node, i) => ({ node, at: f.seats[i], oneLine: true })),
     count: of.length,
-    others: FOCUS.others[angle].map((a, i) => ({ angle: a, count: arc.nodes.filter(n => n.angle === a).length, at: FOCUS.badges[i] })),
+    others: f.others.map(([a, at]) => ({ angle: a, count: arc.nodes.filter(n => n.angle === a).length, at })),
   };
 }
 

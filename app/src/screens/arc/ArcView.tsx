@@ -2,7 +2,7 @@
 // Supports at the top, Reframes lower left, Challenges lower right, each with its count. Positions come from arc/map.js; the orb, rings and node fills take the tribe colour (Figma's
 // pictures are drawn in the sample tribe's blue). Every node is a button named "<angle> · <title> · <time>".
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type DOMAttributes, type ReactNode } from 'react';
-import { layout, focusLayout, connector, BOX, ADD_AT, BADGE_AT, MAX_SEATS, MORE_AT, FOCUS, type NodeState } from '../../arc/map.js';
+import { layout, focusLayout, connector, BOX, ADD_AT, BADGE_AT, MAX_SEATS, MORE_AT, FOCUS, TOWARD, type NodeState } from '../../arc/map.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
 import { bloom, moveToward, hintMotion, pickMotion } from '../../arc/motion';
 import { ANGLE_NAME, KIND_NAME } from './AngleHelp';
@@ -25,14 +25,16 @@ const REGION: Record<Angle, string> = {
   T: 'M282.046 210.207C279.628 203.144 281.91 195.017 288.375 191.284L1011.08 -225.963C1017.87 -229.882 1026.55 -227.464 1030.34 -220.601L1142.86 -16.6346C1143.71 -15.1051 1144.26 -13.4311 1144.49 -11.6991L1177.38 238.173C1177.54 239.386 1177.54 240.614 1177.38 241.827L1144.38 492.492C1144.22 493.706 1143.9 494.893 1143.43 496.023L1046.68 729.607C1046.21 730.738 1045.59 731.801 1044.85 732.772L890.942 933.357C890.197 934.328 889.328 935.197 888.357 935.942L687.772 1089.85C686.802 1090.59 685.738 1091.21 684.607 1091.68L451.762 1188.13C450.148 1188.8 448.424 1189.16 446.677 1189.19L213.772 1193.72C205.935 1193.87 199.5 1187.56 199.5 1179.72V345.221C199.5 337.755 205.397 331.716 212.723 330.278C238.587 325.204 261.281 309.198 274.67 286C288.068 262.802 290.583 235.143 282.046 210.207Z',
   R: 'M177.277 330.278C184.603 331.716 190.5 337.755 190.5 345.221V1179.72C190.5 1187.56 184.065 1193.87 176.228 1193.72L-56.6769 1189.19C-58.4235 1189.16 -60.1484 1188.8 -61.7624 1188.13L-294.607 1091.68C-295.738 1091.21 -296.802 1090.59 -297.772 1089.85L-498.357 935.942C-499.328 935.197 -500.197 934.328 -500.942 933.357L-654.848 732.772C-655.593 731.801 -656.207 730.738 -656.675 729.607L-753.435 496.023C-753.903 494.893 -754.221 493.706 -754.381 492.492L-787.379 241.827C-787.539 240.614 -787.539 239.386 -787.379 238.173L-754.485 -11.6991C-754.257 -13.4311 -753.707 -15.1051 -752.863 -16.6346L-640.336 -220.601C-636.549 -227.464 -627.866 -229.882 -621.077 -225.963L101.625 191.284C108.09 195.017 110.372 203.144 107.954 210.207C99.4171 235.143 101.932 262.802 115.33 286C128.719 309.198 151.413 325.204 177.277 330.278Z',
 };
-function Regions({ turn = 0, drop = 0 }: { turn?: number; drop?: number }) {
+function Regions({ shift = [0, 0], below = 0 }: { shift?: [number, number]; below?: number }) {
   const id = useId();
-  // as wide as the screen (15, 18, 19 draw the map smaller, the regions still reach the edges), as tall as the box. 24b
-  // turns them so the chosen angle's region is on top and drops the centre: drawn 400 higher than the box, clipped to it.
+  // as wide as the screen (15, 18, 19 draw the map smaller, the regions still reach the edges); as tall as the box and
+  // down to the bottom area when the screen has room (a smaller map left a band without them, iPhone 11/23). 24b moves
+  // the centre toward the chosen region: drawn 400 above the box, clipped.
+  const h = BOX.h + below;
   return (
-    <div aria-hidden="true" className="absolute top-0 left-[-200px] overflow-hidden" style={{ width: 790, height: BOX.h }}>
-    <svg width={790} height={BOX.h + 400} viewBox={`-200 -400 790 ${BOX.h + 400}`} className="absolute top-[-400px] left-0 motion-safe:transition-transform motion-safe:duration-500" fill="none"
-      style={{ transformOrigin: '395px 640px', transform: turn || drop ? `translateY(${drop}px) rotate(${turn}deg)` : undefined }}>
+    <div aria-hidden="true" className="absolute top-0 left-[-200px] overflow-hidden" style={{ width: 790, height: h }}>
+    <svg width={790} height={h + 400} viewBox={`-200 -400 790 ${h + 400}`} className="absolute top-[-400px] left-0 motion-safe:transition-transform motion-safe:duration-500" fill="none"
+      style={{ transform: shift[0] || shift[1] ? `translate(${shift[0]}px, ${shift[1]}px)` : undefined }}>
       <defs>
         <radialGradient id={`${id}f`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(195 240) scale(340 340)"><stop offset={0.27} stopColor="#fff" stopOpacity={0.06} /><stop offset={0.6} stopColor="#fff" stopOpacity={0.026} /><stop offset={1} stopColor="#fff" stopOpacity={0} /></radialGradient>
         <radialGradient id={`${id}s`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(195 240) scale(340 340)"><stop offset={0.27} stopColor="#fff" stopOpacity={0.15} /><stop offset={0.62} stopColor="#fff" stopOpacity={0.055} /><stop offset={1} stopColor="#fff" stopOpacity={0} /></radialGradient>
@@ -92,12 +94,14 @@ export type Own = { kept: Set<string>; yours: Set<string>; onToggle: (key: strin
 // rest dim to Figma's 22% and go inert); onSwap: the keyboard and screen reader way in, a "Swap" button per node.
 type Hold = { held: string | null; press: (key: string) => DOMAttributes<HTMLButtonElement>; onSwap: (key: string) => void };
 
-export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, pick, picture, readOnly, fit, hold, own, selected: chosen, hint, focus, totals, candidates }: {
+export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, pick, picture, readOnly, fit, hold, own, selected: chosen, hint, focus, totals, candidates, room }: {
   /** 24b: the map moved toward this angle, all its talks shown (onBundle switches to another angle) */
   focus?: Angle | null;
   /** totals: each region's whole count, the Arc's talks + the engine's others at CHI (user 11/23 「각 영역을 보면 전체갯수」);
    *  candidates: talks drawn on 24b that are not on the Arc (outlined, as 19b's not-kept) */
   totals?: Partial<Record<Angle, number>>; candidates?: Set<string>;
+  /** room: the screen height the map may fill down to the bottom area (12): the regions reach that far */
+  room?: number;
   arc: Arc; states: Map<string, NodeState>; info: (key: string) => Info; scale?: number;
   /** 12c: the node shown in the card under the map (its ring); hint: 12a's first-time "Hold a stop" bubble */
   selected?: string | null; hint?: boolean;
@@ -123,7 +127,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   type Laid = { nodes: { node: Arc['nodes'][number]; at: Seat; oneLine?: boolean }[]; regions: { angle: Angle; count: number; more: number; at?: Seat }[]; emptyT: Seat | null };
   const f = focus ? focusLayout(arc, focus) as { nodes: Laid['nodes']; others: { angle: Angle; count: number; at: Seat }[] } : null;
   const l: Laid = f ? { nodes: f.nodes, regions: f.others.map(o => ({ ...o, more: 1 })), emptyT: null } : layout(arc, !!edit) as Laid; // map.js is untyped JS
-  const drop = focus ? FOCUS.at[1] - BOX.cy : 0;
+  const shift: [number, number] = focus ? [FOCUS[focus].at[0] - BOX.cx, FOCUS[focus].at[1] - BOX.cy] : [0, 0];
   const pending = arc.tension === 'pending';
   const at = (x: number, y: number, w: number, h = w) => ({ position: 'absolute' as const, left: x - w / 2, top: y - h / 2, width: w, height: h });
   const lines: ReactNode[] = [];
@@ -153,10 +157,10 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   for (const n of arc.nodes) counts[n.angle]++;
 
   return (
-    <div ref={rootRef} data-arc-map="" data-pending={pending || undefined} className="relative mx-auto" style={{ width: BOX.w * scale, height: (BOX.h + (fit ? 0 : BELOW)) * scale }} inert={picture || undefined} aria-hidden={picture || undefined}>
+    <div ref={rootRef} data-arc-map="" data-pending={pending || undefined} data-shift={shift.join()} className="relative mx-auto" style={{ width: BOX.w * scale, height: (BOX.h + (fit ? 0 : BELOW)) * scale }} inert={picture || undefined} aria-hidden={picture || undefined}>
       <div className="absolute top-0 left-0 origin-top-left" style={{ width: BOX.w, height: BOX.h, transform: scale === 1 ? undefined : `scale(${scale})`, '--map-scale': picture ? 1 : scale } as CSSProperties}>
-        <Regions turn={focus ? FOCUS.turn[focus] : 0} drop={drop} />
-        <div className="absolute inset-0 motion-safe:transition-transform motion-safe:duration-500" style={{ transform: drop ? `translateY(${drop}px)` : undefined }}>
+        <Regions shift={shift} below={!picture && room ? Math.max(0, room / scale - BOX.h) : 0} />
+        <div className="pointer-events-none absolute inset-0 motion-safe:transition-transform motion-safe:duration-500" style={{ transform: shift[0] || shift[1] ? `translate(${shift[0]}px, ${shift[1]}px)` : undefined }}>
         <span aria-hidden="true" className="arc-holo" style={at(BOX.cx, BOX.cy, 164)} />
         <span aria-hidden="true" className="arc-orb" style={at(BOX.cx, BOX.cy, 144)} />
         {/* Figma draws the lines 1 px on screen, also on the scaled 15 */}
@@ -244,7 +248,8 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           </>;
           const box = { left: x, top: y, transform: 'translate(-50%, -50%)' };
           // the chevron that points where the rest are (24, 24c; 24b: towards the other angles)
-          const arrow = m ?? (focus ? { arrow: [x + (x < BOX.cx ? -33 : 33), y + 22] as Seat, turn: x < BOX.cx ? 225 : 135 } : null);
+          const dir = TOWARD[a], rad = (dir - 90) * Math.PI / 180;
+          const arrow = m ? { arrow: m.arrow, turn: dir } : focus ? { arrow: [x + Math.cos(rad) * 34, y + Math.sin(rad) * 24] as Seat, turn: dir } : null;
           const chev = arrow && <svg aria-hidden="true" data-more={a} width={14} height={8} viewBox="0 0 14 8" className="pointer-events-none absolute" style={{ left: arrow.arrow[0] - 7, top: arrow.arrow[1] - 4, transform: `rotate(${arrow.turn}deg)` }}><path d="M1 7L7 1L13 7" stroke="#f4f6ff" strokeOpacity={0.55} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>;
           // every region's count moves the map toward it (prototype 12 "Angle · " → 24b), the chevron only when talks wait there
           return onBundle && !still && !edit && !own && !pick && !pending

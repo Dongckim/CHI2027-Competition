@@ -159,12 +159,13 @@ export function bloom(root: HTMLElement | null, quick = false) {
   }
 }
 
-/** 24b (prototype): the camera moves toward the angle — everything slides down into place — then the talks not on the Arc
+/** 24b (prototype): the camera moves toward the angle — everything slides into place from the old centre — then the talks not on the Arc
  *  pop in, nearest first, and the other angles' counts fade in. */
 export function moveToward(root: HTMLElement | null) {
   if (!root || still()) return;
   const QA = (s: string) => [...root.querySelectorAll<HTMLElement>(s)];
-  QA('[data-node-wrap]:not([data-candidate])').forEach(n => play(n, [{ transform: 'translateY(-260px)' }, { transform: 'translateY(0px)' }], { duration: 900, delay: 60, easing: OUT }));
+  const [dx, dy] = (root.dataset.shift ?? '0,0').split(',').map(Number); // where the question went: everything comes from there
+  QA('[data-node-wrap]:not([data-candidate])').forEach(n => play(n, [{ transform: `translate(${-dx}px, ${-dy}px)` }, { transform: 'translate(0px, 0px)' }], { duration: 900, delay: 60, easing: OUT }));
   QA('[data-node-wrap][data-candidate]').forEach((n, i) => play(n, [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 520, delay: 900 + i * 95, easing: GENTLE }));
   const tEnd = 900 + 9 * 95 + 300;
   QA('[data-badge], [data-more]').forEach(b => play(b, [{ opacity: 0 }, { opacity: 1 }], { duration: 500, delay: tEnd, easing: 'ease-out' }));

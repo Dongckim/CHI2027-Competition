@@ -1,6 +1,6 @@
 // 12 · My Arc · map (Figma 597:711) with its states: 23 no clear Challenge, 24 crowded (+N), 25 angles still sorting.
 // Bottom: the next talk (to 14), Edit (15) and Share (A3).
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { engineFor, type ArcNode } from '../../engine';
 import { play, OUT } from '../../arc/motion';
 // 12c: the picked stop's card rises into place (prototype: 16 px, 520 ms)
@@ -28,6 +28,16 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
   const [help, setHelp] = useState(false);
   const [fit, mapRef] = useMapFit();
   const closeHelp = useCallback(() => setHelp(false), []);
+  // the map's box grows down to the bottom area; its height lets the regions reach that far (iPhone 11/23: cut short)
+  const [room, setRoom] = useState(0);
+  const watch = useRef<ResizeObserver | null>(null);
+  const setBox = useCallback((el: HTMLDivElement | null) => {
+    (mapRef as { current: HTMLDivElement | null }).current = el;
+    watch.current?.disconnect(); watch.current = null;
+    if (!el || typeof ResizeObserver !== 'function') return;
+    watch.current = new ResizeObserver(() => setRoom(el.getBoundingClientRect().height));
+    watch.current.observe(el);
+  }, [mapRef]);
   // 12c: a tap picks a stop and the card shows its paper; the card (or a second tap) opens 14
   const [sel, setSel] = useState<string | null>(null);
   // 24b (#/arc/<id>/S|R|T): a region's count moves the map toward that angle and shows all its talks at CHI, the Arc's
@@ -110,14 +120,14 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
       </>}>
       <h1 className="sr-only">{arc.query}</h1>
       {/* Figma: the map box at y 112 on every state; 25's pill sits over its top, its centre 2.75 right of the middle */}
-      <div ref={mapRef} className="relative -mx-6 mt-[10px]" onPointerDownCapture={() => setHint(false)} onKeyDownCapture={() => setHint(false)}>
+      <div ref={setBox} className="relative -mx-6 mt-[10px] flex-1" onPointerDownCapture={() => setHint(false)} onKeyDownCapture={() => setHint(false)}>
         {pending && (
           <p role="status" className="absolute top-0 left-[calc(50%-73px)] z-10 flex h-9 items-center gap-2 rounded-[18px] border border-arc-line bg-arc-surface pr-3.5 pl-2.5 text-[13px] font-medium whitespace-nowrap text-arc-text/85">
             <img src={spinner} alt="" width={16} height={16} />Sorting angles…{/* Figma 25: a still 3/4 arc */}
           </p>
         )}
         {use.schedule && <ArcView arc={shown} states={states} info={info} scale={fit} fit onNode={tapNode} selected={sel} hint={hint && !pending && !focus} onBundle={a => toFocus(a)} focus={focus}
-          totals={pending ? undefined : totals} candidates={candidates}
+          totals={pending ? undefined : totals} candidates={candidates} room={room}
           hold={pending || focus ? undefined : { held, press: hs.press, onSwap: k => hs.open(k, true) }} />}{/* drawn once the times are in: the bloom orders talks by their state */}
       </div>
       {held && <SwapFan hs={hs} title={info(held).title} />}
