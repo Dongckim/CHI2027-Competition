@@ -33,17 +33,17 @@ try {
     const b = await page.evaluate(`(${buttonsProbe})()`);
     for (const x of b.bad) wrap.push({ screen: name, ...x });
     if (name === '10') continue; // gone after 5 s; it has no buttons
-    for (const w of [390, 375, 360]) {
-      await page.setViewportSize({ width: w, height: 844 });
+    for (const [w, h] of [390, 375, 360].flatMap(w => [[w, 844], [w, 664]])) { // 664: Safari with its toolbars (11/22)
+      await page.setViewportSize({ width: w, height: h });
       await sleep(250);
       for (const f of name === '16' ? [0, 0.5, 1] : [null]) {
         if (f != null) { await page.evaluate(x => { const s = document.querySelector('[aria-label="What people see"]'); if (s) s.scrollLeft = (s.scrollWidth - s.clientWidth) * x; }, f); await sleep(150); }
         const m = await page.evaluate(`(${widthProbe})()`);
-        if (m.sw > m.cw || m.bw > m.cw) wide.push({ screen: name, width: w, swipe: f, ...m });
+        if (m.sw > m.cw || m.bw > m.cw) wide.push({ screen: name, width: w, height: h, swipe: f, ...m });
       }
     }
   }
-  R.check(`${SCREENS.length} screens at 390/375/360: no sideways scroll (16 also mid-swipe)`, wide.length === 0, wide.length ? { wide: wide.slice(0, 6) } : {});
+  R.check(`${SCREENS.length} screens at 390/375/360 × 844/664: no sideways scroll (16 also mid-swipe)`, wide.length === 0, wide.length ? { wide: wide.slice(0, 6) } : {});
   R.check('buttons: words on one line at 100% and 200% text', wrap.length === 0, wrap.length ? { wrap: wrap.slice(0, 6) } : {});
   await page.setViewportSize({ width: 390, height: 844 });
 
