@@ -161,4 +161,4 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 남은 것: 기본 엔진 전환은 사용자 승인 뒤, 07b 방식 선택, Challenge 목표 문장 1건·어색한 종족·라이선스 2칸은 원준 (docs/validation/V9-ondevice.md)
 - A5 기본 엔진 전환 (2026-11-21, stage/A5-ondevice-default): 배포 빌드 기본 ondevice(`MODEL_URL` 없으면 빌드 실패). Challenge는 결과 문장만(아니면 Reframe), Arc 0.2.0 `kind`를 12·13·14에, 07b는 원준 조합 문장(문법 깨진 것 빼고, 없으면 제목), 10은 모델 받는 동안 "Sorting angles… N%", 오프라인·30초 정체면 연결 안내
 - `node tests/arc/setup-check.mjs`(10 진행률·오프라인·정체, ondevice 빌드+모델 필요) 5/5, 배포 확인에 `--expect-ondevice`
-- 남은 것: 종족 3개·시각 2시간·라이선스 2칸은 원준, 새 표시는 디자이너(docs/handoff/designer.md §13), 링크 v2 보류(docs/handoff/on-hold.md)
+- 남은 것: 시각 2시간·방법 문장이 result로 남은 것은 원준(11-22 모델에서 종족 3개·목표 문장·라이선스 해결, Challenge 14문항 0개), 새 표시는 디자이너(docs/handoff/designer.md §13), 링크 v2 보류(docs/handoff/on-hold.md)

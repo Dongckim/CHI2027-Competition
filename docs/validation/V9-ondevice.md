@@ -137,3 +137,21 @@
 - Reframe 종류를 Arc 0.2.0 `kind`로 12·13·14에 표시한다.
 - 07b는 원준 조합 문장이다. 문법이 깨진 것(`brokenQuestion`)은 빼고, 남는 게 없으면 실제 제목 질문을 쓴다. 카드에 "Suggested"를 붙였다.
 - 배포 빌드의 기본 엔진을 ondevice로 바꿨다. 모델은 01부터 받고, 10은 다 받을 때까지 "Sorting angles… N%"를 보여 준다. 오프라인이거나 30초 동안 진행이 없으면 연결 안내를 띄운다(`tests/arc/setup-check.mjs` 5/5).
+
+## 새 모델 `model-2026-11-22` (2026-11-22, PR #80)
+사용자 「새모델로 다시붙여서 테스팅 해줄래?」. 같은 앱 코드에 모델만 바꿔 같은 질문 14개를 WebKit(iPhone 14 프로필, Mac)으로 돌렸다.
+
+| | 11-21 모델 | 11-22 모델 |
+|---|---|---|
+| ↑ Supports 합 (14개 질문) | 10 | 7 |
+| ⊣ Challenges 합 | 1 (mental health apps) | 0 |
+| 종족: indoor navigation / smart home privacy / Robotics | Accessibility / Society / Health (`tribeOf`) | 같음, 이제 `arc`·`edit`·`shared`도 입력한 말로 정함 |
+| 계약·규칙 오류 | 0 | 0 |
+| 첫 로드 | 706 ms | 731 ms |
+| 07b 문법 필터에 걸린 문장 (주제 8개) | 0/24 | 0/24 |
+
+- 222623(목표 문장)은 엔진이 직접 Reframe(factor)으로 낸다. 테스트 기대값을 subject → factor로 바꿨다.
+- 시각 2시간은 그대로다(`engineNow` 유지, 테스트가 확인).
+- 빠진 Challenge: 230223 "Overall, the human counselor condition received higher trust ratings, …"(진짜 결과 문장). 11-22 모델은 이 발표에 방법 문장 "We assessed changes in subjective distress …"를 `result`/`no_effect`로 붙였다. 원준에게 보냄(docs/handoff/wonjune.md 2–3).
+- 검사: `npm test` 172/172, `tests/arc/setup-check.mjs` 5/5, ondevice 빌드 create-check 15/15, qa:auto 16/16.
+- 판정: 조건부 통과. 계약·화면은 문제없고 종족·목표 문장은 나아졌지만, Challenge가 14개 질문에서 0개다.
