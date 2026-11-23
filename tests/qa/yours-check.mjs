@@ -28,7 +28,6 @@ const floorProbe = () => {
   const small = [], tiny = [];
   for (const el of document.querySelectorAll('main *, header *, .sticky *')) {
     if (!seen(el) || ![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue;
-    if (el.closest('[data-a11y-decor=bundle-count]')) continue; // as tests/qa/a11y-exceptions.json: its words are "N more" at 12 px
     const k = el.offsetWidth ? el.getBoundingClientRect().width / el.offsetWidth : 1; // offsetWidth is whole px: ±0.1
     const px = parseFloat(getComputedStyle(el).fontSize) * k;
     if (px < 11.8) small.push(`${el.textContent.trim().slice(0, 20)} ${px.toFixed(1)}`);

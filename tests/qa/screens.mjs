@@ -19,7 +19,7 @@ export const STORED = [ARC, NONE, PEND, CROWD];
 const draft = { query: 'Does VR fidelity raise presence?', topicsFor: null, topics: { S: [], R: [], T: [] }, when: 'all', what: ['talks', 'posters', 'demos'] };
 export const device = onboarded => JSON.stringify({ version: 1, edition: 'chi2026', mode: null, step: 'research', builtAt: null,
   plan: { query: '', topicsFor: null, topics: [], nearbyAdded: [], days: [], needs: { stepFree: false, fewerRoomChanges: false, breaks: false, largerText: false, summaries: false }, language: 'en', see: ['papers'], howFull: 'balanced' },
-  arc: { onboarded, firstChi: true, draft } });
+  arc: { onboarded, firstChi: true, draft, holdHint: true } }); // 12a's hint seen: the probes measure the map without it
 /** In the page: put Arcs in IndexedDB arc/arcs. */
 export const seedArcs = arcs => `new Promise(r => { const q = indexedDB.open('arc', 1); q.onupgradeneeded = () => q.result.createObjectStore('arcs', { keyPath: 'id' });
   q.onsuccess = () => { const t = q.result.transaction('arcs', 'readwrite'); for (const a of ${JSON.stringify(arcs)}) t.objectStore('arcs').put(a); t.oncomplete = () => { q.result.close(); r(true); }; }; })`;
@@ -31,7 +31,7 @@ export const SCREENS = [['10', '#/building', 'Reading'],
   ['14', `#/talk/${ARC.nodes[0].key}`, 'WHY IT'], ['14f', `#/talk/${ARC.nodes[0].key}/shape`, 'Look for the same shape'], ['15', `#/arc/${ARC.id}/edit`, 'Editing'], ['16', `#/share/${ARC.id}`, 'Never your name'],
   ['17', `#/qr/${ARC.id}`, 'Scan to get'], ['18', `#/r/${encodeLink(OTHER)}`, 'Shared Arc'], ['19', `#/r/${encodeLink(OTHER)}/pick`, 'Pick what to keep'],
   ['19b', `#/r/${encodeLink(OTHER)}/yours`, 'Keep all theirs'], ['20b', '#/after', 'Export reading list'],
-  ['20', '#/home', 'My Arcs'], ['23', `#/arc/${NONE.id}`, 'No clear challenge'], ['24', `#/arc/${CROWD.id}`, ' more'], ['25', `#/arc/${PEND.id}`, 'Sorting angles'],
+  ['20', '#/home', 'My Arcs'], ['23', `#/arc/${NONE.id}`, 'No clear challenge'], ['24', `#/arc/${CROWD.id}`, 'Edit'], ['25', `#/arc/${PEND.id}`, 'Sorting angles'],
 ];
 
 /** Page probe: the common buttons (data-arc-button) keep their words on one line at 100% and with the text at 200%

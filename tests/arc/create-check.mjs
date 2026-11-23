@@ -108,8 +108,12 @@ try {
   const node = await ev(`(() => { const b = ${NODE}; const f = b[0];
     return { count: b.length, named: b.every(x => /^(Supports|Reframes|Challenges) · .+ \\d\\d:\\d\\d/.test(x.innerText.replace(/\\s+/g, ' ').trim())), label: f?.innerText.replace(/\\s+/g, ' ').trim(),
       title: f?.querySelector('.line-clamp-2')?.textContent.replace(/^✦ /, '').trim() }; })()`);
+  // 12c (Figma 851:1855): a tap picks the stop and the card under the map shows its paper; a second tap opens 14
   await ev(`${NODE}[0].click()`);
   const want = JSON.stringify(node.title ?? '');
+  const card = await waitFor(`[...document.querySelectorAll('.arc > .sticky a[href*="talk/"]')].some(a => a.innerText.includes(${want}.slice(0, 20)))`, 5000);
+  check('12c: a tap shows the stop\'s paper in the card', card != null, {});
+  await ev(`${NODE}[0].click()`);
   // 14 is its own chunk: wait for its title (not the 12 still on screen) and for the abstract
   const talkMs = await waitFor(`location.hash.startsWith('#/talk/chi2026:') && document.querySelector('h1')?.innerText === ${want} && !/Loading/.test(document.querySelector('main').innerText)`, 30000);
   const talk = await ev(`({ title: document.querySelector('h1')?.innerText, angle: document.querySelector('main p')?.innerText, mark: document.querySelector('main mark')?.textContent ?? null, when: [...document.querySelectorAll('main p')].map(p => p.innerText).find(t => t.includes(' · ~')) ?? [...document.querySelectorAll('main li')].map(l => l.innerText).find(t => t.includes(' · ~')) ?? null })`);

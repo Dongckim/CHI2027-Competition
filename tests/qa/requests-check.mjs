@@ -70,7 +70,9 @@ try {
   R.check('control: a request carrying the question is detected', leaks.length === 1, { caught: leaks.length });
 
   // 14 and a Q&A round trip (allowed to send: it is what Q&A is)
-  await tab.ev(`document.querySelector('main button[aria-description]').click(), true`);
+  await tab.ev(`document.querySelector('main button[aria-description]').click(), true`); // 12c: the first tap picks the stop
+  await sleep(300);
+  await tab.ev(`document.querySelector('main button[aria-description]').click(), true`); // a second opens 14
   await tab.waitFor(`location.hash.startsWith('#/talk/') && !!document.querySelector('input[placeholder="Add a question for the Q&A"]')`, 20000);
   await tab.ev(`(() => { const i = document.querySelector('input[placeholder="Add a question for the Q&A"]'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, 'requests-check question');
     i.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
