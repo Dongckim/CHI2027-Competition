@@ -29,7 +29,7 @@ const probe = () => {
 
 // 12 with one Reframe: its seat (195, 470) is the lowest a two-line title reaches
 const ONE_R = { ...ARC, id: 'height-one-r-01', nodes: ARC.nodes.filter((n, i, a) => n.angle !== 'R' || a.findIndex(x => x.angle === 'R') === i) };
-const MAPS = ['12', '12·1R', '15', '18', '23', '24', '25'];
+const MAPS = ['12', '12·1R', '15', '18', '23', '24', '24b', '25'];
 // In the page: map targets that reach under the header or the fixed bottom area, or overlap a bottom button.
 const mapProbe = () => {
   const grow = r => { const w = Math.max(44, r.width), h = Math.max(44, r.height), cx = r.left + r.width / 2, cy = r.top + r.height / 2;

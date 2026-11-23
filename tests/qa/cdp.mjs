@@ -42,7 +42,7 @@ export function tempProfile(prefix = 'arc-qa') { const p = mkdtempSync(join(tmpd
 
 export async function launchChrome({ args = [] } = {}) {
   const profile = tempProfile('arc-qa');
-  const proc = spawn(CHROME, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run', '--no-default-browser-check', ...args, 'about:blank'], { stdio: 'ignore' });
+  const proc = spawn(CHROME, ['--headless=new', '--force-prefers-reduced-motion', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run', '--no-default-browser-check', ...args, 'about:blank'], { stdio: 'ignore' });
   let port;
   for (let i = 0; i < 80 && !port; i++) {
     const f = join(profile, 'DevToolsActivePort');

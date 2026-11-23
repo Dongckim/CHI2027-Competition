@@ -16,7 +16,7 @@ const server = await startServer(4385);
 let browser, code = 1;
 try {
   browser = await webkit.launch();
-  const ctx = await browser.newContext({ ...devices['iPhone 14'], viewport: { width: 390, height: 844 } });
+  const ctx = await browser.newContext({ reducedMotion: 'reduce',  ...devices['iPhone 14'], viewport: { width: 390, height: 844 } });
   const page = await ctx.newPage();
   const text = t => page.waitForFunction(x => document.body.innerText.includes(x), t, { timeout: 30000 }).then(() => true, () => false);
   await page.goto(`${server.base}?${AT}#/start/1`);
@@ -72,7 +72,7 @@ try {
   R.check('05: a touch on Code of Conduct reaches the link', typeof got === 'string' && got.startsWith('Code of Conduct'), { got });
 
   // 4: an empty phone, 01 → 12 → 14
-  const fresh = await browser.newContext({ ...devices['iPhone 14'], viewport: { width: 390, height: 844 } });
+  const fresh = await browser.newContext({ reducedMotion: 'reduce',  ...devices['iPhone 14'], viewport: { width: 390, height: 844 } });
   const p = await fresh.newPage();
   const tap = async loc => { const r = await loc.boundingBox(); await p.touchscreen.tap(r.x + r.width / 2, r.y + r.height / 2); };
   const at = async (fn, arg, ms = 30000) => p.waitForFunction(fn, arg, { timeout: ms }).then(() => true, () => false);

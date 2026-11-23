@@ -22,7 +22,7 @@ await portFree(PORT);
 const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { stdio: 'ignore', detached: true });
 for (let i = 0; i < 60; i++) { try { if ((await fetch(BASE)).ok) break; } catch {} await sleep(250); }
 const PROFILE = tempProfile('arc-a3');
-const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${PROFILE}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const chrome = spawn(CHROME, ['--headless=new', '--force-prefers-reduced-motion', '--remote-debugging-port=0', `--user-data-dir=${PROFILE}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 let targets;
 const DEVTOOLS = await devtools(PROFILE); // a free port: never a Chrome left by an earlier run
 for (let i = 0; i < 40; i++) { try { targets = await (await fetch(`${DEVTOOLS}/json`)).json(); break; } catch { await sleep(250); } }
@@ -97,9 +97,9 @@ try {
   await shot('19');
   const n1 = Number(b1?.match(/Add (\d+)/)?.[1]), n2 = Number(b2?.match(/Add (\d+)/)?.[1]);
   await click(`[...document.querySelectorAll('button')].find(b => /^Add \\d+ to my Arcs$/.test(b.innerText.trim()))`);
-  await waitFor(`location.hash.startsWith('#/arc/')`, 10000);
+  await waitFor(`location.hash === '#/home'`, 10000); // prototype 11/23: 19 → 20 My Arcs
   const saved = await stored();
-  check('19 pick: untick one → Add n−1, ended talks locked, saved as a new received Arc', n2 === n1 - 1 && saved.length === 1 && saved[0].source === 'received' && saved[0].nodes.length === n2, { buttons: [b1, b2], locked: lockedN, savedNodes: saved[0]?.nodes.length });
+  check('19 pick: untick one → Add n−1, ended talks locked, saved as a new received Arc, then My Arcs', n2 === n1 - 1 && saved.length === 1 && saved[0].source === 'received' && saved[0].nodes.length === n2, { buttons: [b1, b2], locked: lockedN, savedNodes: saved[0]?.nodes.length });
   // Add to my Arcs (another link) and 20 home lists both
   await open(`s/${PAYLOAD2}`);
   await waitFor(`location.hash.startsWith('#/r/') && !!${byText('Add to my Arcs')}`, 30000);

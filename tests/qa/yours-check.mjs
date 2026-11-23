@@ -43,9 +43,9 @@ const floor = async (p, name) => { const f = await p.evaluate(floorProbe); R.che
 
 let browser, code = 1;
 try {
-  browser = await chromium.launch({ executablePath: CHROME });
+  browser = await chromium.launch({ executablePath: CHROME, args: ['--force-prefers-reduced-motion'] });
   { // 19b
-    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 }); const p = await ctx.newPage();
+    const ctx = await browser.newContext({ reducedMotion: 'reduce',  viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 }); const p = await ctx.newPage();
     await p.goto(`${server.base}#/start/1`);
     await p.evaluate(`localStorage.setItem('arc.device', ${JSON.stringify(device(true))}); true`);
     await p.evaluate(seedArcs([]));
@@ -64,10 +64,11 @@ try {
     await first.click(); const on = await first.getAttribute('aria-pressed');
     await first.click(); const off = await first.getAttribute('aria-pressed');
     R.check('19b: a node toggles kept ⇄ outline (aria-pressed)', on === 'true' && off === 'false', { on, off });
-    await p.getByRole('button', { name: 'Keep all theirs' }).click();
+    // keep every talk from the list (the map shows three per region), then one back to an outline
     const listed = p.locator('section[aria-label="All talks"] button[aria-pressed]');
+    await listed.evaluateAll(b => b.filter(x => x.getAttribute('aria-pressed') === 'false').forEach(x => x.click()));
     const allOn = await listed.evaluateAll(b => b.every(x => x.getAttribute('aria-pressed') === 'true'));
-    R.check('19b: Keep all theirs keeps all (bundled ones too, in the list)', allOn && (await listed.count()) === OTHER.nodes.length && await save.isEnabled(), { listed: await listed.count() });
+    R.check('19b: every talk can be kept from the list (beyond the three a region shows)', allOn && (await listed.count()) === OTHER.nodes.length && await save.isEnabled(), { listed: await listed.count() });
     await first.click(); // one back to an outline
     await p.getByRole('button', { name: 'Add a talk to Challenges' }).click(); // OTHER has none: the new node is not bundled
     await p.getByRole('searchbox', { name: 'Search talks' }).fill('haptic'); // search: the engine may have no Challenge to offer
@@ -93,8 +94,20 @@ try {
       { stored: stored.length, source: mine.source, nodes: mine.nodes.length, theirKept, query: mine.query });
     await ctx.close();
   }
+  { // 19b Keep all theirs: their Arc as it is, to My Arcs (prototype 11/23 → 20)
+    const ctx = await browser.newContext({ reducedMotion: 'reduce',  viewport: { width: 390, height: 844 } }); const p = await ctx.newPage();
+    await p.goto(`${server.base}#/start/1`);
+    await p.evaluate(`localStorage.setItem('arc.device', ${JSON.stringify(device(true))}); true`);
+    await p.evaluate(seedArcs([]));
+    await p.goto(`${server.base}#/r/${encodeLink(OTHER)}/yours`);
+    await p.getByRole('button', { name: 'Keep all theirs' }).click();
+    await p.waitForFunction(() => location.hash === '#/home', null, { timeout: 10000 }).catch(() => {});
+    const stored = await p.evaluate(readArcs);
+    R.check('19b Keep all theirs: their whole Arc saved, then My Arcs', p.url().endsWith('#/home') && stored.length === 1 && stored[0].nodes.length === OTHER.nodes.length, { url: p.url().slice(-12), stored: stored.length });
+    await ctx.close();
+  }
   { // 20b
-    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, acceptDownloads: true }); const p = await ctx.newPage();
+    const ctx = await browser.newContext({ reducedMotion: 'reduce',  viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, acceptDownloads: true }); const p = await ctx.newPage();
     const base = `${server.base}?at=2026-04-18T12:00`;
     await p.goto(`${base}#/start/1`);
     await p.evaluate(`localStorage.setItem('arc.device', ${JSON.stringify(withHeard())}); true`);

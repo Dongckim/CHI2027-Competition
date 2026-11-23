@@ -14,7 +14,7 @@ const server = await startServer(4395);
 const at = p => p.evaluate(() => { const s = document.querySelector('[aria-label="What people see"]'); return Math.round(s.scrollLeft / 312); });
 const settled = async p => { await sleep(700); return at(p); };
 async function open(browser, opts) {
-  const ctx = await browser.newContext(opts); const p = await ctx.newPage();
+  const ctx = await browser.newContext({ reducedMotion: 'reduce', ...opts }); const p = await ctx.newPage();
   await p.goto(`${server.base}#/start/1`);
   await p.evaluate(`localStorage.setItem('arc.device', ${JSON.stringify(device(true))}); true`);
   await p.evaluate(seedArcs([ARC]));
@@ -64,7 +64,7 @@ try {
     R.check('WebKit, reduced motion: the dot moves at once (no smooth scroll)', (await at(p)) === 1, {});
     await ctx.close();
   }
-  ch = await chromium.launch({ executablePath: CHROME });
+  ch = await chromium.launch({ executablePath: CHROME, args: ['--force-prefers-reduced-motion'] });
   {
     const { ctx, p } = await open(ch, { viewport: { width: 1280, height: 900 } });
     const next = p.getByRole('button', { name: 'Next card' }), prev = p.getByRole('button', { name: 'Previous card' });

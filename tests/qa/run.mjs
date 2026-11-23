@@ -22,6 +22,7 @@ const CHECKS = [
   ['webkit', 'tests/qa/webkit-check.mjs'], // Playwright WebKit (npx playwright install webkit once)
   ['height', 'tests/qa/height-check.mjs'], // short screens do not scroll (safe area 54/34)
   ['cards', 'tests/qa/cards-check.mjs'], // 16 card paging: dots, arrow keys, WebKit touch swipe, desktop drag
+  ['flow', 'tests/qa/flow-check.mjs'], // every prototype link lands where it should; motion ends where the still screen is
   ['yours', 'tests/qa/yours-check.mjs'], // 19b Make it yours (keep, add, save) and 20b After CHI (numbers, .txt / .bib)
   ['swap', 'tests/qa/swap-check.mjs'], // 12b hold a stop · swap (pointer, Undo, keyboard) and 07b make it a question
   ['a11y', 'tests/arc/a11y-check.mjs'],

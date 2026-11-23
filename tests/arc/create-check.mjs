@@ -18,7 +18,7 @@ await portFree(PORT);
 const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { stdio: 'ignore', detached: true });
 for (let i = 0; i < 60; i++) { try { if ((await fetch(BASE)).ok) break; } catch {} await sleep(250); }
 const PROFILE = tempProfile('arc-create');
-const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${PROFILE}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const chrome = spawn(CHROME, ['--headless=new', '--force-prefers-reduced-motion', '--remote-debugging-port=0', `--user-data-dir=${PROFILE}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 let targets;
 const DEVTOOLS = await devtools(PROFILE); // a free port: never a Chrome left by an earlier run
 for (let i = 0; i < 40; i++) { try { targets = await (await fetch(`${DEVTOOLS}/json`)).json(); break; } catch { await sleep(250); } }
