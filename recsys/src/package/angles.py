@@ -895,6 +895,15 @@ class Angles:
         tr["look_for"] = f"Look for the {COLOR_NAME.get(tr['color'], 'white')} {tr['shape']}."
         return tr
 
+    def _tribe_of(self, text, types=None):
+        """The tribe of what the person typed. A topic is built on its sharpest question, but
+        that question can drift ("accessible indoor navigation" -> "critical design
+        considerations"), so the tribe never comes from it (team 11/22)."""
+        score = self._rank(text)
+        pool = [int(i) for i in np.argsort(-score, kind="stable") if int(i) in self.alive_set
+                and (types is None or self.items[int(i)]["type"] in types)][:20]
+        return self._tribe(score, pool)
+
     def _judged(self, q, types, score=None):
         """Talks of the chosen formats by match, with their angle (top JUDGE_N read)."""
         score = self._rank(q["text"]) if score is None else score
@@ -1368,7 +1377,7 @@ class Angles:
         heard = [self.items[i]["id"] for i in self._ids(st.get("heard"), "state.heard")]
         nodes = self._route(placed, reads, chosen, now, heard)
         counts = Counter(nd["angle"] for nd in nodes)
-        tribe = self._tribe(score, pool)
+        tribe = self._tribe_of(asked, types) if asked else self._tribe(score, pool)
         n_all = sum(1 for i in self.alive_set if self.items[i]["type"] in types)
         n_day = sum(1 for i in self.alive_set if self.items[i]["type"] in types and self._on_days(i, days))
         close = min(JUDGE_N, sum(1 for i in pool if self._on_days(i, days)))
@@ -1443,7 +1452,7 @@ class Angles:
         elif flt == "debut":
             cand = [(i, v) for i, v in judged if i not in nodes and (self.info.get(i) or {}).get("first_debut")][:k_]
         elif flt == "wildcard":
-            cand = self._wildcards(q, pool, score, nodes, k_)
+            cand = self._wildcards(q, pool, nodes, k_, self._tribe_of(self.question(req.get("question"))["text"], types))
         else:
             cand = [(i, v) for i, v in judged if v["angle"] == angle and i not in nodes][:k_]
         cards = [self._edit_card(i, v, placed, days) for i, v in cand]
@@ -1501,9 +1510,8 @@ class Angles:
                         "why": self._why(i, v)["text"]})
         return out
 
-    def _wildcards(self, q, pool, score, nodes, k):
-        """Wildcard (Smart Shuffle): talks from other tribes that still touch X or Y."""
-        mine = self._tribe(score, pool)
+    def _wildcards(self, q, pool, nodes, k, mine):
+        """Wildcard (Smart Shuffle): talks from other tribes (than mine) that still touch X or Y."""
         mt = next((t for t, tr in enumerate(self.tribes) if mine and tr["name"] == mine["name"]), None)
         out = []
         for i in pool[JUDGE_N:]:
@@ -1754,10 +1762,8 @@ class Angles:
                     (f" · first one {first['time']}, {first['where']}" if first else ""))
         counts = Counter(nd["angle"] for nd in nodes)
         n_keep = sum(1 for nd in nodes if nd["keep"])
-        score = self._rank(q["text"])
-        pool = [int(i) for i in np.argsort(-score, kind="stable") if int(i) in self.alive_set][:20]
         return {"question": q["text"], "shared": True, "label": "Shared Arc",
-                "tribe": self._tribe(score, pool),
+                "tribe": self._tribe_of(self.question(req.get("question"))["text"]),
                 "nodes": nodes, "counts": {a: counts.get(a, 0) for a in ANGLES}, "line": line,
                 "pick": {"headline": "Pick what to keep.", "legend": ["Keep", "Skip", "Ended"],
                          "button": f"Add {n_keep} to my Arcs", "keep": n_keep},
