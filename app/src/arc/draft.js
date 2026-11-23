@@ -17,13 +17,19 @@ export const QUERY_MAX = 200;
 export const freshDraft = () => ({ query: '', topicsFor: null, topics: { S: [], R: [], T: [] }, when: 'all', what: [...DEFAULT_WHAT] });
 const freshArc = () => ({ onboarded: false, firstChi: null, draft: freshDraft() });
 
-/** holdHint: 12a's "Hold a stop" hint was shown (Figma 854:2034, once). @returns {{ onboarded: boolean, firstChi: boolean | null, draft: ReturnType<typeof freshDraft>, holdHint?: boolean }} */
+/** holdHint: 12a's "Hold a stop" hint was shown (Figma 854:2034, once). walk: 09 "How you walk", kept for every Arc (this
+ * phone only, never in an Arc or a link). @returns {{ onboarded: boolean, firstChi: boolean | null, draft: ReturnType<typeof freshDraft>, holdHint?: boolean, walk?: string[] }} */
 export const arcOf = state => state.arc ?? { ...freshArc(), onboarded: !!state.builtAt || state.mode === 'browse' };
 const withArc = (state, change) => ({ ...state, arc: { ...arcOf(state), ...change } });
 const withDraft = (state, change) => withArc(state, { draft: { ...arcOf(state).draft, ...change } });
 
 export const setOnboarded = state => (arcOf(state).onboarded ? state : withArc(state, { onboarded: true }));
 export const setFirstChi = (state, firstChi) => withArc(state, { firstChi });
+/** 09 "How you walk" (user 11/23 「원준 엔진의 walk: calm / step_free를 그대로」): Calm route on until changed, as Figma 09. */
+export const WALK = ['calm', 'step_free'];
+export const WALK_LABEL = { calm: 'Calm route', step_free: 'Step-free' };
+export const walkOf = state => arcOf(state).walk ?? ['calm'];
+export const toggleWalk = (state, w) => { const now = walkOf(state); return withArc(state, { walk: WALK.filter(x => (x === w ? !now.includes(x) : now.includes(x))) }); };
 export const setHoldHintSeen = state => (arcOf(state).holdHint ? state : withArc(state, { holdHint: true }));
 
 /** 07: the question, at most 200 characters (the share link carries it). */

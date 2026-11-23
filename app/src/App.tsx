@@ -48,7 +48,7 @@ export function App() {
       case 'building': return <Building />;
       case 'hood': return step ? <Hood id={step} /> : <Home />;
       case 'home': return <Home />;
-      case 'arc': return !step ? <Home /> : sub === 'list' ? <ArcList id={step} /> : sub === 'edit' ? <Edit id={step} /> : <ArcMap id={step} />;
+      case 'arc': return !step ? <Home /> : sub === 'list' ? <ArcList id={step} /> : sub === 'edit' ? <Edit id={step} /> : <ArcMap id={step} focus={sub === 'S' || sub === 'R' || sub === 'T' ? sub : null} />; // 24b #/arc/<id>/S|R|T
       case 'talk': return step ? <TalkDetail paperKey={step} shape={sub === 'shape'} /> : <Home />; // 14 (the planner's 06 is replaced), 14f #/talk/<key>/shape
       case 'share': return step ? <Share id={step} /> : <Home />;
       case 'qr': return step ? <Qr id={step} /> : <Home />;
