@@ -160,7 +160,7 @@ export function Qr({ id }: { id: string }) {
       <div className="mt-[14px] flex justify-center"><TribeChip arc={arc} /></div>
       <h1 className="mx-auto mt-[14px] w-[320px] max-w-full text-center text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
       <div className="relative mx-auto mt-[38px] flex size-[248px] items-center justify-center rounded-[28px] bg-white">
-        <svg role="img" aria-label={`QR code for the link to this Arc: ${arc.query}`} width={200} height={200} viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges">
+        <svg data-anim="qr 200" role="img" aria-label={`QR code for the link to this Arc: ${arc.query}`} width={200} height={200} viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges">
           <path d={qr.d} fill="#15121F" />
         </svg>
         <img src={TRIBE_ICON[arc.tribe]} alt="" width={36} height={36} className="absolute" />

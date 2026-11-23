@@ -5,7 +5,7 @@
 </g>
 <defs>
 <radialGradient id="paint0_radial_0_4" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(80 80) scale(80)">
-<stop stop-color="#7C5CFF" stop-opacity="0.95"/>
+<stop stop-color="#7C5CFF" stop-opacity="0.82"/>
 <stop offset="0.55" stop-color="#7C5CFF" stop-opacity="0.6"/>
 <stop offset="1" stop-color="#7C5CFF" stop-opacity="0.22"/>
 </radialGradient>

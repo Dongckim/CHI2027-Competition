@@ -7,6 +7,7 @@ import { arcOf, setQuery, setOnboarded, QUERY_MAX } from '../../arc/draft.js';
 import { engine, topicHelp, type Arc, type Angle, type TribeId } from '../../engine';
 import { isTopic } from '../../arc/topic.js';
 import { layout } from '../../arc/map.js';
+import { play, POP } from '../../arc/motion';
 import { ANGLE_NAME } from './AngleHelp';
 import { TRIBE } from '../../arc/tribes.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
@@ -65,6 +66,9 @@ function MiniArc({ arc }: { arc: Arc }) {
   );
 }
 
+// prototype 07: the tribe chip pops in when the question finds its neighbourhood (and again when it changes)
+const chipIn = (el: HTMLElement | null) => { play(el, [{ opacity: 0, transform: 'scale(.7)' }, { opacity: 0.75, transform: 'scale(1)' }], { duration: 480, easing: POP }); };
+
 export function Ask() {
   const state = useDevice();
   const { onboarded, draft } = arcOf(state);
@@ -116,7 +120,7 @@ export function Ask() {
       {/* Figma 591:684: chip at 26,303, the whole chip at 75%; the row keeps its height so the list below does not jump */}
       <div className="mt-[13px] h-[30px]" aria-live="polite">
         {t && (
-          <span className="ml-0.5 inline-flex items-center gap-1.5 rounded-2xl border py-1.5 pr-3 pl-2.5 text-[13px] font-semibold text-arc-text opacity-75"
+          <span key={t.id} ref={chipIn} className="ml-0.5 inline-flex items-center gap-1.5 rounded-2xl border py-1.5 pr-3 pl-2.5 text-[13px] font-semibold text-arc-text opacity-75"
             style={{ background: `color-mix(in srgb, ${t.color} 8%, transparent)`, borderColor: `color-mix(in srgb, ${t.color} 30%, transparent)` }}>
             <Pic src={TRIBE_ICON[t.id as TribeId]} size={14} />{t.name}
           </span>
