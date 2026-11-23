@@ -11,7 +11,7 @@ import { TRIBE_ICON } from '../../arc/tribeIcons';
 import type { TribeId } from '../../engine/types';
 import { Screen, ArcButton, ArcLink, TextAction, Dots, Pic, FRAME_ART } from '../../components/arc';
 import holoRing from '../../assets/arc/welcome-holo-ring.svg';
-import innerRing from '../../assets/arc/welcome-inner-ring.svg';
+import innerOrb from '../../assets/arc/welcome-inner-orb.svg';
 import gAi from '../../assets/arc/glow-tribe-ai.svg';
 import gXr from '../../assets/arc/glow-tribe-xr.svg';
 import gAccess from '../../assets/arc/glow-tribe-access.svg';
@@ -36,6 +36,7 @@ import clock from '../../assets/arc/icon-clock.svg';
 import chat from '../../assets/arc/icon-chat.svg';
 import external from '../../assets/arc/icon-external.svg';
 import lines06 from '../../assets/arc/06-lines.svg';
+import regions06 from '../../assets/arc/06-regions.svg';
 import holo06 from '../../assets/arc/06-holo-ring.svg';
 import orb06 from '../../assets/arc/06-question-orb.svg';
 import orbS from '../../assets/arc/06-orb-supports.svg';
@@ -90,13 +91,13 @@ function Welcome() {
       </>}>
       <Frame top={102} height={368}>
         <img src={holoRing} alt="" style={at(45, 140, 300)} />
-        <img src={innerRing} alt="" style={at(90, 185, 210)} />
+        <img src={innerOrb} alt="" style={at(115, 108, 160)} />{/* Figma 844:1847 (11/23): a filled orb in place of the inner ring */}
         {WELCOME_SHAPES.map(([src, x, y, inset], i) => (
           <span key={i} style={at(x, y, 22)}><span className="absolute" style={{ inset }}><img src={src} alt="" className="block size-full" /></span></span>
         ))}
         <p className="absolute w-[390px] text-center text-[14px] font-medium tracking-[0.14em]" style={{ top: 281.5 }}>ARC</p>{/* Figma 590:496: no arc stroke */}
       </Frame>
-      <h1 className="text-[30px] leading-9 font-semibold tracking-[-0.024em]">Bring one question.<br />Leave CHI with an answer.</h1>
+      <h1 className="text-[30px] leading-9 font-semibold tracking-[-0.024em]">Bring one question<br />Leave CHI<br />with an answer</h1>
       <p className="sr-only">{TRIBES.length} neighbourhoods of CHI research, each a colour and a shape.</p>
     </Screen>
   );
@@ -208,13 +209,14 @@ function HowArcWorks() {
       {/* not Frame: the node names are read out, only the pictures are hidden */}
       <div className="pointer-events-none relative h-[462px] w-[390px] shrink-0 self-center">
         <div className="absolute left-0 w-[390px]" style={{ top: -184, ...FRAME_ART }}>
+          <img src={regions06} alt="" aria-hidden="true" style={at(0, 196, 390, 524)} />{/* Figma 11/23: the 12 map's three regions */}
           <img src={lines06} alt="" aria-hidden="true" style={at(0, 0, 390, 844)} />
           <img src={holo06} alt="" aria-hidden="true" style={at(123, 348, 144)} />
           <img src={orb06} alt="" aria-hidden="true" style={at(133, 358, 124)} />
           <p className="absolute w-[390px] text-center text-[15px] leading-[19px] font-semibold" style={{ top: 401 }} aria-hidden="true">Your<br />question</p>
-          {node(orbS, 'Supports', 'same finding', 12, 388)}
-          {node(orbT, 'Challenges', 'different finding', 274, 388)}
-          {node(orbR, 'Reframes', 'new lens', 143, 528)}
+          {node(orbS, 'Supports', 'same finding', 143, 223)}
+          {node(orbR, 'Reframes', 'new lens', 13.1, 463)}
+          {node(orbT, 'Challenges', 'different finding', 272.9, 463)}
         </div>
       </div>
     </Page>

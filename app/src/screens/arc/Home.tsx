@@ -30,12 +30,16 @@ const at = (x: number, y: number, w: number) => ({ position: 'absolute' as const
 type Period = 'today' | 'week' | 'after';
 const PERIOD_TABS: [Period, string][] = [['today', 'Today'], ['week', 'This week'], ['after', 'After CHI']];
 type Slot = { start: number | null; end: number; roomKey: string; sessionKey: string };
-// Figma 20 "Mini Arc" (app/src/assets/arc/20-mini-arc-{xr,ai,accessibility}.svg, the same drawing in three tribes):
-// seats and connectors in a 100 box, 2 Supports left, 1 Challenge right, 2 Reframes below (dashed).
-const SEAT = { S: [[18, 26], [18, 74]], T: [[84, 50]], R: [[38, 88], [64, 88]] } as const;
-const LINE: Record<'S' | 'T' | 'R', string[]> = { S: ['M22.8 29.6L36.4 39.8', 'M22.8 70.4L36.4 60.2'], T: ['M78 50H67'],
-  R: ['M39.8068 82.2785L40.1451 81.2073M44.8808 66.2109L44.5425 67.2821M41.1599 77.9938L41.8364 75.8515M42.8512 72.6379L43.5277 70.4956',
-    'M61.9258 82.3699L61.5225 81.2754M55.877 65.9518L56.2802 67.0464M57.49 70.33L58.2965 72.5191M59.5063 75.8027L60.3128 77.9918'] };
+// Figma 20 "Mini Arc" (11/23, 600:1128): the 12 map's three regions in a 100 box, 2 Supports at the top, 2 Reframes lower
+// left (dashed), 1 Challenge lower right (its bar).
+const SEAT = { S: [[36.58, 19.85], [63.42, 19.85]], T: [[78.58, 66.5]], R: [[17.18, 53.45], [30.6, 76.7]] } as const;
+const LINE: Record<'S' | 'T' | 'R', string[]> = { S: ['M43.09 34.47L39.83 27.16', 'M56.91 34.47L60.17 27.16'], T: ['M64.72 58.5L71.65 62.5M62.25 62.79L67.2 54.21'],
+  R: ['M33.09 51.78L32.295 51.863M25.14 52.61L25.935 52.527M28.32 52.278L29.91 52.112', 'M40.01 63.75L39.54 64.398M35.31 70.23L35.78 69.582M37.19 67.638L38.13 66.342'] };
+const MINI_REGION = [
+  'M35.2642 36.4825C34.2075 37.6367 32.495 38.0466 31.1398 37.2641L-67.7893 -19.8594C-69.2446 -20.6997 -69.7259 -22.5714 -68.8565 -24.0094L-52.2524 -51.4763C-52.0592 -51.796 -51.808 -52.0767 -51.5117 -52.3041L-22.4134 -74.6394C-22.2054 -74.7991 -21.9773 -74.9308 -21.735 -75.0312L12.3149 -89.1387C12.5572 -89.2391 12.8117 -89.3073 13.0718 -89.3416L49.6087 -94.1485C49.8684 -94.1827 50.1316 -94.1827 50.3913 -94.1485L86.9281 -89.3416C87.1882 -89.3073 87.4427 -89.2391 87.6851 -89.1387L121.735 -75.0312C121.977 -74.9308 122.205 -74.7991 122.413 -74.6394L151.512 -52.3041C151.808 -52.0767 152.059 -51.796 152.252 -51.4763L168.857 -24.0094C169.726 -22.5713 169.245 -20.6997 167.789 -19.8594L68.8602 37.2641C67.505 38.0466 65.7925 37.6367 64.7357 36.4825C60.9799 32.3801 55.6484 30 50 30C44.3516 30 39.0201 32.3801 35.2642 36.4825Z',
+  'M69.0754 43.9973C68.6041 42.5048 69.1052 40.8166 70.4606 40.034L169.39 -17.0801C170.845 -17.9201 172.706 -17.4017 173.517 -15.9304L189.017 12.1842C189.197 12.5119 189.315 12.8704 189.364 13.2413L194.149 49.6087C194.183 49.8684 194.183 50.1316 194.149 50.3913L189.342 86.9282C189.307 87.1883 189.239 87.4428 189.139 87.6851L175.031 121.735C174.931 121.977 174.799 122.205 174.639 122.413L152.2 151.647C152.041 151.855 151.855 152.041 151.647 152.2L122.413 174.639C122.205 174.799 121.977 174.931 121.735 175.031L87.8428 189.073C87.4973 189.217 87.1281 189.294 86.7542 189.301L54.6596 189.939C52.9798 189.973 51.6 188.62 51.6 186.94V72.7071C51.6 71.144 52.8085 69.8668 54.3342 69.5275C59.7618 68.3205 64.4954 64.8936 67.32 60C70.1441 55.1072 70.7503 49.3007 69.0754 43.9973Z',
+  'M45.6658 69.5275C47.1915 69.8668 48.4 71.144 48.4 72.7071V186.94C48.4 188.62 47.0202 189.973 45.3404 189.939L13.2458 189.301C12.8719 189.294 12.5027 189.217 12.1572 189.073L-21.735 175.031C-21.9773 174.931 -22.2054 174.799 -22.4134 174.639L-51.6471 152.2C-51.8548 152.041 -52.0407 151.855 -52.2002 151.647L-74.6394 122.413C-74.7991 122.205 -74.9308 121.977 -75.0312 121.735L-89.1387 87.6851C-89.2391 87.4428 -89.3073 87.1883 -89.3416 86.9282L-94.1485 50.3913C-94.1827 50.1316 -94.1827 49.8684 -94.1485 49.6087L-89.3638 13.2413C-89.315 12.8704 -89.1973 12.5119 -89.0167 12.1842L-73.5172 -15.9304C-72.7061 -17.4017 -70.8451 -17.9201 -69.3901 -17.0801L29.5394 40.034C30.8948 40.8166 31.3959 42.5048 30.9246 43.9973C29.2497 49.3007 29.8559 55.1072 32.68 60C35.5046 64.8936 40.2382 68.3205 45.6658 69.5275Z',
+];
 
 /** A 100px Arc as Figma draws it: tile and orb in the tribe colour, up to 5 talks, filled when heard. */
 export function MiniArc({ arc, heard }: { arc: Arc; heard: Set<string> }) {
@@ -47,11 +51,15 @@ export function MiniArc({ arc, heard }: { arc: Arc; heard: Set<string> }) {
         <radialGradient id={`${id}t`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50 50) scale(50)">
           <stop stopColor={c} stopOpacity="0.35" /><stop offset="0.7" stopColor={c} stopOpacity="0.14" /><stop offset="1" stopColor={c} stopOpacity="0.06" />
         </radialGradient>
+        <radialGradient id={`${id}f`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50 50) scale(66)"><stop offset="0.303" stopColor="#fff" stopOpacity="0.1" /><stop offset="0.6" stopColor="#fff" stopOpacity="0.045" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></radialGradient>
+        <radialGradient id={`${id}s`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50 50) scale(66)"><stop offset="0.303" stopColor="#fff" stopOpacity="0.22" /><stop offset="0.7" stopColor="#fff" stopOpacity="0.06" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></radialGradient>
         <radialGradient id={`${id}o`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50 50) scale(15)">
           <stop stopColor={c} stopOpacity="0.95" /><stop offset="0.55" stopColor={c} stopOpacity="0.6" /><stop offset="1" stopColor={c} stopOpacity="0.22" />
         </radialGradient>
       </defs>
       <rect width="100" height="100" rx="20" fill={`url(#${id}t)`} />
+      <clipPath id={`${id}c`}><rect width="100" height="100" rx="20" /></clipPath>
+      <g clipPath={`url(#${id}c)`}>{MINI_REGION.map((d, i) => <path key={i} d={d} fill={`url(#${id}f)`} stroke={`url(#${id}s)`} />)}</g>
       {seats.map(({ n, a, i }) => <path key={`l${n.key}`} d={LINE[a][i]} stroke="#F4F6FF" strokeOpacity="0.45" />)}
       <circle cx="50" cy="50" r="15" fill={`url(#${id}o)`} /><circle cx="50" cy="50" r="14.5" stroke="white" strokeOpacity="0.55" />
       {seats.map(({ n, xy: [x, y] }) => heard.has(n.key)
