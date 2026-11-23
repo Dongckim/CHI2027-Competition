@@ -3,7 +3,7 @@
 // A screen is short when its content fits: the sum of the content's own heights (header, main's children, the fixed
 // bottom area) is under the viewport. Short screens must not scroll at all; long ones (14, 13 …) may.
 // Map screens (12, 15, 18, 23, 24, 25) fit on one screen as Figma draws them, so they must never scroll, and every node
-// (its 44 px area at least), "+N" bundle and the orb sits between the header and the fixed bottom area.
+// (its 44 px area at least), region count button and the orb sits between the header and the fixed bottom area.
 // Two heights (user 11/22 「Safari 툴바가 보이는 높이(390×664)를 qa:auto 기본 크기에 추가」): 844 as Figma's frame with the
 // iPhone safe area, and 664, what Safari shows between its toolbars (no safe area then: the bars hold it).
 //   npm run build && node --experimental-websocket tests/qa/height-check.mjs
@@ -38,7 +38,7 @@ const mapProbe = () => {
   const floor = bottom ? bottom.getBoundingClientRect().top : innerHeight - parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom') || 0);
   const ceil = header ? header.getBoundingClientRect().bottom : parseFloat(getComputedStyle(document.body).paddingTop);
   const pressable = bottom ? [...bottom.querySelectorAll('a, button')].map(e => e.getBoundingClientRect()).filter(r => r.width && r.height) : [];
-  const targets = [...document.querySelectorAll('main button[aria-description], main button:has([data-a11y-decor=bundle-count])')]
+  const targets = [...document.querySelectorAll('main button[aria-description], main button[aria-label^="All "]')]
     .map(e => [e.innerText.replace(/\s+/g, ' ').trim().slice(0, 40), e.getBoundingClientRect()]);
   const orb = document.querySelector('main .arc-orb'); if (orb) targets.push(['orb', orb.getBoundingClientRect()]);
   const bad = []; let gap = Infinity;
@@ -67,7 +67,7 @@ const overlapProbe = () => {
     }
     return out;
   };
-  const nodes = [...document.querySelectorAll('main [data-node-key], main button:has([data-a11y-decor=bundle-count])')].map(b => ({ label: b.innerText.replace(/\s+/g, ' ').trim().slice(0, 30), rects: parts(b) }));
+  const nodes = [...document.querySelectorAll('main [data-node-key], main button[aria-label^="All "], main [data-a11y-decor=region-count]')].map(b => ({ label: b.innerText.replace(/\s+/g, ' ').trim().slice(0, 30), rects: parts(b) }));
   const hit = (a, b) => a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
   const bad = [];
   for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++)

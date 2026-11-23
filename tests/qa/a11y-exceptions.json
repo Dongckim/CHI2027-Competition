@@ -12,11 +12,6 @@
       "reason": "16 share card: a picture, nothing in it can be pressed"
     },
     {
-      "kind": "font",
-      "closest": "[data-a11y-decor=bundle-count]",
-      "reason": "the +N circle of a bundled map (aria-hidden): its words are the \"N more\" label under it, at 12 px"
-    },
-    {
       "kind": "design",
       "closest": "main input:focus",
       "reason": "07 input focus ring 4 px kept although Figma exports none (WCAG 2.4.7 Focus Visible); user 「포커스 고리는 4px 유지하고 접근성 예외 목록에 추가(WCAG 2.4.7)」"

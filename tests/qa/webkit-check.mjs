@@ -93,6 +93,8 @@ try {
   steps.hood = await at(() => location.hash.startsWith('#/hood/') && /See my Arc/.test(document.body.innerText), null, 40000);
   await tap(p.locator('a, button').filter({ hasText: 'See my Arc' }).first());
   steps.map = await at(() => location.hash.startsWith('#/arc/') && document.querySelectorAll('main button[aria-description]').length >= 3);
+  await tap(p.locator('main button[aria-description]').first()); // 12c: picks the stop, a second tap opens 14
+  await sleep(300);
   await tap(p.locator('main button[aria-description]').first());
   steps.talk = await at(() => location.hash.startsWith('#/talk/') && /WHY IT/.test(document.body.innerText));
   const failed = Object.entries(steps).filter(([, ok]) => !ok).map(([k]) => k);

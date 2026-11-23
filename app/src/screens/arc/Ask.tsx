@@ -42,8 +42,8 @@ async function helpFor(topic: string, live: () => boolean): Promise<Help | null>
 // Figma 741:1638: the 12 map shrunk to 60 (x 0.155, y 0.117 round the orb); the first talk filled in the tribe colour
 function MiniArc({ arc }: { arc: Arc }) {
   const id = useId(), c = TRIBE[arc.tribe].color;
-  const l = layout(arc) as { nodes: { node: Arc['nodes'][number]; at: [number, number] }[]; bundles: { angle: Angle; at: [number, number] }[] };
-  const pts = [...l.nodes.map(n => ({ at: n.at, angle: n.node.angle })), ...l.bundles.map(b => ({ at: b.at, angle: b.angle }))]
+  const l = layout(arc) as unknown as { nodes: { node: Arc['nodes'][number]; at: [number, number] }[] };
+  const pts = l.nodes.map(n => ({ at: n.at, angle: n.node.angle }))
     .map(p => ({ angle: p.angle, x: 30 + (p.at[0] - 195) * 0.155, y: 30 + (p.at[1] - 240) * 0.117 }));
   return (
     <svg width={60} height={60} viewBox="0 0 60 60" aria-hidden="true" className="shrink-0">

@@ -71,7 +71,11 @@
 | 21 | Home · empty | 600:1225 | 빈 홈 (온보딩 Skip) |
 | 22 | State · Angle help | 600:1266 | ? 각도 설명 |
 | 23 | State · No clear challenge | 601:1198 | 뚜렷한 반론 없음 |
-| 24 | State · Crowded Arc | 601:1311 | +N 묶음 |
+| 24 | State · Crowded Arc | 601:1311 | 구역마다 3개 + 전체 개수 버튼 (11/23, 이전 +N 묶음) |
+| 24b | Moved toward Supports · all 12 | 852:2015 | 개수 버튼 → 그 각도 쪽으로 이동해 전부 보임 (11/23) |
+| 24c | State · 11 stops | 856:2106 | 발표 11개, 구역마다 3개까지 (11/23) |
+| 12a | First time · hold hint | 854:2034 | 처음 한 번 "Hold a stop" 힌트 (11/23) |
+| 12c | Tap a stop · paper title | 851:1855 | 노드 탭 → 아래 카드에 논문 제목, 카드 탭 → 14 (11/23) |
 | 25 | State · Angles still sorting | 601:1442 | 모델 준비 중 |
 | — | ARC · Components | 588:446 | 아이콘 24px stroke 1.8 흰색 등 |
 | — | Header · ARC Final UI | 601:1581 | 페이지 머리 |

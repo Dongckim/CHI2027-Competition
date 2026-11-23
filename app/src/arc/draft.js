@@ -17,13 +17,14 @@ export const QUERY_MAX = 200;
 export const freshDraft = () => ({ query: '', topicsFor: null, topics: { S: [], R: [], T: [] }, when: 'all', what: [...DEFAULT_WHAT] });
 const freshArc = () => ({ onboarded: false, firstChi: null, draft: freshDraft() });
 
-/** @returns {{ onboarded: boolean, firstChi: boolean | null, draft: ReturnType<typeof freshDraft> }} */
+/** holdHint: 12a's "Hold a stop" hint was shown (Figma 854:2034, once). @returns {{ onboarded: boolean, firstChi: boolean | null, draft: ReturnType<typeof freshDraft>, holdHint?: boolean }} */
 export const arcOf = state => state.arc ?? { ...freshArc(), onboarded: !!state.builtAt || state.mode === 'browse' };
 const withArc = (state, change) => ({ ...state, arc: { ...arcOf(state), ...change } });
 const withDraft = (state, change) => withArc(state, { draft: { ...arcOf(state).draft, ...change } });
 
 export const setOnboarded = state => (arcOf(state).onboarded ? state : withArc(state, { onboarded: true }));
 export const setFirstChi = (state, firstChi) => withArc(state, { firstChi });
+export const setHoldHintSeen = state => (arcOf(state).holdHint ? state : withArc(state, { holdHint: true }));
 
 /** 07: the question, at most 200 characters (the share link carries it). */
 export const setQuery = (state, query) => withDraft(state, { query: query.slice(0, QUERY_MAX) });

@@ -1,0 +1,42 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="390" height="524" viewBox="0 0 390 524" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Regions" clip-path="url(#clip0_0_76)">
+<path id="Region &#194;&#183; support" d="M134.449 168.697C129.436 174.185 121.302 176.251 114.865 172.535L-607.227 -244.362C-614.016 -248.282 -616.264 -257.011 -612.213 -263.722L-493.316 -460.687C-492.413 -462.183 -491.239 -463.496 -489.853 -464.559L-292.212 -616.218C-291.242 -616.963 -290.177 -617.577 -289.047 -618.045L-58.1426 -713.685C-57.0124 -714.153 -55.8257 -714.471 -54.613 -714.631L193.172 -747.259C194.385 -747.419 195.615 -747.419 196.828 -747.259L444.613 -714.631C445.826 -714.471 447.012 -714.153 448.143 -713.685L679.047 -618.045C680.177 -617.577 681.242 -616.963 682.212 -616.218L879.853 -464.559C881.239 -463.496 882.413 -462.183 883.316 -460.687L1002.21 -263.722C1006.26 -257.011 1004.02 -248.282 997.227 -244.362L275.135 172.535C268.698 176.251 260.564 174.185 255.551 168.697C240.153 151.84 218.231 142 195 142C171.769 142 149.847 151.84 134.449 168.697Z" fill="url(#paint0_radial_0_76)" stroke="url(#paint1_radial_0_76)"/>
+<path id="Region &#194;&#183; challenge" d="M273.168 199.214C270.921 192.129 273.198 184.051 279.636 180.334L1001.73 -236.562C1008.52 -240.482 1017.2 -238.064 1020.99 -231.2L1132.11 -29.7542C1132.96 -28.2249 1133.51 -26.5512 1133.74 -24.8196L1166.26 222.172C1166.42 223.386 1166.42 224.615 1166.26 225.828L1133.63 473.613C1133.47 474.826 1133.15 476.012 1132.68 477.143L1037.05 708.047C1036.58 709.177 1035.96 710.242 1035.22 711.212L883.072 909.488C882.327 910.458 881.458 911.327 880.488 912.072L682.212 1064.22C681.242 1064.96 680.177 1065.58 679.047 1066.05L448.882 1161.38C447.268 1162.05 445.544 1162.41 443.797 1162.44L213.773 1166.92C205.935 1167.07 199.5 1160.76 199.5 1152.92V319.132C199.5 311.698 205.357 305.687 212.616 304.09C234.918 299.184 254.399 285.119 266.01 265C277.63 244.881 280.071 220.982 273.168 199.214Z" fill="url(#paint2_radial_0_76)" stroke="url(#paint3_radial_0_76)"/>
+<path id="Region &#194;&#183; reframe" d="M177.384 304.09C184.643 305.687 190.5 311.698 190.5 319.132V1152.92C190.5 1160.76 184.065 1167.07 176.227 1166.92L-53.7973 1162.44C-55.5437 1162.41 -57.2682 1162.05 -58.882 1161.38L-289.047 1066.05C-290.177 1065.58 -291.242 1064.96 -292.212 1064.22L-490.488 912.072C-491.458 911.327 -492.327 910.458 -493.072 909.488L-645.218 711.212C-645.963 710.242 -646.577 709.177 -647.045 708.047L-742.685 477.143C-743.153 476.012 -743.471 474.826 -743.631 473.613L-776.259 225.828C-776.419 224.614 -776.419 223.386 -776.259 222.172L-743.735 -24.8196C-743.507 -26.5512 -742.957 -28.2249 -742.113 -29.7542L-630.985 -231.2C-627.199 -238.064 -618.516 -240.482 -611.727 -236.562L110.364 180.334C116.802 184.051 119.079 192.129 116.832 199.214C109.929 220.982 112.37 244.881 123.99 265C135.601 285.119 155.082 299.184 177.384 304.09Z" fill="url(#paint4_radial_0_76)" stroke="url(#paint5_radial_0_76)"/>
+</g>
+<defs>
+<radialGradient id="paint0_radial_0_76" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(195 224) scale(340 340)">
+<stop offset="0.241176" stop-color="white" stop-opacity="0.06"/>
+<stop offset="0.6" stop-color="white" stop-opacity="0.026"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="paint1_radial_0_76" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(195 224) scale(340 340)">
+<stop offset="0.241176" stop-color="white" stop-opacity="0.15"/>
+<stop offset="0.62" stop-color="white" stop-opacity="0.055"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="paint2_radial_0_76" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(195 224) scale(340 340)">
+<stop offset="0.241176" stop-color="white" stop-opacity="0.06"/>
+<stop offset="0.6" stop-color="white" stop-opacity="0.026"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="paint3_radial_0_76" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(195 224) scale(340 340)">
+<stop offset="0.241176" stop-color="white" stop-opacity="0.15"/>
+<stop offset="0.62" stop-color="white" stop-opacity="0.055"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="paint4_radial_0_76" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(195 224) scale(340 340)">
+<stop offset="0.241176" stop-color="white" stop-opacity="0.06"/>
+<stop offset="0.6" stop-color="white" stop-opacity="0.026"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="paint5_radial_0_76" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(195 224) scale(340 340)">
+<stop offset="0.241176" stop-color="white" stop-opacity="0.15"/>
+<stop offset="0.62" stop-color="white" stop-opacity="0.055"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</radialGradient>
+<clipPath id="clip0_0_76">
+<rect width="390" height="524" fill="white"/>
+</clipPath>
+</defs>
+</svg>

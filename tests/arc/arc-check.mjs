@@ -70,7 +70,8 @@ try {
 
   // 12 → 14, "I heard it" → Heard on the map
   const first = await ev(`(() => { const b = ${nodes}.find(b => b.getAttribute('aria-description')?.endsWith(' · Ended')); return b ? ${nameOf}(b) : null; })()`);
-  await click(`${nodes}.find(b => ${nameOf}(b) === ${JSON.stringify(first)})`);
+  await click(`${nodes}.find(b => ${nameOf}(b) === ${JSON.stringify(first)})`); // 12c: the first tap picks it
+  await click(`${nodes}.find(b => ${nameOf}(b) === ${JSON.stringify(first)})`); // a second opens 14
   // the node's text: angle · ✦ title, time · room, and a Reframe's kind on its own line (Arc 0.2.0)
   const want = JSON.stringify((first ?? '').replace(/^\w+ · /, '').replace(/^✦ /, '').replace(/ (Same subject|Other factor|Other measure|Other people)$/, '').replace(/ \d\d:\d\d( · .*)?$/, ''));
   const talkMs = await waitFor(`document.querySelector('h1')?.innerText === ${want} && !/Loading/.test(document.querySelector('main').innerText)`, 30000);
@@ -99,10 +100,18 @@ try {
   check('23 no clear Challenge: empty slot, "No clear challenge"', (await waitFor(`/No clear challenge/.test(document.querySelector('main').innerText)`, 20000)) != null, {});
   await shot('23');
   await open(`#/arc/${ARCS.crowded.id}`);
-  const bundle = await waitFor(`[...document.querySelectorAll('main button')].some(b => /^\\d+ more (Supports|Reframes|Challenges)$/.test(b.innerText.trim().replace(/^\\+\\d+\\s*/, '')) || / more (Supports|Reframes|Challenges)/.test(b.textContent))`, 20000);
+  // 24 (Figma 11/23): three talks per region, the region's count is the way to the rest; 24b moves the map toward it
+  const BADGE = `[...document.querySelectorAll('main button[aria-label]')].find(b => /^All \\d+ (Supports|Reframes|Challenges)$/.test(b.getAttribute('aria-label')))`;
+  const bundle = await waitFor(`!!${BADGE}`, 20000);
+  const name = await ev(`${BADGE}.getAttribute('aria-label').replace(/^All \\d+ /, '')`);
   await shot('24');
-  await click(`[...document.querySelectorAll('main button')].find(b => / more (Supports|Reframes|Challenges)/.test(b.textContent))`);
-  check('24 crowded: +N bundle opens the list', bundle != null && (await waitFor(`location.hash.endsWith('/list')`, 10000)) != null, { nodes: ARCS.crowded.nodes.length });
+  await click(BADGE);
+  const moved = await waitFor(`/See all three angles/.test(document.body.innerText) && [...document.querySelectorAll('h2')].some(h => h.innerText.includes(${JSON.stringify(name)}))`, 10000);
+  const shown = await ev(`document.querySelectorAll('main [data-node-key]').length`);
+  await shot('24b');
+  await click(`[...document.querySelectorAll('button')].find(b => b.innerText.trim() === 'See all three angles')`);
+  const back = await waitFor(`!!${BADGE} && !/See all three angles/.test(document.body.innerText)`, 10000);
+  check('24 crowded: the count moves the map toward that angle (24b) and back', bundle != null && moved != null && back != null && shown > 3, { angle: name, shown, nodes: ARCS.crowded.nodes.length });
   await open(`#/arc/${ARCS.pending.id}`);
   const sorting = await waitFor(`/Sorting angles/.test(document.body.innerText) && ${nodes}.length > 0`, 20000);
   const nextUp25 = await ev(`[...document.querySelectorAll('a')].some(a => a.getAttribute('aria-description')?.startsWith('Next up:'))`);
