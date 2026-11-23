@@ -5,7 +5,7 @@
 import { useEffect, useState } from 'react';
 import { go, href } from '../../router';
 import { useDevice, update } from '../../state/useDevice';
-import { arcOf, buildOptions, whenChoice, resetDraft } from '../../arc/draft.js';
+import { arcOf, buildOptions, whenChoice, resetDraft, walkOf } from '../../arc/draft.js';
 import { engine } from '../../engine';
 import { saveArc } from '../../arc/store';
 import { loadSchedule } from '../../data/load';
@@ -26,7 +26,7 @@ const RING_MASK = `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="htt
 const RING = { mask: RING_MASK, WebkitMask: RING_MASK, background: 'conic-gradient(from 90deg, rgba(255,255,255,0), rgba(255,255,255,0.95))' };
 
 export function Building() {
-  const { draft } = arcOf(useDevice());
+  const device = useDevice(), { draft } = arcOf(device), walk = walkOf(device) as string[];
   const [count, setCount] = useState<number | null>(null);
   const [failed, setFailed] = useState(false);
   const [stuck, setStuck] = useState(false); // the engine could not get ready: no connection, or no progress for 30 s
@@ -54,7 +54,7 @@ export function Building() {
     const query = draft.query.trim();
     if (!query) { go('ask', { replace: true }); return; }
     let live = true;
-    const opts = buildOptions(draft, whenChoice(whenNow(now()), draft.when).days) as Parameters<typeof engine.buildArc>[1] & { days: string[]; types: string[] }; // draft.js is untyped JS
+    const opts = { ...buildOptions(draft, whenChoice(whenNow(now()), draft.when).days), walk } as Parameters<typeof engine.buildArc>[1] & { days: string[]; types: string[] }; // draft.js is untyped JS
     const started = Date.now();
     loadSchedule().then(s => {
       const papers = [...s.index.papers.values()] as { feedType: string; slots: { start: number | null }[] }[];

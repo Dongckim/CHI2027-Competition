@@ -31,7 +31,7 @@ export const SCREENS = [['10', '#/building', 'Reading'],
   ['14', `#/talk/${ARC.nodes[0].key}`, 'WHY IT'], ['14f', `#/talk/${ARC.nodes[0].key}/shape`, 'Look for the same shape'], ['15', `#/arc/${ARC.id}/edit`, 'Editing'], ['16', `#/share/${ARC.id}`, 'Never your name'],
   ['17', `#/qr/${ARC.id}`, 'Scan to get'], ['18', `#/r/${encodeLink(OTHER)}`, 'Shared Arc'], ['19', `#/r/${encodeLink(OTHER)}/pick`, 'Pick what to keep'],
   ['19b', `#/r/${encodeLink(OTHER)}/yours`, 'Keep all theirs'], ['20b', '#/after', 'Export reading list'],
-  ['20', '#/home', 'My Arcs'], ['23', `#/arc/${NONE.id}`, 'No clear challenge'], ['24', `#/arc/${CROWD.id}`, 'Edit'], ['25', `#/arc/${PEND.id}`, 'Sorting angles'],
+  ['20', '#/home', 'My Arcs'], ['23', `#/arc/${NONE.id}`, 'No clear challenge'], ['24', `#/arc/${CROWD.id}`, 'Edit'], ['24b', `#/arc/${CROWD.id}/R`, 'See all three angles'], ['25', `#/arc/${PEND.id}`, 'Sorting angles'],
 ];
 
 /** Page probe: the common buttons (data-arc-button) keep their words on one line at 100% and with the text at 200%

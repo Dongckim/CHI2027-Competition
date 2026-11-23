@@ -1,7 +1,8 @@
 // Final UI parts (Figma Components 588:446): the dark screen shell, pill buttons, chips, icon buttons, step marks and the
 // bottom sheet. Sizes are Figma's; where Figma is under the accessibility floor (44px touch, 12px text) the hit area or
 // size is raised without changing the look (docs/stages/A1-create.md lists each).
-import { useEffect, useRef, type CSSProperties, type ReactNode, type ComponentPropsWithRef, type AnchorHTMLAttributes } from 'react';
+import { useEffect, useLayoutEffect, useRef, type CSSProperties, type ReactNode, type ComponentPropsWithRef, type AnchorHTMLAttributes } from 'react';
+import { enter } from '../arc/motion';
 import chevronLeft from '../assets/arc/icon-chevron-left.svg';
 import helpIcon from '../assets/arc/icon-help.svg';
 import chipCheck from '../assets/arc/08-chip-check.svg';
@@ -32,8 +33,11 @@ export function DemoBanner() {
 export const FRAME_ART: CSSProperties = { height: 'min(844px, calc(100dvh + 54px - env(safe-area-inset-top, 0px)))', overflow: 'hidden' };
 
 export function Screen({ header, children, bottom, label, clock }: { header?: ReactNode; children: ReactNode; bottom?: ReactNode; label?: string; clock?: boolean }) {
+  const root = useRef<HTMLDivElement>(null);
+  // the prototype's entrance, once per screen: header, content and bottom parts rise in, top to bottom
+  useLayoutEffect(() => { const r = root.current; if (r) enter([...r.querySelectorAll(':scope > header > *, :scope > main > *, :scope > .sticky > *')]); }, []);
   return (
-    <div className="arc mx-auto flex min-h-[calc(100dvh-env(safe-area-inset-top,0px))] max-w-[480px] flex-col overflow-x-clip bg-arc-bg font-sans text-arc-text">{/* nothing scrolls sideways (QA V7); the screen minus body's top safe-area padding, so a short screen never scrolls (user 11/20) */}
+    <div ref={root} className="arc mx-auto flex min-h-[calc(100dvh-env(safe-area-inset-top,0px))] max-w-[480px] flex-col overflow-x-clip bg-arc-bg font-sans text-arc-text">{/* nothing scrolls sideways (QA V7); the screen minus body's top safe-area padding, so a short screen never scrolls (user 11/20) */}
       {/* Figma: buttons 44 at y 56 (54 + 2), so a 48 row centred */}
       {header && <header className="flex min-h-[48px] items-center justify-between px-4">{header}</header>}
       {clock && <DemoBanner />}

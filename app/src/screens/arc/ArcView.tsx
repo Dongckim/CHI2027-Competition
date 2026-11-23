@@ -4,6 +4,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type DOMAttributes, type ReactNode } from 'react';
 import { layout, focusLayout, connector, BOX, ADD_AT, BADGE_AT, MAX_SEATS, MORE_AT, FOCUS, type NodeState } from '../../arc/map.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
+import { bloom, moveToward, hintMotion, pickMotion } from '../../arc/motion';
 import { ANGLE_NAME, KIND_NAME } from './AngleHelp';
 import sortingOrb from '../../assets/arc/25-orb-sorting.svg';
 import support from '../../assets/arc/angle-support.svg';
@@ -16,6 +17,7 @@ import check from '../../assets/arc/icon-check.svg';
 import type { Arc, Angle } from '../../engine';
 
 export const ANGLE_ICON: Record<Angle, string> = { S: support, R: reframe, T: challenge };
+const SCORE: Record<NodeState, number> = { next: 0, upcoming: 1, heard: 2, ended: 3 };
 const STATE_WORD: Record<NodeState, string> = { next: 'Next', upcoming: 'Upcoming', heard: 'Heard', ended: 'Ended' };
 // Figma Regions (808:2039): three 120° fields round the question, 9 px apart, faint white from the centre outwards
 const REGION: Record<Angle, string> = {
@@ -35,7 +37,7 @@ function Regions({ turn = 0, drop = 0 }: { turn?: number; drop?: number }) {
         <radialGradient id={`${id}f`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(195 240) scale(340 340)"><stop offset={0.27} stopColor="#fff" stopOpacity={0.06} /><stop offset={0.6} stopColor="#fff" stopOpacity={0.026} /><stop offset={1} stopColor="#fff" stopOpacity={0} /></radialGradient>
         <radialGradient id={`${id}s`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(195 240) scale(340 340)"><stop offset={0.27} stopColor="#fff" stopOpacity={0.15} /><stop offset={0.62} stopColor="#fff" stopOpacity={0.055} /><stop offset={1} stopColor="#fff" stopOpacity={0} /></radialGradient>
       </defs>
-      {(['S', 'T', 'R'] as Angle[]).map(a => <path key={a} d={REGION[a]} fill={`url(#${id}f)`} stroke={`url(#${id}s)`} />)}
+      {(['S', 'T', 'R'] as Angle[]).map(a => <path key={a} data-region={a} d={REGION[a]} fill={`url(#${id}f)`} stroke={`url(#${id}s)`} />)}
     </svg>
     </div>
   );
@@ -90,9 +92,12 @@ export type Own = { kept: Set<string>; yours: Set<string>; onToggle: (key: strin
 // rest dim to Figma's 22% and go inert); onSwap: the keyboard and screen reader way in, a "Swap" button per node.
 type Hold = { held: string | null; press: (key: string) => DOMAttributes<HTMLButtonElement>; onSwap: (key: string) => void };
 
-export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, pick, picture, readOnly, fit, hold, own, selected: chosen, hint, focus }: {
+export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, pick, picture, readOnly, fit, hold, own, selected: chosen, hint, focus, totals, candidates }: {
   /** 24b: the map moved toward this angle, all its talks shown (onBundle switches to another angle) */
   focus?: Angle | null;
+  /** totals: each region's whole count, the Arc's talks + the engine's others at CHI (user 11/23 「각 영역을 보면 전체갯수」);
+   *  candidates: talks drawn on 24b that are not on the Arc (outlined, as 19b's not-kept) */
+  totals?: Partial<Record<Angle, number>>; candidates?: Set<string>;
   arc: Arc; states: Map<string, NodeState>; info: (key: string) => Info; scale?: number;
   /** 12c: the node shown in the card under the map (its ring); hint: 12a's first-time "Hold a stop" bubble */
   selected?: string | null; hint?: boolean;
@@ -105,6 +110,16 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   own?: Own;
 }) {
   type Seat = [number, number];
+  const rootRef = useRef<HTMLDivElement>(null), seen = useRef<Angle | null | undefined>(undefined);
+  // the prototype's map motion: the bloom when the map first shows, 24b's move toward an angle, a quick bloom back from it
+  useLayoutEffect(() => {
+    if (picture) return;
+    const was = seen.current; seen.current = focus ?? null;
+    if (was === undefined) bloom(rootRef.current); else if (focus) moveToward(rootRef.current); else bloom(rootRef.current, true);
+  }, [focus]); // eslint-disable-line react-hooks/exhaustive-deps
+  const order = new Map(arc.nodes.map((n, i) => [n.key, i]));
+  useLayoutEffect(() => { if (hint) hintMotion(rootRef.current); }, [hint]);
+  useLayoutEffect(() => { if (chosen && !edit) pickMotion(rootRef.current, chosen); }, [chosen]); // eslint-disable-line react-hooks/exhaustive-deps
   type Laid = { nodes: { node: Arc['nodes'][number]; at: Seat; oneLine?: boolean }[]; regions: { angle: Angle; count: number; more: number; at?: Seat }[]; emptyT: Seat | null };
   const f = focus ? focusLayout(arc, focus) as { nodes: Laid['nodes']; others: { angle: Angle; count: number; at: Seat }[] } : null;
   const l: Laid = f ? { nodes: f.nodes, regions: f.others.map(o => ({ ...o, more: 1 })), emptyT: null } : layout(arc, !!edit) as Laid; // map.js is untyped JS
@@ -120,12 +135,13 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
     const stop = p[1] + below;
     if (below && c.uy < -0.3 && stop < c.y1) { c.x2 = c.x1 + ((stop - c.y1) * c.ux) / c.uy; c.y2 = stop; }
     const style = !angle ? { strokeOpacity: 0.26, strokeDasharray: '1 5', strokeDashoffset: 0.5 } : angle === 'R' ? { strokeOpacity: 0.26, strokeDasharray: '3.84 4.8', strokeDashoffset: 1.92 } : { strokeOpacity: 0.32 };
-    lines.push(<line key={key} x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} {...style} />);
+    lines.push(<line key={key} data-line={key} x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} {...style} />);
     if (angle === 'T') lines.push(<line key={`${key}-bar`} x1={c.x1 - c.uy * 9} y1={c.y1 + c.ux * 9} x2={c.x1 + c.uy * 9} y2={c.y1 - c.ux * 9} strokeOpacity={0.32} />);
   };
 
   // The map may be drawn smaller (15 at 0.74), but text and touch targets keep their real size: never under 12px / 44px.
   const real = (n: number) => (picture ? n : n / scale);
+  // the bloom's order: next, upcoming, heard, ended; then the Arc's order
   const compactMap = !picture && !edit && scale < 0.9;
   if (!focus) for (const { node, at: p, oneLine } of l.nodes) {
     const rows = oneLine || compactMap || edit ? 1 : 2, timed = !edit && !compactMap;
@@ -137,7 +153,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   for (const n of arc.nodes) counts[n.angle]++;
 
   return (
-    <div className="relative mx-auto" style={{ width: BOX.w * scale, height: (BOX.h + (fit ? 0 : BELOW)) * scale }} inert={picture || undefined} aria-hidden={picture || undefined}>
+    <div ref={rootRef} data-arc-map="" data-pending={pending || undefined} className="relative mx-auto" style={{ width: BOX.w * scale, height: (BOX.h + (fit ? 0 : BELOW)) * scale }} inert={picture || undefined} aria-hidden={picture || undefined}>
       <div className="absolute top-0 left-0 origin-top-left" style={{ width: BOX.w, height: BOX.h, transform: scale === 1 ? undefined : `scale(${scale})`, '--map-scale': picture ? 1 : scale } as CSSProperties}>
         <Regions turn={focus ? FOCUS.turn[focus] : 0} drop={drop} />
         <div className="absolute inset-0 motion-safe:transition-transform motion-safe:duration-500" style={{ transform: drop ? `translateY(${drop}px)` : undefined }}>
@@ -145,7 +161,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
         <span aria-hidden="true" className="arc-orb" style={at(BOX.cx, BOX.cy, 144)} />
         {/* Figma draws the lines 1 px on screen, also on the scaled 15 */}
         <svg aria-hidden="true" width={BOX.w} height={BOX.h} className="absolute top-0 left-0" stroke="#fff" strokeWidth={real(1)} strokeLinecap="round" fill="none">{lines}</svg>
-        <div aria-hidden="true" className="absolute flex flex-col items-center" style={{ left: BOX.cx - 54, top: 214, width: 108 }}>
+        <div aria-hidden="true" data-orb-text="" className="absolute flex flex-col items-center" style={{ left: BOX.cx - 54, top: 214, width: 108 }}>
           {/* the picture (16) is an image: Figma's 14 / 18 scaled with it; elsewhere 12 / 15 on screen at least */}
           <p data-orb-question className="line-clamp-3 text-center font-semibold tracking-[-0.006em]" /* white on the near-black orb: ≥ 4.5:1 in every tribe (tests/qa/orb-check.mjs) */ style={picture ? { fontSize: 14, lineHeight: '18px' } : { fontSize: real(Math.max(12, 14 * scale)), lineHeight: `${real(Math.max(15, 18 * scale))}px` }}>{arc.query}</p>
           <img src={TRIBE_ICON[arc.tribe]} alt="" width={12} height={12} className="mt-2" />
@@ -163,24 +179,25 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           const compact = !picture && !edit && scale < 0.9;
           const showKind = !!node.kind && !oneLine && !edit && !picture && !compact;
           return (
-            <div key={node.key} className="absolute" style={{ left: x - 52, top: y - 32, width: 104, opacity: dim ? 0.22 : undefined }} inert={dim || undefined}>
+            <div key={node.key} data-node-wrap="" data-key={node.key} data-angle={node.angle} data-score={SCORE[st] + (order.get(node.key) ?? 0) / 100} data-candidate={candidates?.has(node.key) || undefined}
+              className="absolute" style={{ left: x - 52, top: y - 32, width: 104, opacity: dim ? 0.22 : undefined }} inert={dim || undefined}>
               {hold?.held === node.key && <span aria-hidden="true" className="absolute top-[-8px] left-3 size-20 rounded-full border-[1.5px] border-arc-text/55" />}{/* Figma 12b held ring */}
               <button type="button" data-node-key={node.key} {...hold?.press(node.key)} onClick={() => (own ? own.onToggle(node.key) : pick ? !lock && pick.onToggle(node.key) : edit ? edit.onSelect(node.key) : onNode?.(node.key))}
                 // the name is the node's own text (WCAG 2.5.3 label in name): "<angle> · <title> <time · room>", the angle
                 // as hidden text; day and state as the description
-                aria-description={own ? `${i.time}${yours ? ' · Yours' : ''} · Keep` : `${node.kind && !showKind ? `${KIND_NAME[node.kind]} · ` : ''}${i.time} · ${pick ? (lock === 'mine' ? 'Already in your Arcs' : lock ? 'Ended' : kept ? 'Keep' : 'Skip') : pending ? 'Angle still sorting' : STATE_WORD[st]}`}
+                aria-description={own ? `${i.time}${yours ? ' · Yours' : ''} · Keep` : `${node.kind && !showKind ? `${KIND_NAME[node.kind]} · ` : ''}${i.time} · ${pick ? (lock === 'mine' ? 'Already in your Arcs' : lock ? 'Ended' : kept ? 'Keep' : 'Skip') : pending ? 'Angle still sorting' : STATE_WORD[st]}${candidates?.has(node.key) ? ' · Not on your Arc' : ''}`}
                 aria-pressed={own ? !!mine : edit ? selected : pick && !lock ? kept : undefined} aria-disabled={pick && lock ? true : undefined} disabled={readOnly && !pick}
                 className={`flex w-[104px] flex-col items-center gap-0.5 ${hold ? 'arc-hold' : ''} ${pick && lock ? 'opacity-35 blur-[0.78px]' : pick && !kept ? 'opacity-50' : ''}`}>
-                <span className={`arc-node ${pending ? '' : own ? (mine ? 'arc-node-upcoming' : 'arc-node-outline') : `arc-node-${st}`} ${selected || (pick && kept && !lock) ? 'arc-node-selected' : ''}`}>
+                <span className={`arc-node ${pending ? '' : own ? (mine ? 'arc-node-upcoming' : 'arc-node-outline') : candidates?.has(node.key) ? 'arc-node-outline' : `arc-node-${st}`} ${selected || (pick && kept && !lock) ? 'arc-node-selected' : ''}`}>
                   {pending ? <img src={sortingOrb} alt="" width={64} height={64} /> : <span className="arc-node-core"><span className="arc-node-symbol" style={{ WebkitMaskImage: `url("${ANGLE_ICON[node.angle]}")`, maskImage: `url("${ANGLE_ICON[node.angle]}")` }} /></span>}
                 </span>
                 <span className="sr-only">{ANGLE_NAME[node.angle]} · </span>
-                <span style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`${oneLine || showKind || compact ? 'line-clamp-1' : 'line-clamp-2'} max-w-full text-center font-semibold ${own ? (mine ? 'text-arc-text/85' : 'text-arc-text/70' /* over the holo glow: 0.7 as 25 (text-3 was 4.2:1 on 19b) */) : st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
+                <span data-node-text="" style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`${oneLine || showKind || compact ? 'line-clamp-1' : 'line-clamp-2'} max-w-full text-center font-semibold ${own ? (mine ? 'text-arc-text/85' : 'text-arc-text/70' /* over the holo glow: 0.7 as 25 (text-3 was 4.2:1 on 19b) */) : candidates?.has(node.key) ? 'text-arc-text/70' : st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
                   {node.debut && <span aria-hidden="true">✦ </span>}{i.title}{/* the whole title, cut to two lines (was the 24-character label) */}
                 </span>
                 {/* Figma 10px; 12px is the floor. Editing (Figma 15) shows the title only.
                     Sorting (25): 0.7, not 0.55, as the two-line title puts the time over the holo ring's edge (3.6:1 at 0.55) */}
-                {!edit && !compact && <span style={{ fontSize: picture ? 10 : real(12) }} className={`block max-w-[104px] truncate font-medium ${pending ? 'text-arc-text/70' : 'text-arc-text/72'}`}>{i.when}</span>}{/* 0.72, not Figma's 0.55: the regions' faint white under it left 3.0–4.1:1 */}
+                {!edit && !compact && <span data-node-text="" style={{ fontSize: picture ? 10 : real(12) }} className={`block max-w-[104px] truncate font-medium ${pending ? 'text-arc-text/70' : 'text-arc-text/72'}`}>{i.when}</span>}{/* 0.72, not Figma's 0.55: the regions' faint white under it left 3.0–4.1:1 */}
                 {/* Arc 0.2.0: how a Reframe differs (user 11/21), in place of the title's second line so the node keeps its
                     height. Not where the layout already cut the title to one line (no room: 13 and 14 show it), on the share
                     picture or while editing */}
@@ -214,22 +231,24 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           );
         })}
 
-        {l.regions.map(({ angle: a, count, more }) => {
+        {l.regions.map(({ angle: a, count: own0, more: more0 }) => {
+          const count = totals?.[a] ?? own0, more = focus ? more0 : count - (own0 - more0); // shown on the map: own0 - more0
           // Figma "Angle · support" etc.: the region's symbol and how many talks it holds, 30 tall (22 on the 0.74 map, so
           // its text stays 12 px at least). With more talks than seats (24) it is the way to them, a button.
           const m = more > 0 && !focus ? MORE_AT[a] : null;
-          const [x, y] = l.regions.find(r => r.angle === a)?.at ?? m?.badge ?? BADGE_AT[a], h = real(Math.max(30 * scale, 30)), font = real(Math.max(12, 13 * scale)), icon = real(Math.max(12, 16 * scale));
+          const [x, y] = l.regions.find(r => r.angle === a)?.at ?? m?.badge ?? BADGE_AT[a], h = real(Math.max(30 * scale, 30)), font = real(Math.max(12.5, 13 * scale)) /* 12.5: at 0.78 a 12 px digit measures 11.8 */, icon = real(Math.max(12, 16 * scale));
           const body = <>
-            <span className="flex items-center rounded-full border border-white/10 bg-arc-surface font-semibold text-arc-text/78" style={{ height: h, gap: real(5 * Math.max(scale, 0.8)), paddingLeft: real(9 * Math.max(scale, 0.8)), paddingRight: real(11 * Math.max(scale, 0.8)), fontSize: font }}>
-              <img src={ANGLE_ICON[a]} alt="" width={icon} height={icon} />{count}
+            <span data-badge={a} className="flex items-center rounded-full border border-white/10 bg-arc-surface font-semibold text-arc-text/78" style={{ height: h, gap: real(5 * Math.max(scale, 0.8)), paddingLeft: real(9 * Math.max(scale, 0.8)), paddingRight: real(11 * Math.max(scale, 0.8)), fontSize: font }}>
+              <img src={ANGLE_ICON[a]} alt="" width={icon} height={icon} /><span data-count="">{count}</span>
             </span>
           </>;
           const box = { left: x, top: y, transform: 'translate(-50%, -50%)' };
           // the chevron that points where the rest are (24, 24c; 24b: towards the other angles)
           const arrow = m ?? (focus ? { arrow: [x + (x < BOX.cx ? -33 : 33), y + 22] as Seat, turn: x < BOX.cx ? 225 : 135 } : null);
-          const chev = arrow && <svg aria-hidden="true" width={14} height={8} viewBox="0 0 14 8" className="pointer-events-none absolute" style={{ left: arrow.arrow[0] - 7, top: arrow.arrow[1] - 4, transform: `rotate(${arrow.turn}deg)` }}><path d="M1 7L7 1L13 7" stroke="#f4f6ff" strokeOpacity={0.55} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>;
-          return more > 0 && !still && !edit && !own && !pick
-            ? <span key={a}>{chev}<button type="button" onClick={() => onBundle?.(a)} inert={!!hold?.held || undefined} aria-label={`All ${count} ${ANGLE_NAME[a]}`}
+          const chev = arrow && <svg aria-hidden="true" data-more={a} width={14} height={8} viewBox="0 0 14 8" className="pointer-events-none absolute" style={{ left: arrow.arrow[0] - 7, top: arrow.arrow[1] - 4, transform: `rotate(${arrow.turn}deg)` }}><path d="M1 7L7 1L13 7" stroke="#f4f6ff" strokeOpacity={0.55} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>;
+          // every region's count moves the map toward it (prototype 12 "Angle · " → 24b), the chevron only when talks wait there
+          return onBundle && !still && !edit && !own && !pick && !pending
+            ? <span key={a}>{more > 0 && chev}<button type="button" onClick={() => onBundle?.(a)} inert={!!hold?.held || undefined} aria-label={`All ${count} ${ANGLE_NAME[a]}`}
                 className="absolute z-[2] flex items-center justify-center" style={{ ...box, minWidth: real(44), minHeight: real(44), opacity: hold?.held ? 0.22 : undefined }}>{body}</button></span>
             : <span key={a} aria-hidden="true" data-a11y-decor="region-count" className="pointer-events-none absolute flex" style={{ ...box, opacity: hold?.held ? 0.22 : undefined }}>{body}</span>;
         })}
@@ -239,8 +258,12 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           if (!n) return null;
           const [x, y] = n.at;
           return <div aria-hidden="true" className="pointer-events-none absolute z-[3]" style={{ left: x, top: y }}>
-            <span className="absolute size-[70px] rounded-full border-[1.5px] border-arc-text/70" style={{ left: -35, top: -35 }} />
-            <span className="absolute flex flex-col justify-center rounded-[14px] bg-arc-primary text-arc-on-primary shadow-[0_10px_28px_-8px_rgba(10,5,32,0.5)]" style={{ left: 46, top: real(-29), padding: `0 ${real(14)}px`, height: real(58), whiteSpace: 'nowrap' }}>
+            {/* prototype 12a: the ring fills as a hold would, and the stop sinks a little while it does */}
+            <svg data-hint-ring="" width={70} height={70} viewBox="0 0 70 70" className="absolute" style={{ left: -35, top: -35 }}>
+              <circle cx={35} cy={35} r={34.25} stroke="#f4f6ff" strokeOpacity={0.25} strokeWidth={1.5} fill="none" />
+              <circle data-hint-progress="" cx={35} cy={35} r={34.25} stroke="#f4f6ff" strokeOpacity={0.85} strokeWidth={1.5} fill="none" strokeLinecap="round" strokeDasharray={215.2} strokeDashoffset={0} transform="rotate(-90 35 35)" />
+            </svg>
+            <span data-hint-bubble="" className="absolute flex flex-col justify-center rounded-[14px] bg-arc-primary text-arc-on-primary shadow-[0_10px_28px_-8px_rgba(10,5,32,0.5)]" style={{ left: 46, top: real(-29), padding: `0 ${real(14)}px`, height: real(58), whiteSpace: 'nowrap' }}>
               <span className="absolute top-1/2 left-[-6px] size-3 -translate-y-1/2 rotate-45 bg-arc-primary" />
               <span className="font-semibold" style={{ fontSize: real(14), lineHeight: `${real(17)}px` }}>Hold a stop</span>
               <span className="opacity-70" style={{ fontSize: real(13), lineHeight: `${real(16)}px` }}>to see 3 others like it</span>
@@ -250,7 +273,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
 
         {l.emptyT && !edit && !own && (
           <div className="absolute flex flex-col items-center" style={{ left: l.emptyT[0] - 56, top: l.emptyT[1] - 23, width: 112 }}>
-            <span className="arc-node-dash flex size-[46px] items-center justify-center rounded-full"><img src={challenge} alt="" width={24} height={24} /></span>
+            <span data-empty-slot="" className="arc-node-dash flex size-[46px] items-center justify-center rounded-full"><img src={challenge} alt="" width={24} height={24} /></span>
             <p style={{ fontSize: real(12), lineHeight: `${real(16)}px` }} className="mt-2 text-center text-arc-text/60">No clear challenge at CHI this year.</p>
           </div>
         )}

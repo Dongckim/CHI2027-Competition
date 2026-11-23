@@ -18,7 +18,7 @@ const Q = 'Does VR fidelity raise presence?';
 const status = p => p.evaluate(() => document.querySelector('[role="status"]')?.innerText ?? '');
 let wk, code = 1;
 async function open(route) {
-  const ctx = await wk.newContext({ ...devices['iPhone 14'], serviceWorkers: 'block' });
+  const ctx = await wk.newContext({ reducedMotion: 'reduce',  ...devices['iPhone 14'], serviceWorkers: 'block' });
   const p = await ctx.newPage();
   await p.goto(`${server.base}#/start/1`);
   await p.evaluate(`localStorage.setItem('arc.device', ${JSON.stringify(device(true))}); true`);

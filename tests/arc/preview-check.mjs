@@ -71,7 +71,7 @@ try {
 
   // 4. the same link in a phone browser: /s/ → 18
   const CHROME = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-  chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=9357', `--user-data-dir=${profile}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+  chrome = spawn(CHROME, ['--headless=new', '--force-prefers-reduced-motion', '--remote-debugging-port=9357', `--user-data-dir=${profile}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
   let targets;
   for (let i = 0; i < 40; i++) { try { targets = await (await fetch('http://127.0.0.1:9357/json')).json(); break; } catch { await sleep(250); } }
   ws = new WebSocket(targets.find(t => t.type === 'page').webSocketDebuggerUrl);

@@ -57,7 +57,7 @@ const ops = {
     return toTopics(await eng.handle({ screen: 'angles', question: query }));
   },
   async buildArc({ query, opts, id, createdAt, now }) {
-    const res = await eng.handle({ screen: 'arc', question: query, days: daysOf(opts.days), formats: formatsOf(opts.types), chips: opts.topicIds ?? [], now: engineNow(now, ctx.timeZone) });
+    const res = await eng.handle({ screen: 'arc', question: query, days: daysOf(opts.days), formats: formatsOf(opts.types), chips: opts.topicIds ?? [], walk: opts.walk ?? [], now: engineNow(now, ctx.timeZone) });
     return toArc(res, query, opts, { id, createdAt, edition: ctx.edition, version: ctx.version, abstractOf });
   },
   // 15 Add / 12b Hold: the "edit" screen's cards carry no quote, so each card's quote comes from the "node" screen

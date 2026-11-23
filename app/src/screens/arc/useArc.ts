@@ -5,7 +5,9 @@ import { go } from '../../router';
 import { getArc, saveArc } from '../../arc/store';
 import { loadSchedule, type Schedule } from '../../data/load';
 import { useDevice } from '../../state/useDevice';
-import { heardOf } from '../../arc/draft.js';
+import { heardOf, walkOf } from '../../arc/draft.js';
+import { previousStop, walkSummary } from '../../arc/talk.js';
+import { REGISTRATION } from '../../venue/walk.js';
 import { nodeStates, type NodeState } from '../../arc/map.js';
 import { useNow } from '../../clock.js';
 import { venueClock } from '../../time.js';
@@ -47,6 +49,18 @@ export function useArc(id: string) {
       when: s ? `${venueClock(s.start, tz)}${room ? ` · ${shortRoom(room)}` : ''}` : 'Time TBA' /* no time in the feed (14: "Time to be announced") */, room: room ? shortRoom(room) : '',
     };
   };
+  // 09 Step-free (this phone's choice): the walk to this talk from the stop before it that day (or Registration) changes
+  // floor, so the step-free way is the elevator (the engine's own rule: " · elevator" when not on the same level)
+  const stepFree = (walkOf(state) as string[]).includes('step_free');
+  const lift = (key: string) => {
+    if (!stepFree || !schedule || !arc) return false;
+    const p = paper(key), s = p ? firstSlot(p.slots) : null;
+    if (!s) return false;
+    const stops = arc.nodes.flatMap(n => { const f = paper(n.key) ? firstSlot(paper(n.key)!.slots) : null; return f ? [{ key: n.key, start: f.start, roomKey: f.roomKey }] : []; });
+    const prev = previousStop(stops, key, s.start, tz) as { roomKey: string } | null;
+    const w = walkSummary(schedule.venue, schedule.venueMap, prev?.roomKey ?? REGISTRATION, s.roomKey) as { floor: string } | null;
+    return !!w && w.floor !== 'same floor';
+  };
   const save = async (next: Arc) => { await saveArc(next); setArc(next); };
-  return { arc, schedule, states, info, paper, save, now };
+  return { arc, schedule, states, info, paper, save, now, lift };
 }

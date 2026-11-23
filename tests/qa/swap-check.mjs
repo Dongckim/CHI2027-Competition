@@ -22,8 +22,8 @@ const fire = (p, type, sel, [x, y]) => p.evaluate(([type, sel, x, y]) => documen
 const shot = async (p, name) => shots && p.screenshot({ path: `${shots}/${name}.png` });
 let ch, code = 1;
 try {
-  ch = await chromium.launch({ executablePath: CHROME });
-  const ctx = await ch.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
+  ch = await chromium.launch({ executablePath: CHROME, args: ['--force-prefers-reduced-motion'] });
+  const ctx = await ch.newContext({ reducedMotion: 'reduce',  viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
   const p = await ctx.newPage();
   await p.goto(`${server.base}#/start/1`);
   await p.evaluate(`localStorage.setItem('arc.device', ${JSON.stringify(device(true))}); true`);

@@ -67,7 +67,8 @@ function useReceived(payload: string) {
   return { r, ok, states, info, paper, timeOf };
 }
 
-const keep = async (arc: Arc) => { await saveArc(arc); update(setOnboarded); go(`arc/${arc.id}`, { replace: true }); };
+// to: 18 "Add to my Arcs" opens the new Arc (12); 19 "Add N" and 19b "Keep all theirs" go to My Arcs (prototype 11/23 → 20)
+const keep = async (arc: Arc, to: 'arc' | 'home' = 'arc') => { await saveArc(arc); update(setOnboarded); go(to === 'home' ? 'home' : `arc/${arc.id}`, { replace: true }); };
 // 18 "Make it mine" opens 19b (user 「18 "Make it mine" → 19b로 변경. 15는 내 Arc 편집용으로 유지」).
 
 function Broken({ why }: { why: string }) {
@@ -137,7 +138,7 @@ export function Pick({ payload }: { payload: string }) {
   const toggle = (k: string) => setSkipped(s => { const x = new Set(s); if (x.has(k)) x.delete(k); else x.add(k); return x; });
   const save = () => {
     const nodes = arc.nodes.filter(n => picked.has(n.key));
-    keep({ ...arc, nodes, tension: nodes.some(n => n.angle === 'T') ? 'found' : 'none' });
+    keep({ ...arc, nodes, tension: nodes.some(n => n.angle === 'T') ? 'found' : 'none' }, 'home');
   };
   const hidden = arc.nodes.length - (layout(arc) as { nodes: unknown[] }).nodes.length; // bundled on the map (+N): pick them in the list
   const legend = (icon: React.ReactNode, label: string) => <span className="flex items-center gap-1.5 text-[12px] font-medium text-arc-text-2">{icon}{label}</span>;
@@ -209,7 +210,7 @@ export function Yours({ payload }: { payload: string }) {
   return (
     <Screen clock label="Make it yours" header={<><BackButton href={href(`r/${payload}`)} /><span /></>}
       bottom={<div className="flex flex-wrap gap-x-3 gap-y-2.5">
-        <ArcButton kind="secondary" className="min-w-fit grow basis-[calc(50%-6px)]" onClick={() => setKept(new Set([...kept, ...arc.nodes.map(n => n.key)]))}>Keep all theirs</ArcButton>
+        <ArcButton kind="secondary" className="min-w-fit grow basis-[calc(50%-6px)]" onClick={() => keep(arc, 'home')}>Keep all theirs</ArcButton>
         <ArcButton className="min-w-fit grow basis-[calc(50%-6px)]" onClick={save} disabled={!kept.size} aria-describedby={kept.size ? undefined : 'yours-why'}>Save as my Arc</ArcButton>
       </div>}>
       <p className="mt-2 inline-flex items-center gap-1.5 self-start rounded-2xl border border-arc-line bg-arc-surface py-1.5 pr-3 pl-2.5 text-[13px] font-semibold"><Pic src={linkIcon} size={14} />Shared Arc</p>

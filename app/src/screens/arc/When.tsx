@@ -4,7 +4,7 @@ import current from '../../../../data/build/app-data/chi2026/current.json';
 import venue from '../../../../data/venue/chi2026.json';
 import { go, href } from '../../router';
 import { update, useDevice } from '../../state/useDevice';
-import { arcOf, setWhen, toggleWhat, whenOptions, whenChoice, WHAT, WHAT_LABEL } from '../../arc/draft.js';
+import { arcOf, setWhen, toggleWhat, whenOptions, whenChoice, WHAT, WHAT_LABEL, WALK, WALK_LABEL, walkOf, toggleWalk } from '../../arc/draft.js';
 import { localDay } from '../../planner/plan.js';
 import { useNow } from '../../clock.js';
 import { useTribe } from '../../arc/live';
@@ -20,6 +20,7 @@ export function When() {
   const { draft } = arcOf(state);
   const options = whenNow(useNow());
   const chosen = whenChoice(options, draft.when);
+  const walk = walkOf(state) as string[];
   useTribe(null);
   if (!draft.query.trim()) { go('ask', { replace: true }); return null; }
   return (
@@ -38,6 +39,13 @@ export function When() {
           <div className="flex h-[21px] items-center"><SectionHeader id="what-h" icon={talk} label="What" /></div>
           <div className="flex flex-wrap gap-2">
             {Object.keys(WHAT).map(k => <Chip key={k} selected={draft.what.includes(k)} onClick={() => update(s => toggleWhat(s, k))}>{WHAT_LABEL[k as keyof typeof WHAT_LABEL]}</Chip>)}
+          </div>
+        </section>
+        {/* prototype 09 (11/23): "How you walk" at x 24 without an icon; kept on this phone for every Arc */}
+        <section aria-labelledby="walk-h" className="flex flex-col gap-3">
+          <h2 id="walk-h" className="text-[17px] leading-[21px] font-semibold tracking-[-0.012em]">How you walk</h2>
+          <div className="flex flex-wrap gap-2">
+            {WALK.map(w => <Chip key={w} selected={walk.includes(w)} onClick={() => update(s => toggleWalk(s, w))}>{WALK_LABEL[w as keyof typeof WALK_LABEL]}</Chip>)}
           </div>
         </section>
       </div>
