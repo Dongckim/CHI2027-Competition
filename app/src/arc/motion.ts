@@ -60,6 +60,7 @@ const ANIM: Record<string, [Keyframe[], number, string]> = {
   qr: [[{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'scale(1)' }], 700, POP],
   morb: [[{ opacity: 0, transform: 'scale(.7)' }, { opacity: 1, transform: 'scale(1)' }], 700, GENTLE],
   mregion: [[{ opacity: 0, transform: 'scale(.75)' }, { opacity: 1, transform: 'scale(1)' }], 900, OUT],
+  orbit: [[{ opacity: 0, transform: 'scale(1.6)' }, { opacity: 1, transform: 'scale(1)' }], 1100, EASE], // 10's two orbits close in
   mdot: [[{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'scale(1)' }], 620, GENTLE],
 };
 

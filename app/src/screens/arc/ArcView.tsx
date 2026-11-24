@@ -246,10 +246,10 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
               <img src={ANGLE_ICON[a]} alt="" width={icon} height={icon} /><span data-count="">{count}</span>
             </span>
           </>;
-          const box = { left: x, top: y, transform: 'translate(-50%, -50%)' };
+          const box = { left: x, top: y, transform: `translate(${focus === 'R' ? '-100%' : focus === 'T' ? '0%' : '-50%'}, -50%)` }; // 24b R/T: anchored on the edge, a longer count grows inward
           // the chevron that points where the rest are (24, 24c; 24b: towards the other angles)
-          const dir = TOWARD[a], rad = (dir - 90) * Math.PI / 180;
-          const arrow = m ? { arrow: m.arrow, turn: dir } : focus ? { arrow: [x + Math.cos(rad) * 34, y + Math.sin(rad) * 24] as Seat, turn: dir } : null;
+          const dir = TOWARD[a];
+          const arrow = m ? { arrow: m.arrow, turn: dir } : null;
           const chev = arrow && <svg aria-hidden="true" data-more={a} width={14} height={8} viewBox="0 0 14 8" className="pointer-events-none absolute" style={{ left: arrow.arrow[0] - 7, top: arrow.arrow[1] - 4, transform: `rotate(${arrow.turn}deg)` }}><path d="M1 7L7 1L13 7" stroke="#f4f6ff" strokeOpacity={0.55} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>;
           // every region's count moves the map toward it (prototype 12 "Angle · " → 24b), the chevron only when talks wait there
           return onBundle && !still && !edit && !own && !pick && !pending
