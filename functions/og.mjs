@@ -54,22 +54,34 @@ function shape(t, a) {
   return `<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="0" y1="2" x2="0" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="${mix(c, 255, 0.365)}"/><stop offset="1" stop-color="${c}"/></linearGradient></defs><g transform="translate(-18 -18) scale(14)">${inner}</g></svg>`;
 }
 // The right side (Figma 11/23, 746:1913 / 746:1948): the 12 map's three regions round the shape's centre (940, 315),
-// Supports above, Reframes lower left, Challenges lower right; links from the shape's ring (r 124) to 30 short of each node (prototype OG1–3), a
+// Supports above, Reframes lower left, Challenges lower right; links from the shape's edge to 30 short of each node (prototype OG1–3), a
 // Challenge's with its bar; then the shape, then the nodes, each a 44 circle with its angle symbol. Seats by count.
 const SEATS = {
   S: [[[940, 83]], [[853.1, 99.9], [1026.9, 99.9]], [[817.1, 118.3], [940, 83], [1062.9, 118.3]]],
   R: [[[739.1, 431]], [[710.3, 347.3], [797.2, 497.8]]],
   T: [[[1140.9, 431]], [[1169.7, 347.3], [1082.8, 497.8]]],
 };
+// Where a ray from the shape's centre leaves the shape (prototype OG1–3: each link starts at the shape's edge, so the
+// distance differs by tribe and direction; a fixed r 124 hid the ⊣ bar under wide shapes). The shape is drawn once per
+// tribe at 300 px and the ray read from its pixels.
+const rasters = new Map();
+export function edge(svg, ux, uy) {
+  let r = rasters.get(svg);
+  if (!r) { const img = new Resvg(svg, { fitTo: { mode: 'width', value: 300 } }).render(); r = { px: img.pixels, w: img.width }; rasters.set(svg, r); }
+  let out = 0;
+  for (let d = 0; d <= 212; d += 0.5) { const x = Math.round(150 + ux * d), y = Math.round(150 + uy * d); if (x >= 0 && y >= 0 && x < r.w && y < r.w && r.px[(y * r.w + x) * 4 + 3] > 32) out = d; }
+  return out ? out + 10 : 124; // the prototype leaves 10 px between the shape and its links
+}
 function picture(t, counts, a) {
+  const art = shape(t, a);
   const nodes = ['S', 'R', 'T'].flatMap(k => { const n = Math.min(counts[k], SEATS[k].length); return n ? SEATS[k][n - 1].map(xy => ({ k, xy })) : []; });
   const line = ({ k, xy: [x, y] }) => {
-    const dx = x - 940, dy = y - 315, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d, x1 = 940 + ux * 124, y1 = 315 + uy * 124;
+    const dx = x - 940, dy = y - 315, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d, r0 = edge(art, ux, uy), x1 = 940 + ux * r0, y1 = 315 + uy * r0;
     const bar = k === 'T' ? `<path d="M${x1 - uy * 12.6} ${y1 + ux * 12.6}L${x1 + uy * 12.6} ${y1 - ux * 12.6}" stroke="white" stroke-opacity="0.3" stroke-width="1.5" stroke-linecap="round"/>` : '';
     return `<path d="M${x1} ${y1}L${x - ux * 30} ${y - uy * 30}" stroke="white" stroke-opacity="0.3" stroke-width="1.5" stroke-linecap="round"${k === 'R' ? ' stroke-dasharray="2.4 4.9"' : ''}/>${bar}`;
   };
   const node = ({ k, xy: [x, y] }) => `<circle cx="${x}" cy="${y}" r="22" fill="#1C1B24"/><circle cx="${x}" cy="${y}" r="21.25" stroke="#F4F6FF" stroke-opacity="0.32" stroke-width="1.5"/>${place(a.angles[k], x - 11, y - 11, 22)}`;
-  return b64(`<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg"><g transform="translate(600 0)">${a.regions}</g>${nodes.map(line).join('')}${place(shape(t, a), 790, 165, 300)}${nodes.map(node).join('')}</svg>`);
+  return b64(`<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg"><g transform="translate(600 0)">${a.regions}</g>${nodes.map(line).join('')}${place(art, 790, 165, 300)}${nodes.map(node).join('')}</svg>`);
 }
 // Figma sizes the question by its length: 60/68 (two lines), 56/64, 50/58; at most three lines.
 const questionSize = q => (q.length <= 40 ? [60, 68] : q.length <= 60 ? [56, 64] : [50, 58]);
@@ -100,7 +112,7 @@ export async function ogPng(payload) {
     { type: 'img', props: { src: picture(t.id, c, a), width: 1200, height: 630, style: { position: 'absolute', left: 0, top: 0 } } },
     h('div', { position: 'absolute', left: 72, top: 64, display: 'flex', alignItems: 'center', gap: 8.4, height: 53.2, padding: '0 19.6px', borderRadius: 26.6,
       backgroundColor: '#1c1b24', border: '1.4px solid rgba(255,255,255,0.08)', fontSize: 19.6, fontWeight: 500, letterSpacing: -0.1176, color: 'rgba(244,246,255,0.62)' },
-    [{ type: 'img', props: { src: b64(a.icons[t.id] ?? a.icons.design), width: 22.4, height: 22.4 } }, t.name]),
+    [{ type: 'img', props: { src: b64(a.icons[t.id] ?? a.icons.design), width: 22.4, height: 22.4, style: { opacity: 0.62 } } }, t.name]),
     h('div', { position: 'absolute', left: 72, top: 140, width: 660, display: 'flex', flexDirection: 'column', gap: 27 }, [
       h('div', { display: 'block', lineClamp: 3, fontSize: size, lineHeight: `${lh}px`, fontWeight: 600, letterSpacing: -size * 0.024 }, q),
       d.ok ? h('div', { display: 'flex', gap: 30, fontSize: 24, fontWeight: 500, letterSpacing: -0.576, color: 'rgba(244,246,255,0.72)' },
