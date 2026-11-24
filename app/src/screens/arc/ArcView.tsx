@@ -148,7 +148,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   // the bloom's order: next, upcoming, heard, ended; then the Arc's order
   const compactMap = !picture && !edit && scale < 0.9;
   if (!focus) for (const { node, at: p, oneLine } of l.nodes) {
-    const rows = oneLine || compactMap || edit ? 1 : 2, timed = !edit && !compactMap;
+    const rows = oneLine || edit ? 1 : 2, timed = !edit && !compactMap;
     line(node.key, p, pending ? null : node.angle, node.angle === 'S' && !pending ? 32 + 2 + rows * real(15) + (timed ? real(16) : 0) + 4 : 0);
   }
   if (l.emptyT) line('emptyT', l.emptyT, 'T');
@@ -179,7 +179,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           const mine = own?.kept.has(node.key), yours = own?.yours.has(node.key);
           const dim = !!hold?.held && hold.held !== node.key;
           // Drawn smaller than 0.9 (18, 19, 19b at 0.78): Figma's seats leave no room for 12 px two-line labels, which ran into
-          // the next node (independent check 11/22). The title takes one line and the time is only read out (and listed).
+          // the next node (independent check 11/22). The time is only read out (and listed); the short name (Figma) keeps two lines.
           const compact = !picture && !edit && scale < 0.9;
           const showKind = !!node.kind && !oneLine && !edit && !picture && !compact;
           return (
@@ -189,15 +189,15 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
               <button type="button" data-node-key={node.key} {...hold?.press(node.key)} onClick={() => (own ? own.onToggle(node.key) : pick ? !lock && pick.onToggle(node.key) : edit ? edit.onSelect(node.key) : onNode?.(node.key))}
                 // the name is the node's own text (WCAG 2.5.3 label in name): "<angle> · <title> <time · room>", the angle
                 // as hidden text; day and state as the description
-                aria-description={own ? `${i.time}${yours ? ' · Yours' : ''} · Keep` : `${node.kind && !showKind ? `${KIND_NAME[node.kind]} · ` : ''}${i.time} · ${pick ? (lock === 'mine' ? 'Already in your Arcs' : lock ? 'Ended' : kept ? 'Keep' : 'Skip') : pending ? 'Angle still sorting' : STATE_WORD[st]}${candidates?.has(node.key) ? ' · Not on your Arc' : ''}`}
+                aria-description={(i.short !== i.title ? `${i.title} · ` : '') + (own ? `${i.time}${yours ? ' · Yours' : ''} · Keep` : `${node.kind && !showKind ? `${KIND_NAME[node.kind]} · ` : ''}${i.time} · ${pick ? (lock === 'mine' ? 'Already in your Arcs' : lock ? 'Ended' : kept ? 'Keep' : 'Skip') : pending ? 'Angle still sorting' : STATE_WORD[st]}${candidates?.has(node.key) ? ' · Not on your Arc' : ''}`)}
                 aria-pressed={own ? !!mine : edit ? selected : pick && !lock ? kept : undefined} aria-disabled={pick && lock ? true : undefined} disabled={readOnly && !pick}
                 className={`flex w-[104px] flex-col items-center gap-0.5 ${hold ? 'arc-hold' : ''} ${pick && lock ? 'opacity-35 blur-[0.78px]' : pick && !kept ? 'opacity-50' : ''}`}>
                 <span className={`arc-node ${pending ? '' : own ? (mine ? 'arc-node-upcoming' : 'arc-node-outline') : candidates?.has(node.key) ? 'arc-node-outline' : `arc-node-${st}`} ${selected || (pick && kept && !lock) ? 'arc-node-selected' : ''}`}>
                   {pending ? <img src={sortingOrb} alt="" width={64} height={64} /> : <span className="arc-node-core"><span className="arc-node-symbol" style={{ WebkitMaskImage: `url("${ANGLE_ICON[node.angle]}")`, maskImage: `url("${ANGLE_ICON[node.angle]}")` }} /></span>}
                 </span>
                 <span className="sr-only">{ANGLE_NAME[node.angle]} · </span>
-                <span data-node-text="" style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`${oneLine || showKind || compact ? 'line-clamp-1' : 'line-clamp-2'} max-w-full text-center font-semibold ${own ? (mine ? 'text-arc-text/85' : 'text-arc-text/70' /* over the holo glow: 0.7 as 25 (text-3 was 4.2:1 on 19b) */) : candidates?.has(node.key) ? 'text-arc-text/70' : st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
-                  {node.debut && <span aria-hidden="true">✦ </span>}{i.title}{/* the whole title, cut to two lines (was the 24-character label) */}
+                <span data-node-text="" style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`${oneLine || showKind ? 'line-clamp-1' : 'line-clamp-2'} max-w-full text-center font-semibold ${own ? (mine ? 'text-arc-text/85' : 'text-arc-text/70' /* over the holo glow: 0.7 as 25 (text-3 was 4.2:1 on 19b) */) : candidates?.has(node.key) ? 'text-arc-text/70' : st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
+                  {node.debut && <span aria-hidden="true">✦ </span>}{i.short}{/* Figma 12: the short name (the engine's label, ≤ 24) on up to two lines; the whole title is the description and the card's (user 11/24 「figma 대로」) */}
                 </span>
                 {/* Figma 10px; 12px is the floor. Editing (Figma 15) shows the title only.
                     Sorting (25): 0.7, not 0.55, as the two-line title puts the time over the holo ring's edge (3.6:1 at 0.55) */}

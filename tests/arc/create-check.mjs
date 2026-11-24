@@ -104,7 +104,7 @@ try {
   check('12 reached by clicks only, with talks round the question, saved once', arcMs != null && nodes?.reduce((a, b) => a + b, 0) >= 3 && stored === 1, { hash: arcHash, nodesPerAngle: nodes, storedArcs: stored });
   await shot('12');
   // 12 → 14: every node is a button named "<angle> · <title> · <time>"; the first opens 14 with its title and evidence
-  // a node's name is its own text: "<angle> · <title> <time · room>" (WCAG 2.5.3), the title in its two-line span
+  // a node's name is its own text: "<angle> · <short name> <time · room>" (WCAG 2.5.3; Figma's short name, how the title begins)
   const node = await ev(`(() => { const b = ${NODE}; const f = b[0];
     return { count: b.length, named: b.every(x => /^(Supports|Reframes|Challenges) · .+ \\d\\d:\\d\\d/.test(x.innerText.replace(/\\s+/g, ' ').trim())), label: f?.innerText.replace(/\\s+/g, ' ').trim(),
       title: f?.querySelector('.line-clamp-2')?.textContent.replace(/^✦ /, '').trim() }; })()`);
@@ -115,10 +115,10 @@ try {
   check('12c: a tap shows the stop\'s paper in the card', card != null, {});
   await ev(`${NODE}[0].click()`);
   // 14 is its own chunk: wait for its title (not the 12 still on screen) and for the abstract
-  const talkMs = await waitFor(`location.hash.startsWith('#/talk/chi2026:') && document.querySelector('h1')?.innerText === ${want} && !/Loading/.test(document.querySelector('main').innerText)`, 30000);
+  const talkMs = await waitFor(`location.hash.startsWith('#/talk/chi2026:') && document.querySelector('h1')?.innerText.startsWith(${want}) && !/Loading/.test(document.querySelector('main').innerText)`, 30000);
   const talk = await ev(`({ title: document.querySelector('h1')?.innerText, angle: document.querySelector('main p')?.innerText, mark: document.querySelector('main mark')?.textContent ?? null, when: [...document.querySelectorAll('main p')].map(p => p.innerText).find(t => t.includes(' · ~')) ?? [...document.querySelectorAll('main li')].map(l => l.innerText).find(t => t.includes(' · ~')) ?? null })`);
   await shot('14');
-  check('12 node opens 14 with title, angle, time and the evidence highlighted', talkMs != null && node.named && node.title === talk?.title && !!talk?.mark && !!talk.when,
+  check('12 node opens 14 with title, angle, time and the evidence highlighted', talkMs != null && node.named && !!node.title && !!talk?.title?.startsWith(node.title.replace(/…$/, '')) && !!talk?.mark && !!talk.when,
     { nodes: node.count, label: node.label, talk });
   await send('Runtime.evaluate', { expression: 'history.back()' });
   await waitFor(`location.hash.startsWith('#/arc/')`);
