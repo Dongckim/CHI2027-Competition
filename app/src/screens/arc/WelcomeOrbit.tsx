@@ -3,7 +3,7 @@
 // the neighbourhoods drift slowly clockwise and the question visits them one at a time: a thin arc of light from the orb,
 // the shape bounces, the orb takes its colour for a moment. Still under reduced motion; loops pause in a hidden tab.
 import { useEffect, useRef, type CSSProperties } from 'react';
-import { play, still, OUT } from '../../arc/motion';
+import { play, loop, still, OUT } from '../../arc/motion';
 import innerOrb from '../../assets/arc/welcome-inner-orb.svg';
 
 const CX = 195, CY = 290, R = 149.5, C = 2 * Math.PI * R, DRAW = 1750, START = 480;
@@ -32,6 +32,7 @@ export function WelcomeOrbit({ shapes }: { shapes: Shape[] }) {
       ic.el.append(g, r);
       g.animate([{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: `scale(${big ? 1.5 : 1.25})`, offset: big ? 0.3 : 0.25 }, { opacity: 0, transform: `scale(${big ? 2.8 : 2.1})` }], { duration: big ? 1000 : 760, easing: 'ease-out' }).onfinish = () => g.remove();
       r.animate([{ opacity: 0.95, transform: 'scale(1)' }, { opacity: 0, transform: `scale(${big ? 3.2 : 2.7})` }], { duration: big ? 1100 : 900, easing: 'cubic-bezier(.2,.8,.2,1)' }).onfinish = () => r.remove();
+      orb?.animate([{ filter: 'brightness(1)' }, { filter: 'brightness(1.1)' }, { filter: 'brightness(1)' }], { duration: 620, delay: 140, easing: 'ease-in-out' }); // the orb answers each landing
     };
     let raf = 0, timer = 0, alive = true;
     const t0 = performance.now() + START;
@@ -63,6 +64,7 @@ export function WelcomeOrbit({ shapes }: { shapes: Shape[] }) {
         raf = requestAnimationFrame(drift);
       };
       raf = requestAnimationFrame(drift);
+      breath.push(loop(orb, [{ transform: 'scale(1)' }, { transform: 'scale(1.025)' }, { transform: 'scale(1)' }], { duration: 5200, easing: 'ease-in-out' }));
       const order = icons.slice().sort((p, q) => p.a - q.a);
       let i = 0;
       const tick = () => { if (!alive) return; if (!document.hidden) visit(order[i % order.length]); i++; timer = window.setTimeout(tick, i % order.length === 0 ? 2400 : 1050); };
@@ -92,20 +94,21 @@ export function WelcomeOrbit({ shapes }: { shapes: Shape[] }) {
       }, 420);
       if (tint) { tint.style.background = ic.col; tint.animate([{ opacity: 0 }, { opacity: 0.22, offset: 0.4 }, { opacity: 0 }], { duration: 1300, delay: 300, easing: 'ease-in-out' }); }
     };
+    const breath = [loop(glow, [{ opacity: 1 }, { opacity: 0.7 }, { opacity: 1 }], { duration: 6000, delay: START + DRAW + 700, easing: 'ease-in-out' })];
     raf = requestAnimationFrame(draw);
-    return () => { alive = false; cancelAnimationFrame(raf); clearTimeout(timer); };
+    return () => { alive = false; cancelAnimationFrame(raf); clearTimeout(timer); breath.forEach(a => a?.cancel()); };
   }, []);
   return (
     <div ref={ref} aria-hidden="true" className="absolute inset-0">
       {/* Figma 01 holo ring (300): its glow and its line, apart so the line can draw itself */}
       <svg width={300} height={300} viewBox="0 0 300 300" style={at(45, 140, 300)} overflow="visible">
         <defs>
-          <radialGradient id="w-glow" cx="150" cy="150" r="150" gradientUnits="userSpaceOnUse"><stop stopColor="#7C5CFF" stopOpacity={0.275} /><stop offset={0.7} stopColor="#7C5CFF" stopOpacity={0.15} /><stop offset={1} stopColor="#7C5CFF" stopOpacity={0.025} /></radialGradient>
+          <radialGradient id="w-glow" cx="150" cy="150" r="150" gradientUnits="userSpaceOnUse"><stop stopColor="#7C5CFF" stopOpacity={0.34} /><stop offset={0.62} stopColor="#7C5CFF" stopOpacity={0.16} /><stop offset={1} stopColor="#7C5CFF" stopOpacity={0.04} /></radialGradient>
           <linearGradient id="w-head" gradientUnits="userSpaceOnUse" x1={CX + R * Math.cos(-200 * Math.PI / 180)} y1={CY + R * Math.sin(-200 * Math.PI / 180)} x2={CX} y2={CY - R}><stop stopColor="#fff" stopOpacity={0} /><stop offset={0.65} stopColor="#fff" stopOpacity={0.32} /><stop offset={1} stopColor="#fff" stopOpacity={0.95} /></linearGradient>
         </defs>
         <g data-w-glow="" style={{ transformOrigin: '150px 150px' }}><circle cx={150} cy={150} r={150} fill="url(#w-glow)" /></g>
         <g transform="translate(-45 -140)">
-          <circle data-w-line="" cx={CX} cy={CY} r={R} stroke="#fff" strokeOpacity={0.08} fill="none" strokeDasharray={C.toFixed(2)} transform={`rotate(-90 ${CX} ${CY})`} />
+          <circle data-w-line="" cx={CX} cy={CY} r={R} stroke="#fff" strokeOpacity={0.16} fill="none" strokeDasharray={C.toFixed(2)} transform={`rotate(-90 ${CX} ${CY})`} />
           <g data-w-head="" style={{ opacity: 0 }}>
             <path d={`M ${(CX + R * Math.cos(-200 * Math.PI / 180)).toFixed(2)} ${(CY + R * Math.sin(-200 * Math.PI / 180)).toFixed(2)} A ${R} ${R} 0 0 1 ${CX} ${CY - R}`} fill="none" stroke="url(#w-head)" strokeWidth={1.6} strokeLinecap="round" />
             <circle cx={CX} cy={CY - R} r={2.2} fill="#fff" />
