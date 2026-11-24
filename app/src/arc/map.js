@@ -56,8 +56,8 @@ const FOCUS_R = [[170, 36], [170, 144], [278, 252], [170, 252], [62, 36], [62, 1
 export const FOCUS = {
   S: { at: [195, 500], seats: [[195, 340], [90.3, 366], [299.7, 366], [195, 235], [62.5, 270.5], [327.5, 270.5], [195, 130], [56.4, 157], [333.6, 157], [195, 30], [73.4, 46], [316.6, 46]],
     others: [['R', [54, 496]], ['T', [328, 496]]] },
-  R: { at: [320, 70], seats: FOCUS_R, others: [['S', [360, 196]], ['T', [360, 300]]] },
-  T: { at: [70, 70], seats: FOCUS_R.map(([x, y]) => [390 - x, y]), others: [['S', [30, 196]], ['R', [30, 300]]] },
+  R: { at: [320, 70], seats: FOCUS_R, others: [['S', [382, 196]], ['T', [382, 252]]] }, // 24b: one column on the screen edge, right-aligned
+  T: { at: [70, 70], seats: FOCUS_R.map(([x, y]) => [390 - x, y]), others: [['S', [8, 196]], ['R', [8, 252]]] }, // left-aligned
 };
 // Where the rest of an angle lies, from its count: up for Supports, down-left for Reframes, down-right for Challenges
 // (prototype "More · …": the chevron turned 0 / 240 / 120 degrees)
