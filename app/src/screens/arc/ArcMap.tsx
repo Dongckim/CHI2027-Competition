@@ -80,7 +80,8 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
     setOthers(o => ({ ...o, [n.angle]: (o[n.angle] ?? []).filter(x => x.key !== n.key) }));
   };
   // the stop the card already shows opens 14 at once (prototype 12: the Next node → 14); any other is picked first (12c)
-  const tapNode = (k: string) => { if (!hs.tap()) return; if (k === next?.key || k === sel) go(`talk/${k}`); else setSel(k); };
+  // prototype 12c: the Next stop while another is picked goes back to plain 12 (nothing picked)
+  const tapNode = (k: string) => { if (!hs.tap()) return; if (k === next?.key && sel && sel !== k) setSel(null); else if (k === next?.key || k === sel) go(`talk/${k}`); else setSel(k); };
   return (
     <Screen clock label="My Arc" header={<ArcHeader id={id} view="map" onHelp={() => setHelp(true)} back={focus ? `arc/${id}` : 'home'} title={focus ? (
       <h2 className="mt-0.5 flex h-[42px] items-center gap-2 rounded-[21px] border border-arc-line bg-arc-surface pr-4 pl-[15px] text-[15px] font-semibold">
@@ -106,7 +107,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
             {/* Figma 11/23: the paper's title in two lines (15 / 19), then the time and room */}
             <span className="flex min-w-0 flex-1 flex-col gap-1">
               <span className="line-clamp-2 text-[15px] leading-[19px] font-semibold tracking-[-0.006em]">{ni.title}</span>
-              <span className="truncate text-[13px] text-arc-text/60">{word} · {ni.when}{use.lift(next.key) && <> · <span className="inline-flex items-center gap-1 align-[-2px]"><Pic src={elevator} size={14} className="opacity-80" />Elevator</span></>}</span>
+              <span className="truncate text-[13px] text-arc-text/60">{word} · {ni.when.replace(' · Rm ', ' · Room ') /* prototype 12: the card spells "Room", the nodes keep "Rm" */}{use.lift(next.key) && <> · <span className="inline-flex items-center gap-1 align-[-2px]"><Pic src={elevator} size={14} className="opacity-80" />Elevator</span></>}</span>
             </span>
             <Pic src={chevron} size={20} className="opacity-50" />
           </a>

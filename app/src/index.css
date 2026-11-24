@@ -138,8 +138,11 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* prototype 12b: the three drop in from under the held node with a little spring, 110 ms apart; the fan lines draw down */
 .arc-fan-in { animation: arc-fan-in 0.56s cubic-bezier(.34,1.5,.64,1) both; }
 @keyframes arc-fan-in { from { opacity: 0; transform: translateY(-36px) scale(.8); } }
-.arc-fan-lines { animation: arc-fan-lines 0.56s cubic-bezier(.22,1,.36,1) both; }
+.arc-fan-lines { animation: arc-fan-lines 0.56s cubic-bezier(.22,1,.36,1) 0.36s both; }
 @keyframes arc-fan-lines { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
-@media (prefers-reduced-motion: reduce) { .arc-fan-in, .arc-fan-lines { animation: none; } }
+/* 12b: the held stop's ring pops (prototype: 620 ms after 140) */
+.arc-held-ring { animation: arc-held 0.62s ease-out 0.14s both; }
+@keyframes arc-held { 0% { opacity: 0; transform: scale(.7); } 60% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .arc-fan-in, .arc-fan-lines, .arc-held-ring { animation: none; } }
 /* prototype: what can be pressed gives a little as it is pressed */
 @media (prefers-reduced-motion: no-preference) { .arc :is(button, a):active { transition: transform 0.12s ease-out; transform: scale(0.97); } }

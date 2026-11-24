@@ -97,12 +97,13 @@ export function StepBar({ at, total = 3 }: { at: number; total?: number }) {
 }
 
 /** A choice chip: 38px look, 44px hit area. Selected = light fill with a check. */
-export function Chip({ selected, onClick, children, single }: { selected: boolean; onClick: () => void; children: ReactNode; single?: boolean }) {
+/** icon: always shown, in the chip's own colour (09 How you walk); otherwise a check only when selected. */
+export function Chip({ selected, onClick, children, single, icon }: { selected: boolean; onClick: () => void; children: ReactNode; single?: boolean; icon?: ReactNode }) {
   return (
     <button type="button" onClick={onClick} {...(single ? { role: 'radio', 'aria-checked': selected } : { 'aria-pressed': selected })}
       className={`relative inline-flex h-[38px] max-w-full items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium tracking-[-0.006em] whitespace-nowrap before:absolute before:inset-x-0 before:-inset-y-[4px] before:content-[''] ${
         selected ? 'bg-arc-chip-on text-arc-on-primary shadow-[var(--arc-shadow-lift)]' : 'border border-arc-line bg-arc-surface text-arc-text/62'}`}>
-      {selected && <Pic src={chipCheck} size={16} />}
+      {icon ?? (selected && <Pic src={chipCheck} size={16} />)}
       <span className="truncate">{children}</span>
     </button>
   );

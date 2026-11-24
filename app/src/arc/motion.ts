@@ -1,6 +1,7 @@
 // Motion from the final prototype (ARC_prototype, 11/23): screen entrances, the map's bloom, count-ups. Web Animations
 // only, nothing kept in state. Off under prefers-reduced-motion (and so in the headless checks, which ask for it); endless
 // loops also stop while the page is hidden.
+import { BOX } from './map.js';
 export const EASE = 'cubic-bezier(.2,.8,.2,1)';
 export const OUT = 'cubic-bezier(.22,1,.36,1)';
 export const POP = 'cubic-bezier(.34,1.5,.64,1)';
@@ -78,8 +79,10 @@ export function enter(parts: Element[], t0 = 80) {
   // pictures that move on their own: data-anim="<kind> <delay ms>" (03 grid and path, 05 bubbles, 06 map, 11 shape, 17 QR,
   // 20's mini Arcs). What arrives a moment later (data read from the phone) gets its entrance too, for two seconds.
   const own = (el: Element) => {
-    const [kind, d] = ((el as HTMLElement).dataset.anim ?? '').split(' '), k = ANIM[kind];
-    if (k) play(el, k[0], { duration: k[1], delay: Number(d) || 0, easing: k[2] });
+    // "<kind> <delay> [<duration>]"; data-flash="<delay>" brightens it once after (prototype 05's bubbles)
+    const [kind, d, dur] = ((el as HTMLElement).dataset.anim ?? '').split(' '), k = ANIM[kind], flash = (el as HTMLElement).dataset.flash;
+    if (k) play(el, k[0], { duration: Number(dur) || k[1], delay: Number(d) || 0, easing: k[2] });
+    if (flash) play(el, [{ filter: 'brightness(1)' }, { filter: 'brightness(1.5)' }, { filter: 'brightness(1)' }], { duration: 500, delay: Number(flash), fill: 'none' });
   };
   for (const root of new Set(parts.map(p => p.closest('.arc') ?? p))) {
     root.querySelectorAll('[data-anim]').forEach(own);
@@ -122,8 +125,18 @@ export function bloom(root: HTMLElement | null, quick = false) {
   }).filter(x => x.nodes.length || x.badge).sort((p, q) => p.score - q.score || p.si - q.si);
   let S = W0, last = W0;
   const at = new Map<HTMLElement, number>();
+  // prototype: a region spreads out from the question (1 s) as its turn comes; the ones before it dim to 0.45 while it
+  // does, and all come back together at the end
+  const spread = (r: Element | null, t: number) => {
+    if (!r) return;
+    const b = (r as SVGGraphicsElement).getBBox?.();
+    if (b) Object.assign((r as SVGElement).style, { transformBox: 'fill-box', transformOrigin: `${BOX.cx - b.x}px ${BOX.cy - b.y}px` });
+    play(r, [{ opacity: 0, transform: 'scale(.35)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 1000 * k, delay: t, easing: OUT });
+  };
+  const shown: Element[] = [];
   for (const x of secs) {
     x.S = S;
+    for (const r of shown) play(r, [{ opacity: 1 }, { opacity: 0.45 }], { duration: 360 * k, delay: S, easing: 'ease-in-out', fill: 'forwards' });
     let t = S + 270 * k;
     for (const n of x.nodes) { at.set(n, t); last = Math.max(last, t); t += GAP; }
     const bt = x.nodes.length ? t - GAP + 150 * k : S + 270 * k;
@@ -134,16 +147,25 @@ export function bloom(root: HTMLElement | null, quick = false) {
     }
     x.end = x.badge ? bt : t - GAP;
     // the region's own field spreads from the centre as its turn comes
-    play(Q(`[data-region="${x.a}"]`), [{ opacity: 0 }, { opacity: 1 }], { duration: 420 * k, delay: S, easing: 'ease-out' });
+    spread(Q(`[data-region="${x.a}"]`), S);
+    shown.push(...QA(`[data-region="${x.a}"]`));
     S = x.end + 140 * k;
   }
+  if (shown.length > 1) for (const r of shown) play(r, [{ opacity: 0.45 }, { opacity: 1 }], { duration: 500 * k, delay: (secs.at(-1)?.end ?? S) + 280 * k, easing: 'ease-in-out', fill: 'forwards' });
   // a region with nothing in it still appears, with the last
-  for (const r of QA('[data-region]')) if (!secs.some(x => x.a === r.dataset.region)) play(r, [{ opacity: 0 }, { opacity: 1 }], { duration: 420 * k, delay: S, easing: 'ease-out' });
+  for (const r of QA('[data-region]')) if (!secs.some(x => x.a === r.dataset.region)) spread(r, S);
   for (const [n, t] of at) {
     play(n, [{ opacity: 0 }, { opacity: 1 }], { duration: 240 * k, delay: t, easing: 'ease-out' });
     play(n.querySelector('.arc-node'), [{ transform: 'scale(.3)' }, { transform: 'scale(1.08)', offset: 0.6 }, { transform: 'scale(1)' }], { duration: 620 * k, delay: t, easing: 'cubic-bezier(.3,.7,.4,1)' });
     [...n.querySelectorAll('[data-node-text]')].forEach((tx, m) => play(tx, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 480 * k, delay: t + (140 + m * 70) * k, easing: OUT }));
-    play(Q(`[data-line="${CSS.escape(n.dataset.key ?? '')}"]`), [{ opacity: 0 }, { opacity: 1 }], { duration: 300 * k, delay: Math.max(W0, t - 230 * k), easing: SOFT });
+    // the line grows out from the ring just before its talk (prototype: scale .05 → 1 from its inner end)
+    const ln = Q(`[data-line="${CSS.escape(n.dataset.key ?? '')}"]`) as unknown as SVGLineElement | null;
+    if (ln) {
+      const x1 = ln.x1.baseVal.value, y1 = ln.y1.baseVal.value, x2 = ln.x2.baseVal.value, y2 = ln.y2.baseVal.value;
+      const [ix, iy] = Math.hypot(x1 - BOX.cx, y1 - BOX.cy) <= Math.hypot(x2 - BOX.cx, y2 - BOX.cy) ? [x1, y1] : [x2, y2];
+      Object.assign(ln.style, { transformBox: 'view-box', transformOrigin: `${ix}px ${iy}px` });
+    }
+    play(ln, [{ opacity: 0, transform: 'scale(.05)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 300 * k, delay: Math.max(W0, t - 230 * k), easing: SOFT });
   }
   const end = last + 600 * k + 200;
   loop(holo, [{ opacity: 1 }, { opacity: 0.72 }, { opacity: 1 }], { duration: 5600, delay: end, easing: 'ease-in-out' });
@@ -167,7 +189,11 @@ export function moveToward(root: HTMLElement | null) {
   const QA = (s: string) => [...root.querySelectorAll<HTMLElement>(s)];
   const [dx, dy] = (root.dataset.shift ?? '0,0').split(',').map(Number); // where the question went: everything comes from there
   QA('[data-node-wrap]:not([data-candidate])').forEach(n => play(n, [{ transform: `translate(${-dx}px, ${-dy}px)` }, { transform: 'translate(0px, 0px)' }], { duration: 900, delay: 60, easing: OUT }));
-  QA('[data-node-wrap][data-candidate]').forEach((n, i) => play(n, [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 520, delay: 900 + i * 95, easing: GENTLE }));
+  // nearest the question first (40 px bands), then clockwise from 12 o'clock, as the prototype
+  const box = root.getBoundingClientRect(), k = box.width / BOX.w, ox = box.left + (BOX.cx + dx) * k, oy = box.top + (BOX.cy + dy) * k;
+  const near = (n: HTMLElement) => { const r = (n.querySelector('.arc-node') ?? n).getBoundingClientRect(), x = r.left + r.width / 2 - ox, y = r.top + r.height / 2 - oy;
+    return [Math.round(Math.hypot(x, y) / (40 * k)), (Math.atan2(y, x) * 180 / Math.PI + 90 + 360) % 360]; };
+  QA('[data-node-wrap][data-candidate]').map(n => ({ n, d: near(n) })).sort((p, q) => p.d[0] - q.d[0] || p.d[1] - q.d[1]).map(x => x.n).forEach((n, i) => play(n, [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 520, delay: 900 + i * 95, easing: GENTLE }));
   const tEnd = 900 + 9 * 95 + 300;
   QA('[data-badge], [data-more]').forEach(b => play(b, [{ opacity: 0 }, { opacity: 1 }], { duration: 500, delay: tEnd, easing: 'ease-out' }));
 }
@@ -178,7 +204,12 @@ export function hintMotion(root: HTMLElement | null) {
   if (!root || still()) return;
   const T = 2500, ring = root.querySelector('[data-hint-ring]'), prog = root.querySelector('[data-hint-progress]'), bub = root.querySelector('[data-hint-bubble]');
   play(ring, [{ opacity: 0, transform: 'scale(.8)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 520, delay: T, easing: OUT });
-  loop(prog, [{ strokeDashoffset: 215.2, offset: 0 }, { strokeDashoffset: 215.2, offset: 0.12 }, { strokeDashoffset: 0, offset: 0.62 }, { strokeDashoffset: 0, offset: 0.8 }, { strokeDashoffset: 215.2, offset: 0.81 }, { strokeDashoffset: 215.2, offset: 1 }], { duration: 2400, delay: T, easing: 'ease-in-out', fill: 'backwards' });
+  const L = 213.6;
+  loop(prog, [{ strokeDashoffset: L, offset: 0 }, { strokeDashoffset: L, offset: 0.12 }, { strokeDashoffset: 0, offset: 0.62 }, { strokeDashoffset: 0, offset: 0.8 }, { strokeDashoffset: L, offset: 0.81 }, { strokeDashoffset: L, offset: 1 }], { duration: 2400, delay: T, easing: 'ease-in-out', fill: 'backwards' });
+  // the stop under the ring sinks while it fills, then springs back as a hold would open 12b
+  const key = root.querySelector<HTMLElement>('[data-hint-at]')?.dataset.hintAt;
+  const stop = key ? root.querySelector(`[data-node-wrap][data-key="${CSS.escape(key)}"] .arc-node`) : null;
+  loop(stop, [{ transform: 'scale(1)', offset: 0 }, { transform: 'scale(1)', offset: 0.12 }, { transform: 'scale(.92)', offset: 0.2 }, { transform: 'scale(.92)', offset: 0.62 }, { transform: 'scale(1.06)', offset: 0.7 }, { transform: 'scale(1)', offset: 0.8 }, { transform: 'scale(1)', offset: 1 }], { duration: 2400, delay: T, easing: 'ease-in-out' });
   play(bub, [{ opacity: 0, transform: 'translateX(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: T + 260, easing: OUT });
 }
 

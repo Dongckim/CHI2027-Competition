@@ -144,7 +144,7 @@ export function SwapFan({ hs, title }: { hs: HoldSwap; title: string }) {
               return (
                 <li key={c.key}>
                   {/* Figma 106 × 112; the 11 px lines are 12 px (the floor) */}
-                  <button type="button" data-swap-key={c.key} onClick={() => hs.swap(c)} style={{ animationDelay: `${60 + i * 110}ms` }}
+                  <button type="button" data-swap-key={c.key} onClick={() => hs.swap(c)} style={{ animationDelay: `${530 + i * 110}ms` }} /* prototype 12b: after the fan lines */
                     className={`arc-fan-in flex h-[112px] w-full flex-col rounded-[18px] border bg-arc-surface p-[11px] text-left ${over === c.key ? 'border-arc-text/90' : 'border-arc-line'}`}>
                     <Pic src={ANGLE_ICON[c.angle]} size={18} />
                     <span className="mt-2 line-clamp-2 text-[13px] leading-4 font-semibold">{hs.where(c.key).title}</span>

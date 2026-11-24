@@ -117,7 +117,7 @@ function WhatIsChi() {
         {stats.map(([n, l, x]) => (
           <div key={l} className="relative">
             <dt className="sr-only">{l}</dt>
-            <dd className="text-[68px] leading-[72px] font-semibold tracking-[-0.035em]">{n}</dd>
+            <dd data-count="" className="text-[68px] leading-[72px] font-semibold tracking-[-0.035em]">{n}</dd>
             <dd aria-hidden="true" className="absolute top-[38px] text-[17px] font-medium tracking-[-0.012em] whitespace-nowrap text-arc-text-2" style={{ left: x - 24 }}>{l}</dd>
           </div>
         ))}
@@ -137,8 +137,8 @@ function ADay() {
           <span key={`${c}-${r}`} data-anim={PICKS.has(`${c}-${r}`) ? `lit ${c === 0 ? 330 : 380 + c * 220}` : `cell ${60 + c * 120 + ((c * 7 + r * 13) % 6) * 10}`} style={{ ...at(24 + c * 84, 330 + r * 42, 66, 34), opacity: r === 4 ? 0.55 : r === 5 ? 0.22 : undefined }}
             className={`rounded-[8px] ${PICKS.has(`${c}-${r}`) ? 'bg-white shadow-[var(--arc-shadow-lift)]' : 'border border-arc-line bg-arc-surface'}`} />
         )))}
-        <img src={pathLine} alt="" data-anim="reveal 380" style={at(0, 0, 390, 844)} />{/* prototype 03: the path draws itself across the picks */}
-        <img src={timeAxis} alt="" data-anim="reveal 300" style={at(24, 587, 282, 10)} />
+        <img src={pathLine} alt="" data-anim="fade 380 1050" style={at(0, 0, 390, 844)} />{/* prototype 03: the dashed path fades in under the picks (drawPath on a dashed line) */}
+        <img src={timeAxis} alt="" data-anim="reveal 300 420" style={at(24, 587, 282, 10)} />
         <span className="absolute text-[12px] font-medium text-arc-text-3" style={{ left: 308, top: 584 }}>Time</span>{/* Figma 50%; 55% is the floor */}
       </Frame>
     </Page>
@@ -171,9 +171,9 @@ function HowPeopleTalk() {
   return (
     <Page dot={4} label="How people talk" title={['Breaks are', 'for talking.']} next="start/6">
       <Frame top={184} height={286}>{/* rules start at y 470 */}
-        <img src={arc05} alt="" data-anim="reveal 620" style={at(0, 0, 390, 844)} />{/* prototype 05: ? then !, then the arc between them */}
-        <img src={bubbleQ} alt="" data-anim="pop 120" style={at(68, 328, 84)} />
-        <img src={bubbleE} alt="" data-anim="pop 360" style={at(238, 328, 84)} />
+        <img src={arc05} alt="" data-anim="reveal 620 700" style={at(0, 0, 390, 844)} />{/* prototype 05: ? then !, then the arc between them */}
+        <img src={bubbleQ} alt="" data-anim="pop 120" data-flash="640" style={at(68, 328, 84)} />
+        <img src={bubbleE} alt="" data-anim="pop 360" data-flash="1320" style={at(238, 328, 84)} />
         <span data-anim="pop 120" className="absolute text-[36px] font-semibold tracking-[-0.024em]" style={{ left: 101, top: 346.5 }}>?</span>
         <span data-anim="pop 360" className="absolute text-[36px] font-semibold tracking-[-0.024em]" style={{ left: 274, top: 346.5 }}>!</span>
       </Frame>

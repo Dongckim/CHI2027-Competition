@@ -17,6 +17,7 @@ import { useNow, now as nowMs } from '../../clock.js';
 import { venueClock } from '../../time.js';
 import { Screen, ArcButton, BackButton, Pic } from '../../components/arc';
 import { ANGLE_NAME } from './AngleHelp';
+import { AngleRows } from './ArcList';
 import { ArcView, useMapFit, type Info } from './ArcView';
 import { AddSheet } from './AddSheet';
 import { shortRoom } from './useArc';
@@ -104,7 +105,7 @@ export function Received({ payload }: { payload: string }) {
   );
 }
 
-// 18 "Just read" (user 11/20 「Just read = 저장 없이 보기만」): the map, read-only, nothing stored. Talks open 14; a line on top
+// 18 "Just read" (user 11/20 「Just read = 저장 없이 보기만」): the 13 list (final prototype: Just read → 13), nothing stored. Talks open 14; a line on top
 // says it is not saved, with Add (as "Add to my Arcs").
 export function JustRead({ payload }: { payload: string }) {
   const { r, ok, states, info } = useReceived(payload);
@@ -118,8 +119,8 @@ export function JustRead({ payload }: { payload: string }) {
         <p className="flex-1 text-[14px] font-medium text-arc-text-2">Not saved · Add to keep it</p>
         <ArcButton kind="primary" className="h-11 min-w-[72px]" onClick={() => keep(arc)}>Add</ArcButton>
       </div>
-      <h1 className="mt-4 text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
-      <div className="-mx-6 mt-3"><ArcView arc={arc} states={states} info={info} scale={0.78} onNode={k => go(`talk/${k}`)} onBundle={() => {}} /></div>
+      <h1 className="mt-4 max-w-[300px] text-[22px] leading-7 font-semibold tracking-[-0.02em]">{arc.query}</h1>
+      <AngleRows arc={arc} states={states} info={info} />
     </Screen>
   );
 }
@@ -148,14 +149,14 @@ export function Pick({ payload }: { payload: string }) {
       <h1 className="mt-2.5 text-[26px] leading-8 font-semibold tracking-[-0.02em]">Pick what to keep.</h1>
       <div className="-mx-6 mt-7"><ArcView arc={arc} states={states} info={info} scale={0.78} readOnly pick={{ picked, locked, onToggle: toggle }} /></div>
       {/* the map box keeps room for two-line labels below the bottom row; Figma's legend sits 30 under its one-line labels */}
-      <div className="-mt-8 flex flex-wrap justify-center gap-x-[18px] gap-y-2" aria-hidden="true">
+      <div className="mt-3 flex flex-wrap justify-center gap-x-[18px] gap-y-2" aria-hidden="true">
         {legend(<span className="flex size-4 items-center justify-center rounded-full bg-arc-text"><img src={checkIcon} alt="" width={12} height={12} className="brightness-0" /></span>, 'Keep')}
         {legend(<span className="size-4 rounded-full border-[1.5px] border-arc-text/60" />, 'Skip')}
         {legend(<span className="flex size-4 items-center justify-center"><Pic src={lockIcon} size={14} /></span>, 'Ended')}
         {[...locked.values()].includes('mine') && legend(<span className="flex size-4 items-center justify-center"><Pic src={lockIcon} size={14} /></span>, 'Already yours')}
       </div>
       {hidden > 0 && (
-        <section aria-label="All talks" className="mt-[34px] flex flex-col gap-2 pb-2">
+        <section aria-label="All talks" className="mt-[65px] flex flex-col gap-2 pb-2">{/* one row (75) lower than before the legend moved down: no row sits half under the bottom bar (axe target-size) */}
           {/* not in Figma: keeps the place it had before the legend moved up (a row cut by the bottom bar failed axe target-size) */}
           <h2 className="text-[15px] font-semibold">All {arc.nodes.length} talks</h2>
           {arc.nodes.map(n => {
@@ -208,7 +209,7 @@ export function Yours({ payload }: { payload: string }) {
   const theirs = arc.nodes.length;
   const hidden = nodes.length - (layout(draft) as { nodes: unknown[] }).nodes.length; // bundled on the map (+N): keep them in the list
   return (
-    <Screen clock label="Make it yours" header={<><BackButton href={href(`r/${payload}`)} /><span /></>}
+    <Screen clock label="Make it yours" /* prototype 19b: no back, the chip sits where it does on 18 */
       bottom={<div className="flex flex-wrap gap-x-3 gap-y-2.5">
         <ArcButton kind="secondary" className="min-w-fit grow basis-[calc(50%-6px)]" onClick={() => keep(arc, 'home')}>Keep all theirs</ArcButton>
         <ArcButton className="min-w-fit grow basis-[calc(50%-6px)]" onClick={save} disabled={!kept.size} aria-describedby={kept.size ? undefined : 'yours-why'}>Save as my Arc</ArcButton>
