@@ -5,12 +5,12 @@
 - **연결**: `app/src/engine/ondevice.ts`가 Web Worker(`ondevice.worker.js`)에서 이 폴더의 `src/web`을 돌리고, `ondevice-map.js`가 응답을 Arc로 바꾼다. 배포 빌드(`VITE_ENGINE=ondevice`)의 기본 엔진(11/21). 그냥 빌드는 mock(`app/src/engine/mock-core.js`), `?engine=mock|ondevice`로 바꿀 수 있음
 - **모델 파일**: git에 넣지 않는다. 배포 빌드(`npm run build:deploy`)가 `MODEL_URL`과 `MODEL_SHA256`을 확인해 `dist/model/`에 풀고, 앱은 같은 도메인 `/model/…`에서 받는다(1년 immutable 캐시). `MODEL_URL`이 없으면 mock으로 동작. 스크립트 `app/scripts/fetch-model.mjs`
 
-### 지금 모델 패키지 (11/22)
+### 지금 모델 패키지 (11/25)
 | | |
 |---|---|
-| 파일 | `chi2026-retriever-2026-11-22.zip` (GitHub Release `model-2026-11-22`) |
-| 크기 | zip 22.2 MB, 풀면 37.5 MB, 파일 117개 (zip 안은 상대 경로만, 맨 위 폴더 없음) |
-| `MODEL_SHA256` | `6388932fc8d06b95527ec99e9acf05adabc3db024ff85a991fb7aa9dbaa63ee4` |
+| 파일 | `chi2026-retriever-2026-11-25.zip` (GitHub Release `model-2026-11-25`) |
+| 크기 | zip 22.3 MB, 풀면 37.5 MB, 파일 117개 (zip 안은 상대 경로만, 맨 위 폴더 없음) |
+| `MODEL_SHA256` | `83a3dedc7250d688d954aa506d88c8dbd03792759eb6052332fef60af3887c2a` |
 | 소스 | 이 폴더 `src/package/`(Python), `src/web/`(JavaScript, 패키지의 `web/`) |
 | 다시 만들기 | `python scripts/package_model.py` → `dist/chi2026-retriever/` (아래 "데이터 다시 만들기") |
 
@@ -78,6 +78,7 @@ python scripts/build_angles.py                       # 원문 확인, offsets, �
 sbatch scripts/gen_concepts.slurm                    # 일반어
 CHI_TASK=claims sbatch scripts/gen_concepts.slurm    # 질문 말투 claim
 sbatch scripts/gen_results.slurm                     # 넓은 이름, 방향 재확인, 놓친 결과 (11/21, Support 늘림)
+sbatch scripts/gen_valence.slurm                     # 결과가 좋아졌나 나빠졌나, 요인이 시험한 것인가 (11/25, Trade-off Challenge)
 python scripts/build_angles.py                       # 위를 모두 합쳐 data/processed/angles.json
 python scripts/eval_angles.py                        # docs/angle_eval.json
 
@@ -88,7 +89,12 @@ python tests/web_reference.py && node tests/run_web_parity.mjs   # JavaScript = 
 ```
 LLM 생성 단계는 샤드 파일에 이어 쓰므로 다시 돌리면 끝난 항목은 건너뛴다. LLM 출력은 실행마다 조금 달라질 수 있어서, 같은 패키지를 그대로 원하면 Release zip을 쓴다.
 
-11/22 검사 결과: Python↔JavaScript 일치 239/239, Arc 80/80, 검색 42/42, 앵글 39/40 ("How do people track their sleep?" 화요일 Arc가 7개가 아니라 6개: 카드가 바뀌어 좁힌 질문이 달라짐). 11/22에 바뀐 것은 `docs/angle_model.md`의 "결과 문장만 근거로, 종족은 입력한 말로".
+11/25 검사 결과: Python↔JavaScript 일치 253/253, Arc 80/80, 검색 42/42, 앵글 39/40 ("How do people track their sleep?" 화요일 Arc가 7개가 아니라 6개, 11/22부터 그대로). 11/22에 바뀐 것은 `docs/angle_model.md`의 "결과 문장만 근거로, 종족은 입력한 말로", 11/25에 바뀐 것은 "Challenge가 나오게, 판정은 더 정확하게".
+
+### 11/25에 앱이 알아야 할 것
+- **새 Challenge subtype `cost`** (라벨 "Trade-off", 이유 문장 "Found {X} making {O} worse."): 질문의 X가, 그 연구가 시험한 그대로, 다른 결과를 나쁘게 만든 발표. Figma 22의 Challenge 설명("Same question, a different finding")보다 넓어서 문구는 디자인 확인이 필요하다. `meta` 화면의 `subtypes`에 라벨이 있다
+- **새 화면 `mine`** ("Did you submit a paper?"): `{"screen": "mine", "name": "metatla"}` → 이름이 그렇게 시작하는 CHI 2026 저자와 발표(악센트 무시, 8명까지, `more`는 나머지 수). `{"screen": "mine", "paper": id}` → 그 논문 결과로 만든 질문 3개까지(`question`, 근거 `sentence`). Arc는 그 질문으로 `arc` 화면을 부르고 `"mine": [저자의 발표 id]`를 넘기면 자기 발표는 정류장에서 빠진다
+- **문장 위치**: `sentence.start`, `end`, `highlight`는 Python처럼 문자(code point) 단위다. 초록에 "𝑛" 같은 확장 문자가 있는 15개 발표에서 JavaScript가 한 글자씩 밀려 인용하던 것을 고쳤다. 앱에서 위치로 강조할 때는 `Array.from(abstract)`로 자르면 맞는다
 
 ## 아래는 옛 플래너 때 문서 (2026-11-20 전)
 

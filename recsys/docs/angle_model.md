@@ -154,6 +154,31 @@ python angles.py '{"screen": "questions", "id": 223179, "questions": ["Over time
 
 Support 기준을 풀어 본 결과(정답 세트, 바꾸지는 않음): Support가 X·Y 둘 다 0.70 대신 0.65 이상이면 48문항 precision .619→.625, recall .228→.263이다. 0.55까지 내리면 recall은 .298로 오르지만 holdout precision이 .50→.17로 떨어진다. 80개 질문의 Arc 노드 가운데 Support 비율은 7%(0.70), 8%(0.65), 10%(0.55)로 거의 그대로다. Support가 적은 것은 기준 탓보다 "X가 Y를 올린다"고 직접 말하는 결과 카드가 적어서다.
 
+## Challenge가 나오게, 판정은 더 정확하게 (11/25)
+
+**판정 자체는 맞다.** 결과 카드마다 그 카드 문구 그대로 질문을 만들어("Does {요인} increase {결과}?") 넣어 보면, 반대·무효 결과 카드 1,305개 가운데 98%가 Challenge, 증가 카드 3,193개 가운데 99%가 Support로 나온다(고치기 전 91%, 95%). Challenge가 드문 이유는 판정이 아니라, 질문의 X·Y와 카드 문구가 맞는 경우가 드물다는 데 있다. 정답 세트에서도 Challenge는 1,200쌍 가운데 9쌍(0.75%)뿐이다.
+
+**고친 것.**
+- 단어 비교: "한 단어가 다른 단어로 끝나면 같은 말"이 explainability = ability, emotion = motion, interaction = action, supervision = vision, attention = tension으로 번지고 있었다. 이제 앞부분이 4자 이상이고 접두사(inter, super, tele …)가 아닐 때만(cybersickness = sickness), 그리고 ability는 머리말로 보지 않는다.
+- 오타 교정: 프로그램에 없는 "happier"가 "happen"으로 바뀌어 질문이 깨졌다. 질문 해석기가 아는 단어(동사, happier, safer …)는 고치지 않는다.
+- 한 발표 안 카드 고르기: 질문에 맞는 카드가 여럿이면 맨 앞 카드가 아니라 질문에 가장 가까운 카드로 판정한다. 같은 발표의 반대 결과가 Support에 묻히던 67건이 이것이었다.
+- 요인과 결과가 뒤바뀌어 맞은 카드(swap)는 효과 방향을 알 수 없으므로 Challenge가 되지 않는다.
+
+**Trade-off Challenge (새 subtype `cost`).** 질문은 X가 좋다고 가정한다("raise" 좋은 Y, "reduce" 나쁜 Y). 바로 그 X가, 그 연구가 시험한 그대로, 다른 결과를 나쁘게 만들었다는 결과 문장은 질문자가 지나치면 안 되는 엇갈림이다("uncertainty visualization improved drilling accuracy by 24% but increased task time by 76%", "self-tracking … may also increase anxiety"). 좋아졌는지 나빠졌는지는 낱말로 알 수 없어서("reduced time"은 좋고 "reduced accuracy"는 나쁘다), Qwen3-14B가 결과 카드마다 한 번 읽는다(`scripts/gen_valence.py`, 3,958장: better 2,608 · worse 813 · neither 537, 이 가운데 요인이 비교 기준인 것 421). 조건: X는 카드 요인과 직접 0.80 이상(Challenge 기준 그대로), 결과가 질문의 Y가 아니고, 질문의 X 자체가 결함이 아니며("dark patterns"), 카드 요인이 X의 고장이 아니고("subtitle errors", "latency"), 발표가 질문 검색 상위 15위 안에 있을 것. 77개 평가 질문에서 13건이 나왔고 직접 읽어 보니 10건이 맞다(≈77%). 정답 세트 가이드는 이런 발표를 Reframe(measure)로 라벨링했으므로 정답 세트 숫자로는 오답이 된다.
+
+| 80개 질문의 Arc (정류장 7개) | Support | Reframe | Challenge | Challenge가 있는 Arc |
+|---|---|---|---|---|
+| 전 | 34 | 518 | 4 | 4 |
+| 지금 | 34 | 508 | 14 | 11 |
+
+holdout(튜닝에 안 쓴 32문항): Challenge 정답 3개 가운데 2개를 찾고, Challenge로 낸 2개가 모두 맞다(전에는 0/3).
+
+**해 봤지만 넣지 않은 것.** (1) 상위 40개 밖의 발표까지 모두 판정: 77문항에서 Challenge 2개 늘고 질문마다 29초. (2) X를 카드 문구 대신 질문 문장과 결과 문장의 유사도로 맞추기: 0.5까지 내려야 움직이고 새 Challenge 3개가 모두 틀림. (3) 논문 자체 시스템("EarlyArchi")을 X로 인정: 거의 안 바뀜, 조건을 넓히면 같은 Y의 다른 요인(정답 Reframe)이 Support가 됨. Support recall(.19)이 낮은 것은 "eHMI = external display" 같은 분야 지식이 필요한 경우가 대부분이다.
+
+**"Did you submit a paper?" (`mine` 화면).** `{"screen": "mine", "name": "metatla"}` → 그 이름으로 시작하는 CHI 2026 저자와 발표(악센트 무시, 8명까지). `{"screen": "mine", "paper": id}` → 그 논문의 결과로 만든 질문 3개까지. 방향 있는 결과("Does X increase Y?")가 먼저, 그다음 다른 결과("How does X affect Y?"), 그다음 발표 전체 주제. 양쪽 이름은 LLM이 붙인 두 단계 넓은 이름을 쓴다("StepQuest" → "health technology"). 논문·포스터 2,527개 가운데 1,957개가 질문 3개, 나머지도 모두 1개 이상(같은 말이 반복되는 질문을 거르기 전 집계). Arc는 그 질문으로 `arc` 화면을 부르고 `"mine": [저자의 발표 id]`를 주면 자기 발표는 정류장에서 빠진다.
+
+**JS 버그.** 초록에 "𝑛" 같은 확장 문자가 있으면(15개 초록) JS가 문자 위치를 UTF-16 단위로 세어 근거 문장이 한 글자씩 밀렸다. 이제 Python처럼 문자(code point) 단위로 자른다. `start`, `end`, `highlight`도 code point 기준이다.
+
 ## 다시 만들기
 
 ```bash
@@ -161,10 +186,11 @@ sbatch scripts/gen_findings.slurm                     # 결과 카드 (Qwen3-14B
 python scripts/build_angles.py                         # 원문 확인, offsets, 종족, 데뷔
 sbatch scripts/gen_concepts.slurm                      # 일반어 (약 15분)
 CHI_TASK=claims sbatch scripts/gen_concepts.slurm      # 질문 말투 claim (약 12분)
+sbatch scripts/gen_valence.slurm                       # 결과가 좋아졌나 나빠졌나 (GPU 4개 약 4분)
 python scripts/build_angles.py                         # 일반어까지 합쳐 다시
 python scripts/eval_angles.py                          # docs/angle_eval.json (--sweep: 임계값 탐색)
 sbatch scripts/compare_llm.slurm && python scripts/compare_llm_report.py   # 일반 LLM과 비교 (GPU 7개 약 15분)
 python scripts/package_model.py
 python tests/run_angle_cases.py                        # 40개 사례
-python tests/web_reference.py && node tests/run_web_parity.mjs   # JavaScript가 Python과 같은지 (229개)
+python tests/web_reference.py && node tests/run_web_parity.mjs   # JavaScript가 Python과 같은지 (253개)
 ```

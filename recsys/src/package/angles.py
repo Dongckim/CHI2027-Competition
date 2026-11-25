@@ -45,6 +45,7 @@ import os
 import re
 import sys
 import time
+import unicodedata
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 
@@ -83,7 +84,7 @@ HELP = {
 HELP_NOTE = {"en": "Read from each paper’s abstract.", "ko": "각 논문의 초록에서 읽었어요."}
 SUBTYPE = {"evidence": "Evidence", "try": "Try it", "null": "Null result", "opposite": "Opposite",
            "only_when": "Only when", "factor": "Other factor", "measure": "Other measure",
-           "people": "Other people", "related": "Same subject"}
+           "people": "Other people", "related": "Same subject", "cost": "Trade-off"}
 # Figma "final" 23
 NO_CHALLENGE = {"en": "No clear clash at CHI this year.",
                 "ko": "이번 CHI에서 뚜렷한 엇갈림을 찾지 못했어요."}
@@ -110,6 +111,7 @@ FORMAT_LABEL = {"PAPER": "Paper talk", "POSTER": "Poster", "DEMO": "Demo", "PANE
 
 EFFECTS = ["increase", "decrease", "no_effect", "mixed", "associated"]
 STATUS = ["result", "claim", "prior", "aim"]
+WORSE = 1             # angles.json "val": [card, 0 better / 1 worse / 2 neither, factor tested]
 JUDGE_N = 40          # talks whose cards are read for every question (the rest is ranking only)
 POOL = 200            # ranked talks the tray, search and shuffle draw from
 SIZE = 7              # default nodes on an Arc (team: 5-9)
@@ -132,6 +134,11 @@ CLOSE_COS = 0.50      # 14b: "N people asked something close" at or above this c
 MATCH = 0.70          # X or Y counts as the same thing at or above this
 STRICT = 0.80         # a Challenge needs both X and Y at or above this
 COS_LO, COS_HI = 0.45, 0.80
+COST = True           # a result where the asked X made another outcome worse is a Challenge
+COST_TOP = 15         # ... from the search's first talks only
+# what X going wrong is called: such a factor is X failing, not X ("subtitle errors")
+FAULT = set("""error errors latency delay failure breakdown absence lack disruption disrupted dark deceptive
+manipulative misinformation harassment bug bugs glitch""".split())
 CLAIM_W = 0.95        # a card restated in question words (LLM, offline) counts this much
 GEN_W = 0.95          # a card phrase's general name (LLM, offline) counts this much
 ABOUT_W = 0.9         # what the talk is about overall counts this much
@@ -143,6 +150,8 @@ NEAR_SCORE = 1.5      # search score (cosine + keyword, each 0..1) at or above t
 NEAR_TOP = 5          # or among the search's first talks of the chosen formats
 NEAR_CONF = 0.2       # below every card-based angle, so it fills an Arc only when needed
 TOPIC_CONF = 0.1      # a topic's own first talks, after everything its sharpest question found
+MINE_K = 8            # "Did you submit a paper?": authors listed for a typed name
+MINE_Q = 3            # ... and questions offered from one of their papers
 
 _W = re.compile(r"[a-z0-9]+(?:[-'][a-z0-9]+)*")
 STOPW = set("""a an the and or but of to in on at by for with from into onto about as is are was
@@ -235,6 +244,8 @@ for _v in _NEG:
 for _v in _NEU:
     for _f in _forms(_v):
         VERB_DIR[_f] = "?"
+# the words parse_question reads itself, kept from the typo fixer
+KNOWN = {w for k in (*VERB_DIR, *STATE, *POS_ADJ, *NEG_ADJ, *DOING) for w in k.split()}
 PSYCH_FORM = {}
 for _v, _n in _PSYCH.items():
     for _f in _forms(_v):
@@ -310,11 +321,24 @@ def stem(w):
     return w
 
 
+# a word that ends another only by a prefix or a suffix, not as its head:
+# emotion / motion, interaction / action, supervision / vision, explainability / ability
+BOUND = ("inter", "intra", "super", "trans", "multi", "hyper", "micro", "macro", "tele", "auto",
+         "semi", "anti", "counter", "over", "under", "omni", "post", "self")
+NOT_HEAD = {"ability"}
+
+
+def _ends(long, short):
+    """cybersickness ends with sickness, a compound of two words."""
+    pre = long[:-len(short)]
+    return (len(short) >= 5 and long.endswith(short) and len(pre) >= 4 and pre not in BOUND
+            and short not in NOT_HEAD)
+
+
 def _same(a, b):
-    """Two content words name the same thing: equal, the same stem, or one ends the
-    other (cybersickness / sickness)."""
-    return (a == b or stem(a) == stem(b) or (len(a) >= 5 and b.endswith(a))
-            or (len(b) >= 5 and a.endswith(b)))
+    """Two content words name the same thing: equal, the same stem, or a compound and
+    its head (cybersickness / sickness)."""
+    return a == b or stem(a) == stem(b) or _ends(b, a) or _ends(a, b)
 
 
 def _clean(s):
@@ -517,6 +541,7 @@ class Angles:
                             "tribe": rec["tribe"], "cards": cards, "measures": meas,
                             "gen": {g[0]: g[1] for g in rec.get("gen", [])},
                             "claims": {c[0]: (c[1], c[2]) for c in rec.get("claims", [])},
+                            "val": {v[0]: (v[1], v[2]) for v in rec.get("val", [])},
                             "up": {u[0]: (u[1], u[2]) for u in rec.get("up", [])},
                             "about": {"f": about[0], "o": about[1], "p": about[2]},
                             "debut": set(rec.get("debut", [])), "first_debut": bool(rec.get("first_debut"))}
@@ -590,6 +615,14 @@ class Angles:
             best = max(best, round(UP_W2 * self._pm(q, t, absset), 3))
         return best
 
+    def _close(self, q):
+        """The search's first COST_TOP talks for the question, any format (kept on q)."""
+        if "close" not in q:
+            score = self._rank(q["text"])
+            order = [int(i) for i in np.argsort(-score, kind="stable")]
+            q["close"] = set(list(dict.fromkeys(self.arc._canon(i) for i in order if i in self.alive_set))[:COST_TOP])
+        return q["close"]
+
     def _about(self, q, ids, absset):
         """How well what the talk is about overall (general names) matches q."""
         best = 0.0
@@ -606,7 +639,9 @@ class Angles:
         if not text:
             raise InputError("question must not be empty")
         # typos against the program's own words ("hapitc" -> "haptic"), as the retriever does
-        fixed = self.arc.ex.speller(text)
+        # ... but not the words the question reader knows ("happier" is no "happen")
+        fixed = re.sub(r"\w+", lambda m: m.group(0) if m.group(0).lower() in KNOWN
+                       else self.arc.ex.speller(m.group(0)), text)
         q = parse_question(fixed)
         q["corrected"] = fixed if fixed != text else None
         q["X"] = self._phrase(q["x"]) if q["kind"] == "relation" else None
@@ -630,7 +665,7 @@ class Angles:
         if not info:
             return None
         X, Y, C = q["X"], q["Y"], q["C"]
-        rows, direct = [], {}
+        rows, direct, xdirect = [], {}, {}
         for k, c in enumerate(info["cards"]):
             mx = self._pmg(X, c["f"], info, absset)
             my = self._pmg(Y, c["o"], info, absset) if Y is not None else 0.75
@@ -641,11 +676,14 @@ class Angles:
                 if Y is not None:
                     my = max(my, round(CLAIM_W * self._pm(Y, cl[1], absset), 3))
             # the LLM sometimes names the question's X as the outcome and Y as the factor
+            swapped = False
             if Y is not None and mx < MATCH and my < MATCH:
                 sx, sy = self._pmg(X, c["o"], info, absset), self._pmg(Y, c["f"], info, absset)
                 if sx >= MATCH and sy >= MATCH:
-                    mx, my = sx, sy
-            direct[k] = min(mx, my)
+                    mx, my, swapped = sx, sy, True
+            # ... but then which way the effect runs is a guess: never a Challenge
+            direct[k] = 0.0 if swapped else min(mx, my)
+            xdirect[k] = 0.0 if swapped else mx
             # a broader name: the question is often a level above the card
             if mx < 1.0:
                 mx = max(mx, self._up(X, c["f"], info, absset))
@@ -688,7 +726,10 @@ class Angles:
                 k, c, mx, my = both[0]
                 return {"angle": "reframe", "subtype": "related", "conf": round(0.5 * min(mx, my), 3),
                         "card": k, "caveat": None}
-            k, c, mx, my = told[0]
+            # the card closest to the question, not the first one ("Apple's scanner" over "QR
+            # scanners" when both are asked about); the others may still add a caveat
+            best = max(told, key=lambda r: (direct[r[0]], min(r[2], r[3]), -r[0]))
+            k, c, mx, my = best
             pol = polarity(c)
             m = min(mx, my)
             w = 1.0 - 0.08 * k
@@ -696,7 +737,7 @@ class Angles:
                 if other_people(c):
                     return {"angle": "reframe", "subtype": "people", "conf": round(0.8 * m * w, 3),
                             "card": k, "caveat": None}
-                cav = next((r[0] for r in told[1:] if r[1]["st"] == "result"
+                cav = next((r[0] for r in told if r is not best and r[1]["st"] == "result"
                             and polarity(r[1]) in ("oppose", "null")), None)
                 sub = "try" if (c["st"] == "claim" or typ in NO_FINDINGS) else "evidence"
                 conf = m * w * (1.0 if c["st"] == "result" else 0.8) * (1.0 if pol == "agree" else 0.85)
@@ -713,6 +754,21 @@ class Angles:
                         "caveat": None}
             return {"angle": "reframe", "subtype": "related", "conf": round(0.6 * m * w, 3),
                     "card": k, "caveat": None}
+        # the question takes X to be good ("raise" a good Y, "reduce" a bad one); a result
+        # where the very X, as tested, made something else worse is a cost the asker may
+        # not have counted (better / worse read once per card by the LLM, gen_valence.py)
+        # (not when X itself is a fault, "dark patterns", nor when the card's factor is X
+        # failing, "subtitle errors", "latency"; and only from the talks closest to the
+        # question, so the cost is one the asker would care about)
+        if (COST and Y is not None and typ not in NO_FINDINGS and q["dir"] in "+-"
+                and not FAULT & set(X["toks"]) and self.arc._canon(i) in self._close(q)):
+            yneg = any(w in NEG_OUTCOME for w in Y["toks"]) != Y["neg"]
+            if (q["dir"] == "+") != yneg:
+                for k, c, mx, my in rows:
+                    if (info["val"].get(k) == (WORSE, 1) and xdirect[k] >= STRICT and my < MATCH
+                            and X["neg"] == self.pneg[c["f"]] and not FAULT & set(self.ptoks[c["f"]])):
+                        return {"angle": "challenge", "subtype": "cost", "conf": round(0.7 * mx, 3),
+                                "card": k, "caveat": None}
         y_only = [r for r in rows if r[3] >= MATCH and Y is not None and r[2] < MATCH]
         x_only = [r for r in rows if r[2] >= MATCH and (Y is None or r[3] < MATCH)]
         if y_only and Y is not None:
@@ -782,7 +838,8 @@ class Angles:
         if a == "challenge":
             return {"null": f"Found no clear effect of {f} on {o}.",
                     "opposite": f"Found {f} going against {o}.",
-                    "only_when": f"Found that {f} affects {o} only under some conditions."}[s]
+                    "only_when": f"Found that {f} affects {o} only under some conditions.",
+                    "cost": f"Found {f} making {o} worse."}[s]
         return {"factor": f"Looks at another factor behind {o}: {f}.",
                 "measure": f"Looks at {o} from another side." if not f else f"Looks at what {f} does to {o}.",
                 "people": f"Same question, with other people or another setting.",
@@ -1357,6 +1414,10 @@ class Angles:
         judged, pool, score = self._judged(q, types)
         if asked:
             judged = judged + self._topic_fill(asked, types, judged)
+        # an author's Arc from their own paper ("mine"): their own talks are not stops
+        mine = set(self._ids(req.get("mine"), "mine"))
+        if mine:
+            judged = [(i, v) for i, v in judged if self.arc._canon(i) not in mine]
         picked = req.get("chips")
         prefer = []
         if picked:
@@ -1859,16 +1920,102 @@ class Angles:
                 "days": [{"day": d, "label": _day_label(d)} for d in self.arc.days],
                 "data_version": self.version}
 
+    # -- "Did you submit a paper?" ----------------------------------------------------
+    def _authors(self):
+        """Everyone on a CHI 2026 talk, by name: [(key words, name, affiliation, items)]."""
+        if not hasattr(self, "_author_ix"):
+            by = {}
+            for i in sorted(self.alive_set):
+                for a in self.items[i].get("authors") or []:
+                    name = " ".join(str(a.get("name") or "").split())
+                    if not name:
+                        continue
+                    key = name.lower()
+                    if key not in by:
+                        af = next((f["institution"] for f in a.get("affiliations") or [] if f.get("institution")), "")
+                        by[key] = (_fold(name).split(), name, af, [])
+                    if self.arc._canon(i) not in by[key][3]:
+                        by[key][3].append(self.arc._canon(i))
+            self._author_ix = sorted(by.values(), key=lambda a: a[1].lower())
+        return self._author_ix
+
+    def _paper_questions(self, i):
+        """What one paper found, asked the way an attendee would, each side named two steps
+        broader where the cards know how ("StepQuest" -> "health technology"): first its
+        results with a direction ("Does X increase Y?"), then its other results ("How does X
+        affect Y?"), then what the talk is about overall, until MINE_Q."""
+        info = self.info.get(i) or {"cards": [], "val": {}, "up": {}, "about": {"f": [], "o": []}}
+
+        def broad(p):
+            u = info["up"].get(p)
+            for lv in (1, 0):
+                if u and u[lv]:
+                    return self.phrases[u[lv][0]]
+            return self.phrases[p]
+        cands = []
+        for directed in (True, False):
+            for k, c in enumerate(info["cards"]):
+                v = info["val"].get(k)
+                if c["st"] != "result" or (v is not None and v[1] != 1):
+                    continue
+                if directed != (c["e"] in ("increase", "decrease")):
+                    continue
+                f, o = broad(c["f"]), broad(c["o"])
+                if f == o:
+                    continue
+                text = (f"Does {f} {'increase' if c['e'] == 'increase' else 'reduce'} {o}?" if directed
+                        else f"How does {f} affect {o}?")
+                cands.append((text, self._sentence(i, c)))
+        ab = info["about"]
+        if ab["f"] and ab["o"]:
+            cands.append((f"How does {self.phrases[ab['f'][0]]} affect {self.phrases[ab['o'][0]]}?", None))
+        out, seen = [], set()
+        for text, sent in cands:
+            if text.lower() in seen or self.question(text)["kind"] != "relation":
+                continue
+            seen.add(text.lower())
+            out.append({"question": text, "sentence": sent})
+            if len(out) == MINE_Q:
+                break
+        return out
+
+    def mine(self, req):
+        """{"name": "..."}: the CHI 2026 authors whose names start that way, with their
+        talks. {"paper": id}: questions from that paper's results; its Arc is then the
+        "arc" screen with one of them and "mine": [the author's talk ids]."""
+        if req.get("paper") is not None:
+            i = self._ids([req["paper"]], "paper")[0]
+            it = self.items[i]
+            return {"paper": {"id": it["id"], "title": it["title"], "type": it["type"]},
+                    "questions": self._paper_questions(i)}
+        typed = _fold(str(req.get("name") or "")).split()
+        if not typed or sum(len(w) for w in typed) < 2:
+            raise InputError("name must have at least 2 letters")
+        hits = [a for a in self._authors() if all(any(w.startswith(t) for w in a[0]) for t in typed)]
+        hits.sort(key=lambda a: (a[0] != typed, a[1].lower()))
+        return {"authors": [{"name": n, "affiliation": af,
+                             "talks": [{"id": self.items[i]["id"], "title": self.items[i]["title"],
+                                        "type": self.items[i]["type"]} for i in items]}
+                            for _, n, af, items in hits[:MINE_K]],
+                "more": max(0, len(hits) - MINE_K)}
+
     def handle(self, req):
         if not isinstance(req, dict):
             raise InputError("request must be a JSON object")
         screens = {"ask": self.ask, "angles": self.angles_screen, "arc": self.arc_screen,
                    "edit": self.edit, "node": self.node, "shared": self.shared, "summary": self.summary,
-                   "home": self.home, "meta": self.meta, "hold": self.hold, "questions": self.questions}
+                   "home": self.home, "meta": self.meta, "hold": self.hold, "questions": self.questions,
+                   "mine": self.mine}
         s = req.get("screen")
         if s not in screens:
             raise InputError(f"screen must be one of {', '.join(screens)}")
         return screens[s](req)
+
+
+def _fold(s):
+    """A name as typed and as printed meet: lower case, accents off ("Müller" = "muller")."""
+    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode().lower()
+    return " ".join(re.findall(r"[a-z0-9]+", s))
 
 
 def _short(t, n):
