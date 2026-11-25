@@ -43,7 +43,7 @@ from angles import NEG_OUTCOME, NO_FINDINGS, content, lemma, parse_question, ste
 PROC = os.path.join(config.ROOT, "data", "processed")
 PKG = os.path.join(config.ROOT, "dist", "chi2026-retriever")
 PAST_DIR = os.environ.get("CHI_PAST_DIR", os.path.join(config.ROOT, "data", "raw"))
-VERSION = os.environ.get("CHI_ANGLES_VERSION", "2026-11-25b")
+VERSION = os.environ.get("CHI_ANGLES_VERSION", "2026-11-25c")
 # directions the third pass may correct: a card stored without one ("associated")
 EFFECT_FIX = set(os.environ.get("CHI_EFFECT_FIX", "associated").split(","))
 
@@ -298,6 +298,10 @@ def main():
     for f in sorted(glob.glob(os.path.join(PROC, "cardq_raw", "shard_*.json"))):
         with open(f, encoding="utf-8") as fh:
             cardq.update(json.load(fh))
+    cardsum = {}
+    for f in sorted(glob.glob(os.path.join(PROC, "cardsum_raw", "shard_*.json"))):
+        with open(f, encoding="utf-8") as fh:
+            cardsum.update(json.load(fh))
     past, years = past_authors()
     print(f"findings for {len(raw)} items; past paper authors {len(past)} ({', '.join(years)})")
 
@@ -434,24 +438,28 @@ def main():
                 val.append([k_, CHANGES.index(chg), int(tested == "yes")])
         # the questions each result answers "yes" to, as an attendee would ask them
         # (gen_card_questions.py): the question, its X and Y, and which way it leans
-        # (+1 the question wants Y up, -1 down, 0 no direction; a bad Y flips it)
+        # (+1 the question wants Y up, -1 down, 0 no direction; a bad Y flips it; 2 a
+        # "How does X affect Y?" a result with no direction answers, for undirected questions)
         cq = []
         for k_, qs in sorted(((int(k_), v) for k_, v in (cardq.get(str(it["id"])) or {}).items())):
             if k_ >= len(cards) or STATUS[cards[k_][4]] != "result":
                 continue
             for text, answer in qs:
                 pq = parse_question(text)
-                if answer != "yes" or pq["kind"] != "relation" or not pq["y"]:
+                if answer not in ("yes", "affects") or pq["kind"] != "relation" or not pq["y"]:
                     continue
                 (xt, _), (yt, yneg) = content(pq["x"]), content(pq["y"])
                 if not xt or not yt:
                     continue
                 bad = any(t in NEG_OUTCOME for t in yt) != yneg
-                lean = {"+": 1, "-": -1}.get(pq["dir"], 0) * (-1 if bad else 1)
+                lean = 2 if answer == "affects" else {"+": 1, "-": -1}.get(pq["dir"], 0) * (-1 if bad else 1)
                 cq.append([k_, pid(text), pid(pq["x"]), pid(pq["y"]), lean])
+        # each finding in one plain sentence for the why line (gen_card_summary.py)
+        sm = [[int(k_), t] for k_, t in sorted(((int(k_), t) for k_, t in (cardsum.get(str(it["id"])) or {}).items()))
+              if int(k_) < len(cards)]
         rec = {"label": short_label(src.get("label", ""), it["title"]),
                "contribution": src.get("contribution", ""), "tribe": TRIBE_IDX[tribe],
-               "cards": cards, "measures": meas, "gen": gen, "about": about, "claims": cl, "val": val, "cq": cq,
+               "cards": cards, "measures": meas, "gen": gen, "about": about, "claims": cl, "val": val, "cq": cq, "sum": sm,
                "up": [[p_, l1, l2] for p_, (l1, l2) in ups.items()]}
         if it["type"] in ("Paper", "Journals"):
             deb = [k for k, a in enumerate(it["authors"])

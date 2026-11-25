@@ -57,12 +57,20 @@ const FORMAT_LABEL = { PAPER: "Paper talk", POSTER: "Poster", DEMO: "Demo", PANE
   MEETUP: "SIG & meetup", KEYNOTE: "Keynote", WORKSHOP: "Workshop" };
 const EFFECTS = ["increase", "decrease", "no_effect", "mixed", "associated"];
 const STATUS = ["result", "claim", "prior", "aim"];
-const WORSE = 1;      // angles.json "val": [card, 0 better / 1 worse / 2 neither, factor tested]
+const WORSE = 1;
+const AFFECTS = 2;    // angles.json "cq" lean of a "How does X affect Y?" question
+// the why line: what the angle means for the asker, then the card's finding (LLM, offline)
+const WHY_LEAD = { support: { evidence: "Goes the way your question expects.", try: "Something you can try." },
+  challenge: { opposite: "Found the other way.", null: "Found no clear effect.",
+               only_when: "Holds only under some conditions.", cost: "A cost of the same thing." },
+  reframe: { factor: "A different factor behind your outcome.", measure: "Your factor, seen through another outcome.",
+             people: "Same question, other people or setting.", related: "Same subject, no result for your exact question." } };      // angles.json "val": [card, 0 better / 1 worse / 2 neither, factor tested]
 export const P = { JUDGE_N: 40, POOL: 200, SIZE: 7, MAX_READ: 2, GAP_MIN: 5, CALM_GAP: 10, HOLD_K: 3, HOLD_WIN: 90, HOLD_MORE: 30,
                    THEME_COS: 0.45, CLOSE_COS: 0.50,
                    MATCH: 0.70, STRICT: 0.80, COS_LO: 0.45, COS_HI: 0.80, CLAIM_W: 0.95, GEN_W: 0.95, ABOUT_W: 0.9, UP_W1: 0.8, UP_W2: 0.75,
                    NEAR_SCORE: 1.5, NEAR_TOP: 5, NEAR_CONF: 0.2, TOPIC_CONF: 0.1, COST: true, COST_TOP: 15,
-                   MINE_K: 8, MINE_Q: 3, BALANCE: true, SUGGEST_K: 3, CARDQ_COS: 0.75, CARDQ_X: 0.40 };
+                   MINE_K: 8, MINE_Q: 3, BALANCE: true, SUGGEST_K: 3, CARDQ_COS: 0.75, CARDQ_X: 0.40,
+                   CQ_SUGGEST: true, CQ_SAME: 0.85, CQ_ONLY: 1, CQ_TOPIC: 0.40, CQ_WORDS: 12 };
 
 const set = (s) => new Set(s.split(/\s+/).filter(Boolean));
 // what X going wrong is called: such a factor is X failing, not X ("subtitle errors")
@@ -105,7 +113,8 @@ burden frustration loneliness isolation harm harms risk risks bias biases pain d
 abandonment dropout overreliance over-reliance dependence misinformation harassment toxicity`);
 const PEOPLE = set(`people users user adults adult children child kids students student teachers workers
 designers developers programmers clinicians patients parents families older blind deaf communities
-community individuals participants learners players members viewers readers writers`);
+community individuals participants learners players members viewers readers writers
+bystanders pedestrians drivers passengers caregivers educators artists musicians researchers employees customers residents visitors teenagers teens adolescents refugees novices experts`);
 const POSV = ["raise", "increase", "improve", "enhance", "boost", "strengthen", "foster", "promote",
   "facilitate", "encourage", "empower", "support", "help", "benefit", "lead to", "cause",
   "speed up", "deepen", "make"];
@@ -119,6 +128,7 @@ const PSYCH = { trust: "trust", use: "use", adopt: "adoption", prefer: "preferen
 const POS_ADJ = set("faster easier better safer quicker clearer stronger more");
 const NEG_ADJ = set("slower harder worse riskier weaker less");
 const SPLIT_PREP = [" in ", " on ", " for ", " among ", " during ", " within ", " across ", " at ", " over time"];
+const IDIOM = [" in control ", " in charge ", " in person ", " at ease ", " at home "];
 const WH = ["what", "which", "who", "where", "when", "why", "how", "is there", "are there"];
 // verbs that are also nouns ("emotional support from ...", "creativity support tools make ...")
 const NOUN_VERBS = new Set(["support", "supports", "help", "helps", "impact", "impacts", "influence", "influences",
@@ -221,7 +231,10 @@ function clean(s) {
 
 function splitCtx(phrase) {
   const low = ` ${phrase} `;
-  const cut = SPLIT_PREP.map((p) => low.indexOf(p)).filter((k) => k > 0);
+  // "feeling in control" is no place: the idiom is masked (same length) before the search
+  let masked = low;
+  for (const idiom of IDIOM) masked = masked.split(idiom).join(idiom.replace(/ /g, "_"));
+  const cut = SPLIT_PREP.map((p) => masked.indexOf(p)).filter((k) => k > 0);
   if (!cut.length) return [phrase, ""];
   const k = Math.min(...cut);
   const rest = low.slice(k).trim();
@@ -341,8 +354,11 @@ export function parseQuestion(text) {
     if (["help", "helps", "helped", "support", "supports"].includes(v.split(" ")[0])) {
       y = y.replace(/^(?:with|to|in)\s+/, "");
       const hp = y.split(/\s+/).filter(Boolean);
-      if (hp.length >= 2 && PEOPLE.has(hp[0]) && !PEOPLE.has(hp[hp.length - 1])) {
-        let k = 1;
+      // "help (everyday) people understand uncertainty": the people, then what they do
+      let j = -1;
+      for (let t = 0; t < Math.min(2, hp.length - 1); t++) if (PEOPLE.has(hp[t])) { j = t; break; }
+      if (j >= 0 && !PEOPLE.has(hp[hp.length - 1]) && (j === 0 || (!VERB_DIR.has(hp[0]) && !DOING.has(hp[0])))) {
+        let k = j + 1;
         while (k < hp.length - 1 && PEOPLE.has(hp[k])) k++;
         out.ctx_people = hp.slice(0, k).join(" ");
         y = hp.slice(k).join(" ");
@@ -456,6 +472,7 @@ export class Angles {
                          claims: new Map((rec.claims || []).map((c) => [c[0], [c[1], c[2]]])),
                          val: new Map((rec.val || []).map((v) => [v[0], [v[1], v[2]]])),
                          cq: rec.cq || [],
+                         sum: new Map((rec.sum || []).map((c) => [c[0], c[1]])),
                          up: new Map((rec.up || []).map((u) => [u[0], [u[1], u[2]]])),
                          about: { f: about[0], o: about[1], p: about[2] },
                          debut: new Set(rec.debut || []), first_debut: Boolean(rec.first_debut) });
@@ -613,7 +630,8 @@ export class Angles {
     const absset = this._absset(i);
     const lean = this._lean(q);
     for (const [k, qp, xp, yp, g] of info.cq) {
-      if (lean && g && lean !== g) continue;
+      // g 2: "How does X affect Y?", a result with no direction, for undirected questions only
+      if ((g === AFFECTS && lean) || (g !== AFFECTS && lean && g && lean !== g)) continue;
       let cos = 0;
       const o = qp * this.D;
       for (let t = 0; t < this.D; t++) cos += q.V[t] * this.pvec[o + t];
@@ -621,7 +639,7 @@ export class Angles {
       const my = this._pm(q.Y, yp, absset);
       if (my >= P.MATCH && this._pm(q.X, xp, absset) >= P.CARDQ_X) {
         const sub = NO_FINDINGS.has(this.items[i].type) ? "try" : "evidence";
-        return { angle: "support", subtype: sub, conf: pyRound(0.7 * my, 3), card: k, caveat: null };
+        return { angle: "support", subtype: sub, conf: pyRound(0.7 * my, 3), card: k, caveat: null, asks: qp };
       }
     }
     return null;
@@ -786,12 +804,19 @@ export class Angles {
       out = { sentence: null, factor: "", outcome: "", effect: "", status: "" };
     }
     if (v.caveat !== null && v.caveat !== undefined) out.caveat = this._sentence(i, info.cards[v.caveat]);
+    // the card's finding in one plain sentence (LLM, offline), and the question it answers
+    out.finding = (v.card !== null && v.card !== undefined && info.sum && info.sum.get(v.card)) || "";
+    out.answers = v.asks !== null && v.asks !== undefined
+      ? show(this.phrases[v.asks].slice(0, 1).toUpperCase() + this.phrases[v.asks].slice(1)) : "";
     out.text = show(Angles._whyText(v, out));
     return out;
   }
 
   static _whyText(v, w) {
     const a = v.angle, s = v.subtype, f = w.factor, o = w.outcome;
+    if (w.answers) return `Answers yes to \u201c${w.answers}\u201d ${w.finding || ""}`.trim();
+    if (w.finding) return `${WHY_LEAD[a][s]} ${w.finding}`;
+    if (!o) return WHY_LEAD[a][s];
     if (a === "support") {
       return s === "evidence" ? `Shows ${f} going with ${o}, as your question expects.` : `Lets you try ${f} for ${o} yourself.`;
     }
@@ -1048,7 +1073,22 @@ export class Angles {
     const ov = new Map([...groups.entries()].map(([key, g]) => [key, overlap(g)]));
     const ranked = sortedBy([...groups.entries()].filter(([key, g]) => g.items.length >= 2 || ov.get(key) > 0)
       .map(([key, g]) => [pyRound(g.w * (1 + ov.get(key)), 6), JSON.parse(key)]), (t) => [-t[0], t[1]]);
-    const out = [], usedF = new Set(), usedO = new Set(), usedI = new Set();
+    let out = [];
+    const usedF = new Set(), usedO = new Set(), usedI = new Set();
+    if (P.CQ_SUGGEST) {
+      // "chatbots and mental health": the asker's own two things, asked as they gave them
+      const [a_, b_] = q.kind !== "relation" ? pair(q.x) : ["", ""];
+      const mine = [];
+      if (a_ && b_) {
+        const e = new Counter();
+        e.add("increase");
+        const text = this._wording(a_, b_, e);
+        if ((await this.question(text)).kind === "relation") mine.push(await this._suggestion(text, a_, b_, [], types));
+      }
+      const first = mine.length ? mine[0].question : undefined;
+      out = mine.concat((await this._claims(q, pool, score, types, k)).filter((o) => o.question !== first)).slice(0, k);
+      if (out.length >= P.CQ_ONLY) return this._balanced(out, q);
+    }
     // a topic keeps its own words when its talks share an outcome or a cause
     if (q.kind === "topic") {
       for (const [x, y, e, items] of await this._anchored(q, pool, score)) {
@@ -1094,6 +1134,69 @@ export class Angles {
     else if (downs > ups) text = `${dz} ${x} reduce ${y}?`;
     else text = `How ${dz.toLowerCase()} ${x} affect ${y}?`;
     return show(text);
+  }
+
+  // sharper questions from the questions the topic's talks answer (angles.json "cq"): the
+  // ones most talks back (cosine CARDQ_COS, same way up), those with the topic's words first,
+  // no two alike; each needs two talks
+  async _claims(q, pool, score, types, k) {
+    // questions with a direction only: the claim the Supports back and the Challenges push on
+    const cands = [];
+    for (const i of pool.slice(0, 60)) {
+      for (const [, qp, , , g] of (this.info.get(i) || { cq: [] }).cq) if (g !== AFFECTS) cands.push([i, qp, g]);
+    }
+    if (!cands.length) return [];
+    const D = this.D;
+    const dot = (p1, p2) => { let c = 0; for (let t = 0; t < D; t++) c += this.pvec[p1 * D + t] * this.pvec[p2 * D + t]; return c; };
+    const n = cands.length;
+    const S = new Float64Array(n * n);
+    for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) S[a * n + b] = dot(cands[a][1], cands[b][1]);
+    const qt = q.kind !== "relation" ? content(q.x)[0] : [];
+    let A_ = null, B_ = null;
+    if (q.kind !== "relation") {
+      const [pa, pb] = pair(q.x);
+      A_ = await this._phrase(pa);
+      B_ = await this._phrase(pb);
+    }
+    const rows = [];
+    cands.forEach(([i, qp, g], a) => {
+      // talks, not listings: a talk listed twice backs a question once
+      const backers = [];
+      for (let b = 0; b < n; b++) {
+        if (S[a * n + b] >= P.CARDQ_COS && !(g && cands[b][2] && g !== cands[b][2])) {
+          const c = this.arc._canon(cands[b][0]);
+          if (!backers.includes(c)) backers.push(c);
+        }
+      }
+      if (backers.length < 2) return;
+      // on the typed topic, and short enough to read as a question
+      let cq = 0;
+      for (let t = 0; t < D; t++) cq += this.pvec[qp * D + t] * q.V[t];
+      if (this.phrases[qp].split(" ").length > P.CQ_WORDS || cq < P.CQ_TOPIC) return;
+      const keeps = qt.some((w) => this.ptoks[qp].some((t) => same(w, t)));
+      // "chatbots and mental health": the two named things as the question's X and Y
+      let pr = 1;
+      if (A_ !== null && B_ !== null) {
+        const r = this.info.get(i).cq.find((x) => x[1] === qp);
+        pr = this._pm(A_, r[2], new Set()) >= P.MATCH && this._pm(B_, r[3], new Set()) >= P.MATCH ? 0 : 1;
+      }
+      let w = 0;
+      for (const j of backers) w += score[j];
+      rows.push([pr, keeps ? 0 : 1, -backers.length, -pyRound(w, 6), a, backers]);
+    });
+    const sorted = sortedBy(rows, (r) => r.slice(0, 5));
+    const out = [], picked = [];
+    for (const [, , , , a, backers] of sorted) {
+      if (picked.some((b) => S[a * n + b] >= P.CQ_SAME)) continue;
+      const qp = cands[a][1];
+      const text = show(this.phrases[qp].slice(0, 1).toUpperCase() + this.phrases[qp].slice(1));
+      const pq = await this.question(text);
+      if (pq.kind !== "relation") continue;
+      picked.push(a);
+      out.push(await this._suggestion(text, show(pq.x), show(pq.y), backers, types));
+      if (out.length === k) break;
+    }
+    return out;
   }
 
   async _suggestion(text, x, y, items, types) {
@@ -1927,4 +2030,15 @@ function fold(s) {
 // Python's str ordering: by code point
 function cmpStr(a, b) {
   return a < b ? -1 : a > b ? 1 : 0;
+}
+
+// "chatbots and mental health", "AI for learning" -> ["chatbots", "mental health"]; ["", ""]
+// when the topic names one thing or the second is who ("for blind users")
+function pair(topic) {
+  const m = topic.match(/^(.+?)\s+(?:and|for|vs|versus|on|&)\s+(.+)$/);
+  if (!m) return ["", ""];
+  const a = m[1].trim(), b = m[2].trim();
+  const bw = b.match(W_RE()) || [];
+  if (!content(a)[0].length || !content(b)[0].length || PEOPLE.has(bw[bw.length - 1])) return ["", ""];
+  return [a, b];
 }

@@ -34,7 +34,7 @@ from gen_findings import EFFECTS, STATUS  # noqa: E402
 GEN_MODEL = os.environ.get("CHI_GEN_MODEL", "Qwen/Qwen3-14B")
 BATCH = int(os.environ.get("CHI_GEN_BATCH", "24"))
 PROC = os.path.join(config.ROOT, "data", "processed")
-OUT_DIR = os.path.join(PROC, "cardq_raw")
+OUT_DIR = os.path.join(PROC, os.environ.get("CHI_CARDQ_DIR", "cardq_raw"))
 
 SYSTEM = ("You help match CHI conference results to the research questions attendees bring. "
           "You judge only from the sentence given.")
@@ -44,14 +44,16 @@ PROMPT = """{kind} at CHI 2026: "{title}"
 Results from its abstract, each with its sentence:
 {cards}
 
-Attendees bring short research questions such as "Does <kind of technology or design> improve <outcome>?" or "Do <things> reduce <outcome> for <people>?". For each result, write up to 3 questions that this result answers, from narrow to broad:
-  - Name the factor by the kind of thing it is, never by the paper's own system name: "EarlyArchi" (an AI tool for early architectural design) -> "AI design tools", then "generative AI".
-  - Name the outcome in plain words a researcher would ask about: "perceived creativity" -> "creativity"; "words per minute" -> "typing speed".
-  - Each question is one factor and one outcome, 6-14 words, starting with Does or Do, with a verb such as improve, increase, raise, support, help, reduce, lower, decrease.
-  - answer "yes" if the result shows the factor changing the outcome the way the question asks; "no" if it found no effect or the opposite.
-  - Write a question only when the sentence itself supports the answer. Fewer questions are better than loose ones.
+Attendees, many of them new to the field, bring short research questions such as "Do external displays on self-driving cars improve pedestrian safety?", "Does generative AI support designers' creativity?" or "How do video games affect teenagers' wellbeing?". For each result, write exactly 3 questions that this result answers, one per level:
+  1. narrow: the factor and the outcome as this work studied them, but never by the paper's own system name ("an attention-guiding external display", "perceived safety").
+  2. kind: the kind of thing the factor is and the quality the outcome measures ("external displays on automated vehicles", "pedestrians' sense of safety").
+  3. broad: what someone outside this subfield would ask, the factor in everyday words and the outcome as a broad family such as safety, wellbeing, user experience, performance, learning, creativity, trust, engagement, accessibility, privacy ("external displays on self-driving cars", "pedestrian safety").
+  - Each question is one factor and one outcome, 6-14 words.
+  - If the result has a direction (increase, decrease, no_effect), start with Does or Do and use a verb such as improve, increase, support, help, reduce, lower; answer "yes" if the result shows the factor changing the outcome the way the question asks, "no" if it found no effect or the opposite.
+  - If the result has no direction (associated: the work describes how the factor shapes the outcome, often from interviews or observation), write "How does/do <factor> affect <outcome>?" and answer "affects".
+  - Ask only what the sentence itself supports; at the broad level, keep the claim no stronger than the sentence.
 
-Return one JSON object: {{"results": [{{"n": number, "questions": [{{"q": "...", "answer": "yes" | "no"}}, ...]}}, ...]}}. Return only the JSON object."""
+Return one JSON object: {{"results": [{{"n": number, "questions": [{{"q": "...", "answer": "yes" | "no" | "affects"}}, ...]}}, ...]}}. Return only the JSON object."""
 
 
 def parse(text, n):
@@ -72,7 +74,7 @@ def parse(text, n):
             continue
         qs = []
         for x in r.get("questions") or []:
-            if isinstance(x, dict) and isinstance(x.get("q"), str) and x.get("answer") in ("yes", "no"):
+            if isinstance(x, dict) and isinstance(x.get("q"), str) and x.get("answer") in ("yes", "no", "affects"):
                 q = " ".join(x["q"].split())
                 if 4 <= len(q.split()) <= 20 and q.endswith("?"):
                     qs.append([q, x["answer"]])
@@ -96,7 +98,7 @@ def todo_items():
         ab = prog[xid]["abstract"]
         idx, lines = [], []
         for k, c in enumerate(rec["cards"]):
-            if STATUS[c[4]] != "result" or EFFECTS[c[3]] not in ("increase", "decrease", "no_effect"):
+            if STATUS[c[4]] != "result" or EFFECTS[c[3]] not in ("increase", "decrease", "no_effect", "associated"):
                 continue
             v = (val.get(xid) or {}).get(str(k))
             if v is not None and v[1] != "yes":
