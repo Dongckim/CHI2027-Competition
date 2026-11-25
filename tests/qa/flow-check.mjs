@@ -30,7 +30,7 @@ const ROWS = [
   ['12', `#/arc/${ARC.id}`, ['link', 'Edit'], new RegExp(`^#/arc/${ARC.id}/edit$`)],
   ['12', `#/arc/${ARC.id}`, ['link', 'Share'], new RegExp(`^#/share/${ARC.id}$`)],
   ['12', `#/arc/${ARC.id}`, ['link', 'Back'], /^#\/home$/],
-  ['12', `#/arc/${ARC.id}`, '[aria-description^="Next up:"]', /^#\/talk\//],
+  ['12', `#/arc/${ARC.id}`, '[aria-description^="Next up:"], [aria-description^="Now:"]', /^#\/talk\//],
   ['12', `#/arc/${ARC.id}`, 'main button[aria-label^="All "]', new RegExp(`^#/arc/${ARC.id}/[SRT]$`)],
   ['24', `#/arc/${CROWD.id}`, 'main button[aria-label$=" Reframes"]', new RegExp(`^#/arc/${CROWD.id}/R$`)],
   ['24b', `#/arc/${CROWD.id}/R`, ['link', 'Back'], new RegExp(`^#/arc/${CROWD.id}$`)],

@@ -60,7 +60,7 @@ try {
   await open(`#/arc/${ARCS.normal.id}`);
   const mapMs = await waitFor(`${nodes}.length >= 3 && [...document.querySelectorAll('main button[aria-description]')].some(b => b.getAttribute('aria-description')?.endsWith(' · Next'))`, 30000);
   const map = await ev(`({ nodes: ${nodes}.length, states: [...document.querySelectorAll('main button[aria-description]')].map(b => b.getAttribute('aria-description').split(' · ').pop()),
-    nextUp: [...document.querySelectorAll('a')].find(a => a.getAttribute('aria-description')?.startsWith('Next up:'))?.getAttribute('aria-description') ?? null,
+    nextUp: [...document.querySelectorAll('a')].find(a => /^(Next up|Now):/.test(a.getAttribute('aria-description') ?? ''))?.getAttribute('aria-description') ?? null,
     tribe: document.documentElement.dataset.tribe, share: !!document.querySelector('button[disabled][aria-describedby=share-soon]') })`);
   await shot('12');
   check('12 map: nodes as buttons, Next and Ended from the clock, next-up panel, tribe edge', mapMs != null && map.states.includes('Next') && map.states.includes('Ended') && !!map.nextUp && map.tribe === 'xr', map);
@@ -114,7 +114,7 @@ try {
   check('24 crowded: the count moves the map toward that angle (24b) and back', bundle != null && moved != null && back != null && shown > 3, { angle: name, shown, nodes: ARCS.crowded.nodes.length });
   await open(`#/arc/${ARCS.pending.id}`);
   const sorting = await waitFor(`/Sorting angles/.test(document.body.innerText) && ${nodes}.length > 0`, 20000);
-  const nextUp25 = await ev(`[...document.querySelectorAll('a')].some(a => a.getAttribute('aria-description')?.startsWith('Next up:'))`);
+  const nextUp25 = await ev(`[...document.querySelectorAll('a')].some(a => /^(Next up|Now):/.test(a.getAttribute('aria-description') ?? ''))`);
   await shot('25');
   check('25 sorting: status pill, neutral nodes, no next-up', sorting != null && !nextUp25, {});
 

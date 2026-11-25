@@ -5,10 +5,10 @@ import { href } from '../../router';
 import { useArcs, isPersistent } from '../../arc/store';
 import { TRIBE } from '../../arc/tribes.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
-import { heardOf } from '../../arc/draft.js';
+import { heardOf, resetDraft } from '../../arc/draft.js';
 import { nodeStates } from '../../arc/map.js';
 import { localDay } from '../../planner/plan.js';
-import { useDevice } from '../../state/useDevice';
+import { useDevice, update } from '../../state/useDevice';
 import { useTribe } from '../../arc/live';
 import { useNow } from '../../clock.js';
 import { loadSchedule, type Schedule } from '../../data/load';
@@ -25,6 +25,9 @@ import plus from '../../assets/arc/icon-plus.svg';
 import plusDark from '../../assets/arc/button-icon-primary.svg';
 import book from '../../assets/arc/icon-book.svg';
 import chevron from '../../assets/arc/icon-chevron-right.svg';
+
+// New Arc starts from an empty 07; the last draft is kept until then, so back from 11 can change the day (persona review 11/25)
+const fresh = () => update(resetDraft);
 
 const at = (x: number, y: number, w: number) => ({ position: 'absolute' as const, left: x, top: y, width: w, height: w });
 type Period = 'today' | 'week' | 'after';
@@ -111,11 +114,11 @@ export function Home() {
     </a>
   );
   if (!arcs.length) return (
-    <Screen label="My Arcs" bottom={<div className="flex flex-col gap-5 pb-1.5">{/* Figma 21: 20 between, New Arc 20 above the home indicator */}{chi101}<ArcLink href={href('ask')}><Pic src={plusDark} size={20} />New Arc</ArcLink></div>}>
+    <Screen label="My Arcs" bottom={<div className="flex flex-col gap-5 pb-1.5">{/* Figma 21: 20 between, New Arc 20 above the home indicator */}{chi101}<ArcLink href={href('ask')} onClick={fresh}><Pic src={plusDark} size={20} />New Arc</ArcLink></div>}>
       <h1 className="mt-3 text-[30px] font-semibold tracking-[-0.024em]">My Arcs</h1>
       {!isPersistent() && <p className="mt-2 text-[14px] text-arc-text-2">This browser does not keep Arcs. They stay until you close the tab.</p>}
       <div className="mt-[113px] flex flex-col items-center">{/* Figma 21: the art at a fixed 215, not centred */}
-        <a href={href('ask')} aria-label="New Arc" className="relative -mx-6 h-[250px] w-[390px] max-w-[100vw]">
+        <a href={href('ask')} onClick={fresh} aria-label="New Arc" className="relative -mx-6 h-[250px] w-[390px] max-w-[100vw]">
           <img src={holo} alt="" style={at(70, 0, 250)} />
           <img src={orbit} alt="" style={at(110, 40, 170)} />
           <img src={newOrb} alt="" style={at(147, 77, 96)} />
@@ -130,7 +133,7 @@ export function Home() {
       {/* Figma 20: title at 24, 66; New Arc at 64, 24 from the edge (the header row is 16 from it). mb-1: the button's
           lower edge is not flush with main, where a press on it landed on main (a11y check) */}
       <h1 className="mt-3 self-start pl-2 text-[30px] font-semibold tracking-[-0.024em]">My Arcs</h1>
-      <ArcLink href={href('ask')} className="mt-2.5 mr-2 mb-1 h-11 min-w-[116px] shrink-0 self-start"><Pic src={plusDark} size={20} />New Arc</ArcLink>{/* Figma 20: 116×44, grows with its words */}
+      <ArcLink href={href('ask')} onClick={fresh} className="mt-2.5 mr-2 mb-1 h-11 min-w-[116px] shrink-0 self-start"><Pic src={plusDark} size={20} />New Arc</ArcLink>{/* Figma 20: 116×44, grows with its words */}
     </>}>
       <DemoBanner />
       {!isPersistent() && <p className="mt-2 text-[14px] text-arc-text-2">This browser does not keep Arcs. They stay until you close the tab.</p>}
@@ -149,6 +152,10 @@ export function Home() {
       )}
       <div id="arc-list" role="tabpanel">
       {/* opens 20b (Figma 743:1741) once CHI is over; Figma 20 has no such card: its words are ours, designer to confirm */}
+      {/* during CHI the tab was an empty page (persona review 11/25): say what will come here */}
+      {period === 'after' && !isOver(now, { days: current.days, timeZone: schedule?.meta.timeZone ?? DEMO_TZ }) && !rows.some(r => r.period.after) && (
+        <p className="mt-8 text-center text-[16px] text-arc-text-2">When CHI ends, what you heard and what is left to read come here.</p>
+      )}
       {period === 'after' && isOver(now, { days: current.days, timeZone: schedule?.meta.timeZone ?? DEMO_TZ }) && (
         <a href={href('after')} className="mt-5 flex h-14 items-center gap-3 rounded-[20px] border border-arc-line bg-arc-surface pr-3.5 pl-4 text-[15px] font-semibold tracking-[-0.006em]">
           <span className="flex-1">Your CHI</span><Pic src={chevron} size={18} />

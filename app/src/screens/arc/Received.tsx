@@ -14,13 +14,12 @@ import { update } from '../../state/useDevice';
 import { loadSchedule, loadAbstracts, loadDebut, type Schedule } from '../../data/load';
 import { abstractFileDay, firstSlot, dateOf, clockOf } from '../../explore/format';
 import { useNow, now as nowMs } from '../../clock.js';
-import { venueClock } from '../../time.js';
 import { Screen, ArcButton, BackButton, Pic } from '../../components/arc';
 import { ANGLE_NAME } from './AngleHelp';
 import { AngleRows } from './ArcList';
 import { ArcView, useMapFit, type Info } from './ArcView';
 import { AddSheet } from './AddSheet';
-import { shortRoom } from './useArc';
+import { shortRoom, whenLine } from './useArc';
 import linkIcon from '../../assets/arc/icon-link.svg';
 import lockIcon from '../../assets/arc/icon-lock.svg';
 import checkIcon from '../../assets/arc/icon-check.svg';
@@ -62,7 +61,7 @@ function useReceived(payload: string) {
     const sc = ok!.schedule, p = sc.index.papers.get(k) as Paper | undefined, s = p ? firstSlot(p.slots) : null, tz = sc.meta.timeZone;
     const room = s ? sc.index.rooms.get(s.roomKey)?.name ?? '' : '';
     return { title: p?.title ?? k, short: labelOf(p?.title ?? k), time: s ? `${dateOf(s.start, tz)} · ${clockOf(s.start, tz)}` : 'Time to be announced',
-      when: s ? `${venueClock(s.start, tz)}${room ? ` · ${shortRoom(room)}` : ''}` : 'Time TBA' /* no time in the feed (14: "Time to be announced") */, room: room ? shortRoom(room) : '' };
+      when: s ? whenLine(s.start, room, tz, t) : 'Time TBA' /* no time in the feed (14: "Time to be announced") */, room: room ? shortRoom(room) : '' };
   };
   const paper = (k: string) => ok?.schedule.index.papers.get(k) as Paper | undefined;
   return { r, ok, states, info, paper, timeOf };
@@ -84,12 +83,17 @@ function Broken({ why }: { why: string }) {
 export function Received({ payload }: { payload: string }) {
   const { r, ok, states, info } = useReceived(payload);
   const [fit, mapRef] = useMapFit(0.78); // 18 must not scroll: the map shrinks further on a short screen (Safari, 664)
+  const mine = useArcs();
   if (!r) return null;
   if (!ok) return <Broken why={(r as { error: string }).error} />;
   const { arc, missing } = ok;
+  // the same link opened again: open the copy already kept instead of adding a second one (persona review 11/25)
+  const keys = arc.nodes.map(n => n.key).sort().join();
+  const kept = mine?.find(a => a.query === arc.query && a.nodes.map(n => n.key).sort().join() === keys);
   return (
     <Screen clock label="Shared Arc" bottom={<div className="flex flex-col">{/* Figma 18: 10 under Add, 12 above Just read */}
-      <ArcButton onClick={() => keep(arc)} disabled={!arc.nodes.length}>Add to my Arcs</ArcButton>
+      {kept ? <ArcButton onClick={() => go(`arc/${kept.id}`)}>Open in my Arcs</ArcButton>
+        : <ArcButton onClick={() => keep(arc)} disabled={!arc.nodes.length}>Add to my Arcs</ArcButton>}
       {/* Figma 18: Pick some · Make it mine side by side; with larger text each takes its own row rather than breaking its words */}
       <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-2.5">
         <ArcButton kind="secondary" className="min-w-fit grow basis-[calc(50%-6px)]" onClick={() => go(`r/${payload}/pick`)} disabled={!arc.nodes.length}>Pick some</ArcButton>

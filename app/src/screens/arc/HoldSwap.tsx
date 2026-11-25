@@ -7,7 +7,9 @@ import { engineFor, type Angle, type Arc, type ArcNode } from '../../engine';
 import { walkMinutes } from '../../venue/walk.js';
 import { minutesText } from '../../venue/directions.js';
 import { venueClock } from '../../time.js';
-import { firstSlot } from '../../explore/format';
+import { firstSlot, weekdayOf } from '../../explore/format';
+import { localDay } from '../../planner/plan.js';
+import { now as nowMs } from '../../clock.js';
 import { Pic } from '../../components/arc';
 import { ANGLE_ICON } from './ArcView';
 import { shortRoom, type useArc } from './useArc';
@@ -94,10 +96,11 @@ export function useHoldSwap({ arc, save, paper, schedule }: ReturnType<typeof us
   // the choices' line: room · ~time, and the walk from the held talk's room
   const where = (key: string) => {
     const p = paper(key), s = p ? firstSlot(p.slots as Slot[]) : null;
-    const room = s ? schedule?.index.rooms.get(s.roomKey)?.name ?? '' : '';
+    const room = s ? schedule?.index.rooms.get(s.roomKey)?.name ?? '' : '', tz = schedule?.meta.timeZone ?? 'UTC';
     // Figma "122 · ~14:32": the room number alone fits the 106 card
     return { title: p?.title ?? key, roomKey: s?.roomKey ?? null,
-      line: [room && shortRoom(room).replace(/^Rm /, ''), s && `~${venueClock(s.start, schedule!.meta.timeZone)}`].filter(Boolean).join(' · ') };
+      // another day says so (persona review 11/25: a swap offered Thursday talks on a Tuesday Arc as if they were today)
+      line: [room && shortRoom(room).replace(/^Rm /, ''), s && `${localDay(s.start, tz) !== localDay(nowMs(), tz) ? `${weekdayOf(s.start, tz)} ` : ''}~${venueClock(s.start, tz)}`].filter(Boolean).join(' · ') };
   };
   const walk = (fromKey: string, toKey: string) => {
     const a = where(fromKey).roomKey, b = where(toKey).roomKey;
