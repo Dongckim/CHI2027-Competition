@@ -1,7 +1,7 @@
 // Motion from the final prototype (ARC_prototype, 11/23): screen entrances, the map's bloom, count-ups. Web Animations
 // only, nothing kept in state. Off under prefers-reduced-motion (and so in the headless checks, which ask for it); endless
 // loops also stop while the page is hidden.
-import { BOX } from './map.js';
+import { BOX } from './box.js';
 export const EASE = 'cubic-bezier(.2,.8,.2,1)';
 export const OUT = 'cubic-bezier(.22,1,.36,1)';
 export const POP = 'cubic-bezier(.34,1.5,.64,1)';

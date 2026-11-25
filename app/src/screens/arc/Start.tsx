@@ -61,9 +61,9 @@ const Title = ({ lines }: { lines: [string, string] }) =>
   <h1 className="mt-[10px] text-[30px] leading-9 font-semibold tracking-[-0.024em]">{lines[0]}<br />{lines[1]}</h1>;
 // Figma draws the pictures on the 390-wide frame; this box keeps their coordinates (y is from the frame top).
 // top is where the box starts on the frame: 102 under the header, 184 under a two-line title.
-const Frame = ({ top, height, children }: { top: number; height: number; children: React.ReactNode }) => (
+const Frame = ({ top, height, children, className = '' }: { top: number; height: number; children: React.ReactNode; className?: string }) => (
   // 390 wide and centred on any screen (overflow is clipped by Screen); pictures take no presses, so Skip and links stay pressable
-  <div aria-hidden="true" className="pointer-events-none relative w-[390px] shrink-0 self-center" style={{ height }}>
+  <div aria-hidden="true" className={`pointer-events-none relative w-[390px] shrink-0 self-center ${className}`} style={{ height }}>
     <div className="absolute left-0 w-[390px]" style={{ top: -top, ...FRAME_ART }}>{children}</div>
   </div>
 );
@@ -90,7 +90,7 @@ function Welcome() {
         {/* Figma 11px at x 33; 12px is the floor (same line centre) */}
         <p className={`${LAST} mt-[1.5px] pl-[9px] text-[12px] font-medium whitespace-pre text-arc-text-3`}>{'Unofficial  ·  No account  ·  Stays on your phone'}</p>
       </>}>
-      <Frame top={102} height={368}>
+      <Frame top={102} height={368} className="arc-welcome-art">
         {/* Figma 844:1847 (11/23): a filled orb; the ring draws itself and the neighbourhoods land and drift (prototype) */}
         <WelcomeOrbit shapes={WELCOME_SHAPES.map(([src, x, y, inset], i) => ({ src, x, y, inset, color: TRIBE_COLOR[i] }))} />
       </Frame>

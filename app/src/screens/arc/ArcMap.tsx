@@ -74,7 +74,8 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
   const next = pending ? null : picked ?? (focus ? arc.nodes.find(n => n.angle === focus) : arc.nodes.find(n => states.get(n.key) === 'next')) ?? null;
   const ni = next ? info(next.key) : null;
   const outside = !!next && candidates.has(next.key);
-  const word = next ? (outside ? '' : STATE_WORD[states.get(next.key) ?? 'upcoming']) : '';
+  // the talk under way says Now, not Next (14 says "Now · Talk 2 of 7")
+  const word = next ? (outside ? '' : ni?.on && states.get(next.key) === 'next' ? 'Now' : STATE_WORD[states.get(next.key) ?? 'upcoming']) : '';
   const add = async (n: ArcNode) => { // 24b Add: onto this Arc, in its angle (prototype "내 Arc에 더해집니다")
     await use.save({ ...arc, nodes: [...arc.nodes, n], tension: n.angle === 'T' ? 'found' : arc.tension });
     setOthers(o => ({ ...o, [n.angle]: (o[n.angle] ?? []).filter(x => x.key !== n.key) }));
