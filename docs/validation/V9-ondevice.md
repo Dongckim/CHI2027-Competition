@@ -155,3 +155,20 @@
 - 빠진 Challenge: 230223 "Overall, the human counselor condition received higher trust ratings, …"(진짜 결과 문장). 11-22 모델은 이 발표에 방법 문장 "We assessed changes in subjective distress …"를 `result`/`no_effect`로 붙였다. 원준에게 보냄(docs/handoff/wonjune.md 2–3).
 - 검사: `npm test` 172/172, `tests/arc/setup-check.mjs` 5/5, ondevice 빌드 create-check 15/15, qa:auto 16/16.
 - 판정: 조건부 통과. 계약·화면은 문제없고 종족·목표 문장은 나아졌지만, Challenge가 14개 질문에서 0개다.
+
+## 새 모델 `model-2026-11-25` (2026-11-25, PR #94)
+사용자 「지금 PR 에 모델 더 좋은거로 올라와있다는데 확인해주고 구현해줘」. #94는 #80을 포함한다. 패키지 22.3 MB, 117개 파일, sha256 83a3dedc…(PR 값과 같음), 버전 `2026-11-25`.
+
+| | 11-22 모델 | 11-25 모델 |
+|---|---|---|
+| 우리 질문 14개: ↑ / ⊣ 합 (WebKit, iPhone 14 프로필) | 7 / 0 | 5 / 0 |
+| 원준 테스트 질문 38개(angle_cases): 엔진 ⊣ → 앱 지도 ⊣ | — | 10 → 10 (Arc 8개) |
+| 계약·규칙 오류 | 0 | 0 |
+| 첫 로드 | 731 ms | 794 ms |
+
+- Challenge는 "Does X raise Y?"처럼 방향 있는 질문에서만 나온다. 우리 14개는 대부분 주제("mental health apps", "VR")라 0개다. 앱이 걸러 낸 것은 없다(엔진 10 = 지도 10, `resultQuote` 강등 0).
+- 새 Challenge subtype `cost`(Trade-off): Arc 계약의 `kind`는 Reframe만이라 앱에서는 보통 Challenge로 보인다. 계약 변경 없음.
+- ondevice 엔진의 노드 짧은 이름(label)은 제목 앞부분이 아니다("Interaction Fidelity" ← "When Hands Meet Physics …"). create-check가 노드 설명(전체 제목)으로 14를 확인하게 바꿨다.
+- 시각 2시간은 그대로(`engineNow` 유지).
+- 검사: `npm test` 172/172, setup-check 5/5, ondevice 빌드 create-check 16/16.
+- 판정: 조건부 통과. 방향 있는 질문에서는 Challenge가 나온다. 주제만 적은 질문은 여전히 0개라 화면 23이 자주 나온다.

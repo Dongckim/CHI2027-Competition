@@ -1,7 +1,12 @@
-# 원준에게: 모델 쪽에서 고칠 것 (2026-11-22, 모델 `model-2026-11-22` 반영 뒤)
+# 원준에게: 모델 쪽에서 고칠 것 (2026-11-25, 모델 `model-2026-11-25` 반영 뒤)
 
 `model-2026-11-22`(sha256 6388932f…, PR #80)을 앱에 붙여 검사한 결과다. 숫자는 docs/validation/V9-ondevice.md "새 모델" 절에 있다.
 앱은 어댑터(`app/src/engine/ondevice-map.js`)에서 임시로 막아 둔 것이 있다. 모델이 고쳐지면 어댑터의 임시 코드를 지운다.
+
+## 11/25 모델 (#94) 확인
+- 패키지 sha·버전 맞음, 계약 오류 0, 엔진 Challenge가 앱 지도에 그대로 다 올라감(38문항 10 → 10).
+- 남은 것: 주제만 적은 질문(우리 14개 중 12개)은 여전히 Challenge 0. 좁히는 질문이 방향 있는 꼴("Does X improve Y?")이면 나온다. 3번 부탁 그대로.
+- 디자인 결정 대기(사용자·디자이너): `cost`(Trade-off)를 22 도움말 "Same question, a different finding."에 맞출지, `mine`(Did you submit a paper?) 화면은 Figma에 없어 앱에 아직 안 붙임.
 
 ## 고쳐진 것 (11/22 모델)
 - Challenge 목표 문장: 222623은 엔진이 직접 Reframe(factor)으로 낸다. 앱의 `resultQuote`는 그대로 둔다(이중 안전장치).

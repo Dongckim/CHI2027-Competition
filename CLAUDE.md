@@ -168,3 +168,5 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - A7 최종 프로토타입 (2026-11-23, stage/A7-prototype): 프로토타입 움직임(지도 bloom, 01 궤도, 12a·12b·12c·24b, 화면 진입·숫자) 구현(`app/src/arc/motion.ts`, 줄인 움직임이면 정지), 24b 후보 + Add·구역 전체 개수, 09 How you walk(calm/step_free → 엔진, Step-free면 Next 카드 Elevator), 19·19b → 홈
 - `tests/qa/flow-check.mjs`(프로토타입 연결 32줄 + 움직임 끝 위치), 검사 브라우저는 모두 줄인 움직임. 제외: 번역(14g·14b 번역), 14c·14d·14h·Web, Print badge(이전 결정)
 - 남은 것: 엘리베이터 아이콘·24b 후보 12개 한도 등 해석(designer.md §18), 실기기 확인 안 함
+- 모델 11-25 (2026-11-25, fix/model-2026-11-25, #94 포함 #80): Challenge 판정 개선·Trade-off(`cost`, 앱에선 보통 Challenge)·`mine` 화면(앱 미연결). 방향 있는 질문은 ⊣ 나옴(원준 38문항 10개, 앱이 다 표시), 주제 질문은 여전히 0
+- 노드 짧은 이름 Figma대로(#93), 프로토타입 맞춤(#92, designer.md §19). 남은 것: Vercel `MODEL_URL`·`MODEL_SHA256` 교체 뒤 머지, cost 도움말·mine 화면은 디자인 결정 대기
