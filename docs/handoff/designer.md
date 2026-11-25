@@ -316,3 +316,24 @@ ARC_prototype (1).html의 프레임 47개를 앱 화면 32개와 나란히 비�
 - "끝난 발표": Arc를 만든 시각은 실제 시각이라 데모 시계와 맞지 않아, "지금 끝났고 듣지 않은 것"으로 판단.
 - All week Arc와 받은 Arc는 그대로(날짜를 고르지 않음).
 - Chair는 세션의 첫 번째 chair만.
+
+## 21. Add / Swap 시트: 엔진이 정한 각도로 (2026-11-25, 사용자 결정 「A로 하고」)
+검색은 이 Arc의 질문과 상관없이 CHI 발표 전체를 제목·저자로 찾는다. 예전에는 찾은 발표가 근거 문장 없이 시트의 각도(예: Supports)로 들어갔다. 이제 엔진이 이 질문에 대해 판단한 각도와 근거 문장으로 들어가고, 카드가 어디로 가는지 말한다(옵션 A).
+
+### 카드 (디자이너 확인 전)
+| 경우 | 카드 윗줄 | 버튼 이름(스크린리더) | 누르면 |
+|---|---|---|---|
+| 시트 각도와 같음 | 각도 기호만 (예전과 같음) | "Add to Supports: …" / "Swap in · Supports: …" | 그 각도로 |
+| 다른 각도 | 기호 + **"Goes to Reframes"** | "Add to Reframes: Goes to Reframes · …" / "Swap in · Reframes: …" | 엔진이 정한 각도로 (시트 제목 "Add to Supports"와 달라도) |
+| 질문과 관계없음 | **"Not about your question"**, 테두리 점선 | "Not about your question: …" | 못 누름(disabled) |
+| Wildcard 칩 | 다른 각도면 위와 같이 "Goes to …" | 같음 | 엔진이 정한 각도로 |
+
+### 문구 (디자이너 확인 전)
+- 검색 placeholder: "Search all CHI talks by title or author" (예전 "Search")
+- Wildcard 칩을 고르면 칩 아래 12px: "Wildcard picks its own angle for each talk."
+- 판단하는 동안 "Looking…", 엔진이 실패하면 "Could not sort these talks. Try again."
+
+해석(확인 전):
+- 질문과 관계없는 발표도 목록에는 보인다(검색이 찾았다는 것을 숨기지 않으려고).
+- 다른 각도로 들어간 발표가 그 구역의 4번째면 지도에서는 개수 버튼(+N) 안에 들어간다(구역마다 3개, 17절).
+- 엔진 인터페이스에 `judge(query, keys)` 추가 — 원준 확인 필요.
