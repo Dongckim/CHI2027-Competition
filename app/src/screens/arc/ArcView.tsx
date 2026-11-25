@@ -83,7 +83,8 @@ export function useMapFit(base = 1) {
 
 const BELOW = 0; // 11/23: every seat's label ends inside Figma's 530 box
 
-export type Info = { title: string; short: string; time: string; when: string; room: string; /** on now */ on?: boolean };
+export type Info = { title: string; short: string; time: string; when: string; room: string; /** on now */ on?: boolean;
+  /** "Name · Institution" of the first author and the session's chair (user 11/25 E; never "Presenter") */ first?: string | null; chair?: string | null };
 // 19: tap a talk to keep or skip it; locked talks (over, or already in one of my Arcs) cannot be picked.
 export type Pick = { picked: Set<string>; locked: Map<string, 'ended' | 'mine'>; onToggle: (key: string) => void };
 type Edit = { selected: string | null; onSelect: (key: string) => void; onRemove: (key: string) => void; onAdd: (angle: Angle) => void; adding: Angle | null };

@@ -4,7 +4,7 @@
 // The path changes when the feed revision or any file's content changes, so the files can be cached forever.
 import { createHash } from 'node:crypto';
 import { localDay } from '../../app/src/planner/plan.js';
-import { appPaper, appPeople } from './app-shape.mjs';
+import { appPaper, appPeople, appSession, personLine } from './app-shape.mjs';
 
 // Which abstracts/<day>.json holds a paper: the venue-local day of its first timed slot, else "unscheduled" (remote only).
 export function abstractDay(paper, timeZone) {
@@ -14,17 +14,17 @@ export function abstractDay(paper, timeZone) {
 
 export function buildAppData({ meta, papers, sessions, rooms, people, aliases, topics = [], debut = [] }) {
   const tz = meta.timeZone;
+  const peopleOut = appPeople({ papers, people, institutions: aliases.institutions });
+  const who = k => peopleOut[k] && personLine(peopleOut[k].name, peopleOut[k].affiliations[0]?.institution);
   const schedule = {
     meta: { edition: meta.edition, revision: meta.revision, publicationVersion: meta.publicationVersion, timeZone: tz, attribution: meta.attribution },
     rooms: rooms.map(({ key, name, floor }) => ({ key, name, floor })),
-    sessions: sessions.map(({ key, name, start, end, timing }) => ({ key, name, start, end, timing })), // timing: talks | block | none
+    sessions: sessions.map(s => appSession(s, who)),
     papers: papers.map(appPaper),
   };
 
   const abstracts = {};
   for (const p of papers) (abstracts[abstractDay(p, tz)] ??= {})[p.key] = p.abstract;
-
-  const peopleOut = appPeople({ papers, people, institutions: aliases.institutions });
 
   // Session topics for the on-device baseline recommender (concepts and topic labels).
   const topicsOut = topics.map(({ key, label, contentKeys }) => ({ key, label, contentKeys }));

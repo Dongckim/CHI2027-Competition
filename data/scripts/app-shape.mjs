@@ -3,13 +3,22 @@
 
 export const TYPE = { Paper: 'paper', Posters: 'poster', 'Interactive Demos': 'demo' }; // same mapping as RecommendResponse.items[].type
 
-// scheduled and video are what the planner needs on top of the listed fields; authors are person keys.
+// "Name · Institution" for the people a talk is put under (user 11/25 E: First author and session Chair on 12, 13, 14)
+export const personLine = (name, institution) => (institution ? `${name} · ${institution}` : name);
+
+// scheduled and video are what the planner needs on top of the listed fields; authors are person keys; first is the
+// first author as a line, so the map and list need not load people.json.
 /** @param {any} p */
 export const appPaper = p => ({
   paperKey: p.key, title: p.title, type: TYPE[p.type] ?? 'other', feedType: p.type, scheduled: p.scheduled, video: !!p.video, doi: p.doi ?? null,
   slots: p.slots.map(({ start, end, roomKey, sessionKey }) => ({ start, end, roomKey, sessionKey })),
   authors: p.authors.map(a => a.personKey),
+  first: p.authors[0]?.name ? personLine(p.authors[0].name, p.authors[0].institution ?? p.authors[0].affiliations?.[0]?.institution) : null,
 });
+
+/** A session in the app's shape; chairs as lines (who: person key → line, or null). */
+export const appSession = ({ key, name, start, end, timing, chairKeys = [] }, who) =>
+  ({ key, name, start, end, timing, chairs: chairKeys.map(who).filter(Boolean) }); // timing: talks | block | none
 
 // personKey → { name, affiliations }. Affiliations: every distinct one the person is listed with as an author; people
 // who only chair use their institution keys (institutions = the alias table's list).
