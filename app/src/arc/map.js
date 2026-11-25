@@ -3,7 +3,8 @@
 
 /** @typedef {'next'|'upcoming'|'heard'|'ended'} NodeState */
 
-export const BOX = { w: 390, h: 530, cx: 195, cy: 240, orb: 80 }; // orb = where connectors start (Figma: the 164 holo ring, r 82, less 2)
+export { BOX } from './box.js';
+import { BOX } from './box.js';
 const NODE_R = 30; // where connectors end, from a node's, a bundle's or the empty slot's centre (Figma Lines)
 
 /**
