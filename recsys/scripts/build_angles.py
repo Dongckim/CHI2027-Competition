@@ -37,12 +37,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src", "package"))
 import config  # noqa: E402
 from gen_findings import TRIBES, EFFECTS, STATUS, split_sentences  # noqa: E402
+from gen_valence import CHANGES  # noqa: E402
 from angles import NO_FINDINGS, content, lemma, stem  # noqa: E402
 
 PROC = os.path.join(config.ROOT, "data", "processed")
 PKG = os.path.join(config.ROOT, "dist", "chi2026-retriever")
 PAST_DIR = os.environ.get("CHI_PAST_DIR", os.path.join(config.ROOT, "data", "raw"))
-VERSION = os.environ.get("CHI_ANGLES_VERSION", "2026-11-22")
+VERSION = os.environ.get("CHI_ANGLES_VERSION", "2026-11-25")
 # directions the third pass may correct: a card stored without one ("associated")
 EFFECT_FIX = set(os.environ.get("CHI_EFFECT_FIX", "associated").split(","))
 
@@ -288,6 +289,10 @@ def main():
     for f in sorted(glob.glob(os.path.join(PROC, "results_raw", "shard_*.json"))):
         with open(f, encoding="utf-8") as fh:
             results.update(json.load(fh))
+    valence = {}
+    for f in sorted(glob.glob(os.path.join(PROC, "valence_raw", "shard_*.json"))):
+        with open(f, encoding="utf-8") as fh:
+            valence.update(json.load(fh))
     past, years = past_authors()
     print(f"findings for {len(raw)} items; past paper authors {len(past)} ({', '.join(years)})")
 
@@ -416,9 +421,15 @@ def main():
             f_, o_ = clean_claim(f_), clean_claim(o_)
             if k < len(cards) and f_ and o_:
                 cl.append([k, pid(f_), pid(o_)])
+        # each result: better or worse for the people involved, and whether its factor is
+        # what the work tested or what it was compared with (gen_valence.py)
+        val = []
+        for k_, (chg, tested) in sorted(((int(k_), v) for k_, v in (valence.get(str(it["id"])) or {}).items())):
+            if k_ < len(cards) and STATUS[cards[k_][4]] == "result":
+                val.append([k_, CHANGES.index(chg), int(tested == "yes")])
         rec = {"label": short_label(src.get("label", ""), it["title"]),
                "contribution": src.get("contribution", ""), "tribe": TRIBE_IDX[tribe],
-               "cards": cards, "measures": meas, "gen": gen, "about": about, "claims": cl,
+               "cards": cards, "measures": meas, "gen": gen, "about": about, "claims": cl, "val": val,
                "up": [[p_, l1, l2] for p_, (l1, l2) in ups.items()]}
         if it["type"] in ("Paper", "Journals"):
             deb = [k for k, a in enumerate(it["authors"])

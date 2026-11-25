@@ -4,7 +4,7 @@
 //
 //   const eng = await loadAngles(base);         // load.mjs
 //   const out = await eng.handle({screen: "arc", question: "Does VR fidelity really raise presence?", days: ["tue"]});
-import { InputError, Counter, DT, dayLabel, argsortDesc, sortedBy, maxBy, minBy, pyDumps, pyStr, pyInt, pyRound, truthy, unique } from "./py.mjs";
+import { W, InputError, Counter, DT, dayLabel, argsortDesc, sortedBy, maxBy, minBy, pyDumps, pyStr, pyInt, pyRound, truthy, unique } from "./py.mjs";
 import { ARC } from "./arc.mjs";
 import { nonLatin } from "./retriever.mjs";
 
@@ -35,7 +35,7 @@ const HELP = {
 const HELP_NOTE = { en: "Read from each paper’s abstract.", ko: "각 논문의 초록에서 읽었어요." };
 const SUBTYPE = { evidence: "Evidence", try: "Try it", null: "Null result", opposite: "Opposite",
   only_when: "Only when", factor: "Other factor", measure: "Other measure",
-  people: "Other people", related: "Same subject" };
+  people: "Other people", related: "Same subject", cost: "Trade-off" };
 // Figma "final" 23
 const NO_CHALLENGE = { en: "No clear clash at CHI this year.", ko: "이번 CHI에서 뚜렷한 엇갈림을 찾지 못했어요." };
 // 07: a question CHI may not cover, or one not in English (team PDF Q21)
@@ -57,12 +57,17 @@ const FORMAT_LABEL = { PAPER: "Paper talk", POSTER: "Poster", DEMO: "Demo", PANE
   MEETUP: "SIG & meetup", KEYNOTE: "Keynote", WORKSHOP: "Workshop" };
 const EFFECTS = ["increase", "decrease", "no_effect", "mixed", "associated"];
 const STATUS = ["result", "claim", "prior", "aim"];
+const WORSE = 1;      // angles.json "val": [card, 0 better / 1 worse / 2 neither, factor tested]
 export const P = { JUDGE_N: 40, POOL: 200, SIZE: 7, MAX_READ: 2, GAP_MIN: 5, CALM_GAP: 10, HOLD_K: 3, HOLD_WIN: 90, HOLD_MORE: 30,
                    THEME_COS: 0.45, CLOSE_COS: 0.50,
                    MATCH: 0.70, STRICT: 0.80, COS_LO: 0.45, COS_HI: 0.80, CLAIM_W: 0.95, GEN_W: 0.95, ABOUT_W: 0.9, UP_W1: 0.8, UP_W2: 0.75,
-                   NEAR_SCORE: 1.5, NEAR_TOP: 5, NEAR_CONF: 0.2, TOPIC_CONF: 0.1 };
+                   NEAR_SCORE: 1.5, NEAR_TOP: 5, NEAR_CONF: 0.2, TOPIC_CONF: 0.1, COST: true, COST_TOP: 15,
+                   MINE_K: 8, MINE_Q: 3 };
 
 const set = (s) => new Set(s.split(/\s+/).filter(Boolean));
+// what X going wrong is called: such a factor is X failing, not X ("subtitle errors")
+const FAULT = set(`error errors latency delay failure breakdown absence lack disruption disrupted dark deceptive
+manipulative misinformation harassment bug bugs glitch`);
 // 09 "How you walk"
 const WALK = ["calm", "step_free"];
 // 14d: words too plain to name a theme ("Would the same strategies work ...")
@@ -193,8 +198,19 @@ export function stem(w) {
   return w;
 }
 
+// a word that ends another only by a prefix or a suffix, not as its head:
+// emotion / motion, interaction / action, supervision / vision, explainability / ability
+const BOUND = set("inter intra super trans multi hyper micro macro tele auto semi anti counter over under omni post self");
+const NOT_HEAD = set("ability");
+
+// cybersickness ends with sickness, a compound of two words
+function ends(long, short) {
+  const pre = long.slice(0, long.length - short.length);
+  return short.length >= 5 && long.endsWith(short) && pre.length >= 4 && !BOUND.has(pre) && !NOT_HEAD.has(short);
+}
+
 export function same(a, b) {
-  return a === b || stem(a) === stem(b) || (a.length >= 5 && b.endsWith(a)) || (b.length >= 5 && a.endsWith(b));
+  return a === b || stem(a) === stem(b) || ends(b, a) || ends(a, b);
 }
 
 function clean(s) {
@@ -239,6 +255,8 @@ const STATE = new Map(Object.entries({ lonely: "loneliness", motivated: "motivat
   healthy: "health", healthier: "health", accurate: "accuracy", accurately: "accuracy", faster: "speed",
   quicker: "speed", quickly: "speed", slower: "speed", independent: "independence", immersed: "immersion",
   isolated: "isolation", comfortable: "comfort", included: "inclusion" }));
+// the words parseQuestion reads itself, kept from the typo fixer
+const KNOWN = new Set([...VERB_DIR.keys(), ...STATE.keys(), ...POS_ADJ, ...NEG_ADJ, ...DOING.keys()].flatMap((k) => k.split(" ")));
 const LINK = set("feel become be get stay are is");
 const DET = set("the a an their his her its our my your better more well");
 
@@ -436,6 +454,7 @@ export class Angles {
       this.info.set(i, { label: rec.label, contribution: rec.contribution, tribe: rec.tribe, cards, measures: meas,
                          gen: new Map((rec.gen || []).map((g) => [g[0], g[1]])),
                          claims: new Map((rec.claims || []).map((c) => [c[0], [c[1], c[2]]])),
+                         val: new Map((rec.val || []).map((v) => [v[0], [v[1], v[2]]])),
                          up: new Map((rec.up || []).map((u) => [u[0], [u[1], u[2]]])),
                          about: { f: about[0], o: about[1], p: about[2] },
                          debut: new Set(rec.debut || []), first_debut: Boolean(rec.first_debut) });
@@ -518,6 +537,19 @@ export class Angles {
     return best;
   }
 
+  // the search's first COST_TOP talks for the question, any format
+  async _close(text) {
+    const score = await this._rank(text);
+    const out = [];
+    for (const i of argsortDesc(score)) {
+      if (!this.aliveSet.has(i)) continue;
+      const c = this.arc._canon(i);
+      if (!out.includes(c)) out.push(c);
+      if (out.length === P.COST_TOP) break;
+    }
+    return new Set(out);
+  }
+
   _about(q, ids, absset) {
     let best = 0.0;
     for (const t of ids) best = Math.max(best, pyRound(P.ABOUT_W * this._pm(q, t, absset), 3));
@@ -532,17 +564,20 @@ export class Angles {
   }
 
   // -- the question -----------------------------------------------------------
-  async question(text) {
+  async question(text, close = true) {
     text = truthy(text) ? pyStr(text).trim() : "";
     if (!text) throw new InputError("question must not be empty");
     // typos against the program's own words ("hapitc" -> "haptic"), as the retriever does
-    const fixed = this.arc.ex.speller.fix(text);
+    // ... but not the words the question reader knows ("happier" is no "happen")
+    const fixed = text.replace(new RegExp(`[${W}]+`, "gu"),
+      (w) => (KNOWN.has(w.toLowerCase()) ? w : this.arc.ex.speller.fix(w)));
     const q = parseQuestion(fixed);
     q.corrected = fixed !== text ? fixed : null;
     q.X = q.kind === "relation" ? await this._phrase(q.x) : null;
     q.Y = q.kind === "relation" ? await this._phrase(q.y) : null;
     q.C = q.ctx ? await this._phrase(q.ctx) : null;
     if (q.kind === "relation" && q.X === null) q.kind = "topic";
+    if (q.kind === "relation" && close) q.close = await this._close(q.text);
     return q;
   }
 
@@ -557,7 +592,7 @@ export class Angles {
     const absset = this._absset(i);
     if (!info) return null;
     const { X, Y, C } = q;
-    const rows = [], direct = new Map();
+    const rows = [], direct = new Map(), xdirect = new Map();
     info.cards.forEach((c, k) => {
       let mx = this._pmg(X, c.f, info, absset);
       let my = Y !== null ? this._pmg(Y, c.o, info, absset) : 0.75;
@@ -566,11 +601,14 @@ export class Angles {
         mx = Math.max(mx, pyRound(P.CLAIM_W * this._pm(X, cl[0], absset), 3));
         if (Y !== null) my = Math.max(my, pyRound(P.CLAIM_W * this._pm(Y, cl[1], absset), 3));
       }
+      let swapped = false;
       if (Y !== null && mx < P.MATCH && my < P.MATCH) {
         const sx = this._pmg(X, c.o, info, absset), sy = this._pmg(Y, c.f, info, absset);
-        if (sx >= P.MATCH && sy >= P.MATCH) { mx = sx; my = sy; }
+        if (sx >= P.MATCH && sy >= P.MATCH) { mx = sx; my = sy; swapped = true; }
       }
-      direct.set(k, Math.min(mx, my));
+      // ... but then which way the effect runs is a guess: never a Challenge
+      direct.set(k, swapped ? 0.0 : Math.min(mx, my));
+      xdirect.set(k, swapped ? 0.0 : mx);
       if (mx < 1.0) mx = Math.max(mx, this._up(X, c.f, info, absset));
       if (Y !== null && my < 1.0) my = Math.max(my, this._up(Y, c.o, info, absset));
       rows.push([k, c, mx, my]);
@@ -602,13 +640,21 @@ export class Angles {
         const [k, , mx, my] = both[0];
         return { angle: "reframe", subtype: "related", conf: pyRound(0.5 * Math.min(mx, my), 3), card: k, caveat: null };
       }
-      const [k, c, mx, my] = told[0];
+      // the card closest to the question, not the first one ("Apple's scanner" over "QR
+      // scanners" when both are asked about); the others may still add a caveat
+      let best = told[0];
+      for (const r of told.slice(1)) {
+        const a = [direct.get(r[0]), Math.min(r[2], r[3]), -r[0]];
+        const b = [direct.get(best[0]), Math.min(best[2], best[3]), -best[0]];
+        if (a[0] > b[0] || (a[0] === b[0] && (a[1] > b[1] || (a[1] === b[1] && a[2] > b[2])))) best = r;
+      }
+      const [k, c, mx, my] = best;
       const pol = polarity(c);
       const m = Math.min(mx, my);
       const w = 1.0 - 0.08 * k;
       if (pol === "agree" || pol === "agree_weak") {
         if (otherPeople(c)) return { angle: "reframe", subtype: "people", conf: pyRound(0.8 * m * w, 3), card: k, caveat: null };
-        const cv = told.slice(1).find((r) => r[1].st === "result" && ["oppose", "null"].includes(polarity(r[1])));
+        const cv = told.find((r) => r !== best && r[1].st === "result" && ["oppose", "null"].includes(polarity(r[1])));
         const cav = cv ? cv[0] : null;
         const sub = (c.st === "claim" || NO_FINDINGS.has(typ)) ? "try" : "evidence";
         const conf = m * w * (c.st === "result" ? 1.0 : 0.8) * (pol === "agree" ? 1.0 : 0.85);
@@ -621,6 +667,25 @@ export class Angles {
         return { angle: "challenge", subtype: sub, conf: pyRound(m * w, 3), card: k, caveat: null };
       }
       return { angle: "reframe", subtype: "related", conf: pyRound(0.6 * m * w, 3), card: k, caveat: null };
+    }
+    // the question takes X to be good ("raise" a good Y, "reduce" a bad one); a result
+    // where the very X, as tested, made something else worse is a cost the asker may
+    // not have counted (better / worse read once per card by the LLM, gen_valence.py)
+    // (not when X itself is a fault, "dark patterns", nor when the card's factor is X
+    // failing, "subtitle errors", "latency"; and only from the talks closest to the
+    // question, so the cost is one the asker would care about)
+    if (P.COST && Y !== null && !NO_FINDINGS.has(typ) && (q.dir === "+" || q.dir === "-")
+        && !X.toks.some((w) => FAULT.has(w)) && q.close.has(this.arc._canon(i))) {
+      const yneg = Y.toks.some((w) => NEG_OUTCOME.has(w)) !== Y.neg;
+      if ((q.dir === "+") !== yneg) {
+        for (const [k, c, mx, my] of rows) {
+          const v = info.val.get(k);
+          if (v && v[0] === WORSE && v[1] === 1 && xdirect.get(k) >= P.STRICT && my < P.MATCH
+              && X.neg === this.pneg[c.f] && !this.ptoks[c.f].some((w) => FAULT.has(w))) {
+            return { angle: "challenge", subtype: "cost", conf: pyRound(0.7 * mx, 3), card: k, caveat: null };
+          }
+        }
+      }
     }
     const yOnly = rows.filter((r) => r[3] >= P.MATCH && Y !== null && r[2] < P.MATCH);
     const xOnly = rows.filter((r) => r[2] >= P.MATCH && (Y === null || r[3] < P.MATCH));
@@ -660,7 +725,10 @@ export class Angles {
       }
     }
     hl = sortedBy(hl, (h) => h);
-    return { text: ab.slice(a, b), start: a, end: b, highlight: hl };
+    // offsets count characters as Python does (code points), not UTF-16 units: an abstract
+    // with "𝑛" in it would otherwise quote one character off from there on
+    const text = /[\uD800-\uDBFF]/.test(ab) ? Array.from(ab).slice(a, b).join("") : ab.slice(a, b);
+    return { text, start: a, end: b, highlight: hl };
   }
 
   _why(i, v) {
@@ -688,7 +756,8 @@ export class Angles {
     }
     if (a === "challenge") {
       return { null: `Found no clear effect of ${f} on ${o}.`, opposite: `Found ${f} going against ${o}.`,
-               only_when: `Found that ${f} affects ${o} only under some conditions.` }[s];
+               only_when: `Found that ${f} affects ${o} only under some conditions.`,
+               cost: `Found ${f} making ${o} worse.` }[s];
     }
     return { factor: `Looks at another factor behind ${o}: ${f}.`,
              measure: !f ? `Looks at ${o} from another side.` : `Looks at what ${f} does to ${o}.`,
@@ -1226,6 +1295,9 @@ export class Angles {
     const days = this._days(req, now);
     let [judged, pool, score] = await this._judged(q, types);
     if (asked) judged = judged.concat(await this._topicFill(asked, types, judged));
+    // an author's Arc from their own paper ("mine"): their own talks are not stops
+    const mine = new Set(this._ids(req.mine, "mine"));
+    if (mine.size) judged = judged.filter(([i]) => !mine.has(this.arc._canon(i)));
     const picked = req.chips;
     let prefer = [];
     if (truthy(picked)) {
@@ -1706,14 +1778,102 @@ export class Angles {
              days: this.arc.days.map((d) => ({ day: d, label: dayLabel(d) })), data_version: this.version };
   }
 
+  // -- "Did you submit a paper?" ----------------------------------------------------
+  // everyone on a CHI 2026 talk, by name: [key words, name, affiliation, items]
+  _authors() {
+    if (!this._authorIx) {
+      const by = new Map();
+      for (const i of [...this.aliveSet].sort((a, b) => a - b)) {
+        for (const a of this.items[i].authors || []) {
+          const name = pyStr(a.name || "").split(/\s+/).filter(Boolean).join(" ");
+          if (!name) continue;
+          const key = name.toLowerCase();
+          if (!by.has(key)) {
+            const f = (a.affiliations || []).find((x) => x.institution);
+            by.set(key, [fold(name).split(" ").filter(Boolean), name, f ? f.institution : "", []]);
+          }
+          const c = this.arc._canon(i);
+          if (!by.get(key)[3].includes(c)) by.get(key)[3].push(c);
+        }
+      }
+      this._authorIx = [...by.values()].sort((a, b) => cmpStr(a[1].toLowerCase(), b[1].toLowerCase()));
+    }
+    return this._authorIx;
+  }
+
+  // what one paper found, asked the way an attendee would, each side named two steps
+  // broader where the cards know how ("StepQuest" -> "health technology"): first its results
+  // with a direction ("Does X increase Y?"), then its other results ("How does X affect Y?"),
+  // then what the talk is about overall, until MINE_Q
+  async _paperQuestions(i) {
+    const info = this.info.get(i) || { cards: [], val: new Map(), up: new Map(), about: { f: [], o: [] } };
+    const broad = (p) => {
+      const u = info.up.get(p);
+      for (const lv of [1, 0]) if (u && u[lv] && u[lv].length) return this.phrases[u[lv][0]];
+      return this.phrases[p];
+    };
+    const cands = [];
+    for (const directed of [true, false]) {
+      info.cards.forEach((c, k) => {
+        const v = info.val.get(k);
+        if (c.st !== "result" || (v !== undefined && v[1] !== 1)) return;
+        if (directed !== (c.e === "increase" || c.e === "decrease")) return;
+        const f = broad(c.f), o = broad(c.o);
+        if (f === o) return;
+        const text = directed ? `Does ${f} ${c.e === "increase" ? "increase" : "reduce"} ${o}?` : `How does ${f} affect ${o}?`;
+        cands.push([text, this._sentence(i, c)]);
+      });
+    }
+    const ab = info.about;
+    if (ab.f.length && ab.o.length) cands.push([`How does ${this.phrases[ab.f[0]]} affect ${this.phrases[ab.o[0]]}?`, null]);
+    const out = [], seen = new Set();
+    for (const [text, sent] of cands) {
+      if (seen.has(text.toLowerCase()) || (await this.question(text, false)).kind !== "relation") continue;
+      seen.add(text.toLowerCase());
+      out.push({ question: text, sentence: sent });
+      if (out.length === P.MINE_Q) break;
+    }
+    return out;
+  }
+
+  // {"name": "..."}: the CHI 2026 authors whose names start that way, with their talks.
+  // {"paper": id}: questions from that paper's results; its Arc is then the "arc" screen
+  // with one of them and "mine": [the author's talk ids]
+  async mine(req) {
+    if (req.paper !== undefined && req.paper !== null) {
+      const i = this._ids([req.paper], "paper")[0];
+      const it = this.items[i];
+      return { paper: { id: it.id, title: it.title, type: it.type }, questions: await this._paperQuestions(i) };
+    }
+    const typed = fold(truthy(req.name) ? pyStr(req.name) : "").split(" ").filter(Boolean);
+    if (!typed.length || typed.reduce((n, w) => n + w.length, 0) < 2) throw new InputError("name must have at least 2 letters");
+    const hits = this._authors().filter((a) => typed.every((t) => a[0].some((w) => w.startsWith(t))));
+    const exact = (a) => (a[0].length === typed.length && a[0].every((w, k) => w === typed[k]) ? 0 : 1);
+    hits.sort((a, b) => (exact(a) - exact(b)) || cmpStr(a[1].toLowerCase(), b[1].toLowerCase()));
+    return { authors: hits.slice(0, P.MINE_K).map(([, n, af, items]) => ({ name: n, affiliation: af,
+               talks: items.map((i) => ({ id: this.items[i].id, title: this.items[i].title, type: this.items[i].type })) })),
+             more: Math.max(0, hits.length - P.MINE_K) };
+  }
+
   async handle(req) {
     if (req === null || typeof req !== "object" || Array.isArray(req)) throw new InputError("request must be a JSON object");
     const screens = { ask: (r) => this.ask(r), angles: (r) => this.anglesScreen(r), arc: (r) => this.arcScreen(r),
                       edit: (r) => this.edit(r), node: (r) => this.node(r), shared: (r) => this.shared(r),
                       summary: (r) => this.summary(r), home: (r) => this.home(r), meta: (r) => this.meta(r),
-                      hold: (r) => this.hold(r), questions: (r) => this.questions(r) };
+                      hold: (r) => this.hold(r), questions: (r) => this.questions(r), mine: (r) => this.mine(r) };
     const s = req.screen;
     if (!(typeof s === "string" && Object.hasOwn(screens, s))) throw new InputError(`screen must be one of ${Object.keys(screens).join(", ")}`);
     return screens[s](req);
   }
+}
+
+// a name as typed and as printed meet: lower case, accents off ("Müller" = "muller")
+function fold(s) {
+  s = s.normalize("NFKD").replace(/[^\x00-\x7f]/g, "").toLowerCase();
+  return (s.match(/[a-z0-9]+/g) || []).join(" ");
+}
+
+// Python's str ordering: by code point
+function cmpStr(a, b) {
+  return a < b ? -1 : a > b ? 1 : 0;
 }
