@@ -150,6 +150,13 @@ NEAR_SCORE = 1.5      # search score (cosine + keyword, each 0..1) at or above t
 NEAR_TOP = 5          # or among the search's first talks of the chosen formats
 NEAR_CONF = 0.2       # below every card-based angle, so it fills an Arc only when needed
 TOPIC_CONF = 0.1      # a topic's own first talks, after everything its sharpest question found
+BALANCE = True        # a topic's Arc is built on the sharper question filling the most angles
+SUGGEST_K = 3         # ... of this many
+# the questions each result answers (LLM, offline, gen_card_questions.py): a talk the cards
+# leave without a Support is one when the asked question is close to one of them, the same
+# way up, with its Y the asked Y and its X near the asked X (tuned on data/eval)
+CARDQ_COS = 0.75      # cosine of the two questions at or above which
+CARDQ_X = 0.40        # ... and X at or above this (Y at MATCH)
 MINE_K = 8            # "Did you submit a paper?": authors listed for a typed name
 MINE_Q = 3            # ... and questions offered from one of their papers
 
@@ -542,6 +549,7 @@ class Angles:
                             "gen": {g[0]: g[1] for g in rec.get("gen", [])},
                             "claims": {c[0]: (c[1], c[2]) for c in rec.get("claims", [])},
                             "val": {v[0]: (v[1], v[2]) for v in rec.get("val", [])},
+                            "cq": rec.get("cq", []),
                             "up": {u[0]: (u[1], u[2]) for u in rec.get("up", [])},
                             "about": {"f": about[0], "o": about[1], "p": about[2]},
                             "debut": set(rec.get("debut", [])), "first_debut": bool(rec.get("first_debut"))}
@@ -647,6 +655,8 @@ class Angles:
         q["X"] = self._phrase(q["x"]) if q["kind"] == "relation" else None
         q["Y"] = self._phrase(q["y"]) if q["kind"] == "relation" else None
         q["C"] = self._phrase(q["ctx"]) if q["ctx"] else None
+        v = np.asarray(self.ex.embed(fixed), dtype=np.float64)
+        q["V"] = v / max(float(np.sqrt((v * v).sum())), 1e-9)
         if q["kind"] == "relation" and q["X"] is None:
             q["kind"] = "topic"
         return q
@@ -659,6 +669,36 @@ class Angles:
     def judge(self, i, q):
         """-> {"angle", "subtype", "conf", "card": index or None, "caveat": index or None}
         or None when the talk is not about X or Y."""
+        v = self._judge_cards(i, q)
+        if (v is not None and v["angle"] in ("support", "challenge")) or q["Y"] is None or not self.info.get(i):
+            return v
+        return self._judge_questions(i, q) or v
+
+    def _lean(self, q):
+        """+1 the question wants its Y up, -1 down (a bad Y flips it), 0 no direction."""
+        Y = q["Y"]
+        bad = any(w in NEG_OUTCOME for w in Y["toks"]) != Y["neg"]
+        return {"+": 1, "-": -1}.get(q["dir"], 0) * (-1 if bad else 1)
+
+    def _judge_questions(self, i, q):
+        """A Support from the questions the talk's results answer (angles.json "cq")."""
+        info = self.info[i]
+        absset = self._absset(i)
+        lean = self._lean(q)
+        for k, qp, xp, yp, g in info["cq"]:
+            if lean and g and lean != g:
+                continue
+            cos = sum(float(a) * float(b) for a, b in zip(q["V"], self.pvec[qp]))
+            if cos < CARDQ_COS:
+                continue
+            my = self._pm(q["Y"], yp, absset)
+            if my >= MATCH and self._pm(q["X"], xp, absset) >= CARDQ_X:
+                sub = "try" if self.items[i]["type"] in NO_FINDINGS else "evidence"
+                return {"angle": "support", "subtype": sub, "conf": round(0.7 * my, 3), "card": k,
+                        "caveat": None}
+        return None
+
+    def _judge_cards(self, i, q):
         info = self.info.get(i)
         typ = self.items[i]["type"]
         absset = self._absset(i)
@@ -1000,7 +1040,7 @@ class Angles:
             return q, None
         types = self._types(self._formats(req))
         _, pool, score = self._judged(q, types)
-        sug = self._suggest(q, pool, score, types, k=1)
+        sug = self._suggest(q, pool, score, types, k=SUGGEST_K)
         if not sug:
             raise InputError('could not find a question in this topic; try a question like "Does X raise Y?"')
         return self.question(sug[0]["question"]), q["text"]
@@ -1108,7 +1148,7 @@ class Angles:
                 if all(o["question"] != text for o in out):
                     out.append(self._suggestion(text, x, y, items, types))
                 if len(out) == k:
-                    return out
+                    return self._balanced(out, q)
         for _, key in ranked:
             g = groups[key]
             # a new pair, from talks not already behind another suggestion
@@ -1125,7 +1165,20 @@ class Angles:
             used_i.update(g["items"])
             if len(out) == k:
                 break
-        return out
+        return self._balanced(out, q)
+
+    @staticmethod
+    def _balanced(out, q):
+        """The sharper question whose Arc holds the most of the three angles comes first
+        (team 11/25: aim for "2 support · 2 reframe · 1 challenge"), among those that keep a
+        word of the typed topic when any does; ties keep their order."""
+        if not BALANCE:
+            return out
+        qt = content(q["x"])[0] if q["kind"] != "relation" else []
+
+        def keeps(o):
+            return any(_same(w, t) for w in qt for t in content(o["question"])[0])
+        return sorted(out, key=lambda o: (0 if keeps(o) else 1, -sum(1 for a in ANGLES if o["counts"][a] > 0)))
 
     @staticmethod
     def _wording(x, y, e):
