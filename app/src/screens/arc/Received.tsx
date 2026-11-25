@@ -17,7 +17,8 @@ import { useNow, now as nowMs } from '../../clock.js';
 import { venueClock } from '../../time.js';
 import { Screen, ArcButton, BackButton, Pic } from '../../components/arc';
 import { ANGLE_NAME } from './AngleHelp';
-import { ArcView, type Info } from './ArcView';
+import { AngleRows } from './ArcList';
+import { ArcView, useMapFit, type Info } from './ArcView';
 import { AddSheet } from './AddSheet';
 import { shortRoom } from './useArc';
 import linkIcon from '../../assets/arc/icon-link.svg';
@@ -61,13 +62,14 @@ function useReceived(payload: string) {
     const sc = ok!.schedule, p = sc.index.papers.get(k) as Paper | undefined, s = p ? firstSlot(p.slots) : null, tz = sc.meta.timeZone;
     const room = s ? sc.index.rooms.get(s.roomKey)?.name ?? '' : '';
     return { title: p?.title ?? k, short: labelOf(p?.title ?? k), time: s ? `${dateOf(s.start, tz)} · ${clockOf(s.start, tz)}` : 'Time to be announced',
-      when: s ? `${venueClock(s.start, tz)}${room ? ` · ${shortRoom(room)}` : ''}` : '', room: room ? shortRoom(room) : '' };
+      when: s ? `${venueClock(s.start, tz)}${room ? ` · ${shortRoom(room)}` : ''}` : 'Time TBA' /* no time in the feed (14: "Time to be announced") */, room: room ? shortRoom(room) : '' };
   };
   const paper = (k: string) => ok?.schedule.index.papers.get(k) as Paper | undefined;
   return { r, ok, states, info, paper, timeOf };
 }
 
-const keep = async (arc: Arc) => { await saveArc(arc); update(setOnboarded); go(`arc/${arc.id}`, { replace: true }); };
+// to: 18 "Add to my Arcs" opens the new Arc (12); 19 "Add N" and 19b "Keep all theirs" go to My Arcs (prototype 11/23 → 20)
+const keep = async (arc: Arc, to: 'arc' | 'home' = 'arc') => { await saveArc(arc); update(setOnboarded); go(to === 'home' ? 'home' : `arc/${arc.id}`, { replace: true }); };
 // 18 "Make it mine" opens 19b (user 「18 "Make it mine" → 19b로 변경. 15는 내 Arc 편집용으로 유지」).
 
 function Broken({ why }: { why: string }) {
@@ -81,6 +83,7 @@ function Broken({ why }: { why: string }) {
 
 export function Received({ payload }: { payload: string }) {
   const { r, ok, states, info } = useReceived(payload);
+  const [fit, mapRef] = useMapFit(0.78); // 18 must not scroll: the map shrinks further on a short screen (Safari, 664)
   if (!r) return null;
   if (!ok) return <Broken why={(r as { error: string }).error} />;
   const { arc, missing } = ok;
@@ -97,12 +100,12 @@ export function Received({ payload }: { payload: string }) {
       <p className="mt-2 inline-flex items-center gap-1.5 self-start rounded-2xl border border-arc-line bg-arc-surface py-1.5 pr-3 pl-2.5 text-[13px] font-semibold"><Pic src={linkIcon} size={14} />Shared Arc</p>
       <h1 className="mt-3 text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
       {missing > 0 && <p className="mt-2 text-[14px] text-arc-text-2">{missing} {missing === 1 ? 'talk is' : 'talks are'} not in this programme and were left out.</p>}
-      <div className="-mx-6 mt-4"><ArcView arc={arc} states={states} info={info} scale={0.78} readOnly fit /></div>
+      <div ref={mapRef} className="-mx-6 mt-4"><ArcView arc={arc} states={states} info={info} scale={fit} readOnly fit /></div>
     </Screen>
   );
 }
 
-// 18 "Just read" (user 11/20 「Just read = 저장 없이 보기만」): the map, read-only, nothing stored. Talks open 14; a line on top
+// 18 "Just read" (user 11/20 「Just read = 저장 없이 보기만」): the 13 list (final prototype: Just read → 13), nothing stored. Talks open 14; a line on top
 // says it is not saved, with Add (as "Add to my Arcs").
 export function JustRead({ payload }: { payload: string }) {
   const { r, ok, states, info } = useReceived(payload);
@@ -116,8 +119,8 @@ export function JustRead({ payload }: { payload: string }) {
         <p className="flex-1 text-[14px] font-medium text-arc-text-2">Not saved · Add to keep it</p>
         <ArcButton kind="primary" className="h-11 min-w-[72px]" onClick={() => keep(arc)}>Add</ArcButton>
       </div>
-      <h1 className="mt-4 text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
-      <div className="-mx-6 mt-3"><ArcView arc={arc} states={states} info={info} scale={0.78} onNode={k => go(`talk/${k}`)} onBundle={() => {}} /></div>
+      <h1 className="mt-4 max-w-[300px] text-[22px] leading-7 font-semibold tracking-[-0.02em]">{arc.query}</h1>
+      <AngleRows arc={arc} states={states} info={info} />
     </Screen>
   );
 }
@@ -136,7 +139,7 @@ export function Pick({ payload }: { payload: string }) {
   const toggle = (k: string) => setSkipped(s => { const x = new Set(s); if (x.has(k)) x.delete(k); else x.add(k); return x; });
   const save = () => {
     const nodes = arc.nodes.filter(n => picked.has(n.key));
-    keep({ ...arc, nodes, tension: nodes.some(n => n.angle === 'T') ? 'found' : 'none' });
+    keep({ ...arc, nodes, tension: nodes.some(n => n.angle === 'T') ? 'found' : 'none' }, 'home');
   };
   const hidden = arc.nodes.length - (layout(arc) as { nodes: unknown[] }).nodes.length; // bundled on the map (+N): pick them in the list
   const legend = (icon: React.ReactNode, label: string) => <span className="flex items-center gap-1.5 text-[12px] font-medium text-arc-text-2">{icon}{label}</span>;
@@ -146,14 +149,14 @@ export function Pick({ payload }: { payload: string }) {
       <h1 className="mt-2.5 text-[26px] leading-8 font-semibold tracking-[-0.02em]">Pick what to keep.</h1>
       <div className="-mx-6 mt-7"><ArcView arc={arc} states={states} info={info} scale={0.78} readOnly pick={{ picked, locked, onToggle: toggle }} /></div>
       {/* the map box keeps room for two-line labels below the bottom row; Figma's legend sits 30 under its one-line labels */}
-      <div className="-mt-8 flex flex-wrap justify-center gap-x-[18px] gap-y-2" aria-hidden="true">
+      <div className="mt-3 flex flex-wrap justify-center gap-x-[18px] gap-y-2" aria-hidden="true">
         {legend(<span className="flex size-4 items-center justify-center rounded-full bg-arc-text"><img src={checkIcon} alt="" width={12} height={12} className="brightness-0" /></span>, 'Keep')}
         {legend(<span className="size-4 rounded-full border-[1.5px] border-arc-text/60" />, 'Skip')}
         {legend(<span className="flex size-4 items-center justify-center"><Pic src={lockIcon} size={14} /></span>, 'Ended')}
         {[...locked.values()].includes('mine') && legend(<span className="flex size-4 items-center justify-center"><Pic src={lockIcon} size={14} /></span>, 'Already yours')}
       </div>
       {hidden > 0 && (
-        <section aria-label="All talks" className="mt-[34px] flex flex-col gap-2 pb-2">
+        <section aria-label="All talks" className="mt-[65px] flex flex-col gap-2 pb-2">{/* one row (75) lower than before the legend moved down: no row sits half under the bottom bar (axe target-size) */}
           {/* not in Figma: keeps the place it had before the legend moved up (a row cut by the bottom bar failed axe target-size) */}
           <h2 className="text-[15px] font-semibold">All {arc.nodes.length} talks</h2>
           {arc.nodes.map(n => {
@@ -206,9 +209,9 @@ export function Yours({ payload }: { payload: string }) {
   const theirs = arc.nodes.length;
   const hidden = nodes.length - (layout(draft) as { nodes: unknown[] }).nodes.length; // bundled on the map (+N): keep them in the list
   return (
-    <Screen clock label="Make it yours" header={<><BackButton href={href(`r/${payload}`)} /><span /></>}
+    <Screen clock label="Make it yours" /* prototype 19b: no back, the chip sits where it does on 18 */
       bottom={<div className="flex flex-wrap gap-x-3 gap-y-2.5">
-        <ArcButton kind="secondary" className="min-w-fit grow basis-[calc(50%-6px)]" onClick={() => setKept(new Set([...kept, ...arc.nodes.map(n => n.key)]))}>Keep all theirs</ArcButton>
+        <ArcButton kind="secondary" className="min-w-fit grow basis-[calc(50%-6px)]" onClick={() => keep(arc, 'home')}>Keep all theirs</ArcButton>
         <ArcButton className="min-w-fit grow basis-[calc(50%-6px)]" onClick={save} disabled={!kept.size} aria-describedby={kept.size ? undefined : 'yours-why'}>Save as my Arc</ArcButton>
       </div>}>
       <p className="mt-2 inline-flex items-center gap-1.5 self-start rounded-2xl border border-arc-line bg-arc-surface py-1.5 pr-3 pl-2.5 text-[13px] font-semibold"><Pic src={linkIcon} size={14} />Shared Arc</p>

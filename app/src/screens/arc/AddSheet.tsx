@@ -60,7 +60,8 @@ export function AddSheet({ query: arcQuery, engineName, target, exclude, swap, i
           {([['angle', ANGLE_ICON[target], ANGLE_NAME[target]], ['debut', sparkle, 'New to CHI'], ['wild', wild, 'Wildcard']] as [Filter, string, string][]).map(([f, icon, label]) => (
             <button key={f} type="button" role="radio" aria-checked={filter === f} onClick={() => setFilter(f)}
               className={`relative inline-flex h-[38px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium tracking-[-0.006em] before:absolute before:inset-x-0 before:-inset-y-[4px] before:content-[''] ${filter === f ? 'bg-arc-chip-on text-arc-on-primary shadow-[var(--arc-shadow-lift)]' : 'border border-arc-line bg-arc-surface text-arc-text/62'}`}>
-              <img src={icon} alt="" width={16} height={16} className={filter === f ? 'brightness-0' : 'opacity-60'} />{label}
+              {/* the icon in the chip's text colour (a mask): WebKit drew the selected chip's brightness(0) icon blank */}
+              <span aria-hidden="true" className={`size-4 shrink-0 bg-current ${filter === f ? '' : 'opacity-60'}`} style={{ WebkitMaskImage: `url("${icon}")`, maskImage: `url("${icon}")`, WebkitMaskSize: '100% 100%', maskSize: '100% 100%' }} />{label}
             </button>
           ))}
         </div>

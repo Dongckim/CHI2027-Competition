@@ -131,7 +131,7 @@ export function SwapFan({ hs, title }: { hs: HoldSwap; title: string }) {
   const n = cards?.length ?? 0;
   const keep = angle ? ` ${n === 3 ? 'All three keep' : n === 2 ? 'Both keep' : 'It keeps'} this ${ONE[angle]}.` : '';
   return <>
-    <svg aria-hidden="true" className="pointer-events-none fixed inset-0 z-30 h-full w-full" fill="none" stroke="#fff" strokeOpacity={0.3} strokeDasharray="1.5 3">
+    <svg aria-hidden="true" className="arc-fan-lines pointer-events-none fixed inset-0 z-30 h-full w-full" fill="none" stroke="#fff" strokeOpacity={0.3} strokeDasharray="1.5 3">
       {lines.map(d => <path key={d} d={d} />)}
     </svg>
     <div ref={box} data-swap-fan="" className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[480px] bg-gradient-to-b from-arc-bg/0 to-arc-bg to-[16px] px-6 pt-4 pb-[calc(var(--safe-bottom)+17px)]">
@@ -144,7 +144,7 @@ export function SwapFan({ hs, title }: { hs: HoldSwap; title: string }) {
               return (
                 <li key={c.key}>
                   {/* Figma 106 × 112; the 11 px lines are 12 px (the floor) */}
-                  <button type="button" data-swap-key={c.key} onClick={() => hs.swap(c)} style={{ animationDelay: `${i * 40}ms` }}
+                  <button type="button" data-swap-key={c.key} onClick={() => hs.swap(c)} style={{ animationDelay: `${530 + i * 110}ms` }} /* prototype 12b: after the fan lines */
                     className={`arc-fan-in flex h-[112px] w-full flex-col rounded-[18px] border bg-arc-surface p-[11px] text-left ${over === c.key ? 'border-arc-text/90' : 'border-arc-line'}`}>
                     <Pic src={ANGLE_ICON[c.angle]} size={18} />
                     <span className="mt-2 line-clamp-2 text-[13px] leading-4 font-semibold">{hs.where(c.key).title}</span>
@@ -155,7 +155,8 @@ export function SwapFan({ hs, title }: { hs: HoldSwap; title: string }) {
               );
             })}
           </ul>}
-        <p className="mt-[14px] text-[12px] font-medium text-arc-text/60">{fan.keyboard ? 'Pick a talk to swap.' : 'Release on a talk to swap.'}{keep}</p>
+        {/* no talk to swap to: no "Release on a talk" (independent check 11/22) */}
+        {(cards == null || n > 0) && <p className="mt-[14px] text-[12px] font-medium text-arc-text/60">{fan.keyboard ? 'Pick a talk to swap.' : 'Release on a talk to swap.'}{keep}</p>}
         {fan.keyboard && <button type="button" onClick={hs.close} className="sr-only">Close</button>}
       </section>
     </div>

@@ -49,7 +49,7 @@ export function AfterChi() {
   };
   const stat = (value: number, label: string) => (
     <div className="h-[84px] rounded-[18px] bg-[linear-gradient(rgba(255,255,255,0.06),rgba(255,255,255,0.03)_55%,rgba(255,255,255,0))] px-3.5 pt-3">
-      <p className="text-[30px] leading-[36px] font-semibold tracking-[-0.024em]">{value}</p>
+      <p data-count="" className="text-[30px] leading-[36px] font-semibold tracking-[-0.024em]">{value}</p>
       <p className="mt-1.5 text-[12px] font-medium text-arc-text-3">{label}</p>
     </div>
   );

@@ -1,7 +1,7 @@
 // 15 · Edit (Figma 598:917): the map at 0.74 with − on every talk and + where an angle has room. Tapping a talk (or a +)
 // opens "Swap": search, then chips — the angle (engine.suggest), New to CHI (first author new), Wildcard (engine.wildcard)
 // — and cards to swap in or add. Nothing is saved until Done.
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { go } from '../../router';
 import { type Angle, type Arc, type ArcNode } from '../../engine';
 import { firstSlot } from '../../explore/format';
@@ -18,6 +18,12 @@ export function Edit({ id }: { id: string }) {
   const [nodes, setNodes] = useState<ArcNode[] | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [adding, setAdding] = useState<Angle | null>(null);
+  // the regions reach the bottom of the screen, as on 12 (prototype 15: no bare lower half before the sheet opens)
+  const [room, setRoom] = useState(0);
+  const box = useCallback((el: HTMLDivElement | null) => {
+    if (!el || typeof ResizeObserver !== 'function') return;
+    new ResizeObserver(() => setRoom(el.getBoundingClientRect().height)).observe(el);
+  }, []);
   useEffect(() => { if (arc && !nodes) setNodes(arc.nodes); }, [arc, nodes]);
   const target = selected ? nodes?.find(n => n.key === selected)?.angle ?? null : adding;
   const exclude = useMemo(() => nodes?.map(n => n.key) ?? [], [nodes]);
@@ -44,8 +50,8 @@ export function Edit({ id }: { id: string }) {
       <h1 className="mb-[3px] pl-2 text-[17px] font-semibold tracking-[-0.012em]">Editing</h1>
       <button type="button" onClick={done} className="relative z-10 mr-2 h-10 rounded-full tracking-[-0.006em] before:absolute before:inset-x-0 before:-inset-y-0.5 before:content-[''] bg-arc-primary px-5 text-[16px] font-semibold text-arc-on-primary shadow-[var(--arc-shadow-primary)]">Done</button>
     </>}>
-      <div className="-mx-6 -mt-1.5">{/* Figma: the 0.74 map at y 96 */}
-        <ArcView arc={draft} states={states} info={info} scale={0.74}
+      <div ref={box} className="-mx-6 -mt-1.5 flex-1">{/* Figma: the 0.74 map at y 96 */}
+        <ArcView arc={draft} states={states} info={info} scale={0.74} room={room}
           edit={{ selected, adding, onSelect: k => { setSelected(s => (s === k ? null : k)); setAdding(null); },
             onRemove: k => { setNodes(nodes.filter(n => n.key !== k)); if (selected === k) setSelected(null); },
             onAdd: a => { setAdding(x => (x === a ? null : a)); setSelected(null); } }} />

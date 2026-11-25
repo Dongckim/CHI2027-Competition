@@ -9,9 +9,8 @@ import { warm, useTribe } from '../../arc/live';
 import { TRIBES } from '../../arc/tribes.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
 import type { TribeId } from '../../engine/types';
-import { Screen, ArcButton, ArcLink, TextAction, Dots, Pic } from '../../components/arc';
-import holoRing from '../../assets/arc/welcome-holo-ring.svg';
-import innerRing from '../../assets/arc/welcome-inner-ring.svg';
+import { Screen, ArcButton, ArcLink, TextAction, Dots, Pic, FRAME_ART } from '../../components/arc';
+import { WelcomeOrbit } from './WelcomeOrbit';
 import gAi from '../../assets/arc/glow-tribe-ai.svg';
 import gXr from '../../assets/arc/glow-tribe-xr.svg';
 import gAccess from '../../assets/arc/glow-tribe-access.svg';
@@ -36,6 +35,7 @@ import clock from '../../assets/arc/icon-clock.svg';
 import chat from '../../assets/arc/icon-chat.svg';
 import external from '../../assets/arc/icon-external.svg';
 import lines06 from '../../assets/arc/06-lines.svg';
+import regions06 from '../../assets/arc/06-regions.svg';
 import holo06 from '../../assets/arc/06-holo-ring.svg';
 import orb06 from '../../assets/arc/06-question-orb.svg';
 import orbS from '../../assets/arc/06-orb-supports.svg';
@@ -64,7 +64,7 @@ const Title = ({ lines }: { lines: [string, string] }) =>
 const Frame = ({ top, height, children }: { top: number; height: number; children: React.ReactNode }) => (
   // 390 wide and centred on any screen (overflow is clipped by Screen); pictures take no presses, so Skip and links stay pressable
   <div aria-hidden="true" className="pointer-events-none relative w-[390px] shrink-0 self-center" style={{ height }}>
-    <div className="absolute left-0 w-[390px]" style={{ top: -top, height: 844 }}>{children}</div>
+    <div className="absolute left-0 w-[390px]" style={{ top: -top, ...FRAME_ART }}>{children}</div>
   </div>
 );
 const at = (x: number, y: number, w: number, h = w) => ({ position: 'absolute' as const, left: x, top: y, width: w, height: h });
@@ -75,6 +75,8 @@ const WELCOME_SHAPES: [string, number, number, string][] = [
   [gHealth, 290.07, 385.07, '-51.14%'], [gLearning, 184, 429, '-49.05%'], [gSociety, 77.93, 385.07, '-54.47% -53.84% -48.64%'],
   [gDevices, 34, 279, '-54.47% -49.05%'], [gDesign, 77.93, 172.93, '-51.97% -51.97% -48.22%'],
 ];
+// the same order as WELCOME_SHAPES: ai, xr, access, health, learning, society, devices, design
+const TRIBE_COLOR = ['ai', 'xr', 'access', 'health', 'learning', 'society', 'devices', 'design'].map(id => TRIBES.find((t: { id: string }) => t.id === id)!.color as string);
 // Figma's bottom rows end 20 above the home indicator, 6 more than Screen's 14
 const LAST = 'mb-1.5';
 
@@ -89,14 +91,10 @@ function Welcome() {
         <p className={`${LAST} mt-[1.5px] pl-[9px] text-[12px] font-medium whitespace-pre text-arc-text-3`}>{'Unofficial  ·  No account  ·  Stays on your phone'}</p>
       </>}>
       <Frame top={102} height={368}>
-        <img src={holoRing} alt="" style={at(45, 140, 300)} />
-        <img src={innerRing} alt="" style={at(90, 185, 210)} />
-        {WELCOME_SHAPES.map(([src, x, y, inset], i) => (
-          <span key={i} style={at(x, y, 22)}><span className="absolute" style={{ inset }}><img src={src} alt="" className="block size-full" /></span></span>
-        ))}
-        <p className="absolute w-[390px] text-center text-[14px] font-medium tracking-[0.14em]" style={{ top: 281.5 }}>ARC</p>{/* Figma 590:496: no arc stroke */}
+        {/* Figma 844:1847 (11/23): a filled orb; the ring draws itself and the neighbourhoods land and drift (prototype) */}
+        <WelcomeOrbit shapes={WELCOME_SHAPES.map(([src, x, y, inset], i) => ({ src, x, y, inset, color: TRIBE_COLOR[i] }))} />
       </Frame>
-      <h1 className="text-[30px] leading-9 font-semibold tracking-[-0.024em]">Bring one question.<br />Leave CHI with an answer.</h1>
+      <h1 className="text-[30px] leading-9 font-semibold tracking-[-0.024em]">Bring one question<br />Leave CHI<br />with an answer</h1>
       <p className="sr-only">{TRIBES.length} neighbourhoods of CHI research, each a colour and a shape.</p>
     </Screen>
   );
@@ -119,7 +117,7 @@ function WhatIsChi() {
         {stats.map(([n, l, x]) => (
           <div key={l} className="relative">
             <dt className="sr-only">{l}</dt>
-            <dd className="text-[68px] leading-[72px] font-semibold tracking-[-0.035em]">{n}</dd>
+            <dd data-count="" className="text-[68px] leading-[72px] font-semibold tracking-[-0.035em]">{n}</dd>
             <dd aria-hidden="true" className="absolute top-[38px] text-[17px] font-medium tracking-[-0.012em] whitespace-nowrap text-arc-text-2" style={{ left: x - 24 }}>{l}</dd>
           </div>
         ))}
@@ -136,11 +134,11 @@ function ADay() {
       <p className="sr-only">Many talks run at the same time; you choose one in each slot.</p>
       <Frame top={184} height={415}>
         {Array.from({ length: 4 }, (_, c) => Array.from({ length: 6 }, (_, r) => (
-          <span key={`${c}-${r}`} style={{ ...at(24 + c * 84, 330 + r * 42, 66, 34), opacity: r === 4 ? 0.55 : r === 5 ? 0.22 : undefined }}
+          <span key={`${c}-${r}`} data-anim={PICKS.has(`${c}-${r}`) ? `lit ${c === 0 ? 330 : 380 + c * 220}` : `cell ${60 + c * 120 + ((c * 7 + r * 13) % 6) * 10}`} style={{ ...at(24 + c * 84, 330 + r * 42, 66, 34), opacity: r === 4 ? 0.55 : r === 5 ? 0.22 : undefined }}
             className={`rounded-[8px] ${PICKS.has(`${c}-${r}`) ? 'bg-white shadow-[var(--arc-shadow-lift)]' : 'border border-arc-line bg-arc-surface'}`} />
         )))}
-        <img src={pathLine} alt="" style={at(0, 0, 390, 844)} />
-        <img src={timeAxis} alt="" style={at(24, 587, 282, 10)} />
+        <img src={pathLine} alt="" data-anim="fade 380 1050" style={at(0, 0, 390, 844)} />{/* prototype 03: the dashed path fades in under the picks (drawPath on a dashed line) */}
+        <img src={timeAxis} alt="" data-anim="reveal 300 420" style={at(24, 587, 282, 10)} />
         <span className="absolute text-[12px] font-medium text-arc-text-3" style={{ left: 308, top: 584 }}>Time</span>{/* Figma 50%; 55% is the floor */}
       </Frame>
     </Page>
@@ -173,15 +171,15 @@ function HowPeopleTalk() {
   return (
     <Page dot={4} label="How people talk" title={['Breaks are', 'for talking.']} next="start/6">
       <Frame top={184} height={286}>{/* rules start at y 470 */}
-        <img src={arc05} alt="" style={at(0, 0, 390, 844)} />
-        <img src={bubbleQ} alt="" style={at(68, 328, 84)} />
-        <img src={bubbleE} alt="" style={at(238, 328, 84)} />
-        <span className="absolute text-[36px] font-semibold tracking-[-0.024em]" style={{ left: 101, top: 346.5 }}>?</span>
-        <span className="absolute text-[36px] font-semibold tracking-[-0.024em]" style={{ left: 274, top: 346.5 }}>!</span>
+        <img src={arc05} alt="" data-anim="reveal 620 700" style={at(0, 0, 390, 844)} />{/* prototype 05: ? then !, then the arc between them */}
+        <img src={bubbleQ} alt="" data-anim="pop 120" data-flash="640" style={at(68, 328, 84)} />
+        <img src={bubbleE} alt="" data-anim="pop 360" data-flash="1320" style={at(238, 328, 84)} />
+        <span data-anim="pop 120" className="absolute text-[36px] font-semibold tracking-[-0.024em]" style={{ left: 101, top: 346.5 }}>?</span>
+        <span data-anim="pop 360" className="absolute text-[36px] font-semibold tracking-[-0.024em]" style={{ left: 274, top: 346.5 }}>!</span>
       </Frame>
       <ul className="flex flex-col gap-2.5">
-        {rules.map(([icon, text]) => (
-          <li key={text} className="flex h-[52px] items-center gap-3 rounded-full border border-arc-line bg-arc-surface pl-[18px] text-[15px] font-medium tracking-[-0.006em]">
+        {rules.map(([icon, text], i) => (
+          <li key={text} data-anim={`rise ${1150 + i * 110}`} className="flex h-[52px] items-center gap-3 rounded-full border border-arc-line bg-arc-surface pl-[18px] text-[15px] font-medium tracking-[-0.006em]">
             <Pic src={icon} size={20} />{text}
           </li>
         ))}
@@ -196,8 +194,8 @@ function HowPeopleTalk() {
 }
 
 function HowArcWorks() {
-  const node = (orb: string, name: string, sub: string, x: number, y: number) => (
-    <div style={{ position: 'absolute', left: x, top: y, width: 104 }} className="flex flex-col items-center gap-0.5">
+  const node = (orb: string, name: string, sub: string, x: number, y: number, d: number) => (
+    <div data-anim={`node ${d}`} style={{ position: 'absolute', left: x, top: y, width: 104 }} className="flex flex-col items-center gap-0.5">
       <img src={orb} alt="" width={64} height={64} />
       <p className="text-[12px] leading-[15px] font-semibold text-arc-text/85">{name}</p>
       <p className="-mt-px text-[12px] font-medium text-arc-text-3">{sub}</p>{/* Figma 10px; 12px is the floor, 1 up keeps its centre */}
@@ -207,14 +205,16 @@ function HowArcWorks() {
     <Page dot={5} label="How ARC works" title={['Your question,', 'seen from three sides.']} next="start/6b">
       {/* not Frame: the node names are read out, only the pictures are hidden */}
       <div className="pointer-events-none relative h-[462px] w-[390px] shrink-0 self-center">
-        <div className="absolute left-0 w-[390px]" style={{ top: -184, height: 844 }}>
-          <img src={lines06} alt="" aria-hidden="true" style={at(0, 0, 390, 844)} />
-          <img src={holo06} alt="" aria-hidden="true" style={at(123, 348, 144)} />
-          <img src={orb06} alt="" aria-hidden="true" style={at(133, 358, 124)} />
+        <div className="absolute left-0 w-[390px]" style={{ top: -184, ...FRAME_ART }}>
+          {/* prototype 06: the 12 map's bloom — orb, ring, the three regions, then Supports, Challenges, Reframes */}
+          <img src={regions06} alt="" aria-hidden="true" data-anim="fade 560" style={at(0, 196, 390, 524)} />{/* Figma 11/23: the 12 map's three regions */}
+          <img src={lines06} alt="" aria-hidden="true" data-anim="fade 760" style={at(0, 0, 390, 844)} />
+          <img src={holo06} alt="" aria-hidden="true" data-anim="holo 320" style={at(123, 348, 144)} />
+          <img src={orb06} alt="" aria-hidden="true" data-anim="grow 200" style={at(133, 358, 124)} />
           <p className="absolute w-[390px] text-center text-[15px] leading-[19px] font-semibold" style={{ top: 401 }} aria-hidden="true">Your<br />question</p>
-          {node(orbS, 'Supports', 'same finding', 12, 388)}
-          {node(orbT, 'Challenges', 'different finding', 274, 388)}
-          {node(orbR, 'Reframes', 'new lens', 143, 528)}
+          {node(orbS, 'Supports', 'same finding', 143, 223, 830)}
+          {node(orbR, 'Reframes', 'new lens', 13.1, 463, 1230)}
+          {node(orbT, 'Challenges', 'different finding', 272.9, 463, 1030)}
         </div>
       </div>
     </Page>

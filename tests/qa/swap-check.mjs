@@ -22,8 +22,8 @@ const fire = (p, type, sel, [x, y]) => p.evaluate(([type, sel, x, y]) => documen
 const shot = async (p, name) => shots && p.screenshot({ path: `${shots}/${name}.png` });
 let ch, code = 1;
 try {
-  ch = await chromium.launch({ executablePath: CHROME });
-  const ctx = await ch.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
+  ch = await chromium.launch({ executablePath: CHROME, args: ['--force-prefers-reduced-motion'] });
+  const ctx = await ch.newContext({ reducedMotion: 'reduce',  viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
   const p = await ctx.newPage();
   await p.goto(`${server.base}#/start/1`);
   await p.evaluate(`localStorage.setItem('arc.device', ${JSON.stringify(device(true))}); true`);
@@ -32,8 +32,10 @@ try {
   const openMap = async () => { await p.goto(`${server.base}#/arc/${ARC.id}`); await p.waitForSelector(node); await sleep(400); };
 
   await openMap();
+  await p.locator(node).click(); // 12c: the first tap picks it
+  await sleep(300);
   await p.locator(node).click();
-  R.check('a short tap on a node still opens 14', await p.waitForFunction(k => location.hash === `#/talk/${k}`, R_NODE.key, { timeout: 5000 }).then(() => true, () => false), {});
+  R.check('a short tap on a node picks it (12c), a second opens 14', await p.waitForFunction(k => location.hash === `#/talk/${k}`, R_NODE.key, { timeout: 5000 }).then(() => true, () => false), {});
 
   await openMap();
   const at = await centre(p, node);

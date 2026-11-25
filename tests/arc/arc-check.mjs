@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { buildCorpus } from '../engine/corpus.mjs';
 import { buildIndex, buildArc } from '../../app/src/engine/mock-core.js';
-import { tempProfile } from '../qa/cdp.mjs';
+import { tempProfile, portFree, devtools } from '../qa/cdp.mjs';
 
 const PORT = 4333, BASE = `http://localhost:${PORT}/`, AT = '?at=2026-04-14T12:00';
 const SHOTS = process.argv.includes('--shots') ? process.argv[process.argv.indexOf('--shots') + 1] : null;
@@ -18,11 +18,14 @@ const make = (id, q, mode) => buildArc(index, q, { angles: ['S', 'R', 'T'], days
 const ARCS = { normal: make('check-normal-0001', 'Does VR fidelity raise presence?', 'normal'), none: make('check-none-00001', 'sign language', 'normal'),
   crowded: make('check-crowd-0001', 'haptic feedback', 'crowded'), pending: make('check-pend-00001', 'privacy of smart home devices', 'pending') };
 
+await portFree(PORT);
 const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { stdio: 'ignore', detached: true });
 for (let i = 0; i < 60; i++) { try { if ((await fetch(BASE)).ok) break; } catch {} await sleep(250); }
-const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=9353', `--user-data-dir=${tempProfile('arc-a2')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const PROFILE = tempProfile('arc-a2');
+const chrome = spawn(CHROME, ['--headless=new', '--force-prefers-reduced-motion', '--remote-debugging-port=0', `--user-data-dir=${PROFILE}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 let targets;
-for (let i = 0; i < 40; i++) { try { targets = await (await fetch('http://127.0.0.1:9353/json')).json(); break; } catch { await sleep(250); } }
+const DEVTOOLS = await devtools(PROFILE); // a free port: never a Chrome left by an earlier run
+for (let i = 0; i < 40; i++) { try { targets = await (await fetch(`${DEVTOOLS}/json`)).json(); break; } catch { await sleep(250); } }
 const ws = new WebSocket(targets.find(t => t.type === 'page').webSocketDebuggerUrl);
 await new Promise(r => ws.addEventListener('open', r));
 let id = 0; const pending = new Map(); const errors = [];
@@ -67,10 +70,11 @@ try {
 
   // 12 → 14, "I heard it" → Heard on the map
   const first = await ev(`(() => { const b = ${nodes}.find(b => b.getAttribute('aria-description')?.endsWith(' · Ended')); return b ? ${nameOf}(b) : null; })()`);
-  await click(`${nodes}.find(b => ${nameOf}(b) === ${JSON.stringify(first)})`);
-  // the node's text: angle · ✦ title, time · room, and a Reframe's kind on its own line (Arc 0.2.0)
+  await click(`${nodes}.find(b => ${nameOf}(b) === ${JSON.stringify(first)})`); // 12c: the first tap picks it
+  await click(`${nodes}.find(b => ${nameOf}(b) === ${JSON.stringify(first)})`); // a second opens 14
+  // the node's text: angle · ✦ short name (Figma: the engine's label, how the title begins), time · room, and a Reframe's kind
   const want = JSON.stringify((first ?? '').replace(/^\w+ · /, '').replace(/^✦ /, '').replace(/ (Same subject|Other factor|Other measure|Other people)$/, '').replace(/ \d\d:\d\d( · .*)?$/, ''));
-  const talkMs = await waitFor(`document.querySelector('h1')?.innerText === ${want} && !/Loading/.test(document.querySelector('main').innerText)`, 30000);
+  const talkMs = await waitFor(`document.querySelector('h1')?.innerText.startsWith(${want}) && !/Loading/.test(document.querySelector('main').innerText)`, 30000);
   const talk = await ev(`({ tags: [...document.querySelectorAll('main > div:first-child span')].map(s => s.innerText), why: document.querySelector('#why')?.innerText,
     authors: [...document.querySelectorAll('main li')].filter(l => l.querySelector('img') && / · |\\w/.test(l.innerText)).length,
     newToChi: [...document.querySelectorAll('main button')].filter(b => b.innerText.trim() === 'New to CHI').length,
@@ -96,10 +100,18 @@ try {
   check('23 no clear Challenge: empty slot, "No clear challenge"', (await waitFor(`/No clear challenge/.test(document.querySelector('main').innerText)`, 20000)) != null, {});
   await shot('23');
   await open(`#/arc/${ARCS.crowded.id}`);
-  const bundle = await waitFor(`[...document.querySelectorAll('main button')].some(b => /^\\d+ more (Supports|Reframes|Challenges)$/.test(b.innerText.trim().replace(/^\\+\\d+\\s*/, '')) || / more (Supports|Reframes|Challenges)/.test(b.textContent))`, 20000);
+  // 24 (Figma 11/23): three talks per region, the region's count is the way to the rest; 24b moves the map toward it
+  const BADGE = `[...document.querySelectorAll('main button[aria-label]')].find(b => /^All \\d+ (Supports|Reframes|Challenges)$/.test(b.getAttribute('aria-label')))`;
+  const bundle = await waitFor(`!!${BADGE}`, 20000);
+  const name = await ev(`${BADGE}.getAttribute('aria-label').replace(/^All \\d+ /, '')`);
   await shot('24');
-  await click(`[...document.querySelectorAll('main button')].find(b => / more (Supports|Reframes|Challenges)/.test(b.textContent))`);
-  check('24 crowded: +N bundle opens the list', bundle != null && (await waitFor(`location.hash.endsWith('/list')`, 10000)) != null, { nodes: ARCS.crowded.nodes.length });
+  await click(BADGE);
+  const moved = await waitFor(`/See all three angles/.test(document.body.innerText) && [...document.querySelectorAll('h2')].some(h => h.innerText.includes(${JSON.stringify(name)}))`, 10000);
+  const shown = await ev(`document.querySelectorAll('main [data-node-key]').length`);
+  await shot('24b');
+  await click(`[...document.querySelectorAll('button')].find(b => b.innerText.trim() === 'See all three angles')`);
+  const back = await waitFor(`!!${BADGE} && !/See all three angles/.test(document.body.innerText)`, 10000);
+  check('24 crowded: the count moves the map toward that angle (24b) and back', bundle != null && moved != null && back != null && shown > 3, { angle: name, shown, nodes: ARCS.crowded.nodes.length });
   await open(`#/arc/${ARCS.pending.id}`);
   const sorting = await waitFor(`/Sorting angles/.test(document.body.innerText) && ${nodes}.length > 0`, 20000);
   const nextUp25 = await ev(`[...document.querySelectorAll('a')].some(a => a.getAttribute('aria-description')?.startsWith('Next up:'))`);

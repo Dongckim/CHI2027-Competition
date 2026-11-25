@@ -42,10 +42,10 @@ export function Hood({ id }: { id: string }) {
         <ArcLink className="mb-1.5" href={href(`arc/${arc.id}`)}>See my Arc</ArcLink>
       </>}>
       <div className="pointer-events-none relative mt-[96px] h-[340px] w-[390px] shrink-0 self-center" aria-hidden="true">
-        <span className="arc-ring" style={{ ...at(70, 45, 250), ...INNER }} />
-        <span className="arc-ring" style={{ ...at(25, 0, 340), ...OUTER }} />
+        <span data-anim="ring 60" className="arc-ring" style={{ ...at(70, 45, 250), ...INNER }} />
+        <span data-anim="ring 160" className="arc-ring" style={{ ...at(25, 0, 340), ...OUTER }} />
         {/* Figma 593:922 (XR only): the shape in a light-to-deep gradient with a 2px white 45% edge; the same mix for each tribe */}
-        <TribeShape tribe={arc.tribe} style={at(129, 104, 132)} />
+        <span data-anim="grow 120" className="absolute inset-0"><TribeShape tribe={arc.tribe} style={at(129, 104, 132)} /></span>{/* prototype 11: the shape is born */}
       </div>
       <p className="mt-[-12px] text-center text-[12px] font-medium tracking-[0.12em] text-arc-text-3">YOU'RE IN</p>
       <h1 className="mt-[7px] text-center text-[36px] leading-[42px] font-semibold tracking-[-0.024em]">{t.name}</h1>

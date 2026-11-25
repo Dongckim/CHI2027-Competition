@@ -7,6 +7,7 @@ import { arcOf, setQuery, setOnboarded, QUERY_MAX } from '../../arc/draft.js';
 import { engine, topicHelp, type Arc, type Angle, type TribeId } from '../../engine';
 import { isTopic } from '../../arc/topic.js';
 import { layout } from '../../arc/map.js';
+import { play, POP } from '../../arc/motion';
 import { ANGLE_NAME } from './AngleHelp';
 import { TRIBE } from '../../arc/tribes.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
@@ -42,8 +43,8 @@ async function helpFor(topic: string, live: () => boolean): Promise<Help | null>
 // Figma 741:1638: the 12 map shrunk to 60 (x 0.155, y 0.117 round the orb); the first talk filled in the tribe colour
 function MiniArc({ arc }: { arc: Arc }) {
   const id = useId(), c = TRIBE[arc.tribe].color;
-  const l = layout(arc) as { nodes: { node: Arc['nodes'][number]; at: [number, number] }[]; bundles: { angle: Angle; at: [number, number] }[] };
-  const pts = [...l.nodes.map(n => ({ at: n.at, angle: n.node.angle })), ...l.bundles.map(b => ({ at: b.at, angle: b.angle }))]
+  const l = layout(arc) as unknown as { nodes: { node: Arc['nodes'][number]; at: [number, number] }[] };
+  const pts = l.nodes.map(n => ({ at: n.at, angle: n.node.angle }))
     .map(p => ({ angle: p.angle, x: 30 + (p.at[0] - 195) * 0.155, y: 30 + (p.at[1] - 240) * 0.117 }));
   return (
     <svg width={60} height={60} viewBox="0 0 60 60" aria-hidden="true" className="shrink-0">
@@ -64,6 +65,9 @@ function MiniArc({ arc }: { arc: Arc }) {
     </svg>
   );
 }
+
+// prototype 07: the tribe chip pops in when the question finds its neighbourhood (and again when it changes)
+const chipIn = (el: HTMLElement | null) => { play(el, [{ opacity: 0, transform: 'scale(.7)' }, { opacity: 0.75, transform: 'scale(1)' }], { duration: 480, easing: POP }); };
 
 export function Ask() {
   const state = useDevice();
@@ -97,7 +101,9 @@ export function Ask() {
   return (
     <Screen label="Ask"
       header={onboarded ? <BackButton href={href('home')} /> : <><StepDots at={8} /><TextAction href={href('home')} className={SKIP_CLASS} onClick={e => { e.preventDefault(); update(setOnboarded); go('home'); }}>Skip</TextAction></>}
-      bottom={<>
+      // 07b (Figma 741:1605) has no bottom bar: "Keep ‘<topic>’ as a topic" is the same step as Find my angles, and the
+      // bar covered it and "Or keep typing your own." (independent check 11/22)
+      bottom={shown ? undefined : <>
         {/* Figma: 20 above the button, which ends 20 above the home indicator */}
         <p className="mb-1.5 flex items-center justify-center gap-1.5 text-[12px] font-medium text-arc-text-3" aria-live="polite">
           <Pic src={offline} size={16} />{warmState === 'ready' ? 'Ready offline' : warmState === 'failed' ? 'Needs a connection to get ready' : 'Getting ready for offline…'}
@@ -114,7 +120,7 @@ export function Ask() {
       {/* Figma 591:684: chip at 26,303, the whole chip at 75%; the row keeps its height so the list below does not jump */}
       <div className="mt-[13px] h-[30px]" aria-live="polite">
         {t && (
-          <span className="ml-0.5 inline-flex items-center gap-1.5 rounded-2xl border py-1.5 pr-3 pl-2.5 text-[13px] font-semibold text-arc-text opacity-75"
+          <span key={t.id} ref={chipIn} className="ml-0.5 inline-flex items-center gap-1.5 rounded-2xl border py-1.5 pr-3 pl-2.5 text-[13px] font-semibold text-arc-text opacity-75"
             style={{ background: `color-mix(in srgb, ${t.color} 8%, transparent)`, borderColor: `color-mix(in srgb, ${t.color} 30%, transparent)` }}>
             <Pic src={TRIBE_ICON[t.id as TribeId]} size={14} />{t.name}
           </span>
@@ -154,7 +160,7 @@ export function Ask() {
       <ul className="mt-[9.5px] flex flex-col gap-2" aria-labelledby="starters">
         {STARTERS.map(([tid, q]) => (
           <li key={q}>
-            <button type="button" onClick={() => update(s => setQuery(s, q))}
+            <button type="button" onClick={() => ask(q)} /* prototype LINKS "Starter ·" → 08 */
               className="flex min-h-[52px] w-full items-center gap-3 rounded-2xl border border-arc-line bg-arc-surface py-2 pr-3.5 pl-[15px] text-left text-[14px] font-medium tracking-[-0.006em] text-arc-text/85">
               <Pic src={TRIBE_ICON[tid]} size={18} /><span className="min-w-0 flex-1">{q}</span>{/* 사용자 「말줄임 대신 화살표 앞에서 두 줄 줄바꿈」: two lines still fit the 52 row */}<Pic src={chevron} size={16} />
             </button>

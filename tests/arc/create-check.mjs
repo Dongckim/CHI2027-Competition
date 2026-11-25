@@ -8,17 +8,20 @@
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { writeFileSync, mkdirSync } from 'node:fs';
-import { tempProfile } from '../qa/cdp.mjs';
+import { tempProfile, portFree, devtools } from '../qa/cdp.mjs';
 // ARC_SEARCH="?engine=ondevice" runs the same flow on the on-device engine (needs dist/model/)
 const PORT = 4331, BASE = `http://localhost:${PORT}/${process.env.ARC_SEARCH ?? ''}`;
 const SHOTS = process.argv.includes('--shots') ? process.argv[process.argv.indexOf('--shots') + 1] : null;
 const CHROME = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+await portFree(PORT);
 const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { stdio: 'ignore', detached: true });
 for (let i = 0; i < 60; i++) { try { if ((await fetch(BASE)).ok) break; } catch {} await sleep(250); }
-const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=9351', `--user-data-dir=${tempProfile('arc-create')}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const PROFILE = tempProfile('arc-create');
+const chrome = spawn(CHROME, ['--headless=new', '--force-prefers-reduced-motion', '--remote-debugging-port=0', `--user-data-dir=${PROFILE}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 let targets;
-for (let i = 0; i < 40; i++) { try { targets = await (await fetch('http://127.0.0.1:9351/json')).json(); break; } catch { await sleep(250); } }
+const DEVTOOLS = await devtools(PROFILE); // a free port: never a Chrome left by an earlier run
+for (let i = 0; i < 40; i++) { try { targets = await (await fetch(`${DEVTOOLS}/json`)).json(); break; } catch { await sleep(250); } }
 const ws = new WebSocket(targets.find(t => t.type === 'page').webSocketDebuggerUrl);
 await new Promise(r => ws.addEventListener('open', r));
 let id = 0; const pending = new Map(); const errors = [];
@@ -101,17 +104,21 @@ try {
   check('12 reached by clicks only, with talks round the question, saved once', arcMs != null && nodes?.reduce((a, b) => a + b, 0) >= 3 && stored === 1, { hash: arcHash, nodesPerAngle: nodes, storedArcs: stored });
   await shot('12');
   // 12 → 14: every node is a button named "<angle> · <title> · <time>"; the first opens 14 with its title and evidence
-  // a node's name is its own text: "<angle> · <title> <time · room>" (WCAG 2.5.3), the title in its two-line span
+  // a node's name is its own text: "<angle> · <short name> <time · room>" (WCAG 2.5.3; Figma's short name, how the title begins)
   const node = await ev(`(() => { const b = ${NODE}; const f = b[0];
     return { count: b.length, named: b.every(x => /^(Supports|Reframes|Challenges) · .+ \\d\\d:\\d\\d/.test(x.innerText.replace(/\\s+/g, ' ').trim())), label: f?.innerText.replace(/\\s+/g, ' ').trim(),
       title: f?.querySelector('.line-clamp-2')?.textContent.replace(/^✦ /, '').trim() }; })()`);
+  // 12c (Figma 851:1855): a tap picks the stop and the card under the map shows its paper; a second tap opens 14
   await ev(`${NODE}[0].click()`);
   const want = JSON.stringify(node.title ?? '');
+  const card = await waitFor(`[...document.querySelectorAll('.arc > .sticky a[href*="talk/"]')].some(a => a.innerText.includes(${want}.slice(0, 20)))`, 5000);
+  check('12c: a tap shows the stop\'s paper in the card', card != null, {});
+  await ev(`${NODE}[0].click()`);
   // 14 is its own chunk: wait for its title (not the 12 still on screen) and for the abstract
-  const talkMs = await waitFor(`location.hash.startsWith('#/talk/chi2026:') && document.querySelector('h1')?.innerText === ${want} && !/Loading/.test(document.querySelector('main').innerText)`, 30000);
+  const talkMs = await waitFor(`location.hash.startsWith('#/talk/chi2026:') && document.querySelector('h1')?.innerText.startsWith(${want}) && !/Loading/.test(document.querySelector('main').innerText)`, 30000);
   const talk = await ev(`({ title: document.querySelector('h1')?.innerText, angle: document.querySelector('main p')?.innerText, mark: document.querySelector('main mark')?.textContent ?? null, when: [...document.querySelectorAll('main p')].map(p => p.innerText).find(t => t.includes(' · ~')) ?? [...document.querySelectorAll('main li')].map(l => l.innerText).find(t => t.includes(' · ~')) ?? null })`);
   await shot('14');
-  check('12 node opens 14 with title, angle, time and the evidence highlighted', talkMs != null && node.named && node.title === talk?.title && !!talk?.mark && !!talk.when,
+  check('12 node opens 14 with title, angle, time and the evidence highlighted', talkMs != null && node.named && !!node.title && !!talk?.title?.startsWith(node.title.replace(/…$/, '')) && !!talk?.mark && !!talk.when,
     { nodes: node.count, label: node.label, talk });
   await send('Runtime.evaluate', { expression: 'history.back()' });
   await waitFor(`location.hash.startsWith('#/arc/')`);

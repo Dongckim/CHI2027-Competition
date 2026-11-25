@@ -1,7 +1,8 @@
 // Final UI parts (Figma Components 588:446): the dark screen shell, pill buttons, chips, icon buttons, step marks and the
 // bottom sheet. Sizes are Figma's; where Figma is under the accessibility floor (44px touch, 12px text) the hit area or
 // size is raised without changing the look (docs/stages/A1-create.md lists each).
-import { useEffect, useRef, type ReactNode, type ComponentPropsWithRef, type AnchorHTMLAttributes } from 'react';
+import { useEffect, useLayoutEffect, useRef, type CSSProperties, type ReactNode, type ComponentPropsWithRef, type AnchorHTMLAttributes } from 'react';
+import { enter } from '../arc/motion';
 import chevronLeft from '../assets/arc/icon-chevron-left.svg';
 import helpIcon from '../assets/arc/icon-help.svg';
 import chipCheck from '../assets/arc/08-chip-check.svg';
@@ -27,9 +28,16 @@ export function DemoBanner() {
 
 /** The dark Final UI page: 24px sides, header row, content, and one bottom area 20px above the home indicator.
  *  clock: a screen whose content depends on the time (shows the demo banner when the demo day is on). */
+// A Figma-frame art layer (390 × 844 from the frame's top, 54 above the content): no taller than the screen, so on a shorter
+// one (Safari 664 with its toolbars, user 11/22) it ends at the bottom edge instead of making a short screen scroll
+export const FRAME_ART: CSSProperties = { height: 'min(844px, calc(100dvh + 54px - env(safe-area-inset-top, 0px)))', overflow: 'hidden' };
+
 export function Screen({ header, children, bottom, label, clock }: { header?: ReactNode; children: ReactNode; bottom?: ReactNode; label?: string; clock?: boolean }) {
+  const root = useRef<HTMLDivElement>(null);
+  // the prototype's entrance, once per screen: header, content and bottom parts rise in, top to bottom
+  useLayoutEffect(() => { const r = root.current; if (r) enter([...r.querySelectorAll(':scope > header > *, :scope > main > *, :scope > .sticky > *')]); }, []);
   return (
-    <div className="arc mx-auto flex min-h-[calc(100dvh-env(safe-area-inset-top,0px))] max-w-[480px] flex-col overflow-x-clip bg-arc-bg font-sans text-arc-text">{/* nothing scrolls sideways (QA V7); the screen minus body's top safe-area padding, so a short screen never scrolls (user 11/20) */}
+    <div ref={root} className="arc mx-auto flex min-h-[calc(100dvh-env(safe-area-inset-top,0px))] max-w-[480px] flex-col overflow-x-clip bg-arc-bg font-sans text-arc-text">{/* nothing scrolls sideways (QA V7); the screen minus body's top safe-area padding, so a short screen never scrolls (user 11/20) */}
       {/* Figma: buttons 44 at y 56 (54 + 2), so a 48 row centred */}
       {header && <header className="flex min-h-[48px] items-center justify-between px-4">{header}</header>}
       {clock && <DemoBanner />}
@@ -89,12 +97,13 @@ export function StepBar({ at, total = 3 }: { at: number; total?: number }) {
 }
 
 /** A choice chip: 38px look, 44px hit area. Selected = light fill with a check. */
-export function Chip({ selected, onClick, children, single }: { selected: boolean; onClick: () => void; children: ReactNode; single?: boolean }) {
+/** icon: always shown, in the chip's own colour (09 How you walk); otherwise a check only when selected. */
+export function Chip({ selected, onClick, children, single, icon }: { selected: boolean; onClick: () => void; children: ReactNode; single?: boolean; icon?: ReactNode }) {
   return (
     <button type="button" onClick={onClick} {...(single ? { role: 'radio', 'aria-checked': selected } : { 'aria-pressed': selected })}
       className={`relative inline-flex h-[38px] max-w-full items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium tracking-[-0.006em] whitespace-nowrap before:absolute before:inset-x-0 before:-inset-y-[4px] before:content-[''] ${
         selected ? 'bg-arc-chip-on text-arc-on-primary shadow-[var(--arc-shadow-lift)]' : 'border border-arc-line bg-arc-surface text-arc-text/62'}`}>
-      {selected && <Pic src={chipCheck} size={16} />}
+      {icon ?? (selected && <Pic src={chipCheck} size={16} />)}
       <span className="truncate">{children}</span>
     </button>
   );

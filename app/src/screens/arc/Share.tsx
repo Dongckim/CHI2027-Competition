@@ -103,12 +103,12 @@ export function Share({ id }: { id: string }) {
         <figure className="relative flex h-[430px] w-[300px] shrink-0 snap-center flex-col overflow-hidden rounded-[28px] border border-arc-line" style={tint(arc)}>
           <figcaption className="sr-only">How the link looks in a message.</figcaption>
           <div aria-hidden="true" className="flex h-[170px] items-center justify-center" style={{ background: `color-mix(in srgb, ${TRIBE[arc.tribe].color} 18%, transparent)` }}>
-            <img src={TRIBE_ICON[arc.tribe]} alt="" width={96} height={96} />
+            <img src={TRIBE_ICON[arc.tribe]} alt="" width={127} height={127} className="opacity-80" />{/* prototype 16: the peek is the big tribe shape */}
           </div>
           <div className="flex flex-col gap-2 p-5">
-            <p className="text-[12px] font-medium text-arc-text-3">{location.host}</p>
+            <p className="text-[12px] font-medium text-arc-text-3">arc2027.com</p>{/* as the messenger shows it (16b, functions/share.mjs) */}
             <p className="line-clamp-3 text-[18px] leading-6 font-semibold">{arc.query}</p>
-            <p className="text-[14px] text-arc-text-2">↑ {c.S} Supports · ↻ {c.R} Reframes · ⊣ {c.T} Challenges · from the CHI 2026 programme. Unofficial.</p>
+            <p className="text-[14px] text-arc-text-2">ARC · ↑ {c.S} support · ↻ {c.R} reframe · ⊣ {c.T} challenge</p>{/* the og:description's words (16b) */}
           </div>
         </figure>
       </div>
@@ -159,7 +159,7 @@ export function Qr({ id }: { id: string }) {
       </div>}>
       <div className="mt-[14px] flex justify-center"><TribeChip arc={arc} /></div>
       <h1 className="mx-auto mt-[14px] w-[320px] max-w-full text-center text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
-      <div className="relative mx-auto mt-[38px] flex size-[248px] items-center justify-center rounded-[28px] bg-white">
+      <div data-anim="qr 200" className="relative mx-auto mt-[38px] flex size-[248px] items-center justify-center rounded-[28px] bg-white">{/* prototype 17: the card, code and shape pop together */}
         <svg role="img" aria-label={`QR code for the link to this Arc: ${arc.query}`} width={200} height={200} viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges">
           <path d={qr.d} fill="#15121F" />
         </svg>

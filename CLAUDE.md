@@ -162,3 +162,9 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - A5 기본 엔진 전환 (2026-11-21, stage/A5-ondevice-default): 배포 빌드 기본 ondevice(`MODEL_URL` 없으면 빌드 실패). Challenge는 결과 문장만(아니면 Reframe), Arc 0.2.0 `kind`를 12·13·14에, 07b는 원준 조합 문장(문법 깨진 것 빼고, 없으면 제목), 10은 모델 받는 동안 "Sorting angles… N%", 오프라인·30초 정체면 연결 안내
 - `node tests/arc/setup-check.mjs`(10 진행률·오프라인·정체, ondevice 빌드+모델 필요) 5/5, 배포 확인에 `--expect-ondevice`
 - 남은 것: 종족 3개·시각 2시간·라이선스 2칸은 원준, 새 표시는 디자이너(docs/handoff/designer.md §13), 링크 v2 보류(docs/handoff/on-hold.md)
+- A6 Figma 11/23 지도 개편 (2026-11-23, stage/A6-map-regions): 지도가 세 구역(Supports 위 · Reframes 왼쪽 아래 · Challenges 오른쪽 아래) + 구역 개수, 구역마다 3개(나머지는 개수 버튼 → 24b 그 각도로 이동), 12c 탭 = 고르기(카드 또는 두 번째 탭 → 14), 12a 처음 한 번 Hold 힌트, Next 카드 제목 두 줄
+- 01 문구·채운 원, 06·20 Mini Arc·07b·/api/og도 같은 배치. qa:auto 16/16, npm test 170/170
+- 남은 것: 24b의 "Not on your Arc" + Add 뜻, 15 Supports 2개 자리, 시간 줄 0.72 등은 디자이너(docs/handoff/designer.md §17), 실기기 확인 안 함
+- A7 최종 프로토타입 (2026-11-23, stage/A7-prototype): 프로토타입 움직임(지도 bloom, 01 궤도, 12a·12b·12c·24b, 화면 진입·숫자) 구현(`app/src/arc/motion.ts`, 줄인 움직임이면 정지), 24b 후보 + Add·구역 전체 개수, 09 How you walk(calm/step_free → 엔진, Step-free면 Next 카드 Elevator), 19·19b → 홈
+- `tests/qa/flow-check.mjs`(프로토타입 연결 32줄 + 움직임 끝 위치), 검사 브라우저는 모두 줄인 움직임. 제외: 번역(14g·14b 번역), 14c·14d·14h·Web, Print badge(이전 결정)
+- 남은 것: 엘리베이터 아이콘·24b 후보 12개 한도 등 해석(designer.md §18), 실기기 확인 안 함
