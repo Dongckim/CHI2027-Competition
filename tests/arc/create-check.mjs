@@ -3,7 +3,7 @@
 //   - first run: 01 → It's my first CHI → 02–05 → 06 → 07 (type a question, tribe chip) → 08 (? sheet opens and closes)
 //     → 09 → Build my Arc → 10 → 11 (tribe named, edge glows) → See my Arc → 12 → a node opens 14 (evidence
 //     highlighted); reload keeps the Arc
-//   - Skip on a fresh phone → 21 empty home; New Arc → 07 with a back button (no dots)
+//   - Skip on a fresh phone → 21 empty home; New Arc → 07p with a back button (no dots)
 // Exit code 1 on a fail.
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -66,7 +66,10 @@ try {
     await click('Next');
   }
   check('02–06c in order, each with Next', seen.every(Boolean), { seen });
-  check('06c Next → 07 with dots and Skip', !!(await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label="Step 8 of 8"]') && /Skip/.test(document.body.innerText)`)), { hash: await hash() });
+  // Figma 11/25: 06c → 07p "Do you have a paper at CHI?"; no paper → 07
+  check('06c Next → 07p with dots and Skip', !!(await waitFor(`location.hash === '#/paper' && !!document.querySelector('[aria-label="Step 8 of 8"]') && /Do you have a paper/.test(document.body.innerText)`)), { hash: await hash() });
+  await click('No paper? Start from a question');
+  check('07p No paper → 07 with dots and Skip', !!(await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label="Step 8 of 8"]') && /Skip/.test(document.body.innerText)`)), { hash: await hash() });
 
   // 07: type a question (React needs the native setter + an input event), the tribe chip appears
   await ev(`(() => { const i = document.querySelector('main input'); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
@@ -141,7 +144,7 @@ try {
   check('Skip → 21 empty home', (await waitFor(`location.hash === '#/home' && /Start with one question/.test(document.body.innerText)`)) != null, {});
   await shot('21');
   await click('New Arc');
-  check('New Arc → 07 with a back button, no dots', (await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label=Back]') && !document.querySelector('[aria-label="Step 8 of 8"]')`)) != null, {});
+  check('New Arc → 07p with a back button, no dots', (await waitFor(`location.hash === '#/paper' && !!document.querySelector('[aria-label=Back]') && !document.querySelector('[aria-label="Step 8 of 8"]')`)) != null, {});
   check('no uncaught errors', errors.length === 0, { errors });
 } catch (e) {
   fails.push(`stopped: ${e.message}`);

@@ -5,7 +5,8 @@ import { buildCorpus } from '../engine/corpus.mjs';
 import { buildIndex, buildArc } from '../../app/src/engine/mock-core.js';
 import { encodeLink } from '../../app/src/arc/link.js';
 
-const index = buildIndex(buildCorpus());
+const corpus = buildCorpus();
+const index = buildIndex(corpus);
 const opts = { angles: ['S', 'R', 'T'], days: [], types: ['Paper', 'Posters', 'Interactive Demos'] };
 // Reframes with an Arc 0.2.0 kind, as the ondevice engine gives them, so the map, list and detail checks see that line too
 const KINDS = ['factor', 'measure', 'people', 'subject'];
@@ -16,6 +17,8 @@ export const PEND = buildArc(index, 'privacy of smart home devices', opts, { id:
 export const CROWD = withKinds(buildArc(index, 'Does VR fidelity raise presence?', opts, { id: 'a11y-crowd-001', createdAt: 0, mode: 'crowded' }));
 export const OTHER = buildArc(index, 'haptic feedback', opts, { id: 'a11y-other-001', createdAt: 0 });
 export const STORED = [ARC, NONE, PEND, CROWD];
+// 07r: the first author of the normal Arc's first talk (an author of the programme)
+export const PERSON = corpus.papers.find(p => p.key === ARC.nodes[0].key).authors[0];
 const draft = { query: 'Does VR fidelity raise presence?', topicsFor: null, topics: { S: [], R: [], T: [] }, when: 'all', what: ['talks', 'posters', 'demos'] };
 export const device = onboarded => JSON.stringify({ version: 1, edition: 'chi2026', mode: null, step: 'research', builtAt: null,
   plan: { query: '', topicsFor: null, topics: [], nearbyAdded: [], days: [], needs: { stepFree: false, fewerRoomChanges: false, breaks: false, largerText: false, summaries: false }, language: 'en', see: ['papers'], howFull: 'balanced' },
@@ -26,7 +29,7 @@ export const seedArcs = arcs => `new Promise(r => { const q = indexedDB.open('ar
 export const SCREENS = [['10', '#/building', 'Reading'],
   ['01', '#/start/1', 'Bring one question'], ['02', '#/start/2', 'The biggest week'], ['03', '#/start/3', '10+ talks run'], ['04', '#/start/4', 'Know what to do'],
   ['05', '#/start/5', 'Breaks are'], ['06', '#/start/6', 'three sides'], ['06b', '#/start/6b', 'same neighbourhood'], ['06c', '#/start/6c', 'Before, during'],
-  ['07', '#/ask', 'What are you'], ['08', '#/angles', 'Supports'],
+  ['07p', '#/paper', 'Do you have a paper'], ['07r', `#/paper/${PERSON}`, 'Your Arc starts from its question'], ['07', '#/ask', 'What are you'], ['08', '#/angles', 'Supports'],
   ['09', '#/when', 'Build my Arc'], ['11', `#/hood/${ARC.id}`, "YOU'RE IN"], ['12', `#/arc/${ARC.id}`, 'Share'] /* the card says Next or Now by the clock */, ['13', `#/arc/${ARC.id}/list`, 'Reframes'],
   ['14', `#/talk/${ARC.nodes[0].key}`, 'WHY IT'], ['14f', `#/talk/${ARC.nodes[0].key}/shape`, 'Look for the same shape'], ['15', `#/arc/${ARC.id}/edit`, 'Editing'], ['16', `#/share/${ARC.id}`, 'Never your name'],
   ['17', `#/qr/${ARC.id}`, 'Scan to get'], ['18', `#/r/${encodeLink(OTHER)}`, 'Shared Arc'], ['19', `#/r/${encodeLink(OTHER)}/pick`, 'Pick what to keep'],
@@ -49,9 +52,10 @@ export async function buttonsProbe() {
   const was = all.map(b => b.style.fontSize);
   all.forEach(b => { b.style.fontSize = (parseFloat(getComputedStyle(b).fontSize) * 2) + 'px'; });
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  for (const b of all) { const n = lines(b), r = b.getBoundingClientRect();
-    const cut = b.scrollWidth > b.clientWidth + 1, off = r.right > innerWidth + 1 || r.left < -1;
-    if (n > 1 || cut || off) bad.push({ el: name(b), zoom: 200, lines: n, cut, off }); }
+  // a button marked data-arc-wrap (Figma's long words, 07p/07r 11/25) may take two whole-word lines at 200%, never cut
+  for (const b of all) { const n = lines(b), r = b.getBoundingClientRect(), wrap = b.hasAttribute('data-arc-wrap');
+    const cut = b.scrollWidth > b.clientWidth + 1 || b.scrollHeight > b.clientHeight + 1, off = r.right > innerWidth + 1 || r.left < -1;
+    if (n > (wrap ? 2 : 1) || cut || off) bad.push({ el: name(b), zoom: 200, lines: n, cut, off }); }
   all.forEach((b, i) => { b.style.fontSize = was[i]; });
   return { checked: all.length, bad };
 }

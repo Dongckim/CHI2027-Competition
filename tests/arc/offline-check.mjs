@@ -49,7 +49,9 @@ try {
   check('offline: the app opens (01)', down && opened != null, { serverDown: down });
   await click('Skip');
   await waitFor(`location.hash === '#/home' && /Start with one question/.test(document.body.innerText)`); // the screen's chunk comes from the worker
-  await click('New Arc');
+  await click('New Arc'); // 07p, then no paper → 07
+  await waitFor(`location.hash === '#/paper' && /No paper/.test(document.body.innerText)`);
+  await click('No paper? Start from a question');
   await waitFor(`location.hash === '#/ask' && !!document.querySelector('main input') && /Find my angles/.test(document.body.innerText)`);
   await ev(`(() => { const i = document.querySelector('main input'); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
     set.call(i, 'haptic feedback'); i.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
