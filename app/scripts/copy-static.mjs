@@ -15,7 +15,9 @@ const current = JSON.parse(readFileSync(from(`data/build/app-data/${EDITION}/cur
 cpSync(from(`data/build/app-data/${EDITION}/${current.path}`), from(`dist/app-data/${EDITION}/${current.path}`), { recursive: true });
 // Bench pages import the plain JS modules and JSON under app/src; the app itself is bundled by Vite.
 cpSync(from('app/src'), from('dist/app/src'), { recursive: true, filter: s => !/\.(tsx?|css)$/.test(s) });
-console.log(`copied ${EDITION} data, app-data/${EDITION}/${current.path}, venue, tests and app/src modules into dist/`);
+// the Home Screen app: manifest and icons at the site root (app/static)
+cpSync(from('app/static'), from('dist'), { recursive: true });
+console.log(`copied ${EDITION} data, app-data/${EDITION}/${current.path}, venue, tests, app/src modules and app/static into dist/`);
 
 // The link preview picture (functions/og.mjs) says "5 talks · 4 rooms · Tue 14 · CHI 2026" (Figma OG frames 746:1913…):
 // per talk its first day, room and whether it is a demo, from this edition's schedule. Written next to the function so the
