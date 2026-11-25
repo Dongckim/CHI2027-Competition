@@ -127,11 +127,11 @@ export function Home() {
     </a>
   );
   if (!arcs.length) return (
-    <Screen label="My Arcs" bottom={<div className="flex flex-col gap-5 pb-1.5">{/* Figma 21: 20 between, New Arc 20 above the home indicator */}{chi101}<ArcLink href={href('ask')} onClick={fresh}><Pic src={plusDark} size={20} />New Arc</ArcLink></div>}>
+    <Screen label="My Arcs" bottom={<div className="flex flex-col gap-5 pb-1.5">{/* Figma 21: 20 between, New Arc 20 above the home indicator */}{chi101}<ArcLink href={href('paper')} onClick={fresh}><Pic src={plusDark} size={20} />New Arc</ArcLink></div>}>
       <h1 className="mt-3 text-[30px] font-semibold tracking-[-0.024em]">My Arcs</h1>
       {!isPersistent() && <p className="mt-2 text-[14px] text-arc-text-2">This browser does not keep Arcs. They stay until you close the tab.</p>}
       <div className="mt-[113px] flex flex-col items-center">{/* Figma 21: the art at a fixed 215, not centred */}
-        <a href={href('ask')} onClick={fresh} aria-label="New Arc" className="relative -mx-6 h-[250px] w-[390px] max-w-[100vw]">
+        <a href={href('paper')} onClick={fresh} aria-label="New Arc" className="relative -mx-6 h-[250px] w-[390px] max-w-[100vw]">
           <img src={holo} alt="" style={at(70, 0, 250)} />
           <img src={orbit} alt="" style={at(110, 40, 170)} />
           <img src={newOrb} alt="" style={at(147, 77, 96)} />
@@ -146,7 +146,7 @@ export function Home() {
       {/* Figma 20: title at 24, 66; New Arc at 64, 24 from the edge (the header row is 16 from it). mb-1: the button's
           lower edge is not flush with main, where a press on it landed on main (a11y check) */}
       <h1 className="mt-3 self-start pl-2 text-[30px] font-semibold tracking-[-0.024em]">My Arcs</h1>
-      <ArcLink href={href('ask')} onClick={fresh} className="mt-2.5 mr-2 mb-1 h-11 min-w-[116px] shrink-0 self-start"><Pic src={plusDark} size={20} />New Arc</ArcLink>{/* Figma 20: 116×44, grows with its words */}
+      <ArcLink href={href('paper')} onClick={fresh} className="mt-2.5 mr-2 mb-1 h-11 min-w-[116px] shrink-0 self-start"><Pic src={plusDark} size={20} />New Arc</ArcLink>{/* Figma 20: 116×44, grows with its words */}
     </>}>
       <DemoBanner />
       {!isPersistent() && <p className="mt-2 text-[14px] text-arc-text-2">This browser does not keep Arcs. They stay until you close the tab.</p>}

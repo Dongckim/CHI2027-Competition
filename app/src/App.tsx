@@ -8,6 +8,8 @@ import { Start, START_PAGES } from './screens/arc/Start';
 // first download does not grow with the app. The planner screens (Legacy) load only when their address is opened.
 const named = <K extends string>(load: () => Promise<Record<K, React.ComponentType<any>>>, name: K) => lazy(() => load().then(m => ({ default: m[name] }))); // eslint-disable-line @typescript-eslint/no-explicit-any
 const Ask = named(() => import('./screens/arc/Ask'), 'Ask');
+const FindPaper = named(() => import('./screens/arc/Paper'), 'FindPaper');
+const ConfirmPaper = named(() => import('./screens/arc/Paper'), 'ConfirmPaper');
 const Angles = named(() => import('./screens/arc/Angles'), 'Angles');
 const When = named(() => import('./screens/arc/When'), 'When');
 const Building = named(() => import('./screens/arc/Building'), 'Building');
@@ -26,7 +28,7 @@ const Yours = named(() => import('./screens/arc/Received'), 'Yours');
 const AfterChi = named(() => import('./screens/arc/AfterChi'), 'AfterChi');
 const Legacy = named(() => import('./legacy/Legacy'), 'Legacy');
 
-const TITLES: Record<string, string> = { start: 'Welcome', ask: 'Ask', angles: 'Choose your angles', when: 'When and what', building: 'Building your Arc',
+const TITLES: Record<string, string> = { start: 'Welcome', ask: 'Ask', paper: 'Your paper', angles: 'Choose your angles', when: 'When and what', building: 'Building your Arc',
   hood: 'Your neighborhood', home: 'My Arcs', arc: 'My Arc', talk: 'Talk', share: 'Share', qr: 'QR code', r: 'Shared Arc', after: 'Your CHI' };
 
 // A screen's code that could not be fetched (offline before that screen was ever saved, or a deploy replaced it): say so
@@ -61,6 +63,7 @@ export function App() {
     switch (head) {
       case 'start': return <Start page={START_PAGES.includes(step) ? step : '1'} />;
       case 'ask': return <Ask />;
+      case 'paper': return step ? <ConfirmPaper person={step} /> : <FindPaper />; // 07r / 07p (Figma 11/25)
       case 'angles': return <Angles />;
       case 'when': return <When />;
       case 'building': return <Building />;
