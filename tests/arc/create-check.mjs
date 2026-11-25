@@ -38,17 +38,25 @@ const click = text => ev(`(() => { const b = [...document.querySelectorAll('butt
   if (!b) return 'missing'; if (b.disabled) return 'disabled'; b.click(); return 'clicked'; })()`);
 const shot = async name => { if (!SHOTS) return; mkdirSync(SHOTS, { recursive: true }); await sleep(300);
   const r = await send('Page.captureScreenshot', { format: 'png' }); writeFileSync(`${SHOTS}/${name}.png`, Buffer.from(r.result.data, 'base64')); };
-const fresh = async () => { await ev(`localStorage.clear(); indexedDB.deleteDatabase('arc'); true`); await send('Page.navigate', { url: BASE + (BASE.includes('?') ? '&' : '?') + 'fresh=' + Date.now() }); await waitFor(`document.readyState === 'complete'`); };
+// Open a new document and wait for it, not for the one being left: right after Page.navigate the old page still answers
+// "readyState complete", and checking it raced the load (11/25: "fresh phone opens 01" failed 1 in 60 runs, 4 times in
+// qa:auto; tests/qa/first-load-check.mjs showed 01 within 0.53 s in 140 runs of the same steps). The old page is marked.
+const load = async url => { await ev('window.__arcLeft = true'); await send('Page.navigate', { url }); return waitFor(`!window.__arcLeft && document.readyState === 'complete'`); };
+const fresh = async () => { await ev(`localStorage.clear(); indexedDB.deleteDatabase('arc'); true`); await load(BASE + (BASE.includes('?') ? '&' : '?') + 'fresh=' + Date.now()); };
 
 try {
   await send('Page.enable'); await send('Runtime.enable');
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
   await send('Emulation.setCPUThrottlingRate', { rate: 4 });
-  await send('Page.navigate', { url: BASE }); await waitFor(`document.readyState === 'complete'`);
+  await load(BASE);
   await fresh();
 
   // 01 → 02 … 06 → 06b → 06c → 07
-  check('fresh phone opens 01', !!(await waitFor(`location.hash === '#/start/1' && /Bring one question/.test(document.body.innerText)`)), { hash: await hash() });
+  // when it fails, what the page was (11/25: it failed now and then; first-load-check keeps the network and console too)
+  const at01 = await waitFor(`location.hash === '#/start/1' && /Bring one question/.test(document.body.innerText)`);
+  const page01 = at01 != null ? { ms: at01 } : await ev(`({ hash: location.hash, ready: document.readyState, text: document.body.innerText.slice(0, 160), h1: document.querySelector('h1')?.textContent ?? null, root: document.getElementById('root')?.childElementCount ?? -1 })`);
+  if (at01 == null && process.env.ARC_FAIL_SHOT) { const r = await send('Page.captureScreenshot', { format: 'png' }); writeFileSync(process.env.ARC_FAIL_SHOT, Buffer.from(r.result.data, 'base64')); }
+  check('fresh phone opens 01', at01 != null, page01);
   await shot('01');
   await click("It's my first CHI");
   const seen = [];
