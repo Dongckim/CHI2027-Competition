@@ -111,3 +111,10 @@ test('Arcs from the on-device engine pass Arc 0.2.0 and its rules', { skip: !hav
   node.evidence = onOurAbstract(node.evidence, papers.get(node.key).abstract);
   assert.equal(papers.get(node.key).abstract.slice(node.evidence.start, node.evidence.end), node.evidence.sentence);
 });
+
+test('angle chips keep the field\'s acronyms (persona review 11/25: "Ai assistance")', async () => {
+  const { chipLabel } = await import('../../app/src/engine/ondevice-map.js');
+  assert.equal(chipLabel('Ai assistance'), 'AI assistance');
+  assert.equal(chipLabel('Llms in vr training'), 'LLMs in VR training');
+  assert.equal(chipLabel('Air quality'), 'Air quality', 'whole words only');
+});

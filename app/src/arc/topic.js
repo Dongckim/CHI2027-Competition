@@ -3,6 +3,8 @@
 const QUESTION_WORD = /\b(what|how|why|when|where|which|who|whom|whose|does|do|did|is|are|was|were|can|could|should|would|will|shall|may|might|must)\b/i;
 
 /** A topic, not a question: no "?", no question word, 3 words or fewer (and at least one letter or digit). */
+/** The topic without the asker's own lead-in: "I study VR" → "VR", "I'm interested in accessibility" → "accessibility". */
+export const topicOf = text => (text ?? '').trim().replace(/^(?:i\s+(?:study|research|work\s+on|am\s+into)|i(?:'|’)?m\s+(?:interested\s+in|into|working\s+on)|i\s+am\s+(?:interested\s+in|working\s+on)|interested\s+in|about)\s+/i, '').trim();
 export const isTopic = text => {
   const t = (text ?? '').trim();
   return /[\p{L}\p{N}]/u.test(t) && !t.includes('?') && !QUESTION_WORD.test(t) && t.split(/\s+/).length <= 3;
@@ -37,6 +39,7 @@ const PLURAL_WORD = new Set(['people', 'children', 'men', 'women', 'data']);
  */
 export function brokenQuestion(text) {
   const t = (text ?? '').trim();
+  if (/^(?:how\s+)?(?:do|does)\s+(?:i|me|my|we|you|our)\b/i.test(t)) return true; // the asker's own words as the subject ("Does i study VR …")
   const v = t.match(VERB);
   if (v && BARE_VERB.has(v[2].toLowerCase())) return true;
   const m = t.match(/^(?:how\s+)?(do|does)\s+(.+?)\s+(?:improve|increase|reduce|affect|raise)\b/i);

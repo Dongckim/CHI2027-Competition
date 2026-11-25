@@ -5,7 +5,7 @@ import { go, href } from '../../router';
 import { update, useDevice } from '../../state/useDevice';
 import { arcOf, setQuery, setOnboarded, QUERY_MAX } from '../../arc/draft.js';
 import { engine, topicHelp, type Arc, type Angle, type TribeId } from '../../engine';
-import { isTopic } from '../../arc/topic.js';
+import { isTopic, topicOf } from '../../arc/topic.js';
 import { layout } from '../../arc/map.js';
 import { play, POP } from '../../arc/motion';
 import { ANGLE_NAME } from './AngleHelp';
@@ -83,7 +83,7 @@ export function Ask() {
     const t = setTimeout(() => engine.tribeOf(q).then(r => { if (live) { setTribeChip(r.tribe); setPreviewTribe(r.tribe); } }, () => {}), 500);
     return () => { live = false; clearTimeout(t); };
   }, [draft.query]);
-  const topic = isTopic(draft.query) ? draft.query.trim() : null;
+  const topic = isTopic(draft.query) && topicOf(draft.query) ? topicOf(draft.query) : null; // 07b on "VR", not "I study VR" (persona review 11/25)
   const [help, setHelp] = useState<Help | null>(null);
   useEffect(() => { // 07b, half a second after typing stops; typing more or a question hides it
     if (!topic) { setHelp(null); return; }

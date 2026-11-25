@@ -87,7 +87,7 @@ export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shap
       {/* Figma #FF8E86 (also the Health tribe's colour); the word Now says it, the dot only decorates */}
       <span aria-hidden="true" className="size-[7px] shrink-0 translate-y-[0.5px] rounded-full bg-[#ff8e86]" /><span className="-translate-y-[1.5px] truncate">{live}</span></p>}
     {doi ? <IconButton icon={external} label="Open the paper (ACM DL)" href={doi} /> : <span />}</>;
-  if (failed) return <Screen header={header()} label="Talk"><p role="alert" className="mt-6 text-[16px]">Could not load the programme.</p></Screen>;
+  if (failed) return <Screen header={header()} label="Talk"><p role="alert" className="mt-6 text-[16px]">Could not load the programme.</p><p className="mt-2 text-[14px] text-arc-text-2">Connect to the internet once and try again.</p><button type="button" onClick={() => location.reload()} className="mt-5 h-11 self-start rounded-full border border-arc-line px-5 text-[15px] font-semibold">Try again</button></Screen>;
   if (!data) return <Screen header={header()} label="Talk"><p className="mt-6 text-[16px] text-arc-text-3">Loading…</p></Screen>;
   if (!p) return <Screen header={header()} label="Talk"><p className="mt-6 text-[16px]">This talk is not in the programme any more.</p></Screen>;
 
