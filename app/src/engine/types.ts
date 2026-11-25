@@ -49,6 +49,9 @@ export interface Engine {
   // 15 Wildcard (user decision 2026-11-20): talks a step away from the question, to break the filter bubble. The engine
   // picks each one's angle. Added after Arc 0.1.0 was shared: Wonjune to confirm.
   wildcard(query: string, excludeKeys: string[], limit?: number, filters?: Arc['filters']): Promise<ArcNode[]>;
+  // 15 search (user 11/25 「A로 하고」): the engine's angle and quote for each talk the person searched, in the same order;
+  // null = not about the question (cannot be added). Added after Arc 0.2.0: 원준 확인 필요.
+  judge(query: string, keys: string[]): Promise<(ArcNode | null)[]>;
 }
 
 export const QUERY_MAX = 200;

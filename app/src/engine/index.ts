@@ -15,8 +15,9 @@ const pick = () => (chosen ??= load[ENGINE_NAME]());
 // of its own, so it gets the chosen one.
 const lazy = (get: () => Promise<Engine>): Engine => ({
   init: p => get().then(e => e.init(p)), tribeOf: q => get().then(e => e.tribeOf(q)), angleTopics: q => get().then(e => e.angleTopics(q)),
-  buildArc: (q, o) => get().then(e => e.buildArc(q, o)), suggest: (q, a, x, l) => get().then(e => e.suggest(q, a, x, l)),
-  wildcard: (q, x, l) => get().then(e => e.wildcard(q, x, l)),
+  buildArc: (q, o) => get().then(e => e.buildArc(q, o)), suggest: (q, a, x, l, f) => get().then(e => e.suggest(q, a, x, l, f)),
+  wildcard: (q, x, l, f) => get().then(e => e.wildcard(q, x, l, f)), // f: the Arc's days and kinds (dropped here until 11/25)
+  judge: (q, k) => get().then(e => e.judge(q, k)),
 });
 const byName = { mock: lazy(load.mock), ondevice: lazy(load.ondevice) };
 export const engineFor = (arcEngine: string): Engine => {
@@ -29,8 +30,9 @@ export const engine: Engine = {
   tribeOf: q => pick().then(e => e.tribeOf(q)),
   angleTopics: q => pick().then(e => e.angleTopics(q)),
   buildArc: (q, o) => pick().then(e => e.buildArc(q, o)),
-  suggest: (q, a, x, l) => pick().then(e => e.suggest(q, a, x, l)),
-  wildcard: (q, x, l) => pick().then(e => e.wildcard(q, x, l)),
+  suggest: (q, a, x, l, f) => pick().then(e => e.suggest(q, a, x, l, f)),
+  wildcard: (q, x, l, f) => pick().then(e => e.wildcard(q, x, l, f)),
+  judge: (q, k) => pick().then(e => e.judge(q, k)),
 };
 export type * from './types';
 // 07b: the chosen engine's topic questions and their preview Arcs (ondevice: composed questions, user 11/21); loaded only

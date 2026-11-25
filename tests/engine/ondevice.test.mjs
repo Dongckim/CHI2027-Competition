@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import Ajv2020 from 'ajv/dist/2020.js';
 import { arcRuleErrors } from '../../contracts/check.mjs';
-import { evidenceOf, onOurAbstract, engineNow, resultQuote, toArc, toNode, venueIso, formatsOf, daysOf, idsOf } from '../../app/src/engine/ondevice-map.js';
+import { evidenceOf, onOurAbstract, engineNow, resultQuote, toArc, toNode, venueIso, formatsOf, daysOf, idsOf, judgedNode, judgeKeys } from '../../app/src/engine/ondevice-map.js';
 
 const MODEL = new URL('../../dist/model/', import.meta.url);
 const have = existsSync(new URL('angles.json', MODEL)) && existsSync(new URL('../../data/build/chi2026/papers.json', import.meta.url));
@@ -49,6 +49,17 @@ test('a Challenge stands only on a result sentence (#52); Reframes carry their k
   assert.equal(of({ ...node('Haptics matter.'), angle: 'reframe', subtype: 'factor' }).kind, 'factor');
   assert.equal(of({ ...node('Haptics matter.'), angle: 'reframe', subtype: 'related' }).kind, 'subject');
   assert.equal(of({ ...node('Haptics matter.'), angle: 'support', subtype: 'evidence' }).kind, undefined);
+});
+
+test('15 search judge: no verdict → null (not about the question); the verdict\'s angle, a Challenge only on a result', () => {
+  const abstract = 'Haptics matter. We found no effect of haptics on enjoyment.';
+  const at = t => { const i = abstract.indexOf(t); return { start: i, end: i + t.length }; };
+  const n = sentence => ({ id: 1, angle: 'reframe', subtype: 'related', label: 'Haptics', debut: false, why: { status: 'result', sentence: at(sentence) } });
+  const of = (v, node) => judgedNode(v, node, 'chi2026', () => abstract);
+  assert.equal(of(null, null), null);
+  assert.equal(of({ angle: 'support', subtype: 'evidence' }, n('Haptics matter.')).angle, 'S'); // the verdict's angle, not the node screen's
+  assert.equal(of({ angle: 'challenge', subtype: 'null' }, n('We found no effect of haptics on enjoyment.')).angle, 'T');
+  assert.deepEqual(Object.values((({ angle, kind }) => ({ angle, kind }))(of({ angle: 'challenge', subtype: 'null' }, n('Haptics matter.')))), ['R', 'subject']);
 });
 
 let eng, papers;
@@ -111,6 +122,18 @@ test('Arcs from the on-device engine pass Arc 0.2.0 and its rules', { skip: !hav
   const node = toNode(n, 'chi2026', abstractOf);
   node.evidence = onOurAbstract(node.evidence, papers.get(node.key).abstract);
   assert.equal(papers.get(node.key).abstract.slice(node.evidence.start, node.evidence.end), node.evidence.sentence);
+});
+
+test('15 search judge on the model: in key order, an Arc talk keeps its Arc angle, another edition is null', { skip: !have && 'no dist/model' }, async () => {
+  await setup();
+  const q = 'Does VR fidelity raise presence?';
+  const res = await eng.handle({ screen: 'arc', question: q, days: daysOf([]), formats: formatsOf([]) });
+  const arc = toArc(res, q, { angles: ['S', 'R', 'T'] }, { id: 'test-arc-01', createdAt: 0, edition: 'chi2026', version: eng.version, abstractOf });
+  const first = arc.nodes[0];
+  const out = await judgeKeys(eng, q, ['chi2025:1', first.key], 'chi2026', abstractOf);
+  assert.equal(out.length, 2);
+  assert.equal(out[0], null);
+  assert.equal(out[1]?.angle, first.angle);
 });
 
 test('angle chips keep the field\'s acronyms (persona review 11/25: "Ai assistance")', async () => {
