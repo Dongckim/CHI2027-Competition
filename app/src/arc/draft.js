@@ -14,7 +14,7 @@ export const WHAT_LABEL = { talks: 'Talks', posters: 'Posters', demos: 'Demos', 
 const DEFAULT_WHAT = ['talks', 'posters', 'demos']; // Figma 09
 export const QUERY_MAX = 200;
 
-export const freshDraft = () => ({ query: '', topicsFor: null, topics: { S: [], R: [], T: [] }, when: 'all', what: [...DEFAULT_WHAT] });
+export const freshDraft = () => ({ query: '', topicsFor: null, topics: { S: [], R: [], T: [] }, when: 'all', what: [...DEFAULT_WHAT], mine: [] });
 const freshArc = () => ({ onboarded: false, firstChi: null, draft: freshDraft() });
 
 /** holdHint: 12a's "Hold a stop" hint was shown (Figma 854:2034, once). walk: 09 "How you walk", kept for every Arc (this
@@ -34,6 +34,8 @@ export const setHoldHintSeen = state => (arcOf(state).holdHint ? state : withArc
 
 /** 07: the question, at most 200 characters (the share link carries it). */
 export const setQuery = (state, query) => withDraft(state, { query: query.slice(0, QUERY_MAX) });
+/** 07r (Figma 11/25): the question from the person's paper, and their own talks (never stops of this Arc; this phone only). */
+export const setPaperStart = (state, query, mine) => withDraft(state, { query: query.slice(0, QUERY_MAX), mine, topicsFor: null, topics: { S: [], R: [], T: [] } });
 /** 07 Build now (user 11/25 「08·09 건너뛰고 기본값으로 12」): no chips (every angle, the engine picks), All week, the default kinds. */
 export const quickDraft = state => withDraft(state, { topicsFor: null, topics: { S: [], R: [], T: [] }, when: 'all', what: [...DEFAULT_WHAT] });
 
@@ -68,7 +70,7 @@ export const resetDraft = state => withArc(state, { draft: freshDraft() });
 export function buildOptions(draft, days) {
   const on = a => draft.topics[a].filter(t => t.on).map(t => t.id);
   const angles = ['S', 'R', 'T'].filter(a => on(a).length || !draft.topics[a].length);
-  return { angles, topicIds: angles.flatMap(on), days, types: draft.what.flatMap(k => WHAT[k]) };
+  return { angles, topicIds: angles.flatMap(on), days, types: draft.what.flatMap(k => WHAT[k]), mine: draft.mine ?? [] };
 }
 
 const dayLabel = day => new Date(`${day}T12:00:00Z`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', timeZone: 'UTC' });

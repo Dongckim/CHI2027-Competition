@@ -1,5 +1,5 @@
 // 14 · Talk detail (Figma 597:972): angle and format, title, why this angle (the abstract sentence), when and where with
-// the session, every author with "✦ New to CHI" for each one new (user decision), "I heard it", the paper (DOI) and the
+// the session, every author with a ✦ after a name new to CHI and one line saying what it means (user 11/25), "I heard it", the paper (DOI) and the
 // Q&A (api/qa, decision 007). The whole abstract opens below with the sentence marked.
 import { useEffect, useState } from 'react';
 import { loadSchedule, loadPeople, loadAbstracts, loadDebut, type Schedule } from '../../data/load';
@@ -19,7 +19,6 @@ import external from '../../assets/arc/icon-external.svg';
 import clock from '../../assets/arc/icon-clock.svg';
 import pin from '../../assets/arc/icon-pin.svg';
 import person from '../../assets/arc/icon-person.svg';
-import sparkle from '../../assets/arc/icon-sparkle.svg';
 import check from '../../assets/arc/icon-check.svg';
 import talk from '../../assets/arc/icon-talk.svg';
 import poster from '../../assets/arc/icon-poster.svg';
@@ -40,14 +39,14 @@ import { go } from '../../router';
 type People = Awaited<ReturnType<typeof loadPeople>>;
 type Slot = { start: number | null; end: number; roomKey: string; sessionKey: string };
 type Paper = { title: string; feedType: string; authors: string[]; doi: string | null; slots: Slot[]; first?: string | null };
-const FORMAT: Record<string, [string, string]> = {
+export const FORMAT: Record<string, [string, string]> = {
   Paper: [talk, 'Paper talk'], Journals: [talk, 'Paper talk'], Posters: [poster, 'Poster'], 'Student Research Competition': [poster, 'Poster'],
   'Interactive Demos': [demo, 'Demo'], Panels: [panel, 'Panel'], 'Meet-Ups': [meetup, 'SIG & meetup'], 'Plenary and Keynote': [keynote, 'Keynote'],
 };
 const WHY = { S: 'WHY IT SUPPORTS', R: 'WHY IT REFRAMES', T: 'WHY IT CHALLENGES' } as const;
 const AUTHORS_SHOWN = 4;
 
-const Tag = ({ icon, children }: { icon: string; children: React.ReactNode }) =>
+export const Tag = ({ icon, children }: { icon: string; children: React.ReactNode }) =>
   <span className="inline-flex items-center gap-1.5 rounded-2xl border border-arc-line bg-arc-surface py-1.5 pr-3 pl-2.5 text-[13px] font-semibold"><Pic src={icon} size={14} />{children}</span>;
 
 export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shape?: boolean }) {
@@ -57,7 +56,6 @@ export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shap
   const [found, setFound] = useState<{ arc: Arc; node: ArcNode } | null>(null);
   const [inArcs, setInArcs] = useState(0); // user 11/25 D: how many of your saved Arcs lead here
   const [allAuthors, setAllAuthors] = useState(false);
-  const [debutNote, setDebutNote] = useState<string | null>(null);
   const heard = heardOf(useDevice()).has(paperKey);
   const qa = useQandA(paperKey);
   const now = useNow();
@@ -181,19 +179,14 @@ export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shap
               <div className="flex items-center gap-3 text-[15px] font-medium tracking-[-0.006em]">
                 <Pic src={person} size={20} className="shrink-0 self-start opacity-70" />
                 <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                <span>{a.name}{a.affiliations[0] && ` · ${a.affiliations[0].institution}`}</span>
-                {isNew && (
-                  <button type="button" onClick={() => setDebutNote(n => (n === k ? null : k))} aria-expanded={debutNote === k}
-                    className="relative inline-flex h-[25px] items-center gap-1 rounded-xl border border-arc-line bg-arc-surface pr-2.5 pl-2 text-[12px] font-semibold before:absolute before:inset-x-0 before:-inset-y-2.5 before:content-['']">
-                    <Pic src={sparkle} size={12} />New to CHI
-                  </button>
-                )}
+                {/* user 11/25 「14에서 칩은 빼고, 저자 이름 옆에 작은 ✦만 + 목록 아래 "✦ New to CHI" 설명 한 줄」 (Figma 14 dropped the chip) */}
+                <span>{a.name}{isNew && <><span aria-hidden="true" className="ml-1 text-[12px]">✦</span><span className="sr-only"> (New to CHI)</span></>}{a.affiliations[0] && ` · ${a.affiliations[0].institution}`}</span>
                 </span>
               </div>
-              {debutNote === k && <p className="pl-8 text-[13px] text-arc-text-2">No paper under this name in CHI 2023–2025.</p>}
             </li>
           );
         })}
+        {authors.some(k => debut.has(k)) && <li className="pl-8 text-[13px] text-arc-text-2"><span aria-hidden="true">✦ </span>New to CHI · no paper under this name in CHI 2023–2025</li>}
         {named.length > AUTHORS_SHOWN && (
           <li><button type="button" onClick={() => setAllAuthors(v => !v)} aria-expanded={allAuthors} className="min-h-touch pl-8 text-[14px] font-semibold text-arc-text-2 underline">
             {allAuthors ? 'Fewer authors' : `+${named.length - AUTHORS_SHOWN} more authors`}</button></li>

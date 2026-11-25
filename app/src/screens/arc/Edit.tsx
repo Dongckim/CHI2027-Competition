@@ -37,6 +37,9 @@ export function Edit({ id }: { id: string }) {
     const other = nodes.find(n => n.key !== selected && (() => { const o = slotOf(n.key); return o && o.start < s.end && s.start < o.end; })());
     return other ? info(other.key).short : null;
   };
+  // the talk being swapped out: "Same time" lists the talks of its hour (Figma 11/25 Swap sheet)
+  const out = selected ? slotOf(selected) : null;
+  const sameTime = out ? (key: string) => { const s = slotOf(key); return !!s && s.start < out.end && out.start < s.end; } : undefined;
   const pick = (card: ArcNode) => {
     if (selected) setNodes(nodes.map(n => (n.key === selected ? card : n)));
     else setNodes([...nodes, card]);
@@ -56,7 +59,7 @@ export function Edit({ id }: { id: string }) {
             onRemove: k => { setNodes(nodes.filter(n => n.key !== k)); if (selected === k) setSelected(null); },
             onAdd: a => { setAdding(x => (x === a ? null : a)); setSelected(null); } }} />
       </div>
-      {target && <AddSheet key={selected ?? adding} query={arc.query} engineName={arc.engine} filters={arc.filters} target={target} exclude={exclude} swap={!!selected} info={info} paper={paper} clash={clash} onPick={pick} />}
+      {target && <AddSheet key={selected ?? adding} query={arc.query} engineName={arc.engine} filters={arc.filters} target={target} exclude={exclude} swap={!!selected} info={info} paper={paper} clash={clash} sameTime={sameTime} onPick={pick} />}
     </Screen>
   );
 }

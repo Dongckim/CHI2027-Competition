@@ -346,3 +346,17 @@ ARC_prototype (1).html의 프레임 47개를 앱 화면 32개와 나란히 비�
   - 예: "A Tree’s Perspective" → "A Tree’s", "Effects of Virtual Real…" → "Effects of Virtual".
 - 첫 단어 하나가 한 줄보다 길면("RoboHaptics", "Demonstrating" 등, 드묾) 그 단어만 "…"로 잘림. 글씨는 12 px 아래로 줄이지 않음.
 - 전체 제목은 아래 카드·13·14와 화면 낭독(버튼 설명)에 그대로. 디자이너 확인 전.
+
+## 23. 논문으로 시작 · Swap "Same time" · 14 ✦ (2026-11-25, Figma 11/25 갱신)
+Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your paper?"(950:2258) 새로, 흐름 06c → 07p → 07r → 08(논문이 없으면 07p → 07), 빈 홈·New Arc → 07p. Swap 시트 칩 "First CHI paper" → "Same time". 14 저자 줄의 "First CHI paper" 칩 삭제. 24c 삭제.
+
+사용자 결정 (11/25):
+- 「New to CHI: 14에서 칩은 빼고, 저자 이름 옆에 작은 ✦만 + 목록 아래 "✦ New to CHI" 설명 한 줄. 지도 노드 ✦는 유지.」 → **사용자 결정: 14는 칩 대신 이름 옆 ✦**. 목록 아래 "✦ New to CHI · no paper under this name in CHI 2023–2025".
+- 「2편 이상 저자: 07r에서 논문 카드를 나란히 보여 주고 하나 고르게. 기본은 첫 번째 선택됨.」 → 카드가 가로로 나란히(넘겨 보기), 고른 카드는 밝은 테두리, 나머지 0.7.
+- 「07r Edit: 그 자리에서 질문 고치기. Build 누르면 고친 질문으로 만들기.」
+
+구현 메모(해석, 디자이너 확인 전):
+- 07p 이름 찾기는 기기 안에서만(프로그램의 저자 이름, 엔진 "mine"과 같은 규칙: 악센트 무시, 입력한 단어마다 이름의 어떤 단어가 그걸로 시작). 2글자부터, 8명까지 + "N more · type more of your name". 아무것도 보내거나 남기지 않음(질문과 자기 발표 목록만 임시 draft에).
+- 07r 질문은 엔진의 "mine"(논문 결과로 만든 질문 중 첫째). 엔진이 준비 중이면 "Reading your paper…". 그 사람의 발표는 모두 Arc 정류장에서 뺌(엔진 `mine` 인자).
+- Swap "Same time": 바꾸는(빠지는) 발표와 시간이 겹치는 같은 각도 발표. 추가(Add)에는 겹칠 기준이 없어 칩 없음(각도·Wildcard만).
+- 07p·07r 단계 점은 07과 같은 8번째(Figma).

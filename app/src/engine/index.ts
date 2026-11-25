@@ -18,6 +18,7 @@ const lazy = (get: () => Promise<Engine>): Engine => ({
   buildArc: (q, o) => get().then(e => e.buildArc(q, o)), suggest: (q, a, x, l, f) => get().then(e => e.suggest(q, a, x, l, f)),
   wildcard: (q, x, l, f) => get().then(e => e.wildcard(q, x, l, f)), // f: the Arc's days and kinds (dropped here until 11/25)
   judge: (q, k) => get().then(e => e.judge(q, k)),
+  paperQuestions: k => get().then(e => e.paperQuestions(k)),
 });
 const byName = { mock: lazy(load.mock), ondevice: lazy(load.ondevice) };
 export const engineFor = (arcEngine: string): Engine => {
@@ -33,6 +34,7 @@ export const engine: Engine = {
   suggest: (q, a, x, l, f) => pick().then(e => e.suggest(q, a, x, l, f)),
   wildcard: (q, x, l, f) => pick().then(e => e.wildcard(q, x, l, f)),
   judge: (q, k) => pick().then(e => e.judge(q, k)),
+  paperQuestions: k => pick().then(e => e.paperQuestions(k)),
 };
 export type * from './types';
 // 07b: the chosen engine's topic questions and their preview Arcs (ondevice: composed questions, user 11/21); loaded only

@@ -6,7 +6,8 @@
 //   npm run build && node tests/qa/flow-check.mjs
 import { chromium } from 'playwright';
 import { startServer, reporter, CHROME, sleep } from './cdp.mjs';
-import { STORED, ARC, CROWD, OTHER, device, seedArcs } from './screens.mjs';
+import { STORED, ARC, CROWD, OTHER, PERSON, device, seedArcs } from './screens.mjs';
+import { readFileSync } from 'node:fs';
 import { encodeLink } from '../../app/src/arc/link.js';
 
 const R = reporter('flow');
@@ -22,7 +23,8 @@ const ROWS = [
   ['02', '#/start/2', ['link', 'Next'], /^#\/start\/3$/, fresh],
   ['05', '#/start/5', ['link', 'Next'], /^#\/start\/6$/, fresh],
   ['06', '#/start/6', ['link', 'Next'], /^#\/start\/6b$/, fresh],
-  ['06c', '#/start/6c', ['link', 'Next'], /^#\/ask$/, fresh],
+  ['06c', '#/start/6c', ['link', 'Next'], /^#\/paper$/, fresh], // Figma 11/25: 07p
+  ['07p', '#/paper', ['link', 'No paper? Start from a question'], /^#\/ask$/, fresh],
   ['03', '#/start/3', ['link', 'Skip'], /^#\/home$/, fresh],
   ['08', '#/angles', ['link', 'Back'], /^#\/ask$/],
   ['09', '#/when', ['link', 'Back'], /^#\/angles$/],
@@ -47,7 +49,7 @@ const ROWS = [
   ['19', `#/r/${P}/pick`, ['link', 'Back'], new RegExp(`^#/r/${P}$`)],
   ['19', `#/r/${P}/pick`, ['button', /^Add \d+ to my Arcs$/], /^#\/home$/],
   ['19b', `#/r/${P}/yours`, ['button', 'Keep all theirs'], /^#\/home$/],
-  ['20', '#/home', ['link', 'New Arc'], /^#\/ask$/],
+  ['20', '#/home', ['link', 'New Arc'], /^#\/paper$/],
   ['20', '#/home', `a[href$="#/arc/${ARC.id}"]`, new RegExp(`^#/arc/${ARC.id}$`)],
 ];
 
@@ -95,6 +97,23 @@ try {
     await p.waitForSelector('main [data-node-key]');
     const again = await p.evaluate(() => /Hold a stop/.test(document.body.innerText));
     R.check('12a hint once, gone at the first touch; 12c: a tap shows the stop in the card, a second opens 14', hint && gone && card && opened && !again, { hint, gone, card, opened, again });
+    await ctx.close();
+  }
+
+  { // 07p → 07r → 08 (Figma 11/25): find the name, see the paper and its question, Build → 08 with the person's talks kept out
+    const cur = JSON.parse(readFileSync(new URL('../../data/build/app-data/chi2026/current.json', import.meta.url)));
+    const name = JSON.parse(readFileSync(new URL(`../../data/build/app-data/chi2026/${cur.path}people.json`, import.meta.url)))[PERSON].name;
+    const { ctx, p } = await page(fresh);
+    await p.goto(`${server.base}${AT}#/paper`);
+    await p.locator('main input').fill(name);
+    const row = p.locator(`a[href$="#/paper/${PERSON}"]`).first();
+    const listed = await row.waitFor({ timeout: 20000 }).then(() => true, () => false);
+    if (listed) await row.click();
+    const confirm = await p.waitForFunction(() => /Is this/.test(document.body.innerText) && !/Reading your paper/.test(document.body.innerText), null, { timeout: 20000 }).then(() => true, () => false);
+    if (confirm) await p.getByRole('button', { name: 'Build my Arc from this paper' }).click();
+    const angles = await p.waitForFunction(() => location.hash === '#/angles', null, { timeout: 10000 }).then(() => true, () => false);
+    const draft = await p.evaluate(() => JSON.parse(localStorage.getItem('arc.device') ?? '{}').arc?.draft ?? {});
+    R.check('07p finds the author, 07r shows the paper and its question, Build → 08 with their talks kept out', listed && confirm && angles && !!draft.query && draft.mine?.length > 0, { name, listed, confirm, angles, query: draft.query, mine: draft.mine?.length });
     await ctx.close();
   }
 

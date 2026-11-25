@@ -3,6 +3,8 @@
 import current from '../../../data/build/app-data/chi2026/current.json';
 import { loadSchedule, loadAbstracts, loadTopics, loadDebut } from '../data/load';
 import * as core from './mock-core.js';
+import { questionOf } from '../arc/topic.js';
+import { labelOf } from '../arc/label.js';
 import type { Engine, Arc, ArcNode, Angle, AngleTopic, TribeId } from './types';
 
 type Mode = 'normal' | 'slow' | 'none' | 'pending' | 'crowded';
@@ -55,12 +57,21 @@ export const mockEngine: Engine = {
   },
   tribeOf: query => answer(i => core.tribeOf(i, query) as { tribe: TribeId; confidence: number }),
   angleTopics: query => answer(i => core.angleTopics(i, query) as Record<Angle, AngleTopic[]>),
-  buildArc: (query, opts) => answer(i => (core.buildArc as (...a: unknown[]) => unknown)(i, query, opts, { // mock-core.js is untyped JS
-    id: newArcId(), createdAt: Date.now(), mode: MODE === 'slow' ? 'normal' : MODE,
-  }) as Arc),
+  buildArc: (query, opts) => answer(i => {
+    const arc = (core.buildArc as (...a: unknown[]) => unknown)(i, query, opts, { // mock-core.js is untyped JS
+      id: newArcId(), createdAt: Date.now(), mode: MODE === 'slow' ? 'normal' : MODE,
+    }) as Arc;
+    return opts.mine?.length ? { ...arc, nodes: arc.nodes.filter(n => !opts.mine!.includes(n.key)) } : arc; // the person's own talks are no stops
+  }),
   suggest: (query, angle, excludeKeys, limit) => answer(i => core.suggest(i, query, angle, excludeKeys, limit) as ArcNode[]),
   wildcard: (query, excludeKeys, limit) => answer(i => core.wildcard(i, query, excludeKeys, limit) as ArcNode[]),
   judge: async (query, keys) => core.judge(await index(), query, keys) as (ArcNode | null)[], // no delay: it runs as the person types
+  // 07r: the mock has no results reading; the paper's own question, else one about its title
+  paperQuestions: async key => {
+    const p = (await index()).byKey?.get(key) as { title: string } | undefined;
+    if (!p) return [];
+    return [questionOf(p.title) ?? `What does ${labelOf(p.title)} find?`];
+  },
 };
 
 // 07b "Make it a question" (approved 11/21): not part of the Engine contract. It reads the mock index directly, with no
