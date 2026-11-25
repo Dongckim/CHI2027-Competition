@@ -247,6 +247,16 @@ export function suggest(index, query, angle, excludeKeys, limit = 5) {
 }
 
 /**
+ * 15 search: each key's angle as suggest() sorts the question's pool, null when the pool leaves it out (not about the
+ * question). Same order as keys.
+ */
+export function judge(index, query, keys) {
+  const groups = classify(index, query, candidates(index, query, { limit: POOL * 2 }));
+  const byKey = new Map(['S', 'R', 'T'].flatMap(a => groups[a].map(n => [n.key, n])));
+  return keys.map(k => byKey.get(k) ?? null);
+}
+
+/**
  * 15 Wildcard: talks that share a word with the question but sit well below the Arc (score 0.15–0.35 of the top 3),
  * spread through that band rather than the best of it. Shown as Reframes (another lens), quoting the sentence with the
  * most question words when there is one.

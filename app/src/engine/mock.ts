@@ -60,6 +60,7 @@ export const mockEngine: Engine = {
   }) as Arc),
   suggest: (query, angle, excludeKeys, limit) => answer(i => core.suggest(i, query, angle, excludeKeys, limit) as ArcNode[]),
   wildcard: (query, excludeKeys, limit) => answer(i => core.wildcard(i, query, excludeKeys, limit) as ArcNode[]),
+  judge: async (query, keys) => core.judge(await index(), query, keys) as (ArcNode | null)[], // no delay: it runs as the person types
 };
 
 // 07b "Make it a question" (approved 11/21): not part of the Engine contract. It reads the mock index directly, with no

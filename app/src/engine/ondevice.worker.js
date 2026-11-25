@@ -3,7 +3,7 @@
 // app/scripts/fetch-model.mjs). Messages: { id, op, args } → { id, ok, value | error }, and { progress } while loading.
 import { loadAngles } from '../../../recsys/src/web/load.mjs';
 import { Tokenizer } from '../../../recsys/src/web/vendor/tokenizers.min.mjs';
-import { toArc, toTopics, toTribe, toNode, angleKey, daysOf, formatsOf, engineNow, idsOf } from './ondevice-map.js';
+import { toArc, toTopics, toTribe, toNode, angleKey, daysOf, formatsOf, engineNow, idsOf, judgeKeys } from './ondevice-map.js';
 
 let eng = null, ctx = null;
 const abstractOf = id => eng.items[eng.pos.get(id)]?.abstract ?? '';
@@ -67,6 +67,9 @@ const ops = {
   },
   async wildcard({ query, excludeKeys, limit = 5, filters }) {
     return cards({ screen: 'edit', question: query, ...scope(filters), nodes: idsOf(excludeKeys, ctx.edition), add: 'reframe', filter: 'wildcard', k: limit });
+  },
+  judge({ query, keys }) {
+    return judgeKeys(eng, query, keys, ctx.edition, abstractOf);
   },
 };
 // the Arc's days and kinds for the edit screen (none: the whole week, every kind, as before)

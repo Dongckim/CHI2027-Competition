@@ -130,3 +130,29 @@ export function toTribe(res) {
 
 /** Talk ids from our keys of this edition. */
 export const idsOf = (keys, edition) => keys.filter(k => k.startsWith(`${edition}:`)).map(k => Number(k.slice(edition.length + 1)));
+
+/**
+ * 15 search (user 11/25 「A로 하고」): the engine's own angle for each talk the person found, null when it is not about
+ * the question. As the edit screen's own search and swap: the Arc's judged pool first (so a talk the chips offer reads
+ * the same here), else judge() alone, whose null is the edit screen's "Not about your question". The quote comes from
+ * the node screen. Results line up with `keys`. eng: the loaded angle engine; uses its _arcQuestion, _judged and _ids,
+ * the calls its edit screen makes (Wonjune to confirm).
+ */
+export async function judgeKeys(eng, query, keys, edition, abstractOf) {
+  const q = await eng._arcQuestion({ question: query }, true);
+  const [judged] = await eng._judged(q, eng._types(eng._formats({ formats: formatsOf([]) })));
+  const byItem = new Map(judged);
+  const out = [];
+  for (const key of keys) {
+    const [id] = idsOf([key], edition);
+    let i = null;
+    try { if (id != null) i = eng._ids([id], 'keys')[0]; } catch { /* an id the model does not have */ }
+    const v = i == null ? null : byItem.get(i) || eng.judge(i, q);
+    const n = v && await eng.handle({ screen: 'node', question: query, id, angle: v.angle });
+    out.push(judgedNode(v, n, edition, abstractOf));
+  }
+  return out;
+}
+/** One verdict and its node screen → ArcNode, or null (no verdict: not about the question). */
+export const judgedNode = (v, n, edition, abstractOf) =>
+  v ? toNode({ ...n, angle: v.angle, subtype: v.subtype ?? n.subtype }, edition, abstractOf) : null;

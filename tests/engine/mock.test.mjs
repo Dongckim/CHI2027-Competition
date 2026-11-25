@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { buildIndex, buildArc, angleTopics, suggest, labelOf, classify, candidates, tribesOf, expandQuery, CAPS } from '../../app/src/engine/mock-core.js';
+import { buildIndex, buildArc, angleTopics, suggest, judge, labelOf, classify, candidates, tribesOf, expandQuery, CAPS } from '../../app/src/engine/mock-core.js';
 import { arcRuleErrors } from '../../contracts/check.mjs';
 import { buildCorpus } from './corpus.mjs';
 
@@ -61,6 +61,18 @@ test('filters and 08 topics: session ids, and topicIds keep only those sessions'
   assert.deepEqual(a.nodes.map(n => n.key), ['chi2026:2']);
   assert.equal(buildArc(i, 'presence in VR', { angles: ['S', 'R', 'T'], days: ['2026-04-15'], types: [] }, { id: 'arc-test-1', createdAt: 0 }).nodes.length, 0);
   assert.equal(buildArc(i, 'presence in VR', { angles: ['S', 'R', 'T'], days: [], types: ['Posters'] }, { id: 'arc-test-1', createdAt: 0 }).nodes.length, 0);
+});
+
+test('15 search judge: each key under the angle suggest() would give it, null when not about the question, in key order', () => {
+  const index = tiny(), q = 'presence in VR';
+  const sorted = classify(index, q, candidates(index, q));
+  const angleOf = k => ['S', 'R', 'T'].find(a => sorted[a].some(n => n.key === k)) ?? null;
+  const keys = ['chi2026:4', 'chi2026:1', 'chi2026:3', 'chi2025:1'];
+  const out = judge(index, q, keys);
+  assert.deepEqual(out.map(n => n?.angle ?? null), keys.map(angleOf));
+  assert.equal(out[0], null, 'Unrelated is not about the question');
+  assert.equal(out[3], null, 'another edition');
+  assert.ok(out.some(Boolean), 'at least one talk is judged');
 });
 
 const corpus = buildCorpus();
