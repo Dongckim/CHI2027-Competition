@@ -3,7 +3,7 @@
 import { useEffect, useId, useState } from 'react';
 import { go, href } from '../../router';
 import { update, useDevice } from '../../state/useDevice';
-import { arcOf, setQuery, setOnboarded, QUERY_MAX } from '../../arc/draft.js';
+import { arcOf, setQuery, setOnboarded, quickDraft, QUERY_MAX } from '../../arc/draft.js';
 import { engine, topicHelp, type Arc, type Angle, type TribeId } from '../../engine';
 import { isTopic, topicOf } from '../../arc/topic.js';
 import { layout } from '../../arc/map.js';
@@ -18,11 +18,14 @@ import offline from '../../assets/arc/icon-offline.svg';
 import chevron from '../../assets/arc/icon-chevron-right.svg';
 
 // Figma 741:1586…: three starter questions under the input; one tap puts it in the box.
-const STARTERS: [TribeId, string][] = [['access', 'What is accessibility research asking now?'], ['ai', 'Which CHI work can I use in industry?'], ['design', 'My first CHI: how do I spend a day?']];
+// user 11/25 「새 모델로 후보 20~30개를 돌려 Support ≥2, Challenge ≥1인 것을 서로 다른 종족에서 3개」: 54 run, 4 qualify
+// (11-25 and 11-25b alike), three tribes kept (docs/handoff/designer.md §20)
+const STARTERS: [TribeId, string][] = [['ai', 'Do AI explanations increase user trust?'], ['xr', 'Do avatars increase presence in VR?'], ['devices', 'Does haptic feedback improve performance?']];
 
 const hasWords = (q: string) => /[\p{L}\p{N}]/u.test(q);
 type Help = { topic: string; count: number; cards: { text: string; arc: Arc }[] };
 const yieldToTyping = () => new Promise(r => setTimeout(r));
+const POOL = 8; // composed questions run to pick the three shown
 
 // 07b: the topic's talk count, then up to three questions whose Arc is not empty (one Arc at a time, so typing stays
 // smooth; the engine caches them). ondevice: composed questions, or title questions when none reads right; mock: titles.
@@ -31,13 +34,17 @@ async function helpFor(topic: string, live: () => boolean): Promise<Help | null>
   const { count, questions } = await m.topicQuestions(topic);
   const cards: Help['cards'] = [];
   for (const q of questions) {
-    if (cards.length === 3) break;
+    if (cards.length === POOL) break;
     await yieldToTyping();
     if (!live()) return null;
     const arc = await m.questionArc(q.text);
     if (arc.nodes.length) cards.push({ text: q.text, arc });
   }
-  return { topic, count, cards };
+  // user 11/25 「세 관점이 다 있는 것(특히 Challenge ≥1)을 위로」: all three angles first, then a Challenge, then Supports
+  const n = (arc: Arc, a: Angle) => arc.nodes.filter(x => x.angle === a).length;
+  const rank = (arc: Arc) => [Number(n(arc, 'S') > 0 && n(arc, 'T') > 0), Number(n(arc, 'T') > 0), n(arc, 'T'), n(arc, 'S')];
+  cards.sort((a, b) => { const p = rank(a.arc), q = rank(b.arc); for (let i = 0; i < p.length; i++) if (p[i] !== q[i]) return q[i] - p[i]; return 0; });
+  return { topic, count, cards: cards.slice(0, 3) };
 }
 
 // Figma 741:1638: the 12 map shrunk to 60 (x 0.155, y 0.117 round the orb); the first talk filled in the tribe colour
@@ -94,6 +101,7 @@ export function Ask() {
   const shown = help && help.topic === topic && help.count > 0 ? help : null;
   const ready = hasWords(draft.query);
   const next = () => { if (!ready) return; update(setOnboarded); go('angles'); };
+  const now = () => { if (!ready) return; update(quickDraft); update(setOnboarded); go('building'); };
   const ask = (q: string) => { update(s => setQuery(s, q)); update(setOnboarded); go('angles'); };
   const count = (arc: Arc, a: Angle) => arc.nodes.filter(n => n.angle === a).length;
   const t = tribe ? TRIBE[tribe] : null;
@@ -108,7 +116,9 @@ export function Ask() {
         <p className="mb-1.5 flex items-center justify-center gap-1.5 text-[12px] font-medium text-arc-text-3" aria-live="polite">
           <Pic src={offline} size={16} />{warmState === 'ready' ? 'Ready offline' : warmState === 'failed' ? 'Needs a connection to get ready' : 'Getting ready for offline…'}
         </p>
-        <ArcButton className="mb-1.5" onClick={next} disabled={!ready}>Find my angles</ArcButton>
+        <ArcButton onClick={next} disabled={!ready}>Find my angles</ArcButton>
+        {/* user 11/25 B: straight to the map with the defaults (every angle, all week, talks · posters · demos) */}
+        <ArcButton kind="ghost" className="mb-1.5" onClick={now} disabled={!ready}>Build now</ArcButton>
       </>}>
       <h1 id="ask-title" className="mt-[10px] text-[30px] leading-9 font-semibold tracking-[-0.024em]">What are you<br />bringing to CHI?</h1>
       {/* Figma 591:680: input at y 226. The 1.5px edge is an inset shadow: Chromium draws a 1.5px border as 1px */}
@@ -132,7 +142,7 @@ export function Ask() {
           That’s a topic. {shown.count} {shown.count === 1 ? 'talk matches' : 'talks match'} it.{shown.cards.length > 0 && <><br />Pick a sharper question:</>}
         </p>
         <ul className="mt-4 flex flex-col gap-2.5" aria-labelledby="topic-note">
-          {shown.cards.map(({ text, arc }) => (
+          {shown.cards.map(({ text, arc }, i) => (
             <li key={text}>
               <button type="button" onClick={() => ask(text)}
                 className="relative flex h-[86px] w-full items-start gap-3.5 rounded-[20px] border border-arc-line bg-arc-surface pt-[11px] pr-[30px] pl-[10px] text-left">
@@ -141,7 +151,7 @@ export function Ask() {
                 {/* Figma: the counts at y 57 in the card, the angle symbols as text; read out by name. "Suggested" before them:
                     the card is the engine's suggestion, not a talk (user 11/21 「제안 카드라는 게 보이게」; designer to confirm) */}
                 <span className="absolute top-[56px] left-[84px] text-[12px] font-medium whitespace-pre text-arc-text/60">
-                  <span className="font-semibold text-arc-text/75">Suggested</span><span aria-hidden="true">{`   ↑ ${count(arc, 'S')}   ↻ ${count(arc, 'R')}   ⊣ ${count(arc, 'T')}`}</span>
+                  <span className="font-semibold text-arc-text/75">{i === 0 && count(arc, 'T') > 0 ? 'Where CHI disagrees' : 'Suggested'}</span><span aria-hidden="true">{`   ↑ ${count(arc, 'S')}   ↻ ${count(arc, 'R')}   ⊣ ${count(arc, 'T')}`}</span>
                 </span>
                 <span className="sr-only">{` · ${(['S', 'R', 'T'] as Angle[]).map(a => `${count(arc, a)} ${ANGLE_NAME[a]}`).join(', ')}`}</span>
                 <Pic src={chevron} size={16} className="absolute top-[34px] right-[11px]" />
@@ -149,6 +159,8 @@ export function Ask() {
             </li>
           ))}
         </ul>
+        {/* user 11/25 「그래도 Challenge가 없으면 23 문구로 솔직하게」 */}
+        {shown.cards.length > 0 && !shown.cards.some(c => count(c.arc, 'T') > 0) && <p className="mt-3 text-[13px] font-medium text-arc-text-2">No clear challenge at CHI this year.</p>}
         {/* user 11/21: a word stays a valid start. Not in Figma (designer to confirm) */}
         <button type="button" onClick={next}
           className="mt-4 min-h-touch w-full rounded-full border border-arc-line bg-arc-surface px-5 py-2.5 text-[15px] font-semibold tracking-[-0.006em] text-arc-text">

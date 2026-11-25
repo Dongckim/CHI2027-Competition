@@ -170,3 +170,6 @@ CHI 2027 Digital Experience Competition 출품작. 모바일 웹, 로그인 없�
 - 남은 것: 엘리베이터 아이콘·24b 후보 12개 한도 등 해석(designer.md §18), 실기기 확인 안 함
 - 모델 11-25 (2026-11-25, fix/model-2026-11-25, #94 포함 #80): Challenge 판정 개선·Trade-off(`cost`, 앱에선 보통 Challenge)·`mine` 화면(앱 미연결). 방향 있는 질문은 ⊣ 나옴(원준 38문항 10개, 앱이 다 표시), 주제 질문은 여전히 0
 - 노드 짧은 이름 Figma대로(#93), 프로토타입 맞춤(#92, designer.md §19). 남은 것: Vercel `MODEL_URL`·`MODEL_SHA256` 교체 뒤 머지, cost 도움말·mine 화면은 디자인 결정 대기
+- A8 페르소나 검토·최종 결정 (2026-11-25, stage/A8-persona): V10(시니어·처음 오는 학생 E2E) 고침 #96, 모델 11-25 #95(11-25b는 #97, Vercel 값 교체 대기). 07b가 세 각도 순으로 정렬·"Where CHI disagrees", 시작 질문 3개 교체(54개 중 ↑≥2·⊣≥1), Build now
+- 날짜 고른 Arc는 지도에 그날 남은·들은 발표만(나머지 13 "Other days"), 제1저자·세션 Chair(12·13·14), 14 Next stop, 여러 Arc 겹침(홈·14), Swap·24b·15 Add가 Arc의 날짜·형식을 따름(엔진 선택 인자, 원준 확인 필요)
+- 남은 것: 디자이너 확인(designer.md §20), 실기기 확인 안 함

@@ -95,7 +95,7 @@ test('QA 14: a new revision gives the app the same paper and people shape as the
       { personKey: 'chi2026:new', name: 'New Person', affiliations: [aff('inst:x', 'X Lab', 'Japan')] },
       { personKey: 'chi2026:ghost', name: null, affiliations: [] }] };
   assert.deepEqual(appPaper(paper), { paperKey: 'chi2026:9', title: 'New talk', type: 'paper', feedType: 'Paper', scheduled: true, video: true, doi: null,
-    slots: [{ start: 1, end: 2, roomKey: 'chi2026:r', sessionKey: 'chi2026:s' }], authors: ['chi2026:old', 'chi2026:new', 'chi2026:ghost'] });
+    slots: [{ start: 1, end: 2, roomKey: 'chi2026:r', sessionKey: 'chi2026:s' }], authors: ['chi2026:old', 'chi2026:new', 'chi2026:ghost'], first: 'Old Name · CMU' });
   const next = appPeople({ papers: [paper], people: [{ key: 'chi2026:old', name: 'Renamed', institutionKeys: [] }, { key: 'chi2026:new', name: 'New Person', institutionKeys: [] }], institutions: [] });
   // The deploy's people.json: affiliations carry the official (ROR) institution keys the alias table uses.
   const deploy = { 'chi2026:old': { name: 'Old Name', affiliations: [aff('inst:ror-05x2bcf33', 'Carnegie Mellon University', 'United States')] } };

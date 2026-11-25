@@ -285,3 +285,34 @@ ARC_prototype (1).html의 프레임 47개를 앱 화면 32개와 나란히 비�
 - 14e: 14d(제외)에서만 가는 화면, 14 안 "Meet the authors" 카드 유지.
 - 14f 모양 158px·그라데이션, 06 지도 전체 bloom, 07b 작은 Arc 움직임, 12 구역 안 순서(시간순), 25 물결: 작은 차이, 다음에.
 - 지도 노드 글자(사용자 「figma 대로」, 11/24, 질문에 "Figma as is" 선택): 노드는 짧은 이름(엔진 label, 24자 이하, 보통 제목의 앞부분)을 두 줄까지 + 시간 · 방. 저자는 노드에 없음(Figma와 같음). 전체 제목은 아래 카드·14·화면 낭독(버튼 설명)에. 작은 지도(0.9 미만)에서도 두 줄(시간 줄은 원래 빠짐). 쌓인 Reframe/Challenge 자리와 24b는 자리가 좁아 한 줄 그대로.
+
+## 20. 세 각도가 보이게 · 시니어 피드백 (2026-11-25, 사용자 「최종 결정」)
+사용자 결정 원문에서: 「07b 제안을 엔진으로 실제로 돌려 카드에 ↑↻⊣ 개수를 보여 주고, 세 관점이 다 있는 것(특히 Challenge ≥1)을 위로 정렬. 맨 위 카드는 "Where CHI disagrees" 표시」, 「시작 질문 3개: … Support ≥2, Challenge ≥1인 것을 서로 다른 종족에서 3개」, 「"Today" Arc: 끝난 발표와 다른 날 발표는 지도에서 빼고, 13 목록 맨 아래 "Other days" 묶음으로만」, 「"Presenter"라는 말은 쓰지 마」.
+
+### 시작 질문 (07)
+같은 앱 어댑터로 54개를 돌림(모델 11-25와 11-25b 결과가 같음). ↑ ≥ 2 · ⊣ ≥ 1인 것은 4개.
+
+| 질문 | 종족 | ↑ / ↻ / ⊣ | 채택 |
+|---|---|---|---|
+| Do AI explanations increase user trust? | AI & agents | 3 / 2 / 2 | ✓ |
+| Do avatars increase presence in VR? | XR & immersive | 2 / 4 / 1 | ✓ |
+| Does haptic feedback improve performance? | Devices | 2 / 4 / 1 | ✓ |
+| Does AI improve design creativity? | Design | 3 / 2 / 2 | 예비(질문에 AI가 겹쳐 뺌) |
+| (이전) What is accessibility research asking now? / Which CHI work can I use in industry? / My first CHI: how do I spend a day? | | 0 / 7 / 0 (셋 다) | 교체됨 |
+
+나머지 50개 중 ↑ 2+ 이지만 ⊣ 0: Does haptic feedback improve immersion in VR?, Does gamification increase motivation?, Do design tools improve creativity? 등. 전체 표는 작업 기록(V10)에.
+
+### 화면에 생긴 것 (디자이너 확인 전)
+| 화면 | 무엇 |
+|---|---|
+| 07 | 시작 질문 3개 교체. 버튼 아래 "Build now"(ghost): 08·09를 건너뛰고 기본값(모든 각도·All week·Talks/Posters/Demos)으로 10 → 12 |
+| 07b | 조합 질문 8개까지 실제로 Arc를 만들어 세 각도 있는 것 → ⊣ 있는 것 → ↑ 많은 것 순으로 3개. 맨 위 카드에 ⊣가 있으면 "Suggested" 자리에 "Where CHI disagrees". 셋 다 ⊣ 0이면 카드 아래 "No clear challenge at CHI this year." |
+| 12 | 날짜를 고른 Arc(Today·Tomorrow·특정 날): 그날이 아닌 발표와 이미 끝났는데 듣지 않은 발표는 지도에서 빠짐. Next 카드 제목 아래 "by 이름 · 소속 · Chair 이름" |
+| 13 | 행마다 "by 이름 · 소속". 맨 아래 "Other days" 묶음(지도에서 빠진 발표, 설명 "Not on your map: another day, or already over.") |
+| 14 | 제목 아래 "First author · 이름, 소속", "Session chair · 이름". "Next stop · 12:15 · Rm 132 · 3–5 min walk"(같은 날 다음 정류장, 누르면 그 발표). 2개 이상 Arc에 있으면 태그 "In 2 of your Arcs" |
+| 20 | 맨 위 "Talks across your Arcs"(2개 이상 Arc에 있는, 아직 안 끝난 발표 3개까지, "In 2 of your Arcs · 시각 · 방") |
+
+해석(확인 전):
+- "끝난 발표": Arc를 만든 시각은 실제 시각이라 데모 시계와 맞지 않아, "지금 끝났고 듣지 않은 것"으로 판단.
+- All week Arc와 받은 Arc는 그대로(날짜를 고르지 않음).
+- Chair는 세션의 첫 번째 chair만.

@@ -43,10 +43,12 @@ export interface Engine {
   angleTopics(query: string): Promise<Record<Angle, AngleTopic[]>>; // 08: 3–5 per angle
   // walk: 09 "How you walk" (calm, step_free); the mock engine ignores it
   buildArc(query: string, opts: { angles: Angle[]; topicIds?: string[]; days: string[]; types: string[]; walk?: string[] }): Promise<Arc>;
-  suggest(query: string, angle: Angle, excludeKeys: string[], limit?: number): Promise<ArcNode[]>; // 15: same angle
+  // filters (user 11/25 「Swap·24b가 09의 날짜·형식 선택을 따르게 (엔진 선택 필드, 원준 확인 필요)」): the Arc's own days and
+  // kinds, so a swap or 24b offers no poster or other day the person left out; none = the whole week, every kind
+  suggest(query: string, angle: Angle, excludeKeys: string[], limit?: number, filters?: Arc['filters']): Promise<ArcNode[]>; // 15: same angle
   // 15 Wildcard (user decision 2026-11-20): talks a step away from the question, to break the filter bubble. The engine
   // picks each one's angle. Added after Arc 0.1.0 was shared: Wonjune to confirm.
-  wildcard(query: string, excludeKeys: string[], limit?: number): Promise<ArcNode[]>;
+  wildcard(query: string, excludeKeys: string[], limit?: number, filters?: Arc['filters']): Promise<ArcNode[]>;
 }
 
 export const QUERY_MAX = 200;

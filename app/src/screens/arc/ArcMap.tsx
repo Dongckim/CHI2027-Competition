@@ -54,7 +54,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
     for (const a of ['S', 'R', 'T'] as Angle[]) {
       const mine = arc.nodes.filter(n => n.angle === a).length;
       if (mine >= 12) continue;
-      engineFor(arc.engine).suggest(arc.query, a, arc.nodes.map(n => n.key), 12 - mine)
+      engineFor(arc.engine).suggest(arc.query, a, arc.nodes.map(n => n.key), 12 - mine, arc.filters)
         .then(c => { if (live) setOthers(o => ({ ...o, [a]: c.filter(n => n.angle === a) })); }, () => {});
     }
     return () => { live = false; };
@@ -68,10 +68,11 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
   const held = hs.fan?.key ?? null;
   const extra = focus ? others[focus] ?? [] : [];
   const candidates = new Set(extra.map(n => n.key));
-  const shown = focus ? { ...arc, nodes: [...arc.nodes, ...extra] } : arc;
-  const totals = Object.fromEntries((['S', 'R', 'T'] as Angle[]).map(a => [a, arc.nodes.filter(n => n.angle === a).length + (others[a]?.length ?? 0)]));
+  const map = use.onMap ?? arc; // the talks of the chosen days still to come or heard (useArc)
+  const shown = focus ? { ...map, nodes: [...map.nodes, ...extra] } : map;
+  const totals = Object.fromEntries((['S', 'R', 'T'] as Angle[]).map(a => [a, map.nodes.filter(n => n.angle === a).length + (others[a]?.length ?? 0)]));
   const picked = sel ? shown.nodes.find(n => n.key === sel) ?? null : null;
-  const next = pending ? null : picked ?? (focus ? arc.nodes.find(n => n.angle === focus) : arc.nodes.find(n => states.get(n.key) === 'next')) ?? null;
+  const next = pending ? null : picked ?? (focus ? map.nodes.find(n => n.angle === focus) : map.nodes.find(n => states.get(n.key) === 'next')) ?? null;
   const ni = next ? info(next.key) : null;
   const outside = !!next && candidates.has(next.key);
   // the talk under way says Now, not Next (14 says "Now · Talk 2 of 7")
@@ -108,6 +109,8 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
             {/* Figma 11/23: the paper's title in two lines (15 / 19), then the time and room */}
             <span className="flex min-w-0 flex-1 flex-col gap-1">
               <span className="line-clamp-2 text-[15px] leading-[19px] font-semibold tracking-[-0.006em]">{ni.title}</span>
+              {/* user 11/25 E: the first author (and the session's chair) to look for */}
+              {(ni.first || ni.chair) && <span className="truncate text-[12px] font-medium text-arc-text-3">{[ni.first && `by ${ni.first}`, ni.chair && `Chair ${ni.chair.split(' · ')[0]}`].filter(Boolean).join(' · ')}</span>}
               <span className="truncate text-[13px] text-arc-text/60">{word} · {ni.when.replace(' · Rm ', ' · Room ') /* prototype 12: the card spells "Room", the nodes keep "Rm" */}{use.lift(next.key) && <> · <span className="inline-flex items-center gap-1 align-[-2px]"><Pic src={elevator} size={14} className="opacity-80" />Elevator</span></>}</span>
             </span>
             <Pic src={chevron} size={20} className="opacity-50" />

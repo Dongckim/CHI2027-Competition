@@ -30,11 +30,16 @@ import keynote from '../../assets/arc/icon-keynote.svg';
 import type { Arc, ArcNode } from '../../engine';
 import { useQandA, QandAList, QandAAsk } from './QandA';
 import { AfterSession, ShowShape, roomLabelOf, takeBackY, type Stop } from './Meet';
-import { previousStop } from '../../arc/talk.js';
+import { previousStop, walkSummary } from '../../arc/talk.js';
+import { minutesText } from '../../venue/directions.js';
+import { localDay } from '../../planner/plan.js';
+import { venueClock } from '../../time.js';
+import { chairOf, shortRoom } from './useArc';
+import { go } from '../../router';
 
 type People = Awaited<ReturnType<typeof loadPeople>>;
 type Slot = { start: number | null; end: number; roomKey: string; sessionKey: string };
-type Paper = { title: string; feedType: string; authors: string[]; doi: string | null; slots: Slot[] };
+type Paper = { title: string; feedType: string; authors: string[]; doi: string | null; slots: Slot[]; first?: string | null };
 const FORMAT: Record<string, [string, string]> = {
   Paper: [talk, 'Paper talk'], Journals: [talk, 'Paper talk'], Posters: [poster, 'Poster'], 'Student Research Competition': [poster, 'Poster'],
   'Interactive Demos': [demo, 'Demo'], Panels: [panel, 'Panel'], 'Meet-Ups': [meetup, 'SIG & meetup'], 'Plenary and Keynote': [keynote, 'Keynote'],
@@ -50,6 +55,7 @@ export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shap
   const [failed, setFailed] = useState(false);
   const [abstract, setAbstract] = useState<string | null>(null);
   const [found, setFound] = useState<{ arc: Arc; node: ArcNode } | null>(null);
+  const [inArcs, setInArcs] = useState(0); // user 11/25 D: how many of your saved Arcs lead here
   const [allAuthors, setAllAuthors] = useState(false);
   const [debutNote, setDebutNote] = useState<string | null>(null);
   const heard = heardOf(useDevice()).has(paperKey);
@@ -65,6 +71,7 @@ export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shap
       const arcs = [...(v && v.id === id ? [v] : []), ...(id ? [await getArc(id)] : []), ...(await loadArcs())].filter((a): a is Arc => !!a);
       const arc = arcs.find(a => a.nodes.some(n => n.key === paperKey));
       setFound(arc ? { arc, node: arc.nodes.find(n => n.key === paperKey)! } : null);
+      setInArcs((await loadArcs()).filter(a => a.nodes.some(n => n.key === paperKey)).length);
     })();
   }, [paperKey]);
   const p = data?.schedule.index.papers.get(paperKey) as Paper | undefined;
@@ -114,6 +121,11 @@ export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shap
     return s ? [{ key: n.key, start: s.start, roomKey: s.roomKey }] : [];
   });
   const prev = slot ? previousStop(stops, paperKey, slot.start, tz) as Stop | null : null;
+  // user 11/25 「14 "다음 정류장 시간·방·걷는 분"」: the Arc's next stop the same day after this talk ends
+  const next = slot ? stops.filter(x => x.key !== paperKey && x.start >= slot.end && localDay(x.start, tz) === localDay(slot.start, tz)).sort((a, b) => a.start - b.start)[0] ?? null : null;
+  const nextRoom = next ? (schedule.index.rooms.get(next.roomKey) as { name: string } | undefined)?.name ?? '' : '';
+  const nextWalk = next && slot ? walkSummary(schedule.venue, schedule.venueMap, slot.roomKey, next.roomKey) : null;
+  const chair = slot ? chairOf(schedule, slot.sessionKey) : null;
 
   if (shape && found && slot && roomName) return <ShowShape schedule={schedule} roomKey={slot.roomKey} roomName={roomName} tribe={found.arc.tribe} paperKey={paperKey} />;
 
@@ -123,8 +135,20 @@ export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shap
       <div className="mt-3 flex flex-wrap gap-2">
         {found && <Tag icon={ANGLE_ICON[found.node.angle]}>{ANGLE_NAME[found.node.angle]}{found.node.kind && <span className="font-medium text-arc-text-2"> · {KIND_NAME[found.node.kind]}</span>}</Tag>}
         <Tag icon={fIcon}>{fName}</Tag>
+        {inArcs > 1 && <Tag icon={check}>In {inArcs} of your Arcs</Tag>}
       </div>
       <h1 className="mt-3 text-[24px] leading-[30px] font-semibold tracking-[-0.02em]">{p.title}</h1>
+      {/* user 11/25 E: who to look for, at the top (never "Presenter": the feed does not say who presents) */}
+      {(p.first || chair) && <dl className="mt-2.5 flex flex-col gap-1 text-[14px] leading-[19px]">
+        {p.first && <div className="flex gap-1.5"><dt className="shrink-0 text-arc-text-3">First author</dt><dd className="min-w-0 text-arc-text-2">{p.first}</dd></div>}
+        {chair && <div className="flex gap-1.5"><dt className="shrink-0 text-arc-text-3">Session chair</dt><dd className="min-w-0 text-arc-text-2">{chair}</dd></div>}
+      </dl>}
+      {next && (
+        <button type="button" onClick={() => go(`talk/${next.key}`)} className="mt-3 flex min-h-touch w-full items-center gap-2 rounded-[14px] border border-arc-line bg-arc-surface px-3.5 py-2 text-left text-[14px]">
+          <span className="shrink-0 font-semibold">Next stop</span>
+          <span className="min-w-0 flex-1 truncate text-arc-text-2">{[venueClock(next.start, tz), nextRoom && shortRoom(nextRoom), nextWalk && nextWalk.minutes[1] > 0 && `${minutesText(nextWalk.minutes)} walk`].filter(Boolean).join(' · ')}</span>
+        </button>
+      )}
       {live && (
         // 14b Figma 744:1681: 44 high, clock 16 at 14, the words at 38, the count on the right
         <div className="arc-fade mt-4 flex h-[44px] items-center gap-2 rounded-[14px] px-[14px]">

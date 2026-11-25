@@ -52,8 +52,8 @@ export const ondeviceEngine: Engine = {
     const arc = await after<Arc>('buildArc', { query, opts, id: newArcId(), createdAt: Date.now(), now: now() });
     return { ...arc, nodes: await placed(arc.nodes) };
   },
-  suggest: (query, angle, excludeKeys, limit) => after<ArcNode[]>('suggest', { query, angle, excludeKeys, limit }).then(placed),
-  wildcard: (query, excludeKeys, limit) => after<ArcNode[]>('wildcard', { query, excludeKeys, limit }).then(placed),
+  suggest: (query, angle, excludeKeys, limit, filters) => after<ArcNode[]>('suggest', { query, angle, excludeKeys, limit, filters }).then(placed),
+  wildcard: (query, excludeKeys, limit, filters) => after<ArcNode[]>('wildcard', { query, excludeKeys, limit, filters }).then(placed),
 };
 
 // 07b (user 11/21 「원준 방식(조합 문장)」): the engine's composed questions, without those that read wrong; none left →
