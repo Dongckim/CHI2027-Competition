@@ -1,5 +1,5 @@
 // The Swap / Add sheet of 15 (Figma 598:917), also 19b's Add: search, then chips — the angle (engine.suggest), New to CHI
-// (first author new), Wildcard (engine.wildcard) — and cards to swap in or add. Every card goes under the angle the engine
+// (Same time: when swapping, talks at the hour of the one going out), Wildcard (engine.wildcard) — and cards to swap in or add. Every card goes under the angle the engine
 // gives it (search: engine.judge), which the card says when it is not the sheet's own angle.
 import { useEffect, useState } from 'react';
 import { engineFor, type Angle, type Arc, type ArcNode } from '../../engine';
@@ -14,14 +14,16 @@ import sparkle from '../../assets/arc/icon-sparkle.svg';
 import wild from '../../assets/arc/icon-wildcard.svg';
 import warning from '../../assets/arc/icon-warning.svg';
 
-type Filter = 'angle' | 'debut' | 'wild';
+type Filter = 'angle' | 'same' | 'wild';
 type Card = ArcNode & { off?: true }; // off: the engine finds it not about the question
 const off = (key: string, label: string): Card => ({ key, angle: 'R', label, evidence: null, debut: false, off: true });
 const NOT_ABOUT = 'Not about your question';
 
-export function AddSheet({ query: arcQuery, engineName, filters, target, exclude, swap, info, paper, clash, onPick }: {
+export function AddSheet({ query: arcQuery, engineName, filters, target, exclude, swap, info, paper, clash, sameTime, onPick }: {
   query: string; engineName: string; filters?: Arc['filters']; target: Angle; exclude: string[]; swap: boolean; info: (key: string) => Info;
   paper: (key: string) => { title: string; authors: string[] } | undefined; clash: (key: string) => string | null; onPick: (card: ArcNode) => void;
+  /** Swap only: whether a talk overlaps the one being swapped out (Figma 11/25 "Same time" chip, in place of First CHI paper) */
+  sameTime?: (key: string) => boolean;
 }) {
   const { data } = useExploreData();
   const [filter, setFilter] = useState<Filter>('angle');
@@ -45,7 +47,7 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
       return () => { live = false; clearTimeout(timer); };
     }
     const get = filter === 'wild' ? e.wildcard(arcQuery, exclude, 8, filters)
-      : e.suggest(arcQuery, target, exclude, filter === 'debut' ? 30 : 8, filters).then(l => (filter === 'debut' ? l.filter(n => n.debut).slice(0, 8) : l));
+      : e.suggest(arcQuery, target, exclude, filter === 'same' ? 40 : 8, filters).then(l => (filter === 'same' && sameTime ? l.filter(n => sameTime(n.key)).slice(0, 8) : l));
     get.then(l => live && setCards(l), () => live && setCards([]));
     return () => { live = false; };
   }, [arcQuery, engineName, target, filter, query, data, exclude]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -62,7 +64,7 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
       </label>
       {!query.trim() && (
         <div role="radiogroup" aria-label="Show" className="-mx-6 mt-3 flex gap-2 overflow-x-auto px-6 pb-1">
-          {([['angle', ANGLE_ICON[target], ANGLE_NAME[target]], ['debut', sparkle, 'New to CHI'], ['wild', wild, 'Wildcard']] as [Filter, string, string][]).map(([f, icon, label]) => (
+          {([['angle', ANGLE_ICON[target], ANGLE_NAME[target]], ...(sameTime ? [['same', sparkle, 'Same time']] : []), ['wild', wild, 'Wildcard']] as [Filter, string, string][]).map(([f, icon, label]) => (
             <button key={f} type="button" role="radio" aria-checked={filter === f} onClick={() => setFilter(f)}
               className={`relative inline-flex h-[38px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium tracking-[-0.006em] before:absolute before:inset-x-0 before:-inset-y-[4px] before:content-[''] ${filter === f ? 'bg-arc-chip-on text-arc-on-primary shadow-[var(--arc-shadow-lift)]' : 'border border-arc-line bg-arc-surface text-arc-text/62'}`}>
               {/* the icon in the chip's text colour (a mask): WebKit drew the selected chip's brightness(0) icon blank */}
