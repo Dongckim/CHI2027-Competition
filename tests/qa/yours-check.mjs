@@ -70,13 +70,17 @@ try {
     const allOn = await listed.evaluateAll(b => b.every(x => x.getAttribute('aria-pressed') === 'true'));
     R.check('19b: every talk can be kept from the list (beyond the three a region shows)', allOn && (await listed.count()) === OTHER.nodes.length && await save.isEnabled(), { listed: await listed.count() });
     await first.click(); // one back to an outline
-    await p.getByRole('button', { name: 'Add a talk to Challenges' }).click(); // OTHER has none: the new node is not bundled
-    await p.getByRole('searchbox', { name: 'Search talks' }).fill('haptic'); // search: the engine may have no Challenge to offer
-    const card = p.locator('section[aria-label=Swap] button[aria-label^="Add: "]').first();
+    await p.getByRole('button', { name: 'Add a talk to Challenges' }).click();
+    // search: a found talk goes to the angle the engine judges (user 11/25 「A로 하고」; the mock puts "haptic" titles under
+    // Reframes), so it may sit beyond the three a region shows: its "Yours" is then in the All talks list
+    await p.getByRole('searchbox', { name: 'Search talks' }).fill('haptic');
+    const card = p.locator('section[aria-label=Swap] button[aria-label^="Add to "]:not([disabled])').first();
     await card.waitFor({ timeout: 20000 });
     await card.click();
-    await p.waitForFunction(() => [...document.querySelectorAll('main span')].some(s => s.textContent === 'Yours'));
-    R.check('19b: + adds a talk with a "Yours" badge, kept', (await p.locator('main button[aria-pressed="true"][aria-description*="Yours"]').count()) === 1, {});
+    await p.waitForFunction(() => [...document.querySelectorAll('main span')].some(s => /(^| · )Yours$/.test(s.textContent)));
+    const yoursKept = await p.locator('main button[aria-pressed="true"][aria-description*="Yours"]').count()
+      + await p.locator('section[aria-label="All talks"] button[aria-pressed="true"]', { hasText: '· Yours' }).count();
+    R.check('19b: + adds a talk with a "Yours" badge, kept', yoursKept >= 1, { yoursKept });
     await p.locator('main h1 button').click();
     await p.getByRole('textbox', { name: 'Your question' }).fill(`${OTHER.query} in social VR`);
     await p.keyboard.press('Enter');
