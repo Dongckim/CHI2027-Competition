@@ -5,12 +5,12 @@
 - **연결**: `app/src/engine/ondevice.ts`가 Web Worker(`ondevice.worker.js`)에서 이 폴더의 `src/web`을 돌리고, `ondevice-map.js`가 응답을 Arc로 바꾼다. 배포 빌드(`VITE_ENGINE=ondevice`)의 기본 엔진(11/21). 그냥 빌드는 mock(`app/src/engine/mock-core.js`), `?engine=mock|ondevice`로 바꿀 수 있음
 - **모델 파일**: git에 넣지 않는다. 배포 빌드(`npm run build:deploy`)가 `MODEL_URL`과 `MODEL_SHA256`을 확인해 `dist/model/`에 풀고, 앱은 같은 도메인 `/model/…`에서 받는다(1년 immutable 캐시). `MODEL_URL`이 없으면 mock으로 동작. 스크립트 `app/scripts/fetch-model.mjs`
 
-### 지금 모델 패키지 (11/21)
+### 지금 모델 패키지 (11/22)
 | | |
 |---|---|
-| 파일 | `chi2026-retriever-2026-11-21.zip` (GitHub Release `model-2026-11-21`) |
+| 파일 | `chi2026-retriever-2026-11-22.zip` (GitHub Release `model-2026-11-22`) |
 | 크기 | zip 22.2 MB, 풀면 37.5 MB, 파일 117개 (zip 안은 상대 경로만, 맨 위 폴더 없음) |
-| `MODEL_SHA256` | `461f38e421f941de854c1fe9761cf6a9ca7f67b1d84fa58df0e5f460a75685d7` |
+| `MODEL_SHA256` | `6388932fc8d06b95527ec99e9acf05adabc3db024ff85a991fb7aa9dbaa63ee4` |
 | 소스 | 이 폴더 `src/package/`(Python), `src/web/`(JavaScript, 패키지의 `web/`) |
 | 다시 만들기 | `python scripts/package_model.py` → `dist/chi2026-retriever/` (아래 "데이터 다시 만들기") |
 
@@ -34,6 +34,15 @@ node web/cli.mjs arc '{"screen": "start"}'          # 패키지를 푼 폴더에
 | `Qwen/Qwen2.5-7B-Instruct` | 빌드 때만: 합성 질의, 한 줄 요약과 시드 질문, 확장어(`gen_queries`, `gen_summaries`, `gen_expansions`, `name_clusters`, `gen_offtopic`) | Apache 2.0 |
 
 프로그램 데이터는 ACM CHI 2026 공식 피드, CC BY-NC-SA 4.0.
+
+패키지 파일별:
+| 파일 | 라이선스 |
+|---|---|
+| 코드, 인코더(`encoder.json`, `static_*.npy`), `config.json` | MIT. 인코더는 우리가 만든 것으로, 파인튜닝한 bge-m3(MIT)에서 증류 |
+| `tokenizer.json`, `tokenizer_config.json` | MIT, `BAAI/bge-small-en-v1.5` 그대로 |
+| `web/vendor/tokenizers.min.mjs` | Apache 2.0, npm `@huggingface/tokenizers` 그대로 |
+| `program.json`, `papers.json`, `venue.json`, `program_*.npy` | CC BY-NC-SA 4.0 (프로그램 데이터와 그 초록의 벡터) |
+| 결과 카드 `angles.json`, `phrase_*.npy`, `summaries.json`, `expansions.json`, `clusters.json` | CC BY-NC-SA 4.0 (초록 인용에서 나온 것). 쓴 Qwen 모델(Apache 2.0)은 출력물에 권리를 주장하지 않음 |
 
 ### 폴더 구성
 | 폴더 | 내용 |
@@ -79,7 +88,7 @@ python tests/web_reference.py && node tests/run_web_parity.mjs   # JavaScript = 
 ```
 LLM 생성 단계는 샤드 파일에 이어 쓰므로 다시 돌리면 끝난 항목은 건너뛴다. LLM 출력은 실행마다 조금 달라질 수 있어서, 같은 패키지를 그대로 원하면 Release zip을 쓴다.
 
-11/21 검사 결과: Python↔JavaScript 일치 239/239, 앵글 40/40, Arc 80/80, 검색 42/42.
+11/22 검사 결과: Python↔JavaScript 일치 239/239, Arc 80/80, 검색 42/42, 앵글 39/40 ("How do people track their sleep?" 화요일 Arc가 7개가 아니라 6개: 카드가 바뀌어 좁힌 질문이 달라짐). 11/22에 바뀐 것은 `docs/angle_model.md`의 "결과 문장만 근거로, 종족은 입력한 말로".
 
 ## 아래는 옛 플래너 때 문서 (2026-11-20 전)
 
