@@ -1,7 +1,7 @@
 // The Swap / Add sheet of 15 (Figma 598:917), also 19b's Add: search, then chips — the angle (engine.suggest), New to CHI
 // (first author new), Wildcard (engine.wildcard) — and cards to swap in or add.
 import { useEffect, useState } from 'react';
-import { engineFor, type Angle, type ArcNode } from '../../engine';
+import { engineFor, type Angle, type Arc, type ArcNode } from '../../engine';
 import { loadDebut } from '../../data/load';
 import { searchTalks } from '../../../../data/scripts/search.mjs';
 import { useExploreData } from '../../explore/useExplore';
@@ -16,8 +16,8 @@ import warning from '../../assets/arc/icon-warning.svg';
 
 type Filter = 'angle' | 'debut' | 'wild';
 
-export function AddSheet({ query: arcQuery, engineName, target, exclude, swap, info, paper, clash, onPick }: {
-  query: string; engineName: string; target: Angle; exclude: string[]; swap: boolean; info: (key: string) => Info;
+export function AddSheet({ query: arcQuery, engineName, filters, target, exclude, swap, info, paper, clash, onPick }: {
+  query: string; engineName: string; filters?: Arc['filters']; target: Angle; exclude: string[]; swap: boolean; info: (key: string) => Info;
   paper: (key: string) => { title: string; authors: string[] } | undefined; clash: (key: string) => string | null; onPick: (card: ArcNode) => void;
 }) {
   const { data } = useExploreData();
@@ -39,8 +39,8 @@ export function AddSheet({ query: arcQuery, engineName, target, exclude, swap, i
       return;
     }
     const e = engineFor(engineName);
-    const get = filter === 'wild' ? e.wildcard(arcQuery, exclude, 8)
-      : e.suggest(arcQuery, target, exclude, filter === 'debut' ? 30 : 8).then(l => (filter === 'debut' ? l.filter(n => n.debut).slice(0, 8) : l));
+    const get = filter === 'wild' ? e.wildcard(arcQuery, exclude, 8, filters)
+      : e.suggest(arcQuery, target, exclude, filter === 'debut' ? 30 : 8, filters).then(l => (filter === 'debut' ? l.filter(n => n.debut).slice(0, 8) : l));
     get.then(l => live && setCards(l), () => live && setCards([]));
     return () => { live = false; };
   }, [arcQuery, engineName, target, filter, query, data, exclude, debut]); // eslint-disable-line react-hooks/exhaustive-deps

@@ -31,7 +31,7 @@ export function useHoldSwap({ arc, save, paper, schedule }: ReturnType<typeof us
   const choices = (key: string) => {
     const node = arc?.nodes.find(n => n.key === key);
     if (!arc || !node) return Promise.resolve([]);
-    if (!asked.current.has(key)) asked.current.set(key, engineFor(arc.engine).suggest(arc.query, node.angle, arc.nodes.map(n => n.key), 3).catch(() => []));
+    if (!asked.current.has(key)) asked.current.set(key, engineFor(arc.engine).suggest(arc.query, node.angle, arc.nodes.map(n => n.key), 3, arc.filters).catch(() => []));
     return asked.current.get(key)!;
   };
   const open = (key: string, keyboard: boolean) => {

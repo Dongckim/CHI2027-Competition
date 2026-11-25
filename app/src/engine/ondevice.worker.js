@@ -61,14 +61,16 @@ const ops = {
     return toArc(res, query, opts, { id, createdAt, edition: ctx.edition, version: ctx.version, abstractOf });
   },
   // 15 Add / 12b Hold: the "edit" screen's cards carry no quote, so each card's quote comes from the "node" screen
-  async suggest({ query, angle, excludeKeys, limit = 5 }) {
+  async suggest({ query, angle, excludeKeys, limit = 5, filters }) {
     // a Challenge whose quote is not a result turns into a Reframe (toNode): not one for this angle then
-    return (await cards({ screen: 'edit', question: query, days: 'week', nodes: idsOf(excludeKeys, ctx.edition), add: angleKey(angle), k: limit })).filter(n => n.angle === angle);
+    return (await cards({ screen: 'edit', question: query, ...scope(filters), nodes: idsOf(excludeKeys, ctx.edition), add: angleKey(angle), k: limit })).filter(n => n.angle === angle);
   },
-  async wildcard({ query, excludeKeys, limit = 5 }) {
-    return cards({ screen: 'edit', question: query, days: 'week', nodes: idsOf(excludeKeys, ctx.edition), add: 'reframe', filter: 'wildcard', k: limit });
+  async wildcard({ query, excludeKeys, limit = 5, filters }) {
+    return cards({ screen: 'edit', question: query, ...scope(filters), nodes: idsOf(excludeKeys, ctx.edition), add: 'reframe', filter: 'wildcard', k: limit });
   },
 };
+// the Arc's days and kinds for the edit screen (none: the whole week, every kind, as before)
+const scope = filters => ({ days: daysOf(filters?.days ?? []), formats: formatsOf(filters?.types ?? []) });
 async function cards(req) {
   const res = await eng.handle(req);
   const out = [];

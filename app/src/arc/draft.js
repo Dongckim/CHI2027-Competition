@@ -34,6 +34,8 @@ export const setHoldHintSeen = state => (arcOf(state).holdHint ? state : withArc
 
 /** 07: the question, at most 200 characters (the share link carries it). */
 export const setQuery = (state, query) => withDraft(state, { query: query.slice(0, QUERY_MAX) });
+/** 07 Build now (user 11/25 「08·09 건너뛰고 기본값으로 12」): no chips (every angle, the engine picks), All week, the default kinds. */
+export const quickDraft = state => withDraft(state, { topicsFor: null, topics: { S: [], R: [], T: [] }, when: 'all', what: [...DEFAULT_WHAT] });
 
 /**
  * 08: topic chips per angle from engine.angleTopics, for this question. Defaults as in Figma: the first two of Supports

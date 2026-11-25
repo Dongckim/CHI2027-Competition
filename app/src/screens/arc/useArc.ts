@@ -18,13 +18,15 @@ import type { Arc } from '../../engine';
 import type { Info } from './ArcView';
 
 type Slot = { start: number | null; end: number; roomKey: string; sessionKey: string };
-type Paper = { title: string; feedType: string; slots: Slot[]; authors: string[]; doi: string | null };
+type Paper = { title: string; feedType: string; slots: Slot[]; authors: string[]; doi: string | null; first?: string | null };
 
 /** "P1 - Room 116" → "Rm 116" on the map (Figma), the poster area → "Posters"; other rooms as the programme names them. */
 /** The node's time line: "12:27 · Rm 113", with the weekday when the talk is not today ("Thu 12:27 · Rm 113"): the engine
  *  may add a talk from another day to read (persona review 11/25: a "Today" Arc showed Thursday talks as if they were today). */
 export const whenLine = (start: number, room: string, tz: string, nowMs: number) =>
   `${localDay(start, tz) !== localDay(nowMs, tz) ? `${weekdayOf(start, tz)} ` : ''}${venueClock(start, tz)}${room ? ` · ${shortRoom(room)}` : ''}`;
+/** The session's first chair as "Name · Institution" (schedule.json sessions[].chairs, user 11/25 E). */
+export const chairOf = (schedule: Schedule, sessionKey: string) => ((schedule.index.sessions.get(sessionKey) as { chairs?: string[] } | undefined)?.chairs ?? [])[0] ?? null;
 export const shortRoom = (name: string) => {
   const room = name.match(/Room\s+(\S+)/i)?.[1];
   return room ? `Rm ${room}` : /posters?/i.test(name) ? 'Posters' : name; // "Area 1 + 2 + 3: posters" → "Posters"
@@ -43,7 +45,23 @@ export function useArc(id: string) {
   const tz = schedule?.meta.timeZone ?? 'UTC';
   const paper = (key: string) => schedule?.index.papers.get(key) as Paper | undefined;
   const timeOf = (key: string) => { const s = paper(key) ? firstSlot(paper(key)!.slots) : null; return s ? { start: s.start, end: s.end } : null; };
-  const states = useMemo(() => (arc ? nodeStates(arc.nodes, timeOf, now, heard) : new Map()) as Map<string, NodeState>, [arc, schedule, now, heard]); // eslint-disable-line react-hooks/exhaustive-deps
+  // user 11/25 「"Today" Arc: 끝난 발표와 다른 날 발표는 지도에서 빼고, 13 목록 맨 아래 "Other days" 묶음으로만」: an Arc
+  // for chosen days keeps on its map the talks of those days that are still to come or heard; the engine's talks of
+  // other days (to read) and the ones missed go to 13's "Other days". All-week and received Arcs keep every talk.
+  const off = (key: string) => {
+    const days = arc?.filters.days ?? [], t = timeOf(key);
+    if (!days.length || !t || !schedule) return false;
+    return !days.includes(localDay(t.start, tz)) || (t.end <= now && !heard.has(key));
+  };
+  const onMap = arc && schedule ? { ...arc, nodes: arc.nodes.filter(n => !off(n.key)) } : arc;
+  const other = arc && schedule ? arc.nodes.filter(n => off(n.key)) : [];
+  // Next is the first talk still to come on the map; the others keep their state words but are never "next"
+  const states = useMemo(() => {
+    if (!arc || !onMap) return new Map() as Map<string, NodeState>;
+    const m = nodeStates(onMap.nodes, timeOf, now, heard) as Map<string, NodeState>;
+    for (const [k, v] of nodeStates(other, timeOf, now, heard) as Map<string, NodeState>) m.set(k, v === 'next' ? 'upcoming' : v);
+    return m;
+  }, [arc, schedule, now, heard]); // eslint-disable-line react-hooks/exhaustive-deps
   const info = (key: string): Info => {
     const p = paper(key), s = p ? firstSlot(p.slots) : null;
     const room = s ? schedule!.index.rooms.get(s.roomKey)?.name ?? '' : '';
@@ -53,6 +71,7 @@ export function useArc(id: string) {
       time: s ? `${dateOf(s.start, tz)} · ${clockOf(s.start, tz)}` : 'Time to be announced',
       when: s ? whenLine(s.start, room, tz, now) : 'Time TBA' /* no time in the feed (14: "Time to be announced") */, room: room ? shortRoom(room) : '',
       on: !!s && s.start <= now && s.end > now,
+      first: p?.first ?? null, chair: s ? chairOf(schedule!, s.sessionKey) : null,
     };
   };
   // 09 Step-free (this phone's choice): the walk to this talk from the stop before it that day (or Registration) changes
@@ -68,5 +87,5 @@ export function useArc(id: string) {
     return !!w && w.floor !== 'same floor';
   };
   const save = async (next: Arc) => { await saveArc(next); setArc(next); };
-  return { arc, schedule, states, info, paper, save, now, lift };
+  return { arc, onMap, other, schedule, states, info, paper, save, now, lift };
 }

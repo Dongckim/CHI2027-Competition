@@ -19,14 +19,14 @@ import { ANGLE_NAME } from './AngleHelp';
 import { AngleRows } from './ArcList';
 import { ArcView, useMapFit, type Info } from './ArcView';
 import { AddSheet } from './AddSheet';
-import { shortRoom, whenLine } from './useArc';
+import { shortRoom, whenLine, chairOf } from './useArc';
 import linkIcon from '../../assets/arc/icon-link.svg';
 import lockIcon from '../../assets/arc/icon-lock.svg';
 import checkIcon from '../../assets/arc/icon-check.svg';
 import type { Arc, ArcNode, Angle } from '../../engine';
 
 type Slot = { start: number | null; end: number; roomKey: string; sessionKey: string };
-type Paper = { title: string; authors: string[]; slots: Slot[] };
+type Paper = { title: string; authors: string[]; slots: Slot[]; first?: string | null };
 const newId = () => Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join('');
 
 // One received Arc per link while 18 ⇄ 19 are open (built once: abstracts are checked, ids made).
@@ -61,7 +61,8 @@ function useReceived(payload: string) {
     const sc = ok!.schedule, p = sc.index.papers.get(k) as Paper | undefined, s = p ? firstSlot(p.slots) : null, tz = sc.meta.timeZone;
     const room = s ? sc.index.rooms.get(s.roomKey)?.name ?? '' : '';
     return { title: p?.title ?? k, short: labelOf(p?.title ?? k), time: s ? `${dateOf(s.start, tz)} · ${clockOf(s.start, tz)}` : 'Time to be announced',
-      when: s ? whenLine(s.start, room, tz, t) : 'Time TBA' /* no time in the feed (14: "Time to be announced") */, room: room ? shortRoom(room) : '' };
+      when: s ? whenLine(s.start, room, tz, t) : 'Time TBA' /* no time in the feed (14: "Time to be announced") */, room: room ? shortRoom(room) : '',
+      first: p?.first ?? null, chair: s ? chairOf(sc, s.sessionKey) : null };
   };
   const paper = (k: string) => ok?.schedule.index.papers.get(k) as Paper | undefined;
   return { r, ok, states, info, paper, timeOf };

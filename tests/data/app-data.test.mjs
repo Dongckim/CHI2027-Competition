@@ -7,7 +7,7 @@ const aff = (k, c = 'Japan') => ({ institutionKey: k, institution: k.toUpperCase
 const fixture = () => ({
   meta: { edition: 'chi2026', revision: 3, publicationVersion: 9, timeZone: 'Europe/Madrid', attribution: 'x' },
   rooms: [{ key: 'chi2026:r', name: 'Room', floor: 'P1', capacity: 1 }],
-  sessions: [{ key: 'chi2026:s', name: 'S', start: null, end: null, contentKeys: [] }],
+  sessions: [{ key: 'chi2026:s', name: 'S', start: null, end: null, contentKeys: [], chairKeys: ['chi2026:p2', 'chi2026:nobody'] }],
   papers: [
     // 2026-04-13 23:30 UTC is 04-14 in Madrid; the earliest slot decides the file.
     { key: 'chi2026:1', title: 'A', type: 'Posters', scheduled: true, video: 'https://v', abstract: 'abs 1',
@@ -25,7 +25,9 @@ test('app data: schedule fields, abstracts by first slot day, people with all af
   const { text, path, current } = buildAppData(fixture());
   const schedule = JSON.parse(text['schedule.json']);
   assert.deepEqual(schedule.papers[0], { paperKey: 'chi2026:1', title: 'A', type: 'poster', feedType: 'Posters', scheduled: true, video: true, doi: null,
-    slots: fixture().papers[0].slots.map(({ order, ...s }) => s), authors: ['chi2026:p1'] });
+    slots: fixture().papers[0].slots.map(({ order, ...s }) => s), authors: ['chi2026:p1'], first: null }); // the fixture's author has no name
+  // user 11/25 E: the session's chairs as lines, the unknown one left out
+  assert.deepEqual(schedule.sessions[0].chairs, ['Chair · C Univ']);
   assert.equal(schedule.papers[1].type, 'other');
   assert.equal(abstractDay(fixture().papers[0], 'Europe/Madrid'), '2026-04-14');
   assert.deepEqual(Object.keys(text).sort(), ['abstracts/2026-04-14.json', 'abstracts/unscheduled.json', 'debut.json', 'institutions.json', 'people.json', 'schedule.json', 'topics.json']);

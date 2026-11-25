@@ -6,6 +6,8 @@ import { useArcs, isPersistent } from '../../arc/store';
 import { TRIBE } from '../../arc/tribes.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
 import { heardOf, resetDraft } from '../../arc/draft.js';
+import { acrossArcs } from '../../arc/across.js';
+import { whenLine } from './useArc';
 import { nodeStates } from '../../arc/map.js';
 import { localDay } from '../../planner/plan.js';
 import { useDevice, update } from '../../state/useDevice';
@@ -105,6 +107,17 @@ export function Home() {
     const timeOf = (k: string) => { const p = schedule?.index.papers.get(k) as { slots: Slot[] } | undefined; const s = p ? firstSlot(p.slots) : null; return s ? { start: s.start as number, end: s.end } : null; };
     return { a, day: dayLine(a, schedule, now, heard), period: periodsOf(a, timeOf, now, heard, { days: current.days, timeZone: tz }) };
   }) ?? [], [arcs, schedule, now, heard]);
+  // user 11/25 D: talks more than one Arc leads to, still to come, soonest first (up to three)
+  const across = useMemo(() => {
+    if (!arcs || !schedule) return [];
+    const tz = schedule.meta.timeZone;
+    return [...acrossArcs(arcs)].flatMap(([key, n]) => {
+      const p = schedule.index.papers.get(key) as { title: string; slots: Slot[] } | undefined, s = p ? firstSlot(p.slots) : null;
+      if (!p || !s || s.end <= now) return [];
+      const room = (schedule.index.rooms.get(s.roomKey) as { name: string } | undefined)?.name ?? '';
+      return [{ key, n, start: s.start as number, title: p.title, when: whenLine(s.start as number, room, tz, now) }];
+    }).sort((a, b) => a.start - b.start).slice(0, 3);
+  }, [arcs, schedule, now]);
   const [picked, setPicked] = useState<Period | null>(null);
   const period: Period = picked ?? (schedule ? firstPeriod(rows.map(r => r.period)) : 'week');
   if (!arcs) return null;
@@ -137,6 +150,20 @@ export function Home() {
     </>}>
       <DemoBanner />
       {!isPersistent() && <p className="mt-2 text-[14px] text-arc-text-2">This browser does not keep Arcs. They stay until you close the tab.</p>}
+      {across.length > 0 && (
+        <section aria-labelledby="across-h" className="mt-2.5 flex flex-col gap-2">
+          <h2 id="across-h" className="text-[15px] font-semibold tracking-[-0.006em]">Talks across your Arcs</h2>
+          {across.map(t => (
+            <a key={t.key} href={href(`talk/${t.key}`)} className="flex min-h-[56px] items-center gap-3 rounded-[18px] border border-arc-line bg-arc-surface py-2 pr-3 pl-3.5">
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="truncate text-[14px] font-semibold">{t.title}</span>
+                <span className="truncate text-[12px] font-medium text-arc-text-3">In {t.n} of your Arcs · {t.when}</span>
+              </span>
+              <Pic src={chevron} size={18} className="opacity-40" />
+            </a>
+          ))}
+        </section>
+      )}
       {/* Figma 20 (743:1736): Today / This week / After CHI; which Arcs each shows is an interpretation, designer to confirm */}
       <div role="tablist" aria-label="When" className="mt-2.5 flex h-10 rounded-[20px] border border-arc-line bg-arc-surface p-[3px]">
         {PERIOD_TABS.map(([k, label]) => (

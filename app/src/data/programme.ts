@@ -39,7 +39,8 @@ async function check(base: Schedule) {
     const [{ buildEdition }, shape] = await Promise.all([import('../../../data/scripts/edition.mjs'), import('../../../data/scripts/app-shape.mjs')]);
     const out = buildEdition(feed, { edition: current.edition, version, timeZone: base.meta.timeZone, institutions: {} });
     const people = shape.updatedPeople(await loadPeople(), shape.appPeople({ papers: out.papers, people: out.people, institutions: out.aliases.institutions }));
-    set({ revision: version.revision, schedule: scheduleFrom(base, out, shape.appPaper), people });
+    const who = (k: string) => people[k] ? shape.personLine(people[k].name, people[k].affiliations[0]?.institution) : null;
+    set({ revision: version.revision, schedule: scheduleFrom(base, { ...out, sessions: out.sessions.map(s => ({ ...s, chairs: shape.appSession(s, who).chairs })) }, shape.appPaper), people });
   } catch {
     // offline or the feed is down: keep the programme we have, try again next minute
   } finally { checking = false; }
