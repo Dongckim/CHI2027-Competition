@@ -7,6 +7,7 @@ import { TRIBE } from '../../arc/tribes.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
 import { heardOf, resetDraft } from '../../arc/draft.js';
 import { acrossArcs } from '../../arc/across.js';
+import { keepAdvice } from '../../arc/keep.js';
 import { whenLine } from './useArc';
 import { nodeStates } from '../../arc/map.js';
 import { localDay } from '../../planner/plan.js';
@@ -150,6 +151,7 @@ export function Home() {
     </>}>
       <DemoBanner />
       {!isPersistent() && <p className="mt-2 text-[14px] text-arc-text-2">This browser does not keep Arcs. They stay until you close the tab.</p>}
+      <KeepNote />
       {across.length > 0 && (
         <section aria-labelledby="across-h" className="mt-2.5 flex flex-col gap-2">
           <h2 id="across-h" className="text-[15px] font-semibold tracking-[-0.006em]">Talks across your Arcs</h2>
@@ -216,5 +218,29 @@ export function Home() {
       </ul></div>
       <div className="mt-[30px] mb-6">{chi101}</div>
     </Screen>
+  );
+}
+
+// Keeping the Arcs on this phone for the whole week (user 11/25 「하루 지나면 페이지가 사라지는데 … 일주일 정도」): in a
+// messenger's browser, open ARC in Safari or Chrome; in iPhone Safari, add it to the Home Screen (kept past Safari's 7 days).
+const KEEP_SEEN = 'arc.keepNote';
+function KeepNote() {
+  const standalone = typeof window !== 'undefined' && (matchMedia?.('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true);
+  const advice = typeof navigator === 'undefined' ? null : keepAdvice(navigator.userAgent, !!standalone);
+  const [hidden, setHidden] = useState(() => { try { return localStorage.getItem(KEEP_SEEN) === advice; } catch { return false; } });
+  const [copied, setCopied] = useState(false);
+  if (!advice || (hidden && advice === 'homeScreen')) return null;
+  const hide = () => { try { localStorage.setItem(KEEP_SEEN, advice); } catch {} setHidden(true); };
+  const copy = async () => { try { await navigator.clipboard.writeText(location.origin); setCopied(true); } catch { /* no clipboard */ } };
+  return (
+    <div role="note" className="mt-2.5 flex flex-col gap-2 rounded-[18px] border border-arc-line bg-arc-surface px-4 py-3 text-[14px] leading-5 text-arc-text-2">
+      {advice === 'inApp'
+        ? <p><span className="font-semibold text-arc-text">This app&rsquo;s browser may delete your Arcs.</span> Open {location.host} in Safari or Chrome to keep them all week.</p>
+        : <p><span className="font-semibold text-arc-text">Keep your Arcs all week:</span> add ARC to your Home Screen. Tap Share <span aria-hidden="true">↑</span> and then &ldquo;Add to Home Screen&rdquo;.</p>}
+      <div className="flex gap-2">
+        {advice === 'inApp' && <button type="button" onClick={copy} className="min-h-touch rounded-full bg-arc-chip-on px-4 text-[14px] font-semibold text-arc-on-primary">{copied ? 'Copied' : 'Copy link'}</button>}
+        {advice === 'homeScreen' && <button type="button" onClick={hide} className="min-h-touch rounded-full border border-arc-line px-4 text-[14px] font-semibold text-arc-text">Got it</button>}
+      </div>
+    </div>
   );
 }

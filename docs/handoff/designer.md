@@ -360,3 +360,10 @@ Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your p
 - 07r 질문은 엔진의 "mine"(논문 결과로 만든 질문 중 첫째). 엔진이 준비 중이면 "Reading your paper…". 그 사람의 발표는 모두 Arc 정류장에서 뺌(엔진 `mine` 인자).
 - Swap "Same time": 바꾸는(빠지는) 발표와 시간이 겹치는 같은 각도 발표. 추가(Add)에는 겹칠 기준이 없어 칩 없음(각도·Wildcard만).
 - 07p·07r 단계 점은 07과 같은 8번째(Figma).
+
+## 24. Arc를 일주일 동안 폰에 남기기 (2026-11-25, 사용자 「하루 지나면 페이지가 사라지는데, 혹시 한 일주일 정도 데이터가 핸드폰에 저장되는 방식으로」)
+앱에는 Arc를 지우는 코드가 없다. 지워지는 것은 브라우저 쪽: (1) 영구 저장 요청이 없어 저장공간이 부족하면 Safari가 사이트 데이터를 통째로 지울 수 있음(모델·데이터로 30 MB 넘게 씀), (2) 카카오톡 등 앱 안 브라우저는 저장소가 따로이고 짧음, (3) Safari는 7일 동안 안 연 사이트의 데이터를 지움(홈 화면 앱은 예외).
+- Arc가 생기면 `navigator.storage.persist()` 요청(알림 없음, 브라우저가 결정).
+- 홈 화면 앱: manifest·아이콘(ARC 표시, 180/192/512)·standalone. 홈 화면에 추가하면 따로 된 앱으로 열리고 7일 규칙에서 빠짐.
+- 20 홈 위 안내(새 표시, 디자이너 확인 전): 앱 안 브라우저면 "This app’s browser may delete your Arcs. Open arc2027.com in Safari or Chrome to keep them all week." + Copy link. iPhone Safari면 "Keep your Arcs all week: add ARC to your Home Screen. Tap Share ↑ and then “Add to Home Screen”." + Got it(한 번 닫으면 안 보임).
+- 한계: 저장 여부는 브라우저가 정함. 확실히 남기려면 홈 화면에 추가. 받은 링크(/s/…)에서는 Arc를 언제든 다시 만들 수 있음.
