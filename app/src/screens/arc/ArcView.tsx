@@ -5,6 +5,15 @@ import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties
 import { layout, focusLayout, connector, BOX, ADD_AT, BADGE_AT, MAX_SEATS, MORE_AT, FOCUS, type NodeState } from '../../arc/map.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
 import { bloom, moveToward, hintMotion, pickMotion } from '../../arc/motion';
+import { fitLabel, wrapsInto } from '../../arc/label.js';
+// a text's width in the nodes' font (12 px Inter semibold), for fitting names to their lines; a rough count without a canvas
+let canvas: CanvasRenderingContext2D | null | undefined;
+const textWidth = (t: string) => {
+  if (canvas === undefined) canvas = typeof document === 'undefined' ? null : document.createElement('canvas').getContext('2d');
+  if (!canvas) return t.length * 7;
+  canvas.font = '600 12px Inter, system-ui, sans-serif';
+  return canvas.measureText(t).width;
+};
 import { ANGLE_NAME, KIND_NAME } from './AngleHelp';
 import sortingOrb from '../../assets/arc/25-orb-sorting.svg';
 import support from '../../assets/arc/angle-support.svg';
@@ -200,7 +209,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
                 </span>
                 <span className="sr-only">{ANGLE_NAME[node.angle]} · </span>
                 <span data-node-text="" style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`${oneLine || showKind ? 'line-clamp-1' : 'line-clamp-2'} max-w-full text-center font-semibold ${own ? (mine ? 'text-arc-text/85' : 'text-arc-text/70' /* over the holo glow: 0.7 as 25 (text-3 was 4.2:1 on 19b) */) : candidates?.has(node.key) ? 'text-arc-text/70' : st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
-                  {node.debut && <span aria-hidden="true">✦ </span>}{i.short}{/* Figma 12: the short name (the engine's label, ≤ 24) on up to two lines; the whole title is the description and the card's (user 11/24 「figma 대로」) */}
+                  {node.debut && <span aria-hidden="true">✦ </span>}{fitLabel(i.short, t => wrapsInto(node.debut ? `✦ ${t}` : t, (picture ? 104 : 104 * scale) - 2, oneLine || showKind ? 1 : 2, textWidth)) /* the whole words that fit the label's lines as drawn (12 px semibold in a 104-wide label) */ /* whole words, no "…" (user 11/25 「12자 정도만」) */}{/* Figma 12: the short name (the engine's label, ≤ 24) on up to two lines; the whole title is the description and the card's (user 11/24 「figma 대로」) */}
                 </span>
                 {/* Figma 10px; 12px is the floor. Editing (Figma 15) shows the title only.
                     Sorting (25): 0.7, not 0.55, as the two-line title puts the time over the holo ring's edge (3.6:1 at 0.55) */}
