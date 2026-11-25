@@ -1034,5 +1034,52 @@
    "screen": "mine",
    "paper": 1
   }
+ },
+ {
+  "id": "arc_cardq_0",
+  "input": {
+   "screen": "arc",
+   "question": "Does generative AI support designers' creativity?",
+   "when": "week"
+  }
+ },
+ {
+  "id": "arc_cardq_1",
+  "input": {
+   "screen": "arc",
+   "question": "Do AI coding assistants improve programmer productivity?",
+   "when": "week"
+  }
+ },
+ {
+  "id": "arc_cardq_2",
+  "input": {
+   "screen": "arc",
+   "question": "Do self-avatars increase embodiment in VR?",
+   "when": "week"
+  }
+ },
+ {
+  "id": "ask_topic_balance",
+  "input": {
+   "screen": "ask",
+   "text": "AI Companions"
+  }
+ },
+ {
+  "id": "arc_topic_balance_0",
+  "input": {
+   "screen": "arc",
+   "question": "AI Companions",
+   "when": "week"
+  }
+ },
+ {
+  "id": "arc_topic_balance_1",
+  "input": {
+   "screen": "arc",
+   "question": "Perceptual Haptics",
+   "when": "week"
+  }
  }
 ]

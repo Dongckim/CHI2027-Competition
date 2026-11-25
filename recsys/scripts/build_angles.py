@@ -38,12 +38,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src", "package
 import config  # noqa: E402
 from gen_findings import TRIBES, EFFECTS, STATUS, split_sentences  # noqa: E402
 from gen_valence import CHANGES  # noqa: E402
-from angles import NO_FINDINGS, content, lemma, stem  # noqa: E402
+from angles import NEG_OUTCOME, NO_FINDINGS, content, lemma, parse_question, stem  # noqa: E402
 
 PROC = os.path.join(config.ROOT, "data", "processed")
 PKG = os.path.join(config.ROOT, "dist", "chi2026-retriever")
 PAST_DIR = os.environ.get("CHI_PAST_DIR", os.path.join(config.ROOT, "data", "raw"))
-VERSION = os.environ.get("CHI_ANGLES_VERSION", "2026-11-25")
+VERSION = os.environ.get("CHI_ANGLES_VERSION", "2026-11-25b")
 # directions the third pass may correct: a card stored without one ("associated")
 EFFECT_FIX = set(os.environ.get("CHI_EFFECT_FIX", "associated").split(","))
 
@@ -179,7 +179,9 @@ _DIR_WORDS = r"(?:increase[sd]?|decrease[sd]?|reduce[sd]?|reduction|improve[sd]?
 _WE = r"(?:(?:this|our|the present|the current) (?:study|paper|work|research|article|project)|we|in this (?:paper|work|study),? we)"
 _AIM_V = (r"aim(?:s|ed)? to|set out to|seek(?:s)? to|sought to|investigat(?:e|es|ed)|examin(?:e|es|ed)|explor(?:e|es|ed)|"
           r"stud(?:y|ies|ied)|conduct(?:s|ed)?|ran|recruit(?:s|ed)?|compar(?:e|es|ed)|evaluat(?:e|es|ed)|describ(?:e|es|ed)|"
-          r"report(?:s)? (?:a|an|on)|ask(?:s|ed)?|address(?:es|ed)?|contribut(?:e|es|ed)|use[sd]?|employ(?:s|ed)?|invite")
+          r"report(?:s)? (?:a|an|on)|ask(?:s|ed)?|address(?:es|ed)?|contribut(?:e|es|ed)|use[sd]?|employ(?:s|ed)?|invite|"
+          r"assess(?:es|ed)?|measur(?:e|es|ed)|analy[sz](?:e|es|ed)|collect(?:s|ed)?|administer(?:s|ed)?|"
+          r"interview(?:s|ed)?|surve(?:y|ys|yed)|record(?:s|ed)?")
 _SYS_V = r"present(?:s|ed)?|propos(?:e|es|ed)|introduc(?:e|es|ed)|design(?:s|ed)?|develop(?:s|ed)?|buil[dt]s?|implement(?:s|ed)?"
 AIM_RE = re.compile(rf"\b{_WE}\s+(?:also\s+|first\s+|then\s+|further\s+)?(?:{_AIM_V})\b", re.I)
 SYS_RE = re.compile(rf"\b{_WE}\s+(?:also\s+|first\s+|then\s+|further\s+)?(?:{_SYS_V})\b"
@@ -289,10 +291,13 @@ def main():
     for f in sorted(glob.glob(os.path.join(PROC, "results_raw", "shard_*.json"))):
         with open(f, encoding="utf-8") as fh:
             results.update(json.load(fh))
-    valence = {}
+    valence, cardq = {}, {}
     for f in sorted(glob.glob(os.path.join(PROC, "valence_raw", "shard_*.json"))):
         with open(f, encoding="utf-8") as fh:
             valence.update(json.load(fh))
+    for f in sorted(glob.glob(os.path.join(PROC, "cardq_raw", "shard_*.json"))):
+        with open(f, encoding="utf-8") as fh:
+            cardq.update(json.load(fh))
     past, years = past_authors()
     print(f"findings for {len(raw)} items; past paper authors {len(past)} ({', '.join(years)})")
 
@@ -427,9 +432,26 @@ def main():
         for k_, (chg, tested) in sorted(((int(k_), v) for k_, v in (valence.get(str(it["id"])) or {}).items())):
             if k_ < len(cards) and STATUS[cards[k_][4]] == "result":
                 val.append([k_, CHANGES.index(chg), int(tested == "yes")])
+        # the questions each result answers "yes" to, as an attendee would ask them
+        # (gen_card_questions.py): the question, its X and Y, and which way it leans
+        # (+1 the question wants Y up, -1 down, 0 no direction; a bad Y flips it)
+        cq = []
+        for k_, qs in sorted(((int(k_), v) for k_, v in (cardq.get(str(it["id"])) or {}).items())):
+            if k_ >= len(cards) or STATUS[cards[k_][4]] != "result":
+                continue
+            for text, answer in qs:
+                pq = parse_question(text)
+                if answer != "yes" or pq["kind"] != "relation" or not pq["y"]:
+                    continue
+                (xt, _), (yt, yneg) = content(pq["x"]), content(pq["y"])
+                if not xt or not yt:
+                    continue
+                bad = any(t in NEG_OUTCOME for t in yt) != yneg
+                lean = {"+": 1, "-": -1}.get(pq["dir"], 0) * (-1 if bad else 1)
+                cq.append([k_, pid(text), pid(pq["x"]), pid(pq["y"]), lean])
         rec = {"label": short_label(src.get("label", ""), it["title"]),
                "contribution": src.get("contribution", ""), "tribe": TRIBE_IDX[tribe],
-               "cards": cards, "measures": meas, "gen": gen, "about": about, "claims": cl, "val": val,
+               "cards": cards, "measures": meas, "gen": gen, "about": about, "claims": cl, "val": val, "cq": cq,
                "up": [[p_, l1, l2] for p_, (l1, l2) in ups.items()]}
         if it["type"] in ("Paper", "Journals"):
             deb = [k for k, a in enumerate(it["authors"])

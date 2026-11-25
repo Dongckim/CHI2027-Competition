@@ -62,7 +62,7 @@ export const P = { JUDGE_N: 40, POOL: 200, SIZE: 7, MAX_READ: 2, GAP_MIN: 5, CAL
                    THEME_COS: 0.45, CLOSE_COS: 0.50,
                    MATCH: 0.70, STRICT: 0.80, COS_LO: 0.45, COS_HI: 0.80, CLAIM_W: 0.95, GEN_W: 0.95, ABOUT_W: 0.9, UP_W1: 0.8, UP_W2: 0.75,
                    NEAR_SCORE: 1.5, NEAR_TOP: 5, NEAR_CONF: 0.2, TOPIC_CONF: 0.1, COST: true, COST_TOP: 15,
-                   MINE_K: 8, MINE_Q: 3 };
+                   MINE_K: 8, MINE_Q: 3, BALANCE: true, SUGGEST_K: 3, CARDQ_COS: 0.75, CARDQ_X: 0.40 };
 
 const set = (s) => new Set(s.split(/\s+/).filter(Boolean));
 // what X going wrong is called: such a factor is X failing, not X ("subtitle errors")
@@ -455,6 +455,7 @@ export class Angles {
                          gen: new Map((rec.gen || []).map((g) => [g[0], g[1]])),
                          claims: new Map((rec.claims || []).map((c) => [c[0], [c[1], c[2]]])),
                          val: new Map((rec.val || []).map((v) => [v[0], [v[1], v[2]]])),
+                         cq: rec.cq || [],
                          up: new Map((rec.up || []).map((u) => [u[0], [u[1], u[2]]])),
                          about: { f: about[0], o: about[1], p: about[2] },
                          debut: new Set(rec.debut || []), first_debut: Boolean(rec.first_debut) });
@@ -577,6 +578,13 @@ export class Angles {
     q.Y = q.kind === "relation" ? await this._phrase(q.y) : null;
     q.C = q.ctx ? await this._phrase(q.ctx) : null;
     if (q.kind === "relation" && q.X === null) q.kind = "topic";
+    {
+      const e = await this.arc._embed(fixed);
+      let s = 0;
+      for (const x of e) s += x * x;
+      const nrm = Math.max(Math.sqrt(s), 1e-9);
+      q.V = Float64Array.from(e, (x) => x / nrm);
+    }
     if (q.kind === "relation" && close) q.close = await this._close(q.text);
     return q;
   }
@@ -587,6 +595,39 @@ export class Angles {
 
   // -- one talk's angle -------------------------------------------------------
   judge(i, q) {
+    const v = this._judgeCards(i, q);
+    if ((v !== null && (v.angle === "support" || v.angle === "challenge")) || q.Y === null || !this.info.get(i)) return v;
+    return this._judgeQuestions(i, q) || v;
+  }
+
+  // +1 the question wants its Y up, -1 down (a bad Y flips it), 0 no direction
+  _lean(q) {
+    const Y = q.Y;
+    const bad = Y.toks.some((w) => NEG_OUTCOME.has(w)) !== Y.neg;
+    return ({ "+": 1, "-": -1 }[q.dir] || 0) * (bad ? -1 : 1);
+  }
+
+  // a Support from the questions the talk's results answer (angles.json "cq")
+  _judgeQuestions(i, q) {
+    const info = this.info.get(i);
+    const absset = this._absset(i);
+    const lean = this._lean(q);
+    for (const [k, qp, xp, yp, g] of info.cq) {
+      if (lean && g && lean !== g) continue;
+      let cos = 0;
+      const o = qp * this.D;
+      for (let t = 0; t < this.D; t++) cos += q.V[t] * this.pvec[o + t];
+      if (cos < P.CARDQ_COS) continue;
+      const my = this._pm(q.Y, yp, absset);
+      if (my >= P.MATCH && this._pm(q.X, xp, absset) >= P.CARDQ_X) {
+        const sub = NO_FINDINGS.has(this.items[i].type) ? "try" : "evidence";
+        return { angle: "support", subtype: sub, conf: pyRound(0.7 * my, 3), card: k, caveat: null };
+      }
+    }
+    return null;
+  }
+
+  _judgeCards(i, q) {
     const info = this.info.get(i);
     const typ = this.items[i].type;
     const absset = this._absset(i);
@@ -914,7 +955,7 @@ export class Angles {
     if (q.kind === "relation") return [q, null];
     const types = this._types(this._formats(req));
     const [, pool, score] = await this._judged(q, types);
-    const sug = await this._suggest(q, pool, score, types, 1);
+    const sug = await this._suggest(q, pool, score, types, P.SUGGEST_K);
     if (!sug.length) throw new InputError('could not find a question in this topic; try a question like "Does X raise Y?"');
     return [await this.question(sug[0].question), q.text];
   }
@@ -1013,7 +1054,7 @@ export class Angles {
       for (const [x, y, e, items] of await this._anchored(q, pool, score)) {
         const text = this._wording(x, y, e);
         if (out.every((o) => o.question !== text)) out.push(await this._suggestion(text, x, y, items, types));
-        if (out.length === k) return out;
+        if (out.length === k) return this._balanced(out, q);
       }
     }
     for (const [, key] of ranked) {
@@ -1029,7 +1070,17 @@ export class Angles {
       for (const i of g.items) usedI.add(i);
       if (out.length === k) break;
     }
-    return out;
+    return this._balanced(out, q);
+  }
+
+  // the sharper question whose Arc holds the most of the three angles comes first (team
+  // 11/25: aim for "2 support · 2 reframe · 1 challenge"), among those that keep a word of
+  // the typed topic when any does; ties keep their order
+  _balanced(out, q) {
+    if (!P.BALANCE) return out;
+    const qt = q.kind !== "relation" ? content(q.x)[0] : [];
+    const keeps = (o) => qt.some((w) => content(o.question)[0].some((t) => same(w, t)));
+    return sortedBy(out, (o) => [keeps(o) ? 0 : 1, -ANGLES.filter((a) => o.counts[a] > 0).length]);
   }
 
   // a question from a factor, an outcome and the directions the talks found

@@ -185,3 +185,17 @@
 
 - 11-25의 ⊣ 10개를 읽어 봄: 맞음 6(예: 불확실성 시각화 정확도 +24%·시간 +76%, 휴머노이드 햅틱 몰입↑·편안함 비용), 애매 2, 틀림 2("presence" 질문에 폰 과부하 논문, 같은 것이 두 번).
 - 주제 질문의 ↑ 감소는 판정이 아니라 좁히기 탓: 같은 주제를 방향 있는 질문으로 쓰면 세 모델이 같다. 잃은 ↑는 대부분 맞는 것이었다(haptic feedback for VR 3 → 0: FTV·RoboHaptics·HumanoidTurk). 원준에게(wonjune.md 3).
+
+## 모델 `model-2026-11-25b` (2026-11-25, #94 갱신)
+11-25를 머지한 뒤 원준이 #94에 11-25b를 올렸다("more Supports from the questions results answer, balanced topic Arcs"). sha256 686affea…(PR 값과 같음), 23.9 MB.
+
+| 같은 앱 어댑터, ↑ / ↻ / ⊣ 합 | 11-25 | 11-25b |
+|---|---|---|
+| 우리 질문 14개 (↑ 있는 Arc · ⊣ 있는 Arc) | 5 / 91 / 0 (3 · 0) | 16 / 78 / 2 (10 · 2) |
+| 원준 질문 38개 (↑ Arc · ⊣ Arc) | 27 / 226 / 10 (14 · 8) | 30 / 220 / 13 (16 · 10) |
+| 시작 질문 후보 54개 (↑ Arc · ⊣ Arc) | 37 / 320 / 20 (20 · 16) | 39 / 318 / 20 (21 · 16) |
+
+- 주제 질문에서 Support가 돌아왔다(mental health apps 0 → 2, haptic feedback for VR 0 → 2, "What is accessibility research asking now?" 0 → 2).
+- 222623(목표 문장)의 Reframe 종류가 factor → subject. 테스트는 "Challenge가 아닌 Reframe"만 확인하게 바꿨다.
+- 검사: 모델 있는 상태 `npm test` 174/174, ondevice 빌드 create-check 16/16, setup-check 5/5.
+- 판정: 통과. 배포는 Vercel `MODEL_URL`·`MODEL_SHA256`을 11-25b 값으로 바꾼 뒤.
