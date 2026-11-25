@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { buildIndex, buildArc, angleTopics, suggest, labelOf, classify, candidates, tribesOf, expandQuery, CAPS } from '../../app/src/engine/mock-core.js';
+import { buildIndex, buildArc, angleTopics, suggest, judge, wildcard, labelOf, classify, candidates, tribesOf, expandQuery, CAPS } from '../../app/src/engine/mock-core.js';
 import { arcRuleErrors } from '../../contracts/check.mjs';
 import { buildCorpus } from './corpus.mjs';
 
@@ -63,7 +63,26 @@ test('filters and 08 topics: session ids, and topicIds keep only those sessions'
   assert.equal(buildArc(i, 'presence in VR', { angles: ['S', 'R', 'T'], days: [], types: ['Posters'] }, { id: 'arc-test-1', createdAt: 0 }).nodes.length, 0);
 });
 
+test('15 search judge: each key under the angle suggest() would give it, null when not about the question, in key order', () => {
+  const index = tiny(), q = 'presence in VR';
+  const sorted = classify(index, q, candidates(index, q));
+  const angleOf = k => ['S', 'R', 'T'].find(a => sorted[a].some(n => n.key === k)) ?? null;
+  const keys = ['chi2026:4', 'chi2026:1', 'chi2026:3', 'chi2025:1'];
+  const out = judge(index, q, keys);
+  keys.forEach((k, i) => { if (angleOf(k)) assert.equal(out[i]?.angle, angleOf(k), k); });
+  assert.equal(out[0], null, 'Unrelated is not about the question');
+  assert.equal(out[3], null, 'another edition');
+  assert.ok(out.some(Boolean), 'at least one talk is judged');
+});
+
 const corpus = buildCorpus();
+test('chi2026 judge: a talk Wildcard offers is never "not about your question"', { skip: !corpus && 'data/build/chi2026 not built' }, () => {
+  const index = buildIndex(corpus);
+  for (const q of ['haptic feedback', 'Does VR fidelity raise presence?']) {
+    const keys = wildcard(index, q, [], 8).map(n => n.key);
+    assert.ok(keys.length && judge(index, q, keys).every(Boolean), q);
+  }
+});
 test('chi2026: Arcs for 5 questions pass the schema and the evidence rules; suggest skips what is there', { skip: !corpus && 'data/build/chi2026 not built' }, () => {
   const i = buildIndex(corpus);
   const validate = new Ajv2020({ strict: true }).compile(JSON.parse(readFileSync(new URL('../../contracts/Arc.schema.json', import.meta.url))));
