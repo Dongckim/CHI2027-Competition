@@ -247,14 +247,18 @@ export function suggest(index, query, angle, excludeKeys, limit = 5) {
 }
 
 /**
- * 15 search: each key's angle as suggest() sorts the question's pool, null when the pool leaves it out (not about the
- * question). Same order as keys.
+ * 15 search: each key's angle as suggest() sorts the question's pool; else a Reframe as wildcard() gives one (score ≥ 0.15,
+ * so a talk Wildcard offers is never blocked here); else null (not about the question). Same order as keys.
  */
 export function judge(index, query, keys) {
   const groups = classify(index, query, candidates(index, query, { limit: POOL * 2 }));
   const byKey = new Map(['S', 'R', 'T'].flatMap(a => groups[a].map(n => [n.key, n])));
-  return keys.map(k => byKey.get(k) ?? null);
+  const score = new Map(candidates(index, query, { limit: index.base.N }).map(c => [c.paper.key, c.score]));
+  return keys.map(k => byKey.get(k) ?? (score.get(k) >= 0.15 ? wildNode(index, query, index.byKey.get(k)) : null));
 }
+
+const wildNode = (index, query, p) => ({ key: p.key, angle: 'R', label: labelOf(p.title),
+  evidence: evidenceOf(p.abstract, bestSentence(p.abstract, [...new Set(terms(expandQuery(query)))])), debut: index.debut.has(p.authors[0]) });
 
 /**
  * 15 Wildcard: talks that share a word with the question but sit well below the Arc (score 0.15–0.35 of the top 3),
@@ -263,11 +267,9 @@ export function judge(index, query, keys) {
  */
 export function wildcard(index, query, excludeKeys, limit = 5) {
   const exclude = new Set(excludeKeys);
-  const q = [...new Set(terms(expandQuery(query)))];
   const band = candidates(index, query, { limit: index.base.N }).filter(c => c.score >= 0.15 && c.score < 0.35 && !exclude.has(c.paper.key));
   const step = Math.max(1, Math.floor(band.length / limit));
-  return band.filter((_, i) => i % step === 0).slice(0, limit).map(({ paper: p }) =>
-    ({ key: p.key, angle: 'R', label: labelOf(p.title), evidence: evidenceOf(p.abstract, bestSentence(p.abstract, q)), debut: index.debut.has(p.authors[0]) }));
+  return band.filter((_, i) => i % step === 0).slice(0, limit).map(({ paper: p }) => wildNode(index, query, p));
 }
 
 /**

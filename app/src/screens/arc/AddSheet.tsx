@@ -37,6 +37,7 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
       // user 11/25 「A로 하고」: a found talk goes where the engine puts it for this question, never simply the target angle;
       // one it finds not about the question is shown but cannot be added
       const hits = searchTalks(data.index, query).filter(h => !exclude.includes(h.key)).slice(0, 10);
+      if (!hits.length) { setCards([]); return; }
       const timer = setTimeout(() => {
         e.judge(arcQuery, hits.map(h => h.key)).then(l => live && setCards(hits.map((h, i) => l[i] ?? off(h.key, labelOf(paper(h.key)?.title ?? h.key)))),
           () => { if (live) { setCards([]); setFailed(true); } });
