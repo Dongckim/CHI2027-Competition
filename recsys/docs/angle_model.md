@@ -179,6 +179,26 @@ holdout(튜닝에 안 쓴 32문항): Challenge 정답 3개 가운데 2개를 찾
 
 **JS 버그.** 초록에 "𝑛" 같은 확장 문자가 있으면(15개 초록) JS가 문자 위치를 UTF-16 단위로 세어 근거 문장이 한 글자씩 밀렸다. 이제 Python처럼 문자(code point) 단위로 자른다. `start`, `end`, `highlight`도 code point 기준이다.
 
+## Support 재현율과 주제어 Arc의 균형 (11/25 오후)
+
+**결과가 답하는 질문.** 놓친 Support는 대부분 질문은 종류("generative AI")로 묻고 결과는 그 한 사례("EarlyArchi")를 말하는 경우였다. 둘이 같은 것이라는 지식은 LLM에 있지만 LLM은 사용자 질문을 볼 수 없다. 그래서 거꾸로, Qwen3-14B가 방향 있는 결과 카드마다 그 결과가 "예"라고 답하는 참석자 질문을 좁은 것부터 넓은 것까지 3개까지 써 둔다(`scripts/gen_card_questions.py`, 1,627개 발표, GPU 4개 약 11분). 시스템 이름은 종류로 바꿔 쓴다(MindfulAgents는 "multi-agent system", Forage는 "LLM-facilitated search tools"). 폰은 카드로 Support·Challenge가 나오지 않은 발표에서, 사용자 질문과 이 질문들의 cosine이 0.75 이상이고, Y가 MATCH(0.70) 이상, X가 0.40 이상, 방향이 같으면 Support로 둔다. 질문 문장, 그 X·Y는 기존 phrase 표에 들어가서 새 파일은 없다(phrase_vec 9.6 MB에서 12.7 MB).
+
+| 48개 질문 720쌍 | Support precision | Support recall |
+|---|---|---|
+| 전 | 0.65 (17개 중 11개) | 0.19 (57개 중 11개) |
+| 결과가 답하는 질문 | 0.70 (23개 중 16개) | 0.28 (57개 중 16개) |
+
+질문 cosine만 보면 recall은 더 오르지만(test 0.29), "캡션이 소통을 돕나"에 "캡션이 음악 감상을 돕는다"처럼 X나 Y 한쪽이 다른 것이 섞여 test precision이 0.38까지 떨어졌다. X·Y를 따로 확인하니 막혔다. holdout 32문항은 26개 중 1개로 그대로다. "No"라고 답하는 질문(효과 없음)도 함께 만들었지만 Challenge에는 아직 쓰지 않는다.
+
+**팀원 제안(11/25) 가운데 넣은 것.** 주제어로 만든 Arc는 더 좁은 질문 후보 3개 중 세 각도가 가장 많이 채워지는 질문으로 만든다(주제어의 단어를 지키는 후보가 있으면 그중에서). 세부 클러스터 이름 98개를 주제어로 넣어 재면 다음과 같다.
+
+| 주제어 98개의 Arc | Challenge 있음 | Support 있음 | 각도 2종류 이상 |
+|---|---|---|---|
+| 전 | 9% | 55% | 56% |
+| 지금 | 20% | 77% | 78% |
+
+좁힌 질문이 어색한 경우("Does locomotion intention improve sensory conflict?")는 전에도 있었고 균형 선택으로 다른 어색한 질문이 고를 때가 있다. 방향 없는 질문을 줄이려 "효과 없음" 카드가 많아도 방향을 붙이는 방법은 주제어의 단어로 만드는 경로가 먼저 쓰여서 바뀐 것이 없어 넣지 않았다. 방법 문장("We assessed …, measured …, analyzed …")이 결과로 남던 것(230223)은 aim이 되게 고쳤다(결과에서 106개가 더 빠졌다).
+
 ## 다시 만들기
 
 ```bash
@@ -187,10 +207,11 @@ python scripts/build_angles.py                         # 원문 확인, offsets,
 sbatch scripts/gen_concepts.slurm                      # 일반어 (약 15분)
 CHI_TASK=claims sbatch scripts/gen_concepts.slurm      # 질문 말투 claim (약 12분)
 sbatch scripts/gen_valence.slurm                       # 결과가 좋아졌나 나빠졌나 (GPU 4개 약 4분)
+sbatch scripts/gen_card_questions.slurm                # 결과가 답하는 질문 (GPU 4개 약 11분, valence 다음)
 python scripts/build_angles.py                         # 일반어까지 합쳐 다시
 python scripts/eval_angles.py                          # docs/angle_eval.json (--sweep: 임계값 탐색)
 sbatch scripts/compare_llm.slurm && python scripts/compare_llm_report.py   # 일반 LLM과 비교 (GPU 7개 약 15분)
 python scripts/package_model.py
 python tests/run_angle_cases.py                        # 40개 사례
-python tests/web_reference.py && node tests/run_web_parity.mjs   # JavaScript가 Python과 같은지 (253개)
+python tests/web_reference.py && node tests/run_web_parity.mjs   # JavaScript가 Python과 같은지 (259개)
 ```
