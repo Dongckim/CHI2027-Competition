@@ -105,7 +105,8 @@ test('Arcs from the on-device engine pass Arc 0.2.0 and its rules', { skip: !hav
   }
   // 11/21: 222623's Challenge quoted its aim ("This study investigated how …"); model 2026-11-22 calls it a Reframe (factor) itself
   const aim = toNode(await eng.handle({ screen: 'node', question: 'haptic feedback for VR', id: 222623 }), 'chi2026', abstractOf);
-  assert.deepEqual([aim.angle, aim.kind], ['R', 'factor']);
+  assert.equal(aim.angle, 'R'); // a goal sentence is never a Challenge; its kind is the model's call (11-22 factor, 11-25b subject)
+  assert.ok(['factor', 'subject'].includes(aim.kind), aim.kind);
   const n = await eng.handle({ screen: 'node', question: 'Does VR fidelity raise presence?', id: 222304 });
   const node = toNode(n, 'chi2026', abstractOf);
   node.evidence = onOurAbstract(node.evidence, papers.get(node.key).abstract);
