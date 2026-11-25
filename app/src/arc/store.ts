@@ -41,6 +41,7 @@ export async function loadArcs(): Promise<Arc[]> {
   const stored = (await tx<Arc[]>('readonly', s => s.getAll() as IDBRequest<Arc[]>)) ?? [];
   memory = new Map([...stored, ...memory.values()].map(a => [a.id, a]));
   changed();
+  if (list!.length) keepOnPhone();
   return list!;
 }
 
@@ -49,6 +50,7 @@ export async function saveArc(arc: Arc) {
   memory.set(arc.id, arc);
   changed();
   await tx('readwrite', s => s.put(arc));
+  keepOnPhone();
 }
 
 export async function deleteArc(id: string) {
@@ -56,6 +58,16 @@ export async function deleteArc(id: string) {
   memory.delete(id);
   changed();
   await tx('readwrite', s => s.delete(id));
+}
+
+// Ask the browser to keep this site's data when the phone runs short of space (user 11/25 「하루 지나면 페이지가 사라지는데
+// … 한 일주일 정도 데이터가 핸드폰에 저장」). Once there is an Arc to keep; the browser decides (Safari grants it more readily
+// to a Home Screen app). Best effort: no prompt in Safari or Chrome, nothing when the API is missing.
+let asked = false;
+function keepOnPhone() {
+  if (asked || typeof navigator === 'undefined' || !navigator.storage?.persist) return;
+  asked = true;
+  navigator.storage.persisted().then(p => (p ? true : navigator.storage.persist())).catch(() => {});
 }
 
 export const getArc = async (id: string) => (await loadArcs()).find(a => a.id === id) ?? null;
