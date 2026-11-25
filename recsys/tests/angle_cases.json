@@ -925,5 +925,114 @@
    "questions": [],
    "new": "Does it work outside?"
   }
+ },
+ {
+  "id": "arc_cost_0",
+  "input": {
+   "screen": "arc",
+   "question": "Does self-tracking increase physical activity?",
+   "when": "week"
+  }
+ },
+ {
+  "id": "arc_cost_1",
+  "input": {
+   "screen": "arc",
+   "question": "Do visualizations help people understand uncertainty?",
+   "when": "week"
+  }
+ },
+ {
+  "id": "arc_cost_2",
+  "input": {
+   "screen": "arc",
+   "question": "Do AI explanations increase user trust?",
+   "when": "week"
+  }
+ },
+ {
+  "id": "arc_cost_fault",
+  "input": {
+   "screen": "arc",
+   "question": "Do dark patterns increase consent to tracking?",
+   "when": "week"
+  }
+ },
+ {
+  "id": "ask_happier",
+  "input": {
+   "screen": "ask",
+   "text": "Do creativity support tools make people happier?"
+  }
+ },
+ {
+  "id": "ask_explainability",
+  "input": {
+   "screen": "ask",
+   "text": "Does explainability increase trust?"
+  }
+ },
+ {
+  "id": "mine_name",
+  "input": {
+   "screen": "mine",
+   "name": "metatla"
+  }
+ },
+ {
+  "id": "mine_name_accent",
+  "input": {
+   "screen": "mine",
+   "name": "Müller"
+  }
+ },
+ {
+  "id": "mine_name_many",
+  "input": {
+   "screen": "mine",
+   "name": "yang"
+  }
+ },
+ {
+  "id": "mine_paper",
+  "input": {
+   "screen": "mine",
+   "paper": 222357
+  }
+ },
+ {
+  "id": "mine_paper_assoc",
+  "input": {
+   "screen": "mine",
+   "paper": 222107
+  }
+ },
+ {
+  "id": "mine_arc",
+  "input": {
+   "screen": "arc",
+   "question": "How does surface texture features affect affective responses?",
+   "mine": [
+    214823,
+    222020,
+    222107,
+    222357
+   ],
+   "when": "week"
+  }
+ },
+ {
+  "id": "mine_bad_name",
+  "input": {
+   "screen": "mine",
+   "name": "a"
+  }
+ },
+ {
+  "id": "mine_bad_paper",
+  "input": {
+   "screen": "mine",
+   "paper": 1
+  }
  }
 ]

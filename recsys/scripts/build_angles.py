@@ -13,7 +13,11 @@ Checks made here, so a wrong LLM answer never reaches a screen:
     word for word (case, quotes, dashes and spaces aside); otherwise it is dropped,
     and a card without both factor and outcome is dropped;
   - the label is 1-4 words, else the title's first words are used;
-  - an item the LLM gave no tribe gets one from keyword rules (field words first, AI last).
+  - an item the LLM gave no tribe gets one from keyword rules (field words first, AI last);
+  - a card the LLM stored as a "result" must sit on a sentence that can carry the study's own
+    result: an aim or method ("This study investigated how ..."), a system the paper presents,
+    prior work, a gap in the literature or the abstract's opening sentence is stored as "aim",
+    "claim" or "prior" instead, so it never becomes a Challenge or an Evidence Support (11/22).
 
 Debut authors: names of 2026 paper authors not among the paper authors of CHI 2023-2025
 (programme data in data/raw/chi20xx.json, or CHI_PAST_DIR). Name match only.
@@ -33,12 +37,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src", "package"))
 import config  # noqa: E402
 from gen_findings import TRIBES, EFFECTS, STATUS, split_sentences  # noqa: E402
+from gen_valence import CHANGES  # noqa: E402
 from angles import NO_FINDINGS, content, lemma, stem  # noqa: E402
 
 PROC = os.path.join(config.ROOT, "data", "processed")
 PKG = os.path.join(config.ROOT, "dist", "chi2026-retriever")
 PAST_DIR = os.environ.get("CHI_PAST_DIR", os.path.join(config.ROOT, "data", "raw"))
-VERSION = os.environ.get("CHI_ANGLES_VERSION", "2026-11-17")
+VERSION = os.environ.get("CHI_ANGLES_VERSION", "2026-11-25")
 # directions the third pass may correct: a card stored without one ("associated")
 EFFECT_FIX = set(os.environ.get("CHI_EFFECT_FIX", "associated").split(","))
 
@@ -169,6 +174,52 @@ _DIR_WORDS = r"(?:increase[sd]?|decrease[sd]?|reduce[sd]?|reduction|improve[sd]?
              r"greater|enhanced|enhancement|associated|no[ _]effect|mixed|more|less)"
 
 
+# 11/22 (team: 222623's Challenge quoted "This study investigated how ..."): the LLM sometimes
+# stores the study's aim, method or setting as a "result". What a sentence can carry, by its words.
+_WE = r"(?:(?:this|our|the present|the current) (?:study|paper|work|research|article|project)|we|in this (?:paper|work|study),? we)"
+_AIM_V = (r"aim(?:s|ed)? to|set out to|seek(?:s)? to|sought to|investigat(?:e|es|ed)|examin(?:e|es|ed)|explor(?:e|es|ed)|"
+          r"stud(?:y|ies|ied)|conduct(?:s|ed)?|ran|recruit(?:s|ed)?|compar(?:e|es|ed)|evaluat(?:e|es|ed)|describ(?:e|es|ed)|"
+          r"report(?:s)? (?:a|an|on)|ask(?:s|ed)?|address(?:es|ed)?|contribut(?:e|es|ed)|use[sd]?|employ(?:s|ed)?|invite")
+_SYS_V = r"present(?:s|ed)?|propos(?:e|es|ed)|introduc(?:e|es|ed)|design(?:s|ed)?|develop(?:s|ed)?|buil[dt]s?|implement(?:s|ed)?"
+AIM_RE = re.compile(rf"\b{_WE}\s+(?:also\s+|first\s+|then\s+|further\s+)?(?:{_AIM_V})\b", re.I)
+SYS_RE = re.compile(rf"\b{_WE}\s+(?:also\s+|first\s+|then\s+|further\s+)?(?:{_SYS_V})\b"
+                    r"(?![^.]{0,40}\b(?:study|studies|analysis|investigation|survey|review|interviews?|experiment)\b)", re.I)
+METHOD_RE = re.compile(r"^(?:to (?:address|investigate|examine|explore|understand|answer|fill|bridge|study|evaluate|test)\b|"
+                       r"(?:through|via|using|in) (?:a|an|two|three|four|[\w-]+)\b[^,]{0,60}\b(?:study|studies|experiment|survey|"
+                       r"interviews?|workshops?|evaluation)\b[^,]*,\s*we (?!found|find|show|observ|reveal|demonstrat|identif|learn|"
+                       r"discover|uncover|saw|note)|an? (?:[\w-]+ ){0,5}(?:experiment|study|survey|evaluation|deployment)s? "
+                       r"(?:with|involving|of) (?:\d|n\s*=)[^.]*\b(?:tested|compared|examined|explored|was conducted)\b)", re.I)
+BACKGROUND_RE = re.compile(r"\b(?:prior|previous|past|existing|current|traditional) (?:work|works|studies|research|"
+                           r"approaches|systems|tools|methods|care|literature)\b", re.I)
+GAP_RE = re.compile(r"\b(?:lack of|little is known|remains? (?:limited|unclear|unexplored|underexplored|understudied)|"
+                    r"few (?:studies|works)|under-?explored|has not been)\b", re.I)
+RESULT_RE = re.compile(r"\b(?:found|find(?:s|ings?)?|results?|show(?:s|ed|n)?|reveal(?:s|ed)?|demonstrat(?:e|es|ed)|"
+                       r"indicat(?:e|es|ed)|suggest(?:s|ed)?|observ(?:e|es|ed)|identif(?:y|ies|ied)|uncover(?:s|ed)?|"
+                       r"significant(?:ly)?|outperform(?:s|ed)?|achiev(?:e|es|ed)|reported|preferred|led to|resulted in|"
+                       r"no (?:significant |clear )?(?:effect|difference)s?|did not|didn't|were (?:more|less|faster|slower)|"
+                       r"was (?:more|less|faster|slower)|p\s*[<=]|\d+(?:\.\d+)?\s*%)", re.I)
+OWN_RE = re.compile(r"\b(?:we (?:found|find|show|observ|reveal|demonstrat|identif)|we (?:did not|didn't|could not|do not) (?:find|observe|see|detect)|(?:our|the|these|study) (?:findings|results)"
+                    r"|(?:our|the|this) (?:study|analysis|evaluation) (?:also )?(?:show|reveal|suggest|indicat|demonstrat|found)"
+                    r"|results? (?:show|reveal|suggest|indicat|demonstrat))", re.I)
+
+
+def sentence_status(text, first=False):
+    """"result" when the sentence can carry the study's own result, else what it is instead."""
+    s = " ".join(text.split())
+    told = bool(RESULT_RE.search(s))
+    if (BACKGROUND_RE.search(s) or GAP_RE.search(s)) and not OWN_RE.search(s):
+        return "prior"
+    if told:
+        return "result"
+    if first:
+        return "prior"
+    if SYS_RE.search(s):
+        return "claim"
+    if AIM_RE.search(s) or METHOD_RE.search(s):
+        return "aim"
+    return "result"
+
+
 def clean_claim(p):
     """The LLM sometimes writes the direction into a claim ("spatial awareness, increase",
     "reduced stress"): keep only the thing itself."""
@@ -238,6 +289,10 @@ def main():
     for f in sorted(glob.glob(os.path.join(PROC, "results_raw", "shard_*.json"))):
         with open(f, encoding="utf-8") as fh:
             results.update(json.load(fh))
+    valence = {}
+    for f in sorted(glob.glob(os.path.join(PROC, "valence_raw", "shard_*.json"))):
+        with open(f, encoding="utf-8") as fh:
+            valence.update(json.load(fh))
     past, years = past_authors()
     print(f"findings for {len(raw)} items; past paper authors {len(past)} ({', '.join(years)})")
 
@@ -282,9 +337,14 @@ def main():
             # the sentence the card came from: the one holding the outcome
             sent = next(((a, b) for a, b in sents if a <= os_[0] < b), s or (0, len(ab)))
             ps = locate(ab, nab, idx, c["population"], sent) if c.get("population") else None
+            st = c["status"]
+            if st == "result":
+                st = sentence_status(ab[sent[0]:sent[1]], first=not ab[:sent[0]].strip())
+                if st != "result":
+                    stats[f"result_to_{st}"] += 1
             cards.append([pid(ab[fs[0]:fs[1]]), pid(ab[os_[0]:os_[1]]),
                           pid(ab[ps[0]:ps[1]]) if ps else -1,
-                          EFFECTS.index(c["effect"]), STATUS.index(c["status"]),
+                          EFFECTS.index(c["effect"]), STATUS.index(st),
                           sent[0], sent[1], fs[0], fs[1], os_[0], os_[1]])
             stats["cards_kept"] += 1
         # the third pass (scripts/gen_results.py): directions read again, results the
@@ -325,7 +385,10 @@ def main():
             if (f_, o_) in have:
                 continue
             have.add((f_, o_))
-            cards.append([f_, o_, -1, EFFECTS.index(m["effect"]), STATUS.index("result"),
+            st = sentence_status(ab[sent[0]:sent[1]], first=not ab[:sent[0]].strip())
+            if st != "result":
+                stats[f"more_result_to_{st}"] += 1
+            cards.append([f_, o_, -1, EFFECTS.index(m["effect"]), STATUS.index(st),
                           sent[0], sent[1], fs[0], fs[1], os_[0], os_[1]])
             add_up(f_, m.get("factor_up", []))
             add_up(o_, m.get("outcome_up", []))
@@ -358,9 +421,15 @@ def main():
             f_, o_ = clean_claim(f_), clean_claim(o_)
             if k < len(cards) and f_ and o_:
                 cl.append([k, pid(f_), pid(o_)])
+        # each result: better or worse for the people involved, and whether its factor is
+        # what the work tested or what it was compared with (gen_valence.py)
+        val = []
+        for k_, (chg, tested) in sorted(((int(k_), v) for k_, v in (valence.get(str(it["id"])) or {}).items())):
+            if k_ < len(cards) and STATUS[cards[k_][4]] == "result":
+                val.append([k_, CHANGES.index(chg), int(tested == "yes")])
         rec = {"label": short_label(src.get("label", ""), it["title"]),
                "contribution": src.get("contribution", ""), "tribe": TRIBE_IDX[tribe],
-               "cards": cards, "measures": meas, "gen": gen, "about": about, "claims": cl,
+               "cards": cards, "measures": meas, "gen": gen, "about": about, "claims": cl, "val": val,
                "up": [[p_, l1, l2] for p_, (l1, l2) in ups.items()]}
         if it["type"] in ("Paper", "Journals"):
             deb = [k for k, a in enumerate(it["authors"])

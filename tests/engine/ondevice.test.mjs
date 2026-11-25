@@ -103,9 +103,9 @@ test('Arcs from the on-device engine pass Arc 0.2.0 and its rules', { skip: !hav
       if (!angles.includes('T')) assert.equal(arc.tension, 'off');
     }
   }
-  // 11/21: 222623's Challenge quoted its aim ("This study investigated how …"); it is a Reframe now
+  // 11/21: 222623's Challenge quoted its aim ("This study investigated how …"); model 2026-11-22 calls it a Reframe (factor) itself
   const aim = toNode(await eng.handle({ screen: 'node', question: 'haptic feedback for VR', id: 222623 }), 'chi2026', abstractOf);
-  assert.deepEqual([aim.angle, aim.kind], ['R', 'subject']);
+  assert.deepEqual([aim.angle, aim.kind], ['R', 'factor']);
   const n = await eng.handle({ screen: 'node', question: 'Does VR fidelity raise presence?', id: 222304 });
   const node = toNode(n, 'chi2026', abstractOf);
   node.evidence = onOurAbstract(node.evidence, papers.get(node.key).abstract);

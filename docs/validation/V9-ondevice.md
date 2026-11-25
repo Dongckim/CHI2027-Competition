@@ -137,3 +137,51 @@
 - Reframe 종류를 Arc 0.2.0 `kind`로 12·13·14에 표시한다.
 - 07b는 원준 조합 문장이다. 문법이 깨진 것(`brokenQuestion`)은 빼고, 남는 게 없으면 실제 제목 질문을 쓴다. 카드에 "Suggested"를 붙였다.
 - 배포 빌드의 기본 엔진을 ondevice로 바꿨다. 모델은 01부터 받고, 10은 다 받을 때까지 "Sorting angles… N%"를 보여 준다. 오프라인이거나 30초 동안 진행이 없으면 연결 안내를 띄운다(`tests/arc/setup-check.mjs` 5/5).
+
+## 새 모델 `model-2026-11-22` (2026-11-22, PR #80)
+사용자 「새모델로 다시붙여서 테스팅 해줄래?」. 같은 앱 코드에 모델만 바꿔 같은 질문 14개를 WebKit(iPhone 14 프로필, Mac)으로 돌렸다.
+
+| | 11-21 모델 | 11-22 모델 |
+|---|---|---|
+| ↑ Supports 합 (14개 질문) | 10 | 7 |
+| ⊣ Challenges 합 | 1 (mental health apps) | 0 |
+| 종족: indoor navigation / smart home privacy / Robotics | Accessibility / Society / Health (`tribeOf`) | 같음, 이제 `arc`·`edit`·`shared`도 입력한 말로 정함 |
+| 계약·규칙 오류 | 0 | 0 |
+| 첫 로드 | 706 ms | 731 ms |
+| 07b 문법 필터에 걸린 문장 (주제 8개) | 0/24 | 0/24 |
+
+- 222623(목표 문장)은 엔진이 직접 Reframe(factor)으로 낸다. 테스트 기대값을 subject → factor로 바꿨다.
+- 시각 2시간은 그대로다(`engineNow` 유지, 테스트가 확인).
+- 빠진 Challenge: 230223 "Overall, the human counselor condition received higher trust ratings, …"(진짜 결과 문장). 11-22 모델은 이 발표에 방법 문장 "We assessed changes in subjective distress …"를 `result`/`no_effect`로 붙였다. 원준에게 보냄(docs/handoff/wonjune.md 2–3).
+- 검사: `npm test` 172/172, `tests/arc/setup-check.mjs` 5/5, ondevice 빌드 create-check 15/15, qa:auto 16/16.
+- 판정: 조건부 통과. 계약·화면은 문제없고 종족·목표 문장은 나아졌지만, Challenge가 14개 질문에서 0개다.
+
+## 새 모델 `model-2026-11-25` (2026-11-25, PR #94)
+사용자 「지금 PR 에 모델 더 좋은거로 올라와있다는데 확인해주고 구현해줘」. #94는 #80을 포함한다. 패키지 22.3 MB, 117개 파일, sha256 83a3dedc…(PR 값과 같음), 버전 `2026-11-25`.
+
+| | 11-22 모델 | 11-25 모델 |
+|---|---|---|
+| 우리 질문 14개: ↑ / ⊣ 합 (WebKit, iPhone 14 프로필) | 7 / 0 | 5 / 0 |
+| 원준 테스트 질문 38개(angle_cases): 엔진 ⊣ → 앱 지도 ⊣ | — | 10 → 10 (Arc 8개) |
+| 계약·규칙 오류 | 0 | 0 |
+| 첫 로드 | 731 ms | 794 ms |
+
+- Challenge는 "Does X raise Y?"처럼 방향 있는 질문에서만 나온다. 우리 14개는 대부분 주제("mental health apps", "VR")라 0개다. 앱이 걸러 낸 것은 없다(엔진 10 = 지도 10, `resultQuote` 강등 0).
+- 새 Challenge subtype `cost`(Trade-off): Arc 계약의 `kind`는 Reframe만이라 앱에서는 보통 Challenge로 보인다. 계약 변경 없음.
+- ondevice 엔진의 노드 짧은 이름(label)은 제목 앞부분이 아니다("Interaction Fidelity" ← "When Hands Meet Physics …"). create-check가 노드 설명(전체 제목)으로 14를 확인하게 바꿨다.
+- 시각 2시간은 그대로(`engineNow` 유지).
+- 검사: `npm test` 172/172, setup-check 5/5, ondevice 빌드 create-check 16/16.
+- 판정: 조건부 통과. 방향 있는 질문에서는 Challenge가 나온다. 주제만 적은 질문은 여전히 0개라 화면 23이 자주 나온다.
+
+### 세 모델 비교 (2026-11-25, 사용자 「이 모델로 테스트 해볼래 이전에 비해서 어때?」)
+같은 질문을 모델마다 그 버전의 엔진 코드로(Node, 같은 앱 어댑터·계약 검사).
+
+| | 11-21 (지금 배포) | 11-22 | 11-25 |
+|---|---|---|---|
+| 우리 질문 14개: ↑ / ⊣ (↑ 있는 Arc) | 10 / 1 (7) | 7 / 0 (5) | 5 / 0 (3) |
+| 원준 질문 38개: ↑ / ⊣ (⊣ 있는 Arc) | 29 / 1 (1) | 28 / 1 (1) | 27 / 10 (8) |
+| 방향 있는 질문 6개(우리 주제를 "Does X improve Y?"로): ↑ / ⊣ | 7 / 0 | 7 / 0 | 7 / 0 |
+| 계약 오류 · 중간 계산 시간 | 0 · 45 ms | 0 · 46 ms | 0 · 54 ms |
+
+- 11-25의 ⊣ 10개를 읽어 봄: 맞음 6(예: 불확실성 시각화 정확도 +24%·시간 +76%, 휴머노이드 햅틱 몰입↑·편안함 비용), 애매 2, 틀림 2("presence" 질문에 폰 과부하 논문, 같은 것이 두 번).
+- 주제 질문의 ↑ 감소는 판정이 아니라 좁히기 탓: 같은 주제를 방향 있는 질문으로 쓰면 세 모델이 같다. 잃은 ↑는 대부분 맞는 것이었다(haptic feedback for VR 3 → 0: FTV·RoboHaptics·HumanoidTurk). 원준에게(wonjune.md 3).

@@ -78,16 +78,16 @@ ARC is an independent competition entry. It is not affiliated with or endorsed b
 
 ### Models and licences (on-device engine)
 
-From `recsys/README.md` (Wonjune Lee, 11/21). Only the first two ship to the phone, as files derived from them; the LLMs run at build time and are not in the app.
+From `recsys/README.md` (Wonjune Lee, 11/22, model `model-2026-11-22`). Only the first two ship to the phone, as files derived from them; the LLMs run at build time and are not in the app.
 
 | Model | Role | Ships in the app | Licence |
 |---|---|---|---|
 | `BAAI/bge-m3` (fine-tuned) | teacher encoder: talk vectors, distilled into the phone encoder | as derived vectors and encoder | MIT |
 | `BAAI/bge-small-en-v1.5` | phone encoder's tokenizer and starting point | yes (`tokenizer.json`, static encoder) | MIT |
-| Wonjune Lee's static encoder (`static_*.npy`, `encoder.json`) and finding cards (`angles.json`) | question encoder and angle data | yes | **to be confirmed by Wonjune** (derived from the two above and from CC BY-NC-SA programme data) |
+| Wonjune Lee's static encoder (`static_*.npy`, `encoder.json`) and finding cards (`angles.json`) | question encoder and angle data | yes | encoder (`encoder.json`, `static_*.npy`, `config.json`): MIT, distilled from the fine-tuned bge-m3. Cards (`angles.json`, `phrase_*.npy`, `summaries.json`, `expansions.json`, `clusters.json`): CC BY-NC-SA 4.0, quoted from the abstracts |
 | `Qwen/Qwen3-14B` | build time only: finding cards, plain-word names | no | Apache 2.0 |
 | `Qwen/Qwen2.5-7B-Instruct` | build time only: synthetic queries, summaries, 14 seed questions (not shown in the app) | no | Apache 2.0 |
-| `@huggingface/tokenizers` build (`recsys/src/web/vendor/tokenizers.min.mjs`) | tokenizer in the browser | yes | **to be confirmed by Wonjune** (no licence notice in the file) |
+| `@huggingface/tokenizers` build (`recsys/src/web/vendor/tokenizers.min.mjs`) | tokenizer in the browser | yes | Apache 2.0 (npm `@huggingface/tokenizers`, unchanged) |
 
 ## Repository
 
