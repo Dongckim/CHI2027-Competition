@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react';
 import { go, href } from '../../router';
 import { useDevice, update } from '../../state/useDevice';
-import { arcOf, buildOptions, whenChoice, resetDraft, walkOf } from '../../arc/draft.js';
+import { arcOf, buildOptions, whenChoice, walkOf } from '../../arc/draft.js';
 import { engine } from '../../engine';
 import { saveArc } from '../../arc/store';
 import { loadSchedule } from '../../data/load';
@@ -67,7 +67,6 @@ export function Building() {
       await saveArc(arc);
       await new Promise(r => setTimeout(r, Math.max(0, MIN_MS - (Date.now() - started))));
       if (!live) return;
-      update(resetDraft);
       go(`hood/${arc.id}`, { replace: true }); // back from 11 does not build again
     }, () => { if (live) setFailed(true); });
     return () => { live = false; };

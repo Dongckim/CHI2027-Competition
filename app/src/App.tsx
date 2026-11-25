@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { Component, lazy, Suspense, useEffect, type ReactNode } from 'react';
 import { useRoute, go } from './router';
 import { useDevice } from './state/useDevice';
 import { arcOf } from './arc/draft.js';
@@ -29,6 +29,24 @@ const Legacy = named(() => import('./legacy/Legacy'), 'Legacy');
 const TITLES: Record<string, string> = { start: 'Welcome', ask: 'Ask', angles: 'Choose your angles', when: 'When and what', building: 'Building your Arc',
   hood: 'Your neighborhood', home: 'My Arcs', arc: 'My Arc', talk: 'Talk', share: 'Share', qr: 'QR code', r: 'Shared Arc', after: 'Your CHI' };
 
+// A screen's code that could not be fetched (offline before that screen was ever saved, or a deploy replaced it): say so
+// and offer a way on, instead of a blank page (persona review 11/25, WebKit offline)
+class ScreenGuard extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <main className="flex min-h-dvh flex-col justify-center gap-4 bg-arc-bg px-6 text-arc-text" role="alert">
+        <h1 className="text-[22px] leading-7 font-semibold">This screen isn't on your phone yet</h1>
+        <p className="text-[16px] text-arc-text-2">Connect to the internet once and try again. Your Arcs are safe on this phone.</p>
+        <button type="button" onClick={() => location.reload()} className="h-[54px] rounded-full bg-arc-primary text-[16px] font-semibold text-arc-on-primary">Try again</button>
+        <a href="#/home" className="flex h-[54px] items-center justify-center rounded-full border border-arc-line text-[16px] font-semibold">My Arcs</a>
+      </main>
+    );
+  }
+}
+
 export function App() {
   const route = useRoute();
   const state = useDevice();
@@ -57,5 +75,5 @@ export function App() {
       default: return <Legacy />;
     }
   })();
-  return <Suspense fallback={<div className="min-h-dvh bg-arc-bg" />}>{screen}</Suspense>;
+  return <ScreenGuard key={route}><Suspense fallback={<div className="min-h-dvh bg-arc-bg" />}>{screen}</Suspense></ScreenGuard>;
 }

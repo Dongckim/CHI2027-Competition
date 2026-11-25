@@ -90,7 +90,7 @@ try {
     await tab.ev(`localStorage.setItem('arc.device', ${JSON.stringify(device(true))}); true`);
     await tab.ev(seedArcs(STORED));
     const bad = [], long = [], clear = [], gaps = [], overlaps = [];
-    for (const [name, hash, text] of [...SCREENS, ['12·1R', `#/arc/${ONE_R.id}`, 'Next ·']]) {
+    for (const [name, hash, text] of [...SCREENS, ['12·1R', `#/arc/${ONE_R.id}`, 'Share']]) {
       if (name === '12·1R') await tab.ev(seedArcs([ONE_R])); // after 20, so its list stays as the other checks see it
       await tab.send('Page.navigate', { url: `${server.base}?at=2026-04-14T12:00${name === '10' ? '&mock=slow' : ''}&s=${encodeURIComponent(name)}${hash}` });
       if (!(await tab.waitFor(`document.body.innerText.includes(${JSON.stringify(text)})`, 30000))) { bad.push({ screen: name, error: `did not show "${text}"` }); continue; }

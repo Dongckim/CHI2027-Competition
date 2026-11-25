@@ -11,7 +11,8 @@ import { REGISTRATION } from '../../venue/walk.js';
 import { nodeStates, type NodeState } from '../../arc/map.js';
 import { useNow } from '../../clock.js';
 import { venueClock } from '../../time.js';
-import { dateOf, clockOf, firstSlot } from '../../explore/format';
+import { dateOf, clockOf, firstSlot, weekdayOf } from '../../explore/format';
+import { localDay } from '../../planner/plan.js';
 import { useTribe, setCurrentArc } from '../../arc/live';
 import type { Arc } from '../../engine';
 import type { Info } from './ArcView';
@@ -20,6 +21,10 @@ type Slot = { start: number | null; end: number; roomKey: string; sessionKey: st
 type Paper = { title: string; feedType: string; slots: Slot[]; authors: string[]; doi: string | null };
 
 /** "P1 - Room 116" → "Rm 116" on the map (Figma), the poster area → "Posters"; other rooms as the programme names them. */
+/** The node's time line: "12:27 · Rm 113", with the weekday when the talk is not today ("Thu 12:27 · Rm 113"): the engine
+ *  may add a talk from another day to read (persona review 11/25: a "Today" Arc showed Thursday talks as if they were today). */
+export const whenLine = (start: number, room: string, tz: string, nowMs: number) =>
+  `${localDay(start, tz) !== localDay(nowMs, tz) ? `${weekdayOf(start, tz)} ` : ''}${venueClock(start, tz)}${room ? ` · ${shortRoom(room)}` : ''}`;
 export const shortRoom = (name: string) => {
   const room = name.match(/Room\s+(\S+)/i)?.[1];
   return room ? `Rm ${room}` : /posters?/i.test(name) ? 'Posters' : name; // "Area 1 + 2 + 3: posters" → "Posters"
@@ -46,7 +51,8 @@ export function useArc(id: string) {
     return {
       title: p?.title ?? node?.label ?? key, short: node?.label ?? p?.title ?? key,
       time: s ? `${dateOf(s.start, tz)} · ${clockOf(s.start, tz)}` : 'Time to be announced',
-      when: s ? `${venueClock(s.start, tz)}${room ? ` · ${shortRoom(room)}` : ''}` : 'Time TBA' /* no time in the feed (14: "Time to be announced") */, room: room ? shortRoom(room) : '',
+      when: s ? whenLine(s.start, room, tz, now) : 'Time TBA' /* no time in the feed (14: "Time to be announced") */, room: room ? shortRoom(room) : '',
+      on: !!s && s.start <= now && s.end > now,
     };
   };
   // 09 Step-free (this phone's choice): the walk to this talk from the stop before it that day (or Registration) changes

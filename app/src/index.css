@@ -140,6 +140,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 @keyframes arc-fan-in { from { opacity: 0; transform: translateY(-36px) scale(.8); } }
 .arc-fan-lines { animation: arc-fan-lines 0.56s cubic-bezier(.22,1,.36,1) 0.36s both; }
 @keyframes arc-fan-lines { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+/* 01 on a short screen (Safari with its bars, 664): the orbit at 86% so "with an answer" clears the buttons (persona review 11/25) */
+@media (max-height: 720px) { .arc-welcome-art { height: 316px !important; } .arc-welcome-art > div { transform: scale(.86); transform-origin: 195px 102px; } }
 /* 12b: the held stop's ring pops (prototype: 620 ms after 140) */
 .arc-held-ring { animation: arc-held 0.62s ease-out 0.14s both; }
 @keyframes arc-held { 0% { opacity: 0; transform: scale(.7); } 60% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }

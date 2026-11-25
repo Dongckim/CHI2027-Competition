@@ -116,7 +116,10 @@ export function toArc(res, query, opts, { id, createdAt, edition, version, abstr
 }
 
 /** The "angles" screen's chips → 08 topics per angle. The chip id goes back to the engine as `chips`. */
-export const toTopics = res => Object.fromEntries(['S', 'R', 'T'].map(a => [a, (res.angles.find(x => x.key === ANGLE_KEY[a])?.chips ?? []).map(c => ({ id: c.id, label: c.label }))]));
+// the engine writes chips in sentence case, acronyms too ("Ai assistance"): put the field's acronyms back
+const ACRONYM = { ai: 'AI', vr: 'VR', ar: 'AR', xr: 'XR', mr: 'MR', llm: 'LLM', llms: 'LLMs', hci: 'HCI', ui: 'UI', ux: 'UX', ml: 'ML', nlp: 'NLP', iot: 'IoT', bci: 'BCI', eeg: 'EEG', gpt: 'GPT' };
+export const chipLabel = t => t.replace(/\b[A-Za-z]+\b/g, w => ACRONYM[w.toLowerCase()] ?? w);
+export const toTopics = res => Object.fromEntries(['S', 'R', 'T'].map(a => [a, (res.angles.find(x => x.key === ANGLE_KEY[a])?.chips ?? []).map(c => ({ id: c.id, label: chipLabel(c.label) }))]));
 
 /** The "ask" screen's tribe → tribeOf. runnerUp: the second tribe, first in 11's Change list. */
 export function toTribe(res) {

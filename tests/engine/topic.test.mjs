@@ -46,3 +46,13 @@ test('07b composed questions: drop the ones that read wrong', () => {
     'How do older adults affect portal use?', 'Do LLM agents improve trust?', 'Does privacy reduce AI adoption?', 'How does privacy affect cognitive load?',
     'Do children improve use of tablets?', 'Does the use of robots improve wellbeing?']) assert.equal(brokenQuestion(q), false, q);
 });
+
+test('07b: the asker\'s lead-in is not part of the topic, and their pronoun is never a subject (persona review 11/25)', async () => {
+  const { topicOf } = await import('../../app/src/arc/topic.js');
+  assert.equal(topicOf('I study VR'), 'VR');
+  assert.equal(topicOf("I'm interested in accessibility"), 'accessibility');
+  assert.equal(topicOf('haptics'), 'haptics');
+  assert.equal(topicOf('About'), 'About', 'a lone word stays');
+  for (const q of ['How does i study VR affect user experience?', 'Does i study VR improve usability?', 'Do we improve trust?']) assert.equal(brokenQuestion(q), true, q);
+  assert.equal(brokenQuestion('Does haptic feedback improve immersion?'), false);
+});
