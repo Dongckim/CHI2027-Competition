@@ -59,6 +59,7 @@ export const ondeviceEngine: Engine = {
     const ok = await placed(l.filter((n): n is ArcNode => !!n));
     return l.map(n => (n ? ok.shift()! : null));
   },
+  paperQuestions: key => after<string[]>('paperQuestions', { key }),
 };
 
 // 07b (user 11/21 「원준 방식(조합 문장)」): the engine's composed questions, without those that read wrong; none left →

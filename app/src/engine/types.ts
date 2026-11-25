@@ -42,7 +42,8 @@ export interface Engine {
   tribeOf(query: string): Promise<{ tribe: TribeId; confidence: number; runnerUp?: TribeId }>;
   angleTopics(query: string): Promise<Record<Angle, AngleTopic[]>>; // 08: 3–5 per angle
   // walk: 09 "How you walk" (calm, step_free); the mock engine ignores it
-  buildArc(query: string, opts: { angles: Angle[]; topicIds?: string[]; days: string[]; types: string[]; walk?: string[] }): Promise<Arc>;
+  // mine (07r, Figma 11/25 "Is this your paper?"): the person's own talks, never stops of their Arc. 원준 확인 필요
+  buildArc(query: string, opts: { angles: Angle[]; topicIds?: string[]; days: string[]; types: string[]; walk?: string[]; mine?: string[] }): Promise<Arc>;
   // filters (user 11/25 「Swap·24b가 09의 날짜·형식 선택을 따르게 (엔진 선택 필드, 원준 확인 필요)」): the Arc's own days and
   // kinds, so a swap or 24b offers no poster or other day the person left out; none = the whole week, every kind
   suggest(query: string, angle: Angle, excludeKeys: string[], limit?: number, filters?: Arc['filters']): Promise<ArcNode[]>; // 15: same angle
@@ -52,6 +53,8 @@ export interface Engine {
   // 15 search (user 11/25 「A로 하고」): the engine's angle and quote for each talk the person searched, in the same order;
   // null = not about the question (cannot be added). Added after Arc 0.2.0: 원준 확인 필요.
   judge(query: string, keys: string[]): Promise<(ArcNode | null)[]>;
+  // 07r (Figma 11/25): up to three questions made from a paper's own results (the engine's "mine" screen). 원준 확인 필요
+  paperQuestions(key: string): Promise<string[]>;
 }
 
 export const QUERY_MAX = 200;
