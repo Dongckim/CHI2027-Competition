@@ -175,11 +175,8 @@ export function bloom(root: HTMLElement | null, quick = false) {
     QA('[data-node-wrap] .arc-node').forEach((n, j) => loop(n, [{ transform: 'translateY(0px)' }, { transform: 'translateY(-3px)' }, { transform: 'translateY(0px)' }], { duration: 3400, delay: end + j * 280, easing: 'ease-in-out' }));
   }
   loop(Q('[data-empty-slot]'), [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], { duration: 24000, delay: end, easing: 'linear' });
-  // 24 / 24c: the chevrons that point where more talks wait drift that way and back
-  for (const c of QA('[data-more]')) {
-    const d = c.dataset.more === 'S' ? 'translate(0px,-3px)' : c.dataset.more === 'R' ? 'translate(-2.5px,2.5px)' : 'translate(2.5px,2.5px)';
-    loop(c, [{ opacity: 0.2, translate: '0px 0px' }, { opacity: 1, translate: d.slice(10, -1).replace(',', ' ') }], { duration: 1100, delay: end, direction: 'alternate', easing: 'ease-in-out' });
-  }
+  // 24 / 24c: the chevron in a count where more talks wait nudges on and back
+  for (const c of QA('[data-more]')) loop(c, [{ opacity: 0.35, translate: '0px 0px' }, { opacity: 1, translate: '2px 0px' }], { duration: 1100, delay: end, direction: 'alternate', easing: 'ease-in-out' });
 }
 
 /** 24b (prototype): the camera moves toward the angle — everything slides into place from the old centre — then the talks not on the Arc

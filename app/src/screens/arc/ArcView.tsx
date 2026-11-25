@@ -2,7 +2,7 @@
 // Supports at the top, Reframes lower left, Challenges lower right, each with its count. Positions come from arc/map.js; the orb, rings and node fills take the tribe colour (Figma's
 // pictures are drawn in the sample tribe's blue). Every node is a button named "<angle> · <title> · <time>".
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type DOMAttributes, type ReactNode } from 'react';
-import { layout, focusLayout, connector, BOX, ADD_AT, BADGE_AT, MAX_SEATS, MORE_AT, FOCUS, TOWARD, type NodeState } from '../../arc/map.js';
+import { layout, focusLayout, connector, BOX, ADD_AT, BADGE_AT, MAX_SEATS, MORE_AT, FOCUS, type NodeState } from '../../arc/map.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
 import { bloom, moveToward, hintMotion, pickMotion } from '../../arc/motion';
 import { ANGLE_NAME, KIND_NAME } from './AngleHelp';
@@ -149,6 +149,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   // the bloom's order: next, upcoming, heard, ended; then the Arc's order
   const compactMap = !picture && !edit && scale < 0.9;
   if (!focus) for (const { node, at: p, oneLine } of l.nodes) {
+    // stacked seats keep one line: two lines touched the stop below on 18, 19, 19b and 24b (height-check, 11/25)
     const rows = oneLine || edit ? 1 : 2, timed = !edit && !compactMap;
     line(node.key, p, pending ? null : node.angle, node.angle === 'S' && !pending ? 32 + 2 + rows * real(15) + (timed ? real(16) : 0) + 4 : 0);
   }
@@ -166,9 +167,10 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
         <span aria-hidden="true" className="arc-orb" style={at(BOX.cx, BOX.cy, 144)} />
         {/* Figma draws the lines 1 px on screen, also on the scaled 15 */}
         <svg aria-hidden="true" width={BOX.w} height={BOX.h} className="absolute top-0 left-0" stroke="#fff" strokeWidth={real(1)} strokeLinecap="round" fill="none">{lines}</svg>
-        <div aria-hidden="true" data-orb-text="" className="absolute flex flex-col items-center" style={{ left: BOX.cx - 54, top: 214, width: 108 }}>
+        {/* the question and its tribe shape as one block, centred on the orb (iPhone 11/25: a fixed top left 3 lines low) */}
+        <div aria-hidden="true" data-orb-text="" className="absolute flex flex-col items-center justify-center" style={{ left: BOX.cx - 54, top: BOX.cy - 72, width: 108, height: 144 }}>
           {/* the picture (16) is an image: Figma's 14 / 18 scaled with it; elsewhere 12 / 15 on screen at least */}
-          <p data-orb-question className="line-clamp-3 text-center font-semibold tracking-[-0.006em]" /* white on the near-black orb: ≥ 4.5:1 in every tribe (tests/qa/orb-check.mjs) */ style={picture ? { fontSize: 14, lineHeight: '18px' } : { fontSize: real(Math.max(12, 14 * scale)), lineHeight: `${real(Math.max(15, 18 * scale))}px` }}>{arc.query}</p>
+          <p data-orb-question className="line-clamp-4 text-center font-semibold tracking-[-0.006em]" /* white on the near-black orb: ≥ 4.5:1 in every tribe (tests/qa/orb-check.mjs) */ style={picture ? { fontSize: 14, lineHeight: '18px' } : { fontSize: real(Math.max(12, 14 * scale)), lineHeight: `${real(Math.max(15, 18 * scale))}px` }}>{arc.query}</p>
           <img src={TRIBE_ICON[arc.tribe]} alt="" width={12} height={12} className="mt-2" />
         </div>
         </div>
@@ -236,25 +238,26 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           );
         })}
 
-        {!picture && l.regions.map(({ angle: a, count: own0, more: more0 }) => { /* 16's card has its own count row (prototype 16) */
+        {/* 16's card has its own count row (prototype 16); 24b Reframes / Challenges: the other angles are a row above the map (ArcMap) */}
+        {!picture && !(focus && focus !== 'S') && l.regions.map(({ angle: a, count: own0, more: more0 }) => {
           const count = totals?.[a] ?? own0, more = focus ? more0 : count - (own0 - more0); // shown on the map: own0 - more0
           // Figma "Angle · support" etc.: the region's symbol and how many talks it holds, 30 tall (22 on the 0.74 map, so
           // its text stays 12 px at least). With more talks than seats (24) it is the way to them, a button.
-          const m = more > 0 && !focus ? MORE_AT[a] : null;
-          const [x, y] = l.regions.find(r => r.angle === a)?.at ?? m?.badge ?? BADGE_AT[a], h = real(Math.max(30 * scale, 30)), font = real(Math.max(12.5, 13 * scale)) /* 12.5: at 0.78 a 12 px digit measures 11.8 */, icon = real(Math.max(12, 16 * scale));
+          // one place per region whether or not more talks wait (iPhone 11/25: ↻ and ⊣ sat at different heights), Figma 24's;
+          // 15 and 19b keep Figma 12's, where the + sits beside a full region's count
+          const more1 = more > 0 && !focus;
+          const [x, y] = l.regions.find(r => r.angle === a)?.at ?? (edit || own ? BADGE_AT[a] : MORE_AT[a].badge), h = real(Math.max(30 * scale, 30)), font = real(Math.max(12.5, 13 * scale)) /* 12.5: at 0.78 a 12 px digit measures 11.8 */, icon = real(Math.max(12, 16 * scale));
           const body = <>
             <span data-badge={a} className="flex items-center rounded-full border border-white/10 bg-arc-surface font-semibold text-arc-text/78" style={{ height: h, gap: real(5 * Math.max(scale, 0.8)), paddingLeft: real(9 * Math.max(scale, 0.8)), paddingRight: real(11 * Math.max(scale, 0.8)), fontSize: font }}>
               <img src={ANGLE_ICON[a]} alt="" width={icon} height={icon} /><span data-count="">{count}</span>
+              {/* more talks wait there: a chevron inside the count (it stood outside, tilted, and read as a bracket) */}
+              {more1 && onBundle && <svg aria-hidden="true" data-more={a} width={real(6)} height={real(10)} viewBox="0 0 6 10" style={{ marginLeft: real(1) }}><path d="M1 1l4 4-4 4" stroke="#f4f6ff" strokeOpacity={0.6} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>}
             </span>
           </>;
-          const box = { left: x, top: y, transform: `translate(${focus === 'R' ? '-100%' : focus === 'T' ? '0%' : '-50%'}, -50%)` }; // 24b R/T: anchored on the edge, a longer count grows inward
-          // the chevron that points where the rest are (24, 24c; 24b: towards the other angles)
-          const dir = TOWARD[a];
-          const arrow = m ? { arrow: m.arrow, turn: dir } : null;
-          const chev = arrow && <svg aria-hidden="true" data-more={a} width={14} height={8} viewBox="0 0 14 8" className="pointer-events-none absolute" style={{ left: arrow.arrow[0] - 7, top: arrow.arrow[1] - 4, transform: `rotate(${arrow.turn}deg)` }}><path d="M1 7L7 1L13 7" stroke="#f4f6ff" strokeOpacity={0.55} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>;
+          const box = { left: x, top: y, transform: 'translate(-50%, -50%)' };
           // every region's count moves the map toward it (prototype 12 "Angle · " → 24b), the chevron only when talks wait there
           return onBundle && !still && !edit && !own && !pick && !pending
-            ? <span key={a}>{more > 0 && chev}<button type="button" onClick={() => onBundle?.(a)} inert={!!hold?.held || undefined} aria-label={`All ${count} ${ANGLE_NAME[a]}`}
+            ? <span key={a}><button type="button" onClick={() => onBundle?.(a)} inert={!!hold?.held || undefined} aria-label={`All ${count} ${ANGLE_NAME[a]}`}
                 className="absolute z-[2] flex items-center justify-center" style={{ ...box, minWidth: real(44), minHeight: real(44) }}>{body}</button></span>
             : <span key={a} aria-hidden="true" data-a11y-decor="region-count" className="pointer-events-none absolute flex" style={box}>{body}</span>; /* prototype 12b: counts stay at full while a stop is held */
         })}
