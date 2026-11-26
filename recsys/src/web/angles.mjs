@@ -458,6 +458,8 @@ export class Angles {
     const d = pkg.angles;
     this.version = d.version;
     this.tribes = d.tribes;
+    // "AI", "health", "XR": the words of each tribe's own name (see _tribe)
+    this.tribeWords = this.tribes.map((t) => new Set(t.name.toLowerCase().match(W_RE()) || []));
     this.phrases = d.phrases;
     const { data, n, d: D } = pkg.phraseEmb;
     this.D = D;
@@ -941,7 +943,9 @@ export class Angles {
     return [...new Set(out)];
   }
 
-  _tribe(score, idx) {
+  // the tribe most of the first 20 talks belong to; what was typed may name a tribe ("AI"),
+  // and a guess (what was typed is off-topic, 11/26) has margin 0
+  _tribe(score, idx, text = null, guess = false) {
     const w = new Map();
     for (const i of idx.slice(0, 20)) {
       const t = (this.info.get(i) || {}).tribe;
@@ -949,20 +953,30 @@ export class Angles {
     }
     if (!w.size) return null;
     const s = sortedBy([...w.entries()], (kv) => [-kv[1], kv[0]]);
-    const [t1, w1] = s[0];
-    const [t2, w2] = s.length > 1 ? s[1] : [null, 0.0];
+    let [t1, w1] = s[0];
+    let [t2, w2] = s.length > 1 ? s[1] : [null, 0.0];
+    let margin = w1 ? pyRound((w1 - w2) / w1, 3) : 0.0;
+    const named = this._namedTribe(text);
+    if (named !== null && named !== t1) [t1, t2, margin] = [named, t1, 1.0];
     const tr = { ...this.tribes[t1] };
-    tr.margin = w1 ? pyRound((w1 - w2) / w1, 3) : 0.0;
+    tr.margin = guess ? 0.0 : margin;
     tr.runner_up = t2 !== null ? this.tribes[t2].name : null;
     tr.look_for = `Look for the ${COLOR_NAME[tr.color] ?? "white"} ${tr.shape}.`;
     return tr;
   }
 
   // The tribe of what the person typed, never of the sharpest question a topic is built on (team 11/22)
-  async _tribeOf(text, types = null) {
+  _namedTribe(text) {
+    const words = ((text || "").toLowerCase().match(W_RE()) || []).filter((w) => !STOPW.has(w));
+    if (!words.length) return null;
+    const k = this.tribeWords.findIndex((tw) => words.every((w) => tw.has(w)));
+    return k >= 0 ? k : null;
+  }
+
+  async _tribeOf(text, types = null, guess = false) {
     const score = await this._rank(text);
     const pool = argsortDesc(score).filter((i) => this.aliveSet.has(i) && (types === null || types.has(this.items[i].type))).slice(0, 20);
-    return this._tribe(score, pool);
+    return this._tribe(score, pool, text, guess);
   }
 
   async _judged(q, types, score = null) {
@@ -1003,6 +1017,8 @@ export class Angles {
     if (q.kind === "relation") return [q, null];
     const types = this._types(this._formats(req));
     const [, pool, score] = await this._judged(q, types);
+    // CHI may not cover it ("quantization"): no sharper question is made up for it
+    if (await this._warning(q, types, await this._matching(q, pool))) return [q, q.text];
     const sug = await this._suggest(q, pool, score, types, P.SUGGEST_K);
     // no sharper question in the talks ("dating"): the Arc stays on the topic itself
     if (!sug.length) return [q, q.text];
@@ -1041,9 +1057,11 @@ export class Angles {
     const q = await this.question(text);
     const types = this._types(this._formats(req));
     const [judged, pool, score] = await this._judged(q, types);
+    const nMatch = await this._matching(q, pool);
+    const warn = await this._warning(q, types, nMatch);
     const out = { text: q.text, kind: q.kind, parsed: { x: q.x, y: q.y, direction: q.dir, context: q.ctx },
-                  tribe: this._tribe(score, pool), matching: await this._matching(q, pool), corrected: q.corrected };
-    out.warning = await this._warning(q, types, out.matching);
+                  tribe: this._tribe(score, pool, q.text, warn !== null), matching: nMatch, corrected: q.corrected };
+    out.warning = warn;
     out.on_topic = out.warning === null;
     if (q.kind === "relation") {
       out.counts = this._counts(judged);
@@ -1529,7 +1547,8 @@ export class Angles {
     const nodes = this._route(placed, reads, chosen, now, heard);
     const counts = new Counter();
     for (const nd of nodes) counts.add(nd.angle);
-    const tribe = asked ? await this._tribeOf(asked, types) : this._tribe(score, pool);
+    const warn = await this._warning(typed, types);
+    const tribe = asked ? await this._tribeOf(asked, types, warn !== null) : this._tribe(score, pool, typed.text, warn !== null);
     let nAll = 0, nDay = 0;
     for (const i of this.aliveSet) {
       if (!types.has(this.items[i].type)) continue;
@@ -1550,7 +1569,7 @@ export class Angles {
     return {
       question: q.text, asked: asked !== q.text ? asked : null, parsed: { x: q.x, y: q.y, direction: q.dir, context: q.ctx },
       // what was typed is not English or not something CHI covers: the stops are then a guess
-      warning: await this._warning(typed, types),
+      warning: warn,
       tribe, days, formats, loading: { text: `Reading ${nAll.toLocaleString("en-US")} talks for you`, n: nAll },
       counts: Object.fromEntries(ANGLES.map((a) => [a, counts.count(a)])),
       summary_line: `${nodes.length} stops · ` + ANGLES.map((a) => `${counts.count(a)} ${a}`).join(" · "),

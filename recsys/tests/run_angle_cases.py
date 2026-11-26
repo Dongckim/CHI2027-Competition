@@ -283,6 +283,22 @@ def main():
         return errs, " | ".join(seen)
     case("one word: on topic when talks name it, narrowed with its own words", one_word)
 
+    def off_topic_word():
+        # 11/26: "quantization" (no talk names it) is not narrowed into a made-up question,
+        # and its tribe is a guess (margin 0); "AI" names its own tribe
+        errs = []
+        ask = eng.handle({"screen": "ask", "text": "quantization"})
+        if not ask["warning"] or ask["suggestions"] or ask["tribe"]["margin"] != 0:
+            errs.append("quantization: warning, no suggestions and a margin-0 tribe expected")
+        arc = eng.handle({"screen": "arc", "question": "quantization", "when": "week"})
+        if arc["question"] != "quantization" or arc["tribe"]["margin"] != 0 or not arc["warning"]:
+            errs.append(f"quantization Arc built on {arc['question']!r}, margin {arc['tribe']['margin']}")
+        t = eng.handle({"screen": "ask", "text": "AI"})["tribe"]["name"]
+        if t != "AI & agents":
+            errs.append(f"AI: tribe {t}")
+        return errs, f"{arc['question']} · {arc['tribe']['name']} (guess) · AI -> {t}"
+    case("off-topic word: no made-up question, tribe a guess; AI names its tribe", off_topic_word)
+
     def acronyms():
         out = eng.handle({"screen": "angles", "question": Q})
         labels = [c["label"] for a in out["angles"] for c in a["chips"]]

@@ -572,6 +572,8 @@ class Angles:
             d = json.load(f)
         self.version = d["version"]
         self.tribes = d["tribes"]
+        # "AI", "health", "XR": the words of each tribe's own name (see _tribe)
+        self.tribe_words = [set(_W.findall(t["name"].lower())) for t in self.tribes]
         self.phrases = d["phrases"]
         # float64 from here on, so the phone's JavaScript gets the very same cosines
         self.pvec = load_matrix(adir, "phrase").astype(np.float64)
@@ -1042,7 +1044,10 @@ class Angles:
                 raise InputError(f"{name}: unknown item id {json.dumps(xid)}")
         return list(dict.fromkeys(out))
 
-    def _tribe(self, score, idx):
+    def _tribe(self, score, idx, text=None, guess=False):
+        """The tribe most of the first 20 talks belong to. What was typed may name a tribe
+        ("AI": at CHI most AI talks sit in Society & communities, but the person said AI);
+        a guess (what was typed is off-topic, 11/26) has margin 0."""
         w = Counter()
         for i in idx[:20]:
             t = (self.info.get(i) or {}).get("tribe")
@@ -1052,21 +1057,31 @@ class Angles:
             return None
         (t1, w1), *rest = sorted(w.items(), key=lambda kv: (-kv[1], kv[0]))
         t2, w2 = rest[0] if rest else (None, 0.0)
+        margin = round((w1 - w2) / w1, 3) if w1 else 0.0
+        named = self._named_tribe(text)
+        if named is not None and named != t1:
+            t1, t2, margin = named, t1, 1.0
         tr = dict(self.tribes[t1])
-        tr["margin"] = round((w1 - w2) / w1, 3) if w1 else 0.0
+        tr["margin"] = 0.0 if guess else margin
         tr["runner_up"] = self.tribes[t2]["name"] if t2 is not None else None
         # 11: "YOU'RE IN XR & immersive · Look for the blue diamond."
         tr["look_for"] = f"Look for the {COLOR_NAME.get(tr['color'], 'white')} {tr['shape']}."
         return tr
 
-    def _tribe_of(self, text, types=None):
+    def _named_tribe(self, text):
+        words = [w for w in _W.findall((text or "").lower()) if w not in STOPW]
+        if not words:
+            return None
+        return next((k for k, tw in enumerate(self.tribe_words) if all(w in tw for w in words)), None)
+
+    def _tribe_of(self, text, types=None, guess=False):
         """The tribe of what the person typed. A topic is built on its sharpest question, but
         that question can drift ("accessible indoor navigation" -> "critical design
         considerations"), so the tribe never comes from it (team 11/22)."""
         score = self._rank(text)
         pool = [int(i) for i in np.argsort(-score, kind="stable") if int(i) in self.alive_set
                 and (types is None or self.items[int(i)]["type"] in types)][:20]
-        return self._tribe(score, pool)
+        return self._tribe(score, pool, text, guess)
 
     def _judged(self, q, types, score=None):
         """Talks of the chosen formats by match, with their angle (top JUDGE_N read)."""
@@ -1107,6 +1122,9 @@ class Angles:
             return q, None
         types = self._types(self._formats(req))
         _, pool, score = self._judged(q, types)
+        # CHI may not cover it ("quantization"): no sharper question is made up for it
+        if self._warning(q, types, self._matching(q, pool)):
+            return q, q["text"]
         sug = self._suggest(q, pool, score, types, k=SUGGEST_K)
         if not sug:
             # no sharper question in the talks ("dating"): the Arc stays on the topic itself,
@@ -1148,11 +1166,13 @@ class Angles:
         q = self.question(text)
         types = self._types(self._formats(req))
         judged, pool, score = self._judged(q, types)
+        n_match = self._matching(q, pool)
+        warn = self._warning(q, types, n_match)
         out = {"text": q["text"], "kind": q["kind"],
                "parsed": {"x": q["x"], "y": q["y"], "direction": q["dir"], "context": q["ctx"]},
-               "tribe": self._tribe(score, pool),
-               "matching": self._matching(q, pool), "corrected": q["corrected"]}
-        out["warning"] = self._warning(q, types, out["matching"])
+               "tribe": self._tribe(score, pool, q["text"], guess=warn is not None),
+               "matching": n_match, "corrected": q["corrected"]}
+        out["warning"] = warn
         out["on_topic"] = out["warning"] is None
         if q["kind"] == "relation":
             out["counts"] = self._counts(judged)
@@ -1658,7 +1678,9 @@ class Angles:
         heard = [self.items[i]["id"] for i in self._ids(st.get("heard"), "state.heard")]
         nodes = self._route(placed, reads, chosen, now, heard)
         counts = Counter(nd["angle"] for nd in nodes)
-        tribe = self._tribe_of(asked, types) if asked else self._tribe(score, pool)
+        warn = self._warning(typed, types)
+        tribe = self._tribe_of(asked, types, guess=warn is not None) if asked else \
+            self._tribe(score, pool, typed["text"], guess=warn is not None)
         n_all = sum(1 for i in self.alive_set if self.items[i]["type"] in types)
         n_day = sum(1 for i in self.alive_set if self.items[i]["type"] in types and self._on_days(i, days))
         close = min(JUDGE_N, sum(1 for i in pool if self._on_days(i, days)))
@@ -1674,7 +1696,7 @@ class Angles:
         return {"question": q["text"], "asked": asked if asked != q["text"] else None,
                 "parsed": {"x": q["x"], "y": q["y"], "direction": q["dir"], "context": q["ctx"]},
                 # what was typed is not English or not something CHI covers: the stops are then a guess
-                "warning": self._warning(typed, types),
+                "warning": warn,
                 "tribe": tribe, "days": days, "formats": formats,
                 "loading": {"text": f"Reading {n_all:,} talks for you", "n": n_all},
                 "counts": {a: counts.get(a, 0) for a in ANGLES},
