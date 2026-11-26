@@ -1,7 +1,7 @@
 // 14 · Talk detail (Figma 597:972): angle and format, title, why this angle (the abstract sentence), when and where with
 // the session, every author with a ✦ after a name new to CHI and one line saying what it means (user 11/25), "I heard it", the paper (DOI) and the
 // Q&A (api/qa, decision 007). The whole abstract opens below with the sentence marked.
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { loadSchedule, loadPeople, loadAbstracts, loadDebut, type Schedule } from '../../data/load';
 import { highlightSegments } from '../../explore/quotes.js';
 import { keySegments } from '../../arc/keyPhrase.js';
@@ -10,7 +10,8 @@ import { talkPosition } from '../../today/card.js';
 import { getArc, loadArcs } from '../../arc/store';
 import { currentArcId, useTribe, viewingArc } from '../../arc/live';
 import { useDevice, update } from '../../state/useDevice';
-import { heardOf, toggleHeard } from '../../arc/draft.js';
+import { heardOf, toggleHeard, arcOf, setTalkTourSeen } from '../../arc/draft.js';
+import { MapTour, TALK_TOUR } from './MapTour';
 import { useNow } from '../../clock.js';
 import { Screen, BackButton, IconButton, Pic } from '../../components/arc';
 import { ANGLE_NAME, KIND_NAME } from './AngleHelp';
@@ -56,6 +57,12 @@ export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shap
   const [found, setFound] = useState<{ arc: Arc; node: ArcNode } | null>(null);
   const [inArcs, setInArcs] = useState(0); // user 11/25 D: how many of your saved Arcs lead here
   const [allAuthors, setAllAuthors] = useState(false);
+  // the first talk opened after the map's tour (so only someone who has just made their first Arc) gets 14's tour, once
+  const dev = arcOf(useDevice());
+  const [tour, setTour] = useState(false);
+  const due = !!dev.tour && !dev.talkTour;
+  useEffect(() => { if (!due) return; const t = setTimeout(() => setTour(true), 900); return () => clearTimeout(t); }, [due]);
+  const endTour = useCallback(() => { setTour(false); update(setTalkTourSeen); }, []);
   const heard = heardOf(useDevice()).has(paperKey);
   const qa = useQandA(paperKey);
   const now = useNow();
@@ -129,20 +136,21 @@ export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shap
 
   return (
     <Screen clock header={header(p.doi, liveText)} label="Talk"
-      bottom={<QandAAsk qa={qa} />}>
-      <div className="mt-3 flex flex-wrap gap-2">
+      bottom={<div data-tour="qa"><QandAAsk qa={qa} /></div>}>
+      {tour && <MapTour steps={TALK_TOUR} label="How to read a talk" onDone={endTour} />}
+      <div data-tour="tags" className="mt-3 flex flex-wrap gap-2">
         {found && <Tag icon={ANGLE_ICON[found.node.angle]}>{ANGLE_NAME[found.node.angle]}{found.node.kind && <span className="font-medium text-arc-text-2"> · {KIND_NAME[found.node.kind]}</span>}</Tag>}
         <Tag icon={fIcon}>{fName}</Tag>
         {inArcs > 1 && <Tag icon={check}>In {inArcs} of your Arcs</Tag>}
       </div>
       <h1 className="mt-3 text-[24px] leading-[30px] font-semibold tracking-[-0.02em]">{p.title}</h1>
       {/* user 11/25 E: who to look for, at the top (never "Presenter": the feed does not say who presents) */}
-      {(p.first || chair) && <dl className="mt-2.5 flex flex-col gap-1 text-[14px] leading-[19px]">
+      {(p.first || chair) && <dl data-tour="who" className="mt-2.5 flex flex-col gap-1 text-[14px] leading-[19px]">
         {p.first && <div className="flex gap-1.5"><dt className="shrink-0 text-arc-text-3">First author</dt><dd className="min-w-0 text-arc-text-2">{p.first}</dd></div>}
         {chair && <div className="flex gap-1.5"><dt className="shrink-0 text-arc-text-3">Session chair</dt><dd className="min-w-0 text-arc-text-2">{chair}</dd></div>}
       </dl>}
       {next && (
-        <button type="button" onClick={() => go(`talk/${next.key}`)} className="mt-3 flex min-h-touch w-full items-center gap-2 rounded-[14px] border border-arc-line bg-arc-surface px-3.5 py-2 text-left text-[14px]">
+        <button data-tour="next" type="button" onClick={() => go(`talk/${next.key}`)} className="mt-3 flex min-h-touch w-full items-center gap-2 rounded-[14px] border border-arc-line bg-arc-surface px-3.5 py-2 text-left text-[14px]">
           <span className="shrink-0 font-semibold">Next stop</span>
           <span className="min-w-0 flex-1 truncate text-arc-text-2">{[venueClock(next.start, tz), nextRoom && shortRoom(nextRoom), nextWalk && nextWalk.minutes[1] > 0 && `${minutesText(nextWalk.minutes)} walk`].filter(Boolean).join(' · ')}</span>
         </button>
@@ -166,7 +174,7 @@ export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shap
         </section>
       )}
 
-      <ul className="mt-[35px] flex flex-col gap-3.5">
+      <ul data-tour="when" className="mt-[35px] flex flex-col gap-3.5">
         <li className="flex items-center gap-3 text-[15px] font-medium tracking-[-0.006em]"><Pic src={clock} size={20} className="opacity-70" />
           <span>{slot ? `${dateOf(slot.start, tz)} · ${clockOf(slot.start, tz)}` : 'Time to be announced'}{room && ` · ${room}`}</span></li>
         {session && <li className="flex items-center gap-3 text-[15px] tracking-[-0.006em]"><Pic src={pin} size={20} className="opacity-70" />

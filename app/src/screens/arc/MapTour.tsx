@@ -15,8 +15,18 @@ export const TOUR: TourStep[] = [
   { at: 'button[aria-label="What are the three angles?"]', title: 'Any time', text: 'The angles and colours, explained again.' },
 ];
 
-export function MapTour({ onDone }: { onDone: () => void }) {
-  const steps = useRef(TOUR.filter(s => find(s.at))).current;
+// 14, the first talk opened after the map tour (user 11/26 「논문 페이지 처음 들어왔을때 지금 처럼 가이드 있으면 좋을꺼 같아」)
+export const TALK_TOUR: TourStep[] = [
+  { at: '[data-tour="tags"]', title: 'Its angle', text: 'How this talk meets your question, and what kind of session it is.' },
+  { at: '[data-tour="who"]', title: 'Who to look for', text: 'The first author, and the session’s chair.' },
+  { at: '[data-tour="next"]', title: 'Next stop', text: 'The next talk on your Arc, and the walk there.' },
+  { at: 'section[aria-labelledby="why"]', title: 'Why it’s here', text: 'The sentence from this paper’s abstract that puts it on your map.' },
+  { at: '[data-tour="when"]', title: 'When and where', text: 'Time, room and session. ✦ marks an author new to CHI.' },
+  { at: '[data-tour="qa"]', title: 'Ask', text: 'Questions for the Q&A, seen by everyone at this talk.' },
+];
+
+export function MapTour({ onDone, steps: all = TOUR, label = 'How to read your Arc' }: { onDone: () => void; steps?: TourStep[]; label?: string }) {
+  const steps = useRef(all.filter(s => find(s.at))).current;
   const [i, setI] = useState(0);
   const [box, setBox] = useState<DOMRect | null>(null);
   const next = useRef<HTMLButtonElement>(null);
@@ -34,7 +44,7 @@ export function MapTour({ onDone }: { onDone: () => void }) {
   const go = () => (i + 1 < steps.length ? setI(i + 1) : onDone());
   const pad = 8, below = box.bottom + 180 < innerHeight;
   return (
-    <div role="dialog" aria-modal="true" aria-label="How to read your Arc" className="fixed inset-0 z-[60]" onClick={go}>
+    <div role="dialog" aria-modal="true" aria-label={label} className="fixed inset-0 z-[60]" onClick={go}>
       <div aria-hidden="true" className="pointer-events-none absolute rounded-[28px] motion-safe:transition-all motion-safe:duration-300"
         style={{ left: box.left - pad, top: box.top - pad, width: box.width + pad * 2, height: box.height + pad * 2, boxShadow: '0 0 0 9999px rgba(8, 7, 14, 0.74), 0 0 0 2px rgba(255, 255, 255, 0.7)' }} />
       <div className="absolute inset-x-4 mx-auto max-w-[358px] rounded-[20px] border border-arc-line bg-arc-sheet p-4 shadow-[0_8px_40px_rgba(0,0,0,0.5)]"
