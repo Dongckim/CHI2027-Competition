@@ -7,7 +7,7 @@ import { now } from '../clock.js';
 import venue from '../../../data/venue/chi2026.json';
 import { newArcId } from './mock';
 import { onOurAbstract } from './ondevice-map.js';
-import { brokenQuestion } from '../arc/topic.js';
+import { brokenQuestion, methodFactor } from '../arc/topic.js';
 import type { Engine, Progress, Arc, ArcNode } from './types';
 
 let worker: Worker | null = null;
@@ -66,7 +66,7 @@ export const ondeviceEngine: Engine = {
 // the mock's real-title questions. The preview Arcs (counts, mini map) are this engine's, cached per question.
 export async function topicQuestions(topic: string): Promise<{ count: number; questions: { text: string; key: string }[] }> {
   const r = await after<{ count: number; questions: string[] }>('topic', { topic, now: now() });
-  const composed = r.questions.filter(q => !brokenQuestion(q)).map(text => ({ text, key: text }));
+  const composed = r.questions.filter(q => !brokenQuestion(q) && !methodFactor(q)).map(text => ({ text, key: text })); // fewer than 3 left: 07b shows those
   return { count: r.count, questions: composed.length ? composed : (await (await import('./mock')).topicQuestions(topic)).questions };
 }
 const previews = new Map<string, Promise<Arc>>();
