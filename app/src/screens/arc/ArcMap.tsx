@@ -144,7 +144,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
             <img src={spinner} alt="" width={16} height={16} />Sorting angles…{/* Figma 25: a still 3/4 arc */}
           </p>
         )}
-        {use.schedule && <ArcView arc={shown} states={states} info={info} scale={fit} fit onNode={tapNode} selected={sel} hint={hint && !pending && !focus} onBundle={a => toFocus(a)} focus={focus}
+        {use.schedule && <ArcView arc={shown} states={states} info={info} scale={fit} fit onNode={tapNode} selected={sel} hint={hint && !pending && !focus} onBundle={a => toFocus(a)} focus={focus} onOrb={focus ? () => toFocus(null) : undefined}
           totals={pending ? undefined : totals} candidates={candidates} room={room}
           hold={pending || focus ? undefined : { held, press: hs.press, onSwap: k => hs.open(k, true) }} />}{/* drawn once the times are in: the bloom orders talks by their state */}
       </div>

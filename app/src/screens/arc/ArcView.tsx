@@ -109,7 +109,7 @@ export type Own = { kept: Set<string>; yours: Set<string>; onToggle: (key: strin
 // rest dim to Figma's 22% and go inert); onSwap: the keyboard and screen reader way in, a "Swap" button per node.
 type Hold = { held: string | null; press: (key: string) => DOMAttributes<HTMLButtonElement>; onSwap: (key: string) => void };
 
-export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, pick, picture, readOnly, fit, hold, own, selected: chosen, hint, focus, totals, candidates, room, lift = 0 }: {
+export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, pick, picture, readOnly, fit, hold, own, selected: chosen, hint, focus, totals, candidates, room, lift = 0, onOrb }: {
   /** 24b: the map moved toward this angle, all its talks shown (onBundle switches to another angle) */
   focus?: Angle | null;
   /** totals: each region's whole count, the Arc's talks + the engine's others at CHI (user 11/23 「각 영역을 보면 전체갯수」);
@@ -119,6 +119,8 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   room?: number;
   /** lift: px of empty room above the map (15 before a press): the regions run up behind it */
   lift?: number;
+  /** onOrb: the question orb is a button (24b: back to all three angles, user 11/26 「가운데 버튼 누르면 그냥 가운데로 3angles 다 보이게」) */
+  onOrb?: () => void;
   arc: Arc; states: Map<string, NodeState>; info: (key: string) => Info; scale?: number;
   /** 12c: the node shown in the card under the map (its ring); hint: 12a's first-time "Hold a stop" bubble */
   selected?: string | null; hint?: boolean;
@@ -194,6 +196,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           <p data-orb-question className="line-clamp-4 text-center font-semibold tracking-[-0.006em]" /* white on the near-black orb: ≥ 4.5:1 in every tribe (tests/qa/orb-check.mjs) */ style={picture ? { fontSize: 14, lineHeight: '18px' } : { fontSize: real(Math.max(12, 14 * scale)), lineHeight: `${real(Math.max(15, 18 * scale))}px` }}>{arc.query}</p>
           <img src={TRIBE_ICON[arc.tribe]} alt="" width={12} height={12} className="mt-2" />
         </div>
+        {onOrb && <button type="button" onClick={onOrb} aria-label="See all three angles" className="pointer-events-auto rounded-full active:scale-[.97] motion-safe:transition-transform" style={at(BOX.cx, BOX.cy, 144)} />}
         </div>
 
         {l.nodes.map(({ node, at: [x, y], oneLine }) => {
