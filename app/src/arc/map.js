@@ -31,19 +31,20 @@ export function nodeStates(nodes, timeOf, now, heard) {
 // Seats per region, as Figma draws them (11/23, 597:711 / 601:1311 / 856:2106): three regions round the question,
 // Supports at the top, Reframes lower left, Challenges lower right (the mirror of Reframes). Up to three talks per region.
 const SEATS = {
-  S: [[[195, 88]], [[121, 81.4], [269, 81.4]], [[72.1, 56.4], [195, 88], [317.9, 59.9]]],
+  // a little wider than Figma where the box has room (user 11/26 「노드들을 좀 더 넓찍하게」)
+  S: [[[195, 88]], [[110, 78], [280, 78]], [[72.1, 56.4], [195, 88], [317.9, 59.9]]],
   // the third Reframe / Challenge 8 right / left of Figma's 137.7 / 252.3: our 12 px time line under the middle one (Figma
   // 10 px) reached its ring (height-check "do not touch", 24 at 844)
-  R: [[[63, 280.4]], [[63, 280.4], [100.7, 391]], [[55.1, 244.9], [64.8, 349.3], [146, 439.9]]],
-  T: [[[327, 280.4]], [[331.9, 269.1], [290.4, 392.7]], [[334.9, 244.9], [325.2, 349.3], [244, 439.9]]],
+  R: [[[60, 280.4]], [[60, 270], [104, 404]], [[55.1, 236], [62, 350], [152, 452]]],
+  T: [[[330, 280.4]], [[330, 270], [286, 404]], [[334.9, 236], [328, 350], [238, 452]]],
 };
 export const MAX_SEATS = 3;
 // Figma 15: where the + goes with 0 / 1 / 2 talks in a region (15's add slots, unscaled); with 3 or more, beside the
 // region's count, clear of every node and − (해석(확인 전): Figma 15 shows no full region)
 export const ADD_AT = {
-  S: [[195, 88], [269, 81.4], [195, 88], [240, 20]],
-  R: [[63, 280.4], [100.7, 391], [162, 478], [90, 502]],
-  T: [[327, 280.4], [277, 394], [228, 478], [300, 502]],
+  S: [[195, 88], [280, 78], [195, 88], [240, 20]],
+  R: [[60, 280.4], [104, 404], [162, 478], [90, 502]],
+  T: [[330, 280.4], [286, 404], [228, 478], [300, 502]],
 };
 // The region's count badge (Figma "Angle · support" etc., 30 tall): its centre
 export const BADGE_AT = { S: [191, 20], R: [40, 502], T: [342, 502] };
@@ -57,8 +58,9 @@ const FOCUS_R = [[170, 36], [170, 144], [278, 252], [170, 252], [62, 36], [62, 1
 export const FOCUS = {
   S: { at: [195, 500], seats: [[195, 340], [90.3, 366], [299.7, 366], [195, 235], [62.5, 270.5], [327.5, 270.5], [195, 130], [56.4, 157], [333.6, 157], [195, 30], [73.4, 46], [316.6, 46]],
     others: [['R', [54, 496]], ['T', [328, 496]]] },
-  R: { at: [320, 70], seats: FOCUS_R, others: [['S', [382, 196]], ['T', [382, 252]]] }, // 24b: one column on the screen edge, right-aligned
-  T: { at: [70, 70], seats: FOCUS_R.map(([x, y]) => [390 - x, y]), others: [['S', [8, 196]], ['R', [8, 252]]] }, // left-aligned
+  // the question 20 in from the corner (iPhone 11/26: at (320, 70) its ring ran off the screen)
+  R: { at: [300, 90], seats: FOCUS_R, others: [['S', [382, 196]], ['T', [382, 252]]] }, // 24b: one column on the screen edge, right-aligned
+  T: { at: [90, 90], seats: FOCUS_R.map(([x, y]) => [390 - x, y]), others: [['S', [8, 196]], ['R', [8, 252]]] }, // left-aligned
 };
 // Where the rest of an angle lies, from its count: up for Supports, down-left for Reframes, down-right for Challenges
 // (prototype "More · …": the chevron turned 0 / 240 / 120 degrees)
