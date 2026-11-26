@@ -137,7 +137,8 @@ STRICT = 0.80         # a Challenge needs both X and Y at or above this
 COS_LO, COS_HI = 0.45, 0.80
 COST = True           # a result where the asked X made another outcome worse is a Challenge
 COST_BOTH = True      # ... only when the same talk also found that X making something better
-COST_TOP = 15         # ... from the search's first talks only
+COST_TOP = 10         # ... from the search's first talks only (15 -> 10, 11/26: past the 10th
+                      # the costs were mostly off the question: "pressure" for loneliness)
 # what X going wrong is called: such a factor is X failing, not X ("subtitle errors")
 FAULT = set("""error errors latency delay failure breakdown absence lack disruption disrupted dark deceptive
 manipulative misinformation harassment bug bugs glitch""".split())

@@ -6,6 +6,7 @@
     static_*.npy       its token vectors (int8), their scales and the head matrix
     tokenizer.json, tokenizer_config.json
     program_vec.npy    every program item's vector, int8 in the encoder's 128 dims
+    program_ids.json   the item id of each of its rows (loaders line rows up by id)
     program_scale.npy  one scale per vector (papers are rows of the program)
     papers.json        paper metadata (results and BM25; abstracts come from program.json)
     summaries.json     one-line summary + 2 questions per item, written offline by an LLM
@@ -43,7 +44,7 @@ LIGHT = os.path.join(config.MODELS_DIR, "student_light")
 USE_LIGHT = os.environ.get("CHI_LIGHT", "1") != "0" and os.path.exists(os.path.join(LIGHT, "light_config.json"))
 # files an earlier package may have left that this one may not write
 STALE = ["model_int8.onnx", "paper_emb.npy", "program_emb.npy", "encoder.json", "static_tokens.npy",
-         "static_scales.npy", "static_head.npy", "program_vec.npy", "program_scale.npy",
+         "static_scales.npy", "static_head.npy", "program_vec.npy", "program_scale.npy", "program_ids.json",
          "tokenizer_config.json", "summaries.json"]
 NAME = "chi2026-retriever"
 OUT = os.path.join(config.ROOT, "dist", NAME)
@@ -152,7 +153,7 @@ accuracy on real user queries may be lower.
 | Code (`*.py`, `web/*.mjs`), `encoder.json`, `static_*.npy`, `config.json` | MIT. The encoder is our own, distilled from a fine-tuned `BAAI/bge-m3` (MIT) |
 | `tokenizer.json`, `tokenizer_config.json` | MIT, unchanged from `BAAI/bge-small-en-v1.5` (© BAAI) |
 | `web/vendor/tokenizers.min.mjs` | Apache 2.0, the npm package `@huggingface/tokenizers`, bundled unchanged |
-| `program.json`, `papers.json`, `venue.json`, `program_*.npy` | CC BY-NC-SA 4.0: ACM CHI 2026 programme data, and vectors of its abstracts |
+| `program.json`, `papers.json`, `venue.json`, `program_*.npy`, `program_ids.json` | CC BY-NC-SA 4.0: ACM CHI 2026 programme data, and vectors of its abstracts |
 | `angles.json`, `phrase_*.npy`, `summaries.json`, `expansions.json`, `clusters.json` | CC BY-NC-SA 4.0, as derived from the programme data: finding cards and phrases quoted from the abstracts, and text written offline by `Qwen/Qwen3-14B` and `Qwen/Qwen2.5-7B-Instruct` (Apache 2.0, no claim on their outputs) |
 """
 
@@ -226,6 +227,18 @@ def write_light(np):
         Y = X @ P.T
         return Y / np.linalg.norm(Y, axis=1, keepdims=True)
     G = np.load(os.path.join(config.MODELS_DIR, "program_emb.npy")).astype("float32")
+    # the item id of each row (scripts/embed_program.py), so the phone lines rows up by id
+    idp = os.path.join(config.MODELS_DIR, "program_ids.json")
+    if os.path.exists(idp):
+        ids = json.load(open(idp))
+    else:
+        # vectors made before 11/26: their rows follow program.json as it was then
+        ids = [it["id"] for it in json.load(open(os.path.join(config.ROOT, "data", "processed", "program.json"),
+                                                  encoding="utf-8"))]
+        print("no models/program_ids.json: taking program.json's order for the vector rows")
+    assert len(ids) == len(G), f"{len(ids)} program ids for {len(G)} vector rows: run scripts/embed_program.py"
+    with open(os.path.join(OUT, "program_ids.json"), "w") as f:
+        json.dump(ids, f)
     Gp = project(G)
     scale = np.abs(Gp).max(1) / 127.0
     np.save(os.path.join(OUT, "program_vec.npy"), np.round(Gp / scale[:, None]).astype(np.int8))

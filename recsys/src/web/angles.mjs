@@ -69,7 +69,7 @@ const WHY_LEAD = { support: { evidence: "Goes the way your question expects.", t
 export const P = { JUDGE_N: 40, POOL: 200, SIZE: 7, MAX_READ: 2, GAP_MIN: 5, CALM_GAP: 10, HOLD_K: 3, HOLD_WIN: 90, HOLD_MORE: 30,
                    THEME_COS: 0.45, CLOSE_COS: 0.50,
                    MATCH: 0.70, STRICT: 0.80, COS_LO: 0.45, COS_HI: 0.80, CLAIM_W: 0.95, GEN_W: 0.95, ABOUT_W: 0.9, UP_W1: 0.8, UP_W2: 0.75,
-                   NEAR_SCORE: 1.5, NEAR_TOP: 5, NEAR_CONF: 0.2, TOPIC_CONF: 0.1, COST: true, COST_BOTH: true, COST_TOP: 15,
+                   NEAR_SCORE: 1.5, NEAR_TOP: 5, NEAR_CONF: 0.2, TOPIC_CONF: 0.1, COST: true, COST_BOTH: true, COST_TOP: 10,
                    MINE_K: 8, MINE_Q: 3, BALANCE: true, SUGGEST_K: 3, WARN_WORDS: 3, WARN_MATCH: 5, PAIR_MIN: 5, PAIR_OUT: 0.6, CARDQ_COS: 0.75, CARDQ_X: 0.40, CQ_ONE: true, CQ_ONE_WORDS: 10,
                    CQ_SUGGEST: true, CQ_SAME: 0.85, CQ_ONLY: 1, CQ_TOPIC: 0.40, CQ_WORDS: 12 };
 

@@ -34,6 +34,25 @@ async function reader(base) {
 
 const json = async (rd, f) => JSON.parse(new TextDecoder().decode(await rd.bytes(f)));
 
+/** The program vectors lined up with program.json's items by id (program_ids.json: the item id
+ * of each row, written when the vectors were made). A live programme feed adds, drops and
+ * reorders items; matching rows by position would hand every later talk another talk's vector
+ * (11/26). An item with no vector gets zeros: keywords still find it. Without the ids the row
+ * count must equal the item count. */
+export function alignRows(m, ids, rowIds) {
+  if (rowIds === null) {
+    if (m.n !== ids.length) throw new Error(`program vectors have ${m.n} rows for ${ids.length} items in program.json; repackage (scripts/package_model.py)`);
+    return m;
+  }
+  const row = new Map(rowIds.map((x, r) => [Number(x), r]));
+  const data = new Float32Array(ids.length * m.d);
+  ids.forEach((x, i) => {
+    const r = row.get(Number(x));
+    if (r !== undefined) data.set(m.data.subarray(r * m.d, (r + 1) * m.d), i * m.d);
+  });
+  return { data, n: ids.length, d: m.d };
+}
+
 async function matrix(rd, name, raw = false) {
   // int8 rows with one scale each (name_vec.npy + name_scale.npy), or float32 (name_emb.npy);
   // raw: the int8 codes and scales as they are, decoded row by row by the caller (11/26: the
@@ -66,9 +85,12 @@ export async function loadPackage(base, opts = {}) {
     pkg.angles = await json(rd, "angles.json");
     pkg.phraseEmb = await matrix(rd, "phrase", true);
   }
-  pkg.programEmb = await matrix(rd, "program");
+  pkg.programEmb = alignRows(await matrix(rd, "program"), program.map((it) => it.id),
+    (await rd.exists("program_ids.json")) ? await json(rd, "program_ids.json") : null);
   pkg.papers = await json(rd, "papers.json");
   const pos = new Map(program.map((it, i) => [it.id, i]));
+  // a paper the live programme no longer lists is dropped (its abstract and vector are gone)
+  pkg.papers = pkg.papers.filter((p) => pos.has(p.id));
   for (const p of pkg.papers) if (p.abstract === undefined) p.abstract = program[pos.get(p.id)].abstract;
   if (await rd.exists("paper_emb.npy")) pkg.paperEmb = await matrix(rd, "paper");
   else {

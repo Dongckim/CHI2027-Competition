@@ -365,6 +365,29 @@ def load_matrix(root, name):
     return np.load(os.path.join(root, f"{name}_emb.npy"))
 
 
+def load_program(root, ids):
+    """The program vectors lined up with program.json's items by id (program_ids.json: the
+    item id of each row, written when the vectors were made). A live programme feed adds,
+    drops and reorders items; matching rows by position would hand every later talk the
+    vector of another (11/26). An item with no vector gets zeros: keywords still find it.
+    Without program_ids.json the row count must equal the item count."""
+    m = load_matrix(root, "program")
+    path = os.path.join(root, "program_ids.json")
+    if not os.path.exists(path):
+        if m.shape[0] != len(ids):
+            raise ValueError(f"program vectors have {m.shape[0]} rows for {len(ids)} items in program.json; "
+                             "repackage (scripts/package_model.py)")
+        return m
+    with open(path, encoding="utf-8") as f:
+        row = {int(x): r for r, x in enumerate(json.load(f))}
+    out = np.zeros((len(ids), m.shape[1]), dtype=m.dtype)
+    for i, x in enumerate(ids):
+        r = row.get(int(x))
+        if r is not None:
+            out[i] = m[r]
+    return out
+
+
 class QueryEncoder:
     """A query string -> a vector in the paper-vector space.
 
@@ -438,13 +461,16 @@ class Retriever:
         # papers are program items: a slim papers.json takes the abstract and the
         # vector of the same item in program.json (one copy of each on the phone)
         pos = {it["id"]: i for i, it in enumerate(program)}
+        # a paper the live programme no longer lists is dropped (its abstract and vector are gone)
+        if program:
+            self.papers = [p for p in self.papers if p["id"] in pos]
         for p in self.papers:
             if "abstract" not in p:
                 p["abstract"] = program[pos[p["id"]]]["abstract"]
         if os.path.exists(os.path.join(root, "paper_emb.npy")):
             self.emb = np.load(os.path.join(root, "paper_emb.npy"))
         else:
-            self.emb = load_matrix(root, "program")[[pos[p["id"]] for p in self.papers]]
+            self.emb = load_program(root, [it["id"] for it in program])[[pos[p["id"]] for p in self.papers]]
         texts = [f"{p['title']}. {p['abstract']}" for p in self.papers]
         expansions = load_expansions(root, self.papers)
         if expansions and self.cfg.get("expansion_mode", "combined") == "combined":

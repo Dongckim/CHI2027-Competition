@@ -17,7 +17,9 @@ Checks made here, so a wrong LLM answer never reaches a screen:
   - a card the LLM stored as a "result" must sit on a sentence that can carry the study's own
     result: an aim or method ("This study investigated how ..."), a system the paper presents,
     prior work, a gap in the literature or the abstract's opening sentence is stored as "aim",
-    "claim" or "prior" instead, so it never becomes a Challenge or an Evidence Support (11/22).
+    "claim" or "prior" instead, so it never becomes a Challenge or an Evidence Support (11/22);
+  - a "claim" card must sit on a sentence that can present something to try: an argument
+    ("We argue ...") is stored as "aim", a problem ("However, ...") as "prior" (11/26).
 
 Debut authors: names of 2026 paper authors not among the paper authors of CHI 2023-2025
 (programme data in data/raw/chi20xx.json, or CHI_PAST_DIR). Name match only.
@@ -43,7 +45,7 @@ from angles import NEG_OUTCOME, NO_FINDINGS, content, lemma, parse_question, ste
 PROC = os.path.join(config.ROOT, "data", "processed")
 PKG = os.path.join(config.ROOT, "dist", "chi2026-retriever")
 PAST_DIR = os.environ.get("CHI_PAST_DIR", os.path.join(config.ROOT, "data", "raw"))
-VERSION = os.environ.get("CHI_ANGLES_VERSION", "2026-11-26")
+VERSION = os.environ.get("CHI_ANGLES_VERSION", "2026-11-26b")
 # directions the third pass may correct: a card stored without one ("associated")
 EFFECT_FIX = set(os.environ.get("CHI_EFFECT_FIX", "associated").split(","))
 
@@ -227,6 +229,29 @@ def sentence_status(text, first=False):
     return "result"
 
 
+# a "claim" card should present something one can try (a system, a tool, a design); an argument
+# ("We argue ...", "our argument for ...") or a problem ("However, keeping ... forces ...") is not
+# (11/26: these were "Try it" Supports)
+ARGUE_RE = re.compile(r"\b(?:we|i)\s+(?:also\s+|further\s+)?argue\b|\bour argument\b|\bwe take the position\b", re.I)
+PROBLEM_RE = re.compile(r"^(?:however|yet|but|unfortunately|still)\b", re.I)
+NAMED_RE = re.compile(r"\b[A-Z][a-z]+[A-Z][A-Za-z]*\b")       # a system's name: HistoryPalette, PersonaCite
+
+
+def claim_status(text):
+    """"claim" when the sentence can present something to try, else "aim" (an argument) or
+    "prior" (a problem, prior work or a gap)."""
+    s = " ".join(text.split())
+    if ARGUE_RE.search(s):
+        return "aim"
+    # a sentence that states a result ("However, analysis revealed ...") or names the system
+    # ("HistoryPalette enables creators to ... reuse their prior work") is no problem statement
+    if RESULT_RE.search(s) or OWN_RE.search(s) or SYS_RE.search(s) or NAMED_RE.search(s):
+        return "claim"
+    if PROBLEM_RE.search(s) or BACKGROUND_RE.search(s) or GAP_RE.search(s):
+        return "prior"
+    return "claim"
+
+
 def clean_claim(p):
     """The LLM sometimes writes the direction into a claim ("spatial awareness, increase",
     "reduced stress"): keep only the thing itself."""
@@ -356,6 +381,10 @@ def main():
                 st = sentence_status(ab[sent[0]:sent[1]], first=not ab[:sent[0]].strip())
                 if st != "result":
                     stats[f"result_to_{st}"] += 1
+            if st == "claim":
+                st = claim_status(ab[sent[0]:sent[1]])
+                if st != "claim":
+                    stats[f"claim_to_{st}"] += 1
             cards.append([pid(ab[fs[0]:fs[1]]), pid(ab[os_[0]:os_[1]]),
                           pid(ab[ps[0]:ps[1]]) if ps else -1,
                           EFFECTS.index(c["effect"]), STATUS.index(st),
@@ -400,6 +429,8 @@ def main():
                 continue
             have.add((f_, o_))
             st = sentence_status(ab[sent[0]:sent[1]], first=not ab[:sent[0]].strip())
+            if st == "claim":
+                st = claim_status(ab[sent[0]:sent[1]])
             if st != "result":
                 stats[f"more_result_to_{st}"] += 1
             cards.append([f_, o_, -1, EFFECTS.index(m["effect"]), STATUS.index(st),

@@ -294,6 +294,12 @@ Python·JavaScript 일치 271/271, Arc 80/80, 검색 42/42, 앵글 41/42("How do
 
 **"A & B" 주제.** 세션 이름의 "&"는 원인과 결과가 아닌데 "Does music improve haptics?", "Does gender improve social media?", "Does design improve AI?"처럼 물었다. 결과 카드에서 그 말이 결과 쪽에 얼마나 나오는지 세어(trust 168번 중 152번은 결과, haptics·social media·music은 대부분 원인) B가 결과 쪽 말일 때만 "Does A improve B?"로 묻고, A가 결과 쪽이면 순서를 바꾸고, A만 원인 쪽이고 B는 근거가 적으면 "How does A affect B?"로, 둘 다 주제면 묻지 않고 발표들이 답하는 질문에서 고른다. "A & B" 전체를 한 원인으로 보는 좁히기("Does design & AI improve creativity?")도 하지 않는다. 주제어 99개 Arc: Support 있음 87 → 91, 각도 2종류 이상 92 → 94.
 
+**비용 Challenge는 검색 10위 안에서만.** 평가 질문 Arc의 틀린 Challenge 6개 중 4개가 질문과 상관없는 비용이었다("대화형 에이전트가 외로움을 줄이나?"에 "튜티 에이전트가 압박감을 높였다", "아첨형 LLM이 신뢰를 낮췄다"). 그 발표가 질문의 Y를 다루는지는 맞는 Trade-off와 갈리지 않았지만(맞는 것도 대부분 Y가 초록에 없다), 검색 순위는 갈렸다. 비용 Challenge 23개 중 틀린 것 5개가 11~13위였다. COST_TOP을 15에서 10으로 줄이니 23개가 16개가 되었고(틀린 5개, 맞는 2개 빠짐) 맞는 비율이 52%에서 63%로 올랐다. holdout Challenge 정밀도 .667 → 1.0(재현율 .667 그대로), macro F1 .553 → .587. 대신 Challenge가 있는 Arc는 평가 질문 12 → 9, 주제어 13 → 11개로 줄었다.
+
+**실시간 피드 대비: 검색 벡터를 발표 번호로.** 4월부터 프로그램은 실시간 피드로 바뀐다(발표 철회, 추가, 순서 변경). 검색 벡터(`program_vec.npy`)는 program.json의 몇 번째 줄인지로만 발표와 이어져 있었고 개수 확인도 없어서, 발표 하나가 끼거나 빠지면 그 뒤 발표들이 오류 없이 남의 벡터를 쓰게 된다(시험한 변경에서는 기존 발표 2,781개 중 199개). 이제 벡터를 만들 때 각 줄의 발표 번호(`program_ids.json`)를 함께 저장하고 패키지에 넣으며, Python(`retriever.load_program`)과 JS(`load.mjs`의 `alignRows`)가 번호로 줄을 맞춘다. 벡터가 아직 없는 새 발표는 0 벡터라 키워드 검색으로만 찾고, 번호 목록 없이 개수가 다르면 바로 오류를 낸다. 피드에서 빠진 논문은 논문 목록에서도 뺀다(전에는 초록을 찾다가 멈췄다). `tests/run_feed_cases.py`가 패키지 복사본의 program.json을 바꿔(논문 하나 철회, 새 발표 하나, 100개 순서 뒤집기) Python과 JS 모두에서 확인한다: 기존 발표 2,781개 모두 제 벡터, 새 발표는 키워드로 찾음, Arc 정상.
+
+**"Try it" Support는 해 볼 수 있는 것을 소개하는 문장에서만.** "Try it"은 논문이 소개한 시스템(주장 카드)이나 데모에서 나오는데, 주장 카드에 입장 표명("We argue against …", "I argue that GenAI … harms …", "our argument for …")과 문제 제기("However, keeping modalities separate forces researchers …")가 섞여 있었다. build_angles.py가 주장 카드의 문장을 다시 읽어 입장 표명은 aim, 문제 제기·배경·빈틈은 prior로 둔다(결과를 말하거나 HistoryPalette처럼 시스템 이름이 있는 문장은 그대로 claim). 첫 단계 카드 77개가 바뀌었고(25개를 읽어 22개 정도 맞음), 평가·주제어·단어 Arc의 "Try it" 17개 중 이런 4개가 빠졌다. 정답 라벨 대비 수치는 그대로. 데이터 버전 2026-11-26b.
+
 **Same subject Reframe(holdout 51% 무관).** 어디서 나오는지 나눠 보았다. 검색 상위 5위라서 붙은 것 22개 중 11개, 초록에 질문 단어가 다 있어서 붙은 것 10개 중 6개가 무관했다(48문항에서는 21개 중 1개). 검색 점수와 순위, 질문 단어가 초록·카드에 있는지, 발표가 답하는 질문과의 거리 모두 맞는 것과 무관한 것을 가르지 못했다. 마지막 것이 조금 갈리지만(중앙값 0.53 대 0.45) 0.40으로 자르면 holdout에서 무관 9개를 빼는 대신 48문항에서 맞는 7개를 뺀다. holdout에 맞춰 고르면 평가도 오염되므로 바꾸지 않았다. 무관 라벨 중 절반쯤은 같은 주제로 볼 만하다. 고치는 길은 cross-encoder(크기 때문에 뺌)나, 근거가 약할 때 멈춤 수를 줄이는 것(팀과 정할 일)이다.
 
 **전체 점검.** 정답 라벨 대비 수치는 낮과 같다(48문항 Support .68/.26, Reframe .78/.78, on-map .87/.83; holdout Support .56/.19, Reframe .60/.74, Challenge .67/.67). 직접 읽기: Challenge 평가 질문 14개 중 8개, 주제어 15개 중 6개, Support 30개 중 19개. 폰 엔진은 입력 79개와 이상한 입력 40개에서 오류 0, 화면당 서버 기준 중앙값 0.3초. 검색은 11/11 그대로(폰 R@1 0.77, R@8 0.945).
@@ -315,5 +321,6 @@ python scripts/eval_angles.py                          # docs/angle_eval.json (-
 sbatch scripts/compare_llm.slurm && python scripts/compare_llm_report.py   # 일반 LLM과 비교 (GPU 7개 약 15분)
 python scripts/package_model.py
 python tests/run_angle_cases.py                        # 43개 사례
+python tests/run_feed_cases.py                         # 실시간 피드: 발표가 빠지고 끼고 순서가 바뀌어도 (Python, JS)
 python tests/web_reference.py && node tests/run_web_parity.mjs   # JavaScript가 Python과 같은지 (271개)
 ```

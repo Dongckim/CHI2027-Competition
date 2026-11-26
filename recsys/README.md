@@ -8,9 +8,9 @@
 ### 지금 모델 패키지 (11/26)
 | | |
 |---|---|
-| 파일 | `chi2026-retriever-2026-11-26d.zip` (GitHub Release `model-2026-11-26d`) |
-| 크기 | zip 28.5 MB, 풀면 47.6 MB, 파일 117개 (zip 안은 상대 경로만, 맨 위 폴더 없음) |
-| `MODEL_SHA256` | `d124ad1b5fd92216d635ad56e03a1b1f6e3194fe3f0f7dfcacbae07436c46069` |
+| 파일 | `chi2026-retriever-2026-11-26e.zip` (GitHub Release `model-2026-11-26e`) |
+| 크기 | zip 28.5 MB, 풀면 47.7 MB, 파일 118개 (`program_ids.json` 추가) (zip 안은 상대 경로만, 맨 위 폴더 없음) |
+| `MODEL_SHA256` | `a2a574b98d9cc2aeea91bb86b4f630b01545ffc01aefba0717d61a6e7ea5a9d3` |
 | 소스 | 이 폴더 `src/package/`(Python), `src/web/`(JavaScript, 패키지의 `web/`) |
 | 다시 만들기 | `python scripts/package_model.py` → `dist/chi2026-retriever/` (아래 "데이터 다시 만들기") |
 
