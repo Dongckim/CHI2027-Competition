@@ -17,7 +17,7 @@ test('layout (Figma 11/23): three regions, up to three seats each, the rest behi
   const arc = { tension: 'found', nodes: [n('s1', 'S'), n('s2', 'S'), n('r1', 'R'), n('r2', 'R'), n('t1', 'T')] };
   const l = layout(arc);
   // Figma 12 (597:711): node orbs' centres
-  assert.deepEqual(l.nodes.map(x => [x.node.key, x.at]), [['s1', [121, 81.4]], ['s2', [269, 81.4]], ['r1', [63, 280.4]], ['r2', [100.7, 391]], ['t1', [327, 280.4]]]);
+  assert.deepEqual(l.nodes.map(x => [x.node.key, x.at]), [['s1', [110, 78]], ['s2', [280, 78]], ['r1', [60, 270]], ['r2', [104, 404]], ['t1', [330, 280.4]]] /* user 11/26: wider than Figma */);
   assert.deepEqual(l.regions, [{ angle: 'S', count: 2, more: 0 }, { angle: 'R', count: 2, more: 0 }, { angle: 'T', count: 1, more: 0 }]);
   assert.deepEqual(l.nodes.filter(x => x.oneLine).map(x => x.node.key), ['r1', 'r2'], 'stacked Reframes keep one line');
   // Figma 24 / 24c: the three that matter, the whole count on the badge
@@ -25,8 +25,8 @@ test('layout (Figma 11/23): three regions, up to three seats each, the rest behi
   assert.equal(crowd.nodes.length, 8);
   assert.deepEqual(crowd.regions.map(r => [r.angle, r.count, r.more]), [['S', 5, 2], ['R', 4, 1], ['T', 2, 0]]);
   assert.deepEqual(crowd.nodes.filter(x => x.node.angle === 'S').map(x => x.at), [[72.1, 56.4], [195, 88], [317.9, 59.9]]);
-  assert.deepEqual(crowd.nodes.filter(x => x.node.angle === 'T').map(x => x.at), [[331.9, 269.1], [290.4, 392.7]]);
-  assert.equal(layout({ tension: 'none', nodes: [n('s1', 'S')] }).emptyT?.join(), '327,280.4');
+  assert.deepEqual(crowd.nodes.filter(x => x.node.angle === 'T').map(x => x.at), [[330, 270], [286, 404]]);
+  assert.equal(layout({ tension: 'none', nodes: [n('s1', 'S')] }).emptyT?.join(), '330,280.4');
   assert.equal(layout({ tension: 'pending', nodes: [n('a', 'S'), n('b', 'T')] }).nodes.length, 2);
   const p7 = layout({ tension: 'pending', nodes: 'abcdefg'.split('').map(k => n(k, 'S')) });
   assert.deepEqual([p7.nodes.length, p7.regions.length], [5, 0], 'Figma 25: the five seats, no regions');

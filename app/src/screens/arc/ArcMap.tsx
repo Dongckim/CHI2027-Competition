@@ -128,7 +128,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
       {/* 24b Reframes / Challenges (no Figma): the other two angles as a centred row under the header, the same pills as
           the map's counts. Pinned inside the scaled map they sat at odd places against the region lines (iPhone 11/25) */}
       {(focus === 'R' || focus === 'T') && (
-        <div className="mt-2 flex justify-center gap-2">
+        <div className="relative z-[1] mt-2 flex justify-center gap-2">{/* over the region field, which runs up behind it */}
           {(['S', 'R', 'T'] as Angle[]).filter(a => a !== focus).map(a => (
             <button key={a} type="button" onClick={() => toFocus(a)} aria-label={`All ${totals[a]} ${ANGLE_NAME[a]}`} className="flex min-h-touch items-center">
               <span data-badge={a} className="flex h-[30px] items-center gap-[5px] rounded-full border border-white/10 bg-arc-surface pr-[11px] pl-[9px] text-[13px] font-semibold text-arc-text/78">
