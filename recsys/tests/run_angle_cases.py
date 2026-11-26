@@ -250,7 +250,9 @@ def main():
         base = eng.handle({"screen": "arc", "question": "older adults", "days": ["tue"]})
         ids = [nd["id"] for nd in base["nodes"]]
         errs = [] if base["asked"] == "older adults" else ["arc should say what was asked"]
-        out = eng.handle({"screen": "edit", "question": "older adults", "days": ["tue"], "nodes": ids, "node": ids[0]})
+        # a stop whose angle has others to swap in (a lone Support has none, 11/26)
+        tap = next(nd["id"] for nd in base["nodes"] if base["available"][nd["angle"]] > 1)
+        out = eng.handle({"screen": "edit", "question": "older adults", "days": ["tue"], "nodes": ids, "node": tap})
         if not out["cards"]:
             errs.append("edit on a topic Arc gave no cards")
         nd = eng.handle({"screen": "node", "question": "older adults", "id": ids[0]})
@@ -258,6 +260,28 @@ def main():
             errs.append("node detail disagrees with the map")
         return errs, base["question"]
     case("topic Arc: edit and detail use the same question", topic_arc)
+
+    def one_word():
+        # 11/26: a short real topic is not off-topic, junk still is; a topic with no sharper
+        # question still gets an Arc; a one-talk question names the whole topic
+        errs, seen = [], []
+        for t in ("loneliness", "TikTok", "passwords", "dating"):
+            if eng.handle({"screen": "ask", "text": t})["warning"]:
+                errs.append(f"{t}: warned as off-topic")
+        for t in ("pizza", "football", "car insurance"):
+            if not eng.handle({"screen": "ask", "text": t})["warning"]:
+                errs.append(f"{t}: not warned")
+        a = eng.handle({"screen": "arc", "question": "TikTok", "when": "week"})
+        if not a["nodes"]:
+            errs.append("TikTok: an empty Arc")
+        for t in ("sleep", "older adults"):
+            s = eng.handle({"screen": "ask", "text": t})["suggestions"]
+            top = s[0]["question"] if s else ""
+            seen.append(top)
+            if not all(any(A._same(w, u) for u in A.content(top)[0]) for w in A.content(t)[0]):
+                errs.append(f"{t}: first suggestion without the topic: {top!r}")
+        return errs, " | ".join(seen)
+    case("one word: on topic when talks name it, narrowed with its own words", one_word)
 
     def acronyms():
         out = eng.handle({"screen": "angles", "question": Q})
@@ -300,6 +324,26 @@ def main():
             errs.append("the same link gave different Arcs")
         return errs, f"{card['id']}: engine says {own}, user says support; map, list, detail, link agree"
     case("shared: hand-set angles survive the link (18-19)", hand_angles)
+
+    def tradeoff():
+        # a Trade-off Challenge is the same X helping and costing in one talk (11/25 evening):
+        # "uncertainty visualization improved drilling accuracy by 24% but increased task time"
+        # stays; an agent study that only found a cost unrelated to the question does not
+        errs, seen = [], []
+        for qt, title, want in (("Do visualizations help people understand uncertainty?",
+                                 "Visualization of Tracking Uncertainty", True),
+                                ("Does self-tracking increase physical activity?", "What to Expect When", True),
+                                ("Do conversational agents reduce loneliness?", "Quantifying Latencies", False),
+                                ("Do conversational agents reduce loneliness?", "Metacognitive Demands", False)):
+            q = eng.question(qt)
+            i = next(j for j, it in enumerate(eng.items) if it["title"].startswith(title))
+            v = eng.judge(i, q)
+            got = bool(v) and v["angle"] == "challenge" and v["subtype"] == "cost"
+            seen.append(f"{title[:20]}: {v['angle'] + '/' + v['subtype'] if v else None}")
+            if got != want:
+                errs.append(f"{qt} / {title}: {'no ' if want else ''}Trade-off expected, got {v}")
+        return errs, " | ".join(seen)
+    case("judge: a Trade-off needs the X to help as well", tradeoff)
 
     def doing():
         # what people do, said as the outcome a paper measures

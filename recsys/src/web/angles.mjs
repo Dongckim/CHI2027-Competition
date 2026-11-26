@@ -58,6 +58,7 @@ const FORMAT_LABEL = { PAPER: "Paper talk", POSTER: "Poster", DEMO: "Demo", PANE
 const EFFECTS = ["increase", "decrease", "no_effect", "mixed", "associated"];
 const STATUS = ["result", "claim", "prior", "aim"];
 const WORSE = 1;
+const BETTER = 0;
 const AFFECTS = 2;    // angles.json "cq" lean of a "How does X affect Y?" question
 // the why line: what the angle means for the asker, then the card's finding (LLM, offline)
 const WHY_LEAD = { support: { evidence: "Goes the way your question expects.", try: "Something you can try." },
@@ -68,8 +69,8 @@ const WHY_LEAD = { support: { evidence: "Goes the way your question expects.", t
 export const P = { JUDGE_N: 40, POOL: 200, SIZE: 7, MAX_READ: 2, GAP_MIN: 5, CALM_GAP: 10, HOLD_K: 3, HOLD_WIN: 90, HOLD_MORE: 30,
                    THEME_COS: 0.45, CLOSE_COS: 0.50,
                    MATCH: 0.70, STRICT: 0.80, COS_LO: 0.45, COS_HI: 0.80, CLAIM_W: 0.95, GEN_W: 0.95, ABOUT_W: 0.9, UP_W1: 0.8, UP_W2: 0.75,
-                   NEAR_SCORE: 1.5, NEAR_TOP: 5, NEAR_CONF: 0.2, TOPIC_CONF: 0.1, COST: true, COST_TOP: 15,
-                   MINE_K: 8, MINE_Q: 3, BALANCE: true, SUGGEST_K: 3, CARDQ_COS: 0.75, CARDQ_X: 0.40,
+                   NEAR_SCORE: 1.5, NEAR_TOP: 5, NEAR_CONF: 0.2, TOPIC_CONF: 0.1, COST: true, COST_BOTH: true, COST_TOP: 15,
+                   MINE_K: 8, MINE_Q: 3, BALANCE: true, SUGGEST_K: 3, WARN_WORDS: 3, WARN_MATCH: 5, CARDQ_COS: 0.75, CARDQ_X: 0.40, CQ_ONE: true, CQ_ONE_WORDS: 10,
                    CQ_SUGGEST: true, CQ_SAME: 0.85, CQ_ONLY: 1, CQ_TOPIC: 0.40, CQ_WORDS: 12 };
 
 const set = (s) => new Set(s.split(/\s+/).filter(Boolean));
@@ -305,11 +306,22 @@ function doing(y) {
   return [[...toks, ...(state ? [state] : [])].join(" "), people, flip];
 }
 
+const GOOD_ADJ = new Set(["good", "beneficial", "helpful", "healthy", "useful", "safe"]);
+const BAD_ADJ = new Set(["bad", "harmful", "unhealthy", "dangerous", "detrimental"]);
+const RE_GOODBAD = new RegExp("^(?<be>is|are)\\s+(?<x>.+?)\\s+(?:really\\s+|actually\\s+)?(?<a>"
+  + [...GOOD_ADJ, ...BAD_ADJ].sort().join("|") + ")\\s+(?:for|to)\\s+(?<y>.+)$");
+// inputs that are only the field's own short names ("AI", "VR"): CHI covers them, though the
+// off-topic check reads two letters as too little to go on
+const FIELD_TERMS = new Set(["ai", "vr", "ar", "xr", "mr", "llm", "llms", "ux", "ui", "hci", "iot", "ml", "nlp", "bci", "hri", "cscw", "ehmi"]);
+
 export function parseQuestion(text) {
   const raw = pyStr(text).split(/\s+/u).filter(Boolean).join(" ");
   let low = pyStrip(raw.toLowerCase().replaceAll("’", "'").trim(), "?.! ");
   low = low.replace(/^(?:i wonder |i want to know |i'm curious |i am curious )(?:if |whether |how )?/, "");
   low = low.replace(/^(?:whether|if)\s+/, "does ");
+  // "Is TikTok bad for teenagers?" asks what "Does TikTok harm teenagers?" asks
+  const gb = RE_GOODBAD.exec(low);
+  if (gb) low = `${gb.groups.be === "is" ? "does" : "do"} ${gb.groups.x} ${GOOD_ADJ.has(gb.groups.a) ? "improve" : "harm"} ${gb.groups.y}`;
   const out = { kind: "", x: "", y: "", dir: "?", ctx: "", verb: "", text: raw };
   let m = RE_PSYCH.exec(low);
   if (m && !RE_YESNO.exec(low)) {
@@ -737,9 +749,20 @@ export class Angles {
         && !X.toks.some((w) => FAULT.has(w)) && q.close.has(this.arc._canon(i))) {
       const yneg = Y.toks.some((w) => NEG_OUTCOME.has(w)) !== Y.neg;
       if ((q.dir === "+") !== yneg) {
+        // a trade-off: the same X, as tested, also made something better in this talk
+        // (the LLM's better / worse, or, where it saw no change or no direction, a rise in
+        // or link to an outcome that is not a bad one: "improves ... emotional stability")
+        const helped = (j, c) => {
+          const v = info.val.get(j);
+          if (c.st !== "result" || xdirect.get(j) < P.MATCH || (v && v[0] === WORSE)) return false;
+          return (v !== undefined && v[0] === BETTER)
+            || ((c.e === "increase" || c.e === "associated") && !this.ptoks[c.o].some((w) => NEG_OUTCOME.has(w)));
+        };
+        const good = rows.some(([j, c]) => helped(j, c));
         for (const [k, c, mx, my] of rows) {
           const v = info.val.get(k);
           if (v && v[0] === WORSE && v[1] === 1 && xdirect.get(k) >= P.STRICT && my < P.MATCH
+              && (good || !P.COST_BOTH)
               && X.neg === this.pneg[c.f] && !this.ptoks[c.f].some((w) => FAULT.has(w))) {
             return { angle: "challenge", subtype: "cost", conf: pyRound(0.7 * mx, 3), card: k, caveat: null };
           }
@@ -981,7 +1004,8 @@ export class Angles {
     const types = this._types(this._formats(req));
     const [, pool, score] = await this._judged(q, types);
     const sug = await this._suggest(q, pool, score, types, P.SUGGEST_K);
-    if (!sug.length) throw new InputError('could not find a question in this topic; try a question like "Does X raise Y?"');
+    // no sharper question in the talks ("dating"): the Arc stays on the topic itself
+    if (!sug.length) return [q, q.text];
     return [await this.question(sug[0].question), q.text];
   }
 
@@ -997,6 +1021,20 @@ export class Angles {
     }
   }
 
+  // not English, or CHI may not cover it (the field's own short names always pass)
+  // ... and so does a short topic that enough talks name ("loneliness", "TikTok")
+  async _warning(q, types = null, matching = null) {
+    if (nonLatin(q.text)) return ENGLISH_ONLY;
+    const words = q.text.toLowerCase().match(W_RE()) || [];
+    if (words.length && words.every((w) => FIELD_TERMS.has(w))) return null;
+    if (!(await this.arc._relevance({ research: q.text, keywords: [], topics: [] })).low) return null;
+    if (q.kind !== "relation" && words.length <= P.WARN_WORDS) {
+      if (matching === null) matching = await this._matching(q, (await this._judged(q, types))[1]);
+      if (matching >= P.WARN_MATCH) return null;
+    }
+    return OFF_TOPIC;
+  }
+
   // -- A-1 / A-2 ------------------------------------------------------------------
   async ask(req) {
     const text = "text" in req ? req.text : req.question;
@@ -1005,9 +1043,8 @@ export class Angles {
     const [judged, pool, score] = await this._judged(q, types);
     const out = { text: q.text, kind: q.kind, parsed: { x: q.x, y: q.y, direction: q.dir, context: q.ctx },
                   tribe: this._tribe(score, pool), matching: await this._matching(q, pool), corrected: q.corrected };
-    const rel = await this.arc._relevance({ research: q.text, keywords: [], topics: [] });
-    out.on_topic = !rel.low;
-    out.warning = nonLatin(q.text) ? ENGLISH_ONLY : rel.low ? OFF_TOPIC : null;
+    out.warning = await this._warning(q, types, out.matching);
+    out.on_topic = out.warning === null;
     if (q.kind === "relation") {
       out.counts = this._counts(judged);
       out.suggestions = [];
@@ -1073,7 +1110,7 @@ export class Angles {
     const ov = new Map([...groups.entries()].map(([key, g]) => [key, overlap(g)]));
     const ranked = sortedBy([...groups.entries()].filter(([key, g]) => g.items.length >= 2 || ov.get(key) > 0)
       .map(([key, g]) => [pyRound(g.w * (1 + ov.get(key)), 6), JSON.parse(key)]), (t) => [-t[0], t[1]]);
-    let out = [];
+    let out = [], single = [];
     const usedF = new Set(), usedO = new Set(), usedI = new Set();
     if (P.CQ_SUGGEST) {
       // "chatbots and mental health": the asker's own two things, asked as they gave them
@@ -1086,17 +1123,28 @@ export class Angles {
         if ((await this.question(text)).kind === "relation") mine.push(await this._suggestion(text, a_, b_, [], types));
       }
       const first = mine.length ? mine[0].question : undefined;
-      out = mine.concat((await this._claims(q, pool, score, types, k)).filter((o) => o.question !== first)).slice(0, k);
+      const cq = (await this._claims(q, pool, score, types, k)).filter((c) => c[0] !== first);
+      out = mine.slice();
+      for (const c of cq) if (c[3].length >= 2) out.push(await this._suggestion(...c, types));
+      out = out.slice(0, k);
       if (out.length >= P.CQ_ONLY) return this._balanced(out, q);
+      // questions only one talk answers wait behind the topic's own broad questions
+      single = cq.filter((c) => c[3].length < 2);
     }
     // a topic keeps its own words when its talks share an outcome or a cause
     if (q.kind === "topic") {
+      const room = k - (single.length ? 1 : 0);
       for (const [x, y, e, items] of await this._anchored(q, pool, score)) {
+        if (out.length >= room) break;
         const text = this._wording(x, y, e);
         if (out.every((o) => o.question !== text)) out.push(await this._suggestion(text, x, y, items, types));
-        if (out.length === k) return this._balanced(out, q);
       }
     }
+    for (const c of single) {
+      if (out.length >= k) break;
+      if (out.every((o) => o.question !== c[0])) out.push(await this._suggestion(...c, types));
+    }
+    if (out.length >= k) return this._balanced(out, q);
     for (const [, key] of ranked) {
       const g = groups.get(JSON.stringify(key));
       if ((usedF.has(key[0]) && usedO.has(key[1])) || g.items.every((i) => usedI.has(i))) continue;
@@ -1158,6 +1206,9 @@ export class Angles {
       A_ = await this._phrase(pa);
       B_ = await this._phrase(pb);
     }
+    // one or two words ("sleep"): its talks rarely ask the same thing twice, so a question
+    // one talk answers will do when it names the topic and is short (the talk ranked first)
+    const one = P.CQ_ONE && q.kind !== "relation" && qt.length > 0 && qt.length <= P.WARN_WORDS;
     const rows = [];
     cands.forEach(([i, qp, g], a) => {
       // talks, not listings: a talk listed twice backs a question once
@@ -1168,12 +1219,15 @@ export class Angles {
           if (!backers.includes(c)) backers.push(c);
         }
       }
-      if (backers.length < 2) return;
+      const keeps = qt.some((w) => this.ptoks[qp].some((t) => same(w, t)));
+      const nw = this.phrases[qp].split(/\s+/).filter(Boolean).length;
+      // ... and names all of it ("LLM agents": both words)
+      const whole = qt.every((w) => this.ptoks[qp].some((t) => same(w, t)));
+      if (backers.length < 2 && !(one && whole && nw <= P.CQ_ONE_WORDS)) return;
       // on the typed topic, and short enough to read as a question
       let cq = 0;
       for (let t = 0; t < D; t++) cq += this.pvec[qp * D + t] * q.V[t];
-      if (this.phrases[qp].split(" ").length > P.CQ_WORDS || cq < P.CQ_TOPIC) return;
-      const keeps = qt.some((w) => this.ptoks[qp].some((t) => same(w, t)));
+      if (nw > P.CQ_WORDS || (cq < P.CQ_TOPIC && !(one && whole))) return;
       // "chatbots and mental health": the two named things as the question's X and Y
       let pr = 1;
       if (A_ !== null && B_ !== null) {
@@ -1185,15 +1239,18 @@ export class Angles {
       rows.push([pr, keeps ? 0 : 1, -backers.length, -pyRound(w, 6), a, backers]);
     });
     const sorted = sortedBy(rows, (r) => r.slice(0, 5));
-    const out = [], picked = [];
+    const out = [], picked = [], talks = new Set();
     for (const [, , , , a, backers] of sorted) {
       if (picked.some((b) => S[a * n + b] >= P.CQ_SAME)) continue;
+      // one talk's question: one per talk, so three suggestions are three ideas
+      if (backers.length < 2 && talks.has(backers[0])) continue;
       const qp = cands[a][1];
       const text = show(this.phrases[qp].slice(0, 1).toUpperCase() + this.phrases[qp].slice(1));
       const pq = await this.question(text);
       if (pq.kind !== "relation") continue;
       picked.push(a);
-      out.push(await this._suggestion(text, show(pq.x), show(pq.y), backers, types));
+      for (const b of backers) talks.add(b);
+      out.push([text, show(pq.x), show(pq.y), backers]);
       if (out.length === k) break;
     }
     return out;
@@ -1289,7 +1346,7 @@ export class Angles {
     const [q, asked] = await this._asRelation(await this.question(req.question || req.text), req);
     const [judged] = await this._judged(q, this._types(this._formats(req)));
     const chips = this._chips(judged);
-    return { question: q.text, asked, headline: "Choose your angles.",
+    return { question: q.text, asked: asked !== q.text ? asked : null, headline: "Choose your angles.",
              angles: ANGLES.map((a) => ({ key: a, name: ANGLE_NAME[a], symbol: SYMBOL[a], help: HELP[a], chips: chips[a],
                                           empty: a === "challenge" && !chips[a].length ? NO_CHALLENGE : null })),
              help_note: HELP_NOTE, button: "Next" };
@@ -1442,7 +1499,8 @@ export class Angles {
 
   async arcScreen(req) {
     const t0 = performance.now();
-    const [q, asked] = await this._asRelation(await this.question(req.question || req.text), req);
+    const typed = await this.question(req.question || req.text);
+    const [q, asked] = await this._asRelation(typed, req);
     const formats = this._formats(req);
     const types = this._types(formats);
     const now = this._nowOf(req);
@@ -1490,7 +1548,9 @@ export class Angles {
     const empty = {};
     for (const a of ANGLES) if (!counts.count(a)) empty[a] = a === "challenge" ? NO_CHALLENGE : null;
     return {
-      question: q.text, asked, parsed: { x: q.x, y: q.y, direction: q.dir, context: q.ctx },
+      question: q.text, asked: asked !== q.text ? asked : null, parsed: { x: q.x, y: q.y, direction: q.dir, context: q.ctx },
+      // what was typed is not English or not something CHI covers: the stops are then a guess
+      warning: await this._warning(typed, types),
       tribe, days, formats, loading: { text: `Reading ${nAll.toLocaleString("en-US")} talks for you`, n: nAll },
       counts: Object.fromEntries(ANGLES.map((a) => [a, counts.count(a)])),
       summary_line: `${nodes.length} stops · ` + ANGLES.map((a) => `${counts.count(a)} ${a}`).join(" · "),
@@ -2036,7 +2096,8 @@ function cmpStr(a, b) {
 // when the topic names one thing or the second is who ("for blind users")
 function pair(topic) {
   const m = topic.match(/^(.+?)\s+(?:and|for|vs|versus|on|&)\s+(.+)$/);
-  if (!m) return ["", ""];
+  // only a topic's few words; a sentence ("I study haptic feedback for VR training of ...") is not a pair
+  if (!m || (topic.toLowerCase().match(W_RE()) || []).length > 6) return ["", ""];
   const a = m[1].trim(), b = m[2].trim();
   const bw = b.match(W_RE()) || [];
   if (!content(a)[0].length || !content(b)[0].length || PEOPLE.has(bw[bw.length - 1])) return ["", ""];

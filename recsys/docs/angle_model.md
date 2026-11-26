@@ -223,6 +223,67 @@ holdout(튜닝에 안 쓴 32문항): Challenge 정답 3개 가운데 2개를 찾
 
 패키지는 zip 23.9 MB에서 28.6 MB로 늘었다(phrase 120,376개). Python·JavaScript 일치 266/266, Arc 80/80, 검색 42/42, 앵글 39/40.
 
+## Trade-off는 도움과 비용이 함께 있을 때만, 결과 질문으로 Challenge 찾기는 보류 (11/25 밤)
+
+**Trade-off(`cost`) 좁히기.** 48개 질문 정답에서 모델이 Challenge라고 한 13개 중 5개가 한 질문("Do conversational agents reduce loneliness?")에서 나왔다. 모두 "대화 에이전트가 다른 무언가를 나쁘게 했다"(대화 타이밍 어긋남, 메타인지 부담, 압박감, 진정성 저하)였고 외로움과는 상관없었다. 지금은 X가 맞고 다른 결과가 나빠졌으면 Trade-off라서 X가 넓으면 쏟아진다. 좋은 Trade-off는 같은 발표에서 그 X가 무언가를 좋게도 했다("uncertainty visualization improved drilling accuracy by 24% but increased task time by 76%", "self-tracking improves understanding of pregnancy … but may also increase anxiety"). 그래서 같은 발표에 같은 X(xdirect ≥ MATCH)의 결과 카드 가운데 LLM이 better라고 한 것, 또는 worse가 아니면서 나쁘지 않은 결과를 올리거나(increase) 연결된(associated) 것이 있을 때만 Trade-off로 한다(`COST_BOTH`). Y와의 유사도로 거르는 방법도 보았지만 좋은 Trade-off(anxiety vs physical activity, -0.06)와 나쁜 것(pressure vs loneliness, 0.13)이 갈리지 않았다.
+
+| | 48개 질문 Challenge 예측 | holdout Challenge P / R | Challenge 있는 Arc (80) | 주제어 98개 Challenge |
+|---|---|---|---|---|
+| 전 | 13 | 0.67 / 0.67 | 12 | 20% |
+| 지금 | 9 | 0.67 / 0.67 | 12 | 14% |
+
+빠진 4개(48개 질문)는 정답에서 모두 off 또는 Reframe이었다. 주제어에서 빠진 6개 중 아쉬운 것은 하나다: "Does social media improve wellbeing?"에 "heavier social media use predicted fewer daily flow occurrences". 같은 발표에 좋아진 결과가 없고, flow와 wellbeing의 유사도도 0.14라서 규칙으로 살리지 못했다.
+
+**정답 Challenge를 놓치는 이유(48개 질문, 6개).** 판정 규칙보다 앞 단계 문제다.
+- 카드 추출: 시선 입력 연구에서 요인이 "gaze vs controller"가 아니라 "depth variation"으로 뽑혔다. Cudly는 "loneliness were non-significant"의 결과가 "standardised scales"로 뽑혔다.
+- 같은 것을 다른 말로: anthropomorphism ↔ mentalistic language, ChatGPT ↔ "level of AI use". "AI tools"로 바꿔도 X가 0.76이라 Challenge 기준(STRICT)에 못 미친다.
+- 정답 쪽이 애매: 방글라데시 내비게이션 연구(라벨 메모에도 "borderline reframe/people"), AI tutor ↔ AI tool.
+
+**결과 질문으로 Challenge 찾기(시도, 안 씀).** "no"로 답한 질문(1,220개)과 방향이 반대인 "yes" 질문으로 Challenge를 만들어 보았다. 80개 질문에서 새 Challenge는 1개였고(cosine 0.65까지 낮춰도 같음) 그것도 틀렸다(holdout 정밀도 0.67 → 0.50). 넓은 수준 질문은 결과를 부풀린다: "Social media increases restorative effects compared to gaming"이 "Does social media improve wellbeing? yes"가 된다. Support를 찾는 데는 괜찮지만, 그걸로 반박하면 과장된 반박이 된다.
+
+Python·JavaScript 일치 267/267, Arc 80/80, 검색 42/42, 앵글 40/41(실패는 11/22부터 그대로인 수면 질문).
+
+## 전체 점검 (11/26)
+
+**고친 것.** 폰 엔진(JS)에 이상한 입력 40개를 넣어 보았다(`logs/rr_exp/robust.mjs`, git 밖). 멈추거나 오류가 난 것은 없었고(빈 입력은 InputError 안내), Arc 한 번에 서버 기준 중앙값 0.2초였다. 읽어 보고 고친 것:
+- "Is TikTok bad for teenagers?", "Are chatbots good for mental health?"처럼 `Is/Are X good/bad/harmful/helpful for Y`는 "Does X harm/improve Y?"로 읽는다. 전에는 open 질문이 되어 "Does tiktok improve professional development experiences?"로 좁혀졌다.
+- "A and/for B"를 "Does A improve B?"로 바꾸는 것은 6단어 이하에서만 한다. "I study haptic feedback for VR training of surgeons and …"가 "Does i study haptic feedback improve …"가 되었다.
+- "AI" 한 단어가 "CHI may not cover this"로 경고되었다(관련도 0.069, 기준 0.073). AI, VR, LLM, UX, HCI 같은 분야 약어만으로 된 입력은 경고하지 않는다(`FIELD_TERMS`).
+- `arc` 응답에 `warning`을 더했다(`ask`와 같은 값). 앱은 `ask`의 경고를 쓰지 않고 바로 Arc를 만들어서, "What is the best pizza in Barcelona?", "🤖🤖🤖", 한국어 입력에도 엉뚱한 Arc가 나온다. 경고를 보여 줄지, 막을지는 앱에서 정할 일이다.
+
+**직접 읽어 본 결과.** 평가 질문 80개와 주제어 98개의 Arc에서 Challenge 전부(29개), Support와 "같은 주제" Reframe 25개씩을 읽었다.
+
+| | 평가 질문 Arc | 주제어 Arc |
+|---|---|---|
+| Challenge | 14개 중 9개 맞음 | 15개 중 4개 |
+| Support | 11개 중 9개 | 14개 중 9개 |
+| 같은 주제 Reframe | 13개 중 11개 | 12개 중 5개 |
+
+주제어 Arc가 낮은 이유는 대부분 주제어를 좁힌 질문이다. 99개 중 48개가 어색했다. "Music & Haptics" → "Does music improve haptics?", "Gender and Social Media" → "Does gender improve social media?"(세션 이름의 "A & B"는 인과가 아니다), 카드 구절을 이어 붙인 "How do extract candidate design features affect visualization corpus?", 그리고 "Wellness Tech"는 질문을 못 찾아 오류가 난다. 다음에 고칠 곳은 여기다.
+
+**cross-encoder(실험, 안 씀).** 질문과 초록을 함께 읽는 모델로 엉뚱한 발표를 거르는 실험을 했다. bge-reranker-v2-m3를 MiniLM-L6에 증류하면 holdout AUC 0.79(엔진 0.73, 큰 모델 0.80)지만, 폰 다운로드가 28.3 MB에서 46.4 MB로 늘고 질문마다 2~3초가 더 들 것으로 보여 넣지 않았다. 파일은 `logs/rr_exp/`.
+
+Python·JavaScript 일치 271/271, Arc 80/80, 검색 42/42, 앵글 40/41.
+
+## 단어 하나만 넣었을 때 (11/26)
+
+앱에서 "sleep", "older adults"처럼 단어만 넣으면 엔진은 그 단어를 날카로운 질문으로 좁혀 세 개를 제안하고, 고른 질문(또는 "Keep as a topic")으로 Arc를 만든다. 학회 참석자가 넣을 법한 단어 70개로 이 길을 그대로 따라가 보고 세 군데를 고쳤다.
+
+**범위 밖 경고.** 짧은 입력은 관련도 모델 점수가 낮게 나오기 쉬워서 loneliness, TikTok, typing, passwords, drones, crowdsourcing, explainability, dating 8개가 "CHI가 다루지 않을 수 있어요"로 막혔고, 막히면 제안 질문도 하나도 나오지 않았다. 세 단어 이하의 주제는 그 단어를 쓰는 발표가 5개 이상이면 경고하지 않는다(진짜 단어는 5~17개, pizza·football·cats 같은 입력은 0~2개). "dating"처럼 좁힐 질문을 못 찾으면 오류를 내지 않고 그 주제 자체로 Arc를 만든다.
+
+**"효과 없음" Challenge의 근거 문장.** "While prior HCI research has explored ..., little research has been conducted ...", "We present an exploratory longitudinal study of ..." 같은 소개 문장이 결과 문장으로 남아 null Challenge의 근거로 인용됐다. 결과 문장 판정 규칙이 첫 문장만 소개로 보고, "prior HCI research"(사이에 단어가 낀 경우), "little research has been", "We present a ... study"를 놓쳤기 때문이다. 규칙을 넓혀 결과 카드 53개가 aim·prior로 바뀌었고(문장 38개 중 36개 정도가 맞게 바뀜), 그 탓에 48문항 Support 하나가 빠졌다(.696/.281 → .682/.263). 빠진 것은 "We present the first controlled study ... how more autonomous AI tools affect productivity"를 근거로 한 것이라 운 좋게 맞던 경우다. holdout은 그대로.
+
+**단어 좁히기.** LLM이 써 둔 질문은 두 발표 이상이 같은 질문을 받쳐야 제안됐는데, 단어 하나짜리 주제는 발표들이 너무 넓게 퍼져 있어 그런 질문이 거의 없었다. 그래서 카드 구절을 이어 붙인 "Does laboratory-comparable sleep staging improve dream engineering system?", "How do older adults affect portal use?" 같은 질문이 나왔다. 이제 세 단어 이하의 주제는 한 발표만 답하는 질문이라도 주제 단어를 모두 담고 10단어 이하면 쓴다. 다만 "Do LLMs improve trust?"처럼 주제어로 만든 넓은 질문이 먼저이고, 한 발표짜리는 남는 자리를 채운다(발표마다 하나씩).
+
+| 첫 제안 (70단어, 손으로 판정) | 좋음 | 자연스럽지만 좁음 | 어색함 | 없음 |
+|---|---|---|---|---|
+| 전 | 23 | 20 | 19 | 8 |
+| 후 | 21 | 35 | 13 | 1 |
+
+아직 어색한 것: AI → "Does AI reduce identity?", health, security, wearables. 단어 Arc는 Reframe이 질문 Arc보다 오히려 적다(멈춤의 79% 대 90%, Arc당 Support 1.3 대 0.5). Reframe이 많은 것은 좁히기 때문이 아니라 읽은 40편 중 질문의 X→Y를 그대로 시험한 발표가 평균 한 편 남짓이기 때문이다.
+
+Python·JavaScript 일치 271/271, Arc 80/80, 검색 42/42, 앵글 41/42("How do people track their sleep?" 화요일 6개는 전부터 실패).
+
 ## 다시 만들기
 
 ```bash
@@ -237,6 +298,6 @@ python scripts/build_angles.py                         # 일반어까지 합쳐 
 python scripts/eval_angles.py                          # docs/angle_eval.json (--sweep: 임계값 탐색)
 sbatch scripts/compare_llm.slurm && python scripts/compare_llm_report.py   # 일반 LLM과 비교 (GPU 7개 약 15분)
 python scripts/package_model.py
-python tests/run_angle_cases.py                        # 40개 사례
-python tests/web_reference.py && node tests/run_web_parity.mjs   # JavaScript가 Python과 같은지 (266개)
+python tests/run_angle_cases.py                        # 42개 사례
+python tests/web_reference.py && node tests/run_web_parity.mjs   # JavaScript가 Python과 같은지 (271개)
 ```

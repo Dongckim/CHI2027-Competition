@@ -7,26 +7,26 @@
  },
  "dev": {
   "n": 360,
-  "accuracy": 0.697,
+  "accuracy": 0.694,
   "support": {
-   "precision": 0.769,
-   "recall": 0.278,
-   "f1": 0.408,
-   "predicted": 13,
+   "precision": 0.75,
+   "recall": 0.25,
+   "f1": 0.375,
+   "predicted": 12,
    "gold": 36
   },
   "reframe": {
-   "precision": 0.794,
+   "precision": 0.782,
    "recall": 0.803,
-   "f1": 0.798,
-   "predicted": 257,
+   "f1": 0.792,
+   "predicted": 261,
    "gold": 254
   },
   "challenge": {
    "precision": 0.0,
    "recall": 0.0,
    "f1": 0.0,
-   "predicted": 9,
+   "predicted": 6,
    "gold": 1
   },
   "off": {
@@ -36,15 +36,15 @@
    "predicted": 81,
    "gold": 69
   },
-  "macro_f1": 0.425,
+  "macro_f1": 0.415,
   "on_map": {
    "precision": 0.885,
    "recall": 0.849
   },
   "confusion": {
    "support": {
-    "support": 10,
-    "reframe": 25,
+    "support": 9,
+    "reframe": 26,
     "challenge": 0,
     "off": 1
    },
@@ -62,15 +62,15 @@
    },
    "off": {
     "support": 0,
-    "reframe": 27,
-    "challenge": 5,
+    "reframe": 30,
+    "challenge": 2,
     "off": 37
    }
   }
  },
  "test": {
   "n": 360,
-  "accuracy": 0.658,
+  "accuracy": 0.661,
   "support": {
    "precision": 0.6,
    "recall": 0.286,
@@ -79,17 +79,17 @@
    "gold": 21
   },
   "reframe": {
-   "precision": 0.769,
-   "recall": 0.754,
-   "f1": 0.761,
-   "predicted": 255,
+   "precision": 0.77,
+   "recall": 0.758,
+   "f1": 0.764,
+   "predicted": 256,
    "gold": 260
   },
   "challenge": {
    "precision": 0.0,
    "recall": 0.0,
    "f1": 0.0,
-   "predicted": 4,
+   "predicted": 3,
    "gold": 5
   },
   "off": {
@@ -99,7 +99,7 @@
    "predicted": 91,
    "gold": 74
   },
-  "macro_f1": 0.393,
+  "macro_f1": 0.394,
   "on_map": {
    "precision": 0.855,
    "recall": 0.804
@@ -113,8 +113,8 @@
    },
    "reframe": {
     "support": 4,
-    "reframe": 196,
-    "challenge": 4,
+    "reframe": 197,
+    "challenge": 3,
     "off": 56
    },
    "challenge": {
@@ -135,24 +135,24 @@
   "n": 720,
   "accuracy": 0.678,
   "support": {
-   "precision": 0.696,
-   "recall": 0.281,
-   "f1": 0.4,
-   "predicted": 23,
+   "precision": 0.682,
+   "recall": 0.263,
+   "f1": 0.38,
+   "predicted": 22,
    "gold": 57
   },
   "reframe": {
-   "precision": 0.781,
-   "recall": 0.778,
-   "f1": 0.78,
-   "predicted": 512,
+   "precision": 0.776,
+   "recall": 0.78,
+   "f1": 0.778,
+   "predicted": 517,
    "gold": 514
   },
   "challenge": {
    "precision": 0.0,
    "recall": 0.0,
    "f1": 0.0,
-   "predicted": 13,
+   "predicted": 9,
    "gold": 6
   },
   "off": {
@@ -162,22 +162,22 @@
    "predicted": 172,
    "gold": 143
   },
-  "macro_f1": 0.409,
+  "macro_f1": 0.404,
   "on_map": {
    "precision": 0.87,
    "recall": 0.827
   },
   "confusion": {
    "support": {
-    "support": 16,
-    "reframe": 40,
+    "support": 15,
+    "reframe": 41,
     "challenge": 0,
     "off": 1
    },
    "reframe": {
     "support": 7,
-    "reframe": 400,
-    "challenge": 8,
+    "reframe": 401,
+    "challenge": 7,
     "off": 99
    },
    "challenge": {
@@ -188,8 +188,8 @@
    },
    "off": {
     "support": 0,
-    "reframe": 66,
-    "challenge": 5,
+    "reframe": 69,
+    "challenge": 2,
     "off": 72
    }
   }
@@ -742,14 +742,6 @@
   },
   {
    "qid": 7,
-   "id": 230140,
-   "gold": "reframe",
-   "pred": "challenge",
-   "sub": "cost",
-   "gold_sub": "factor"
-  },
-  {
-   "qid": 7,
    "id": 229979,
    "gold": "reframe",
    "pred": "challenge",
@@ -1071,6 +1063,14 @@
   {
    "qid": 23,
    "id": 222462,
+   "gold": "reframe",
+   "pred": "off",
+   "sub": "",
+   "gold_sub": "factor"
+  },
+  {
+   "qid": 23,
+   "id": 222692,
    "gold": "reframe",
    "pred": "off",
    "sub": "",

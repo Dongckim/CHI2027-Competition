@@ -43,7 +43,7 @@ from angles import NEG_OUTCOME, NO_FINDINGS, content, lemma, parse_question, ste
 PROC = os.path.join(config.ROOT, "data", "processed")
 PKG = os.path.join(config.ROOT, "dist", "chi2026-retriever")
 PAST_DIR = os.environ.get("CHI_PAST_DIR", os.path.join(config.ROOT, "data", "raw"))
-VERSION = os.environ.get("CHI_ANGLES_VERSION", "2026-11-25c")
+VERSION = os.environ.get("CHI_ANGLES_VERSION", "2026-11-26")
 # directions the third pass may correct: a card stored without one ("associated")
 EFFECT_FIX = set(os.environ.get("CHI_EFFECT_FIX", "associated").split(","))
 
@@ -184,6 +184,9 @@ _AIM_V = (r"aim(?:s|ed)? to|set out to|seek(?:s)? to|sought to|investigat(?:e|es
           r"interview(?:s|ed)?|surve(?:y|ys|yed)|record(?:s|ed)?")
 _SYS_V = r"present(?:s|ed)?|propos(?:e|es|ed)|introduc(?:e|es|ed)|design(?:s|ed)?|develop(?:s|ed)?|buil[dt]s?|implement(?:s|ed)?"
 AIM_RE = re.compile(rf"\b{_WE}\s+(?:also\s+|first\s+|then\s+|further\s+)?(?:{_AIM_V})\b", re.I)
+# "We present an exploratory longitudinal study of ...": the study itself, not what it found (11/26)
+STUDY_RE = re.compile(rf"\b{_WE}\s+(?:also\s+)?(?:{_SYS_V}|report(?:s|ed)?)\s+(?:an?|the|our|two|three|four)\s+(?:[\w-]+\s+){{0,4}}"
+                      r"(?:study|studies|analysis|investigation|survey|review|experiment|evaluation|deployment|interviews?)\b", re.I)
 SYS_RE = re.compile(rf"\b{_WE}\s+(?:also\s+|first\s+|then\s+|further\s+)?(?:{_SYS_V})\b"
                     r"(?![^.]{0,40}\b(?:study|studies|analysis|investigation|survey|review|interviews?|experiment)\b)", re.I)
 METHOD_RE = re.compile(r"^(?:to (?:address|investigate|examine|explore|understand|answer|fill|bridge|study|evaluate|test)\b|"
@@ -191,9 +194,9 @@ METHOD_RE = re.compile(r"^(?:to (?:address|investigate|examine|explore|understan
                        r"interviews?|workshops?|evaluation)\b[^,]*,\s*we (?!found|find|show|observ|reveal|demonstrat|identif|learn|"
                        r"discover|uncover|saw|note)|an? (?:[\w-]+ ){0,5}(?:experiment|study|survey|evaluation|deployment)s? "
                        r"(?:with|involving|of) (?:\d|n\s*=)[^.]*\b(?:tested|compared|examined|explored|was conducted)\b)", re.I)
-BACKGROUND_RE = re.compile(r"\b(?:prior|previous|past|existing|current|traditional) (?:work|works|studies|research|"
+BACKGROUND_RE = re.compile(r"\b(?:prior|previous|past|existing|current|traditional) (?:[A-Z][\w-]* |[a-z-]+ (?=research\b|work\b|studies\b))?(?:work|works|studies|research|"
                            r"approaches|systems|tools|methods|care|literature)\b", re.I)
-GAP_RE = re.compile(r"\b(?:lack of|little is known|remains? (?:limited|unclear|unexplored|underexplored|understudied)|"
+GAP_RE = re.compile(r"\b(?:lack of|little is known|little (?:research|work|attention) has|(?:has|have) (?:rarely|seldom) been|remains? (?:limited|unclear|unexplored|underexplored|understudied)|"
                     r"few (?:studies|works)|under-?explored|has not been)\b", re.I)
 RESULT_RE = re.compile(r"\b(?:found|find(?:s|ings?)?|results?|show(?:s|ed|n)?|reveal(?:s|ed)?|demonstrat(?:e|es|ed)|"
                        r"indicat(?:e|es|ed)|suggest(?:s|ed)?|observ(?:e|es|ed)|identif(?:y|ies|ied)|uncover(?:s|ed)?|"
@@ -215,6 +218,8 @@ def sentence_status(text, first=False):
         return "result"
     if first:
         return "prior"
+    if STUDY_RE.search(s):
+        return "aim"
     if SYS_RE.search(s):
         return "claim"
     if AIM_RE.search(s) or METHOD_RE.search(s):

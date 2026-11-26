@@ -5,12 +5,12 @@
 - **연결**: `app/src/engine/ondevice.ts`가 Web Worker(`ondevice.worker.js`)에서 이 폴더의 `src/web`을 돌리고, `ondevice-map.js`가 응답을 Arc로 바꾼다. 배포 빌드(`VITE_ENGINE=ondevice`)의 기본 엔진(11/21). 그냥 빌드는 mock(`app/src/engine/mock-core.js`), `?engine=mock|ondevice`로 바꿀 수 있음
 - **모델 파일**: git에 넣지 않는다. 배포 빌드(`npm run build:deploy`)가 `MODEL_URL`과 `MODEL_SHA256`을 확인해 `dist/model/`에 풀고, 앱은 같은 도메인 `/model/…`에서 받는다(1년 immutable 캐시). `MODEL_URL`이 없으면 mock으로 동작. 스크립트 `app/scripts/fetch-model.mjs`
 
-### 지금 모델 패키지 (11/25 저녁)
+### 지금 모델 패키지 (11/26)
 | | |
 |---|---|
-| 파일 | `chi2026-retriever-2026-11-25c.zip` (GitHub Release `model-2026-11-25c`) |
-| 크기 | zip 28.5 MB, 풀면 47.7 MB, 파일 117개 (zip 안은 상대 경로만, 맨 위 폴더 없음) |
-| `MODEL_SHA256` | `5748a974d4395117a3c6b773171dc9d80802aa4531b889b4b8261eaeb1cbf811` |
+| 파일 | `chi2026-retriever-2026-11-26.zip` (GitHub Release `model-2026-11-26`) |
+| 크기 | zip 28.5 MB, 풀면 47.6 MB, 파일 117개 (zip 안은 상대 경로만, 맨 위 폴더 없음) |
+| `MODEL_SHA256` | `2f2a396a248feb86fc3e10730adb664f36ff4d2ff5443c3f5f6065b4e135bafd` |
 | 소스 | 이 폴더 `src/package/`(Python), `src/web/`(JavaScript, 패키지의 `web/`) |
 | 다시 만들기 | `python scripts/package_model.py` → `dist/chi2026-retriever/` (아래 "데이터 다시 만들기") |
 

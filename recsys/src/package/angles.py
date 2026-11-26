@@ -112,6 +112,7 @@ FORMAT_LABEL = {"PAPER": "Paper talk", "POSTER": "Poster", "DEMO": "Demo", "PANE
 EFFECTS = ["increase", "decrease", "no_effect", "mixed", "associated"]
 STATUS = ["result", "claim", "prior", "aim"]
 WORSE = 1             # angles.json "val": [card, 0 better / 1 worse / 2 neither, factor tested]
+BETTER = 0
 JUDGE_N = 40          # talks whose cards are read for every question (the rest is ranking only)
 POOL = 200            # ranked talks the tray, search and shuffle draw from
 SIZE = 7              # default nodes on an Arc (team: 5-9)
@@ -135,6 +136,7 @@ MATCH = 0.70          # X or Y counts as the same thing at or above this
 STRICT = 0.80         # a Challenge needs both X and Y at or above this
 COS_LO, COS_HI = 0.45, 0.80
 COST = True           # a result where the asked X made another outcome worse is a Challenge
+COST_BOTH = True      # ... only when the same talk also found that X making something better
 COST_TOP = 15         # ... from the search's first talks only
 # what X going wrong is called: such a factor is X failing, not X ("subtitle errors")
 FAULT = set("""error errors latency delay failure breakdown absence lack disruption disrupted dark deceptive
@@ -164,6 +166,8 @@ CQ_SAME = 0.85        # two such questions closer than this are the same suggest
 CQ_ONLY = 1           # ... used alone when there are at least this many
 CQ_TOPIC = 0.40       # ... each at or above this cosine to what was typed
 CQ_WORDS = 12         # ... and at most this many words
+CQ_ONE = True         # a short topic ("sleep", "older adults") may take a written question only one
+CQ_ONE_WORDS = 10     # ... talk answers, when it names the topic and is at most this many words
 AFFECTS = 2           # angles.json "cq" lean of a "How does X affect Y?" question
 # the why line: what the angle means for the asker, then the card's finding (LLM, offline)
 WHY_LEAD = {"support": {"evidence": "Goes the way your question expects.", "try": "Something you can try."},
@@ -432,6 +436,17 @@ def _doing(y):
     return " ".join(toks + ([state] if state else [])), people, flip
 
 
+GOOD_ADJ = {"good", "beneficial", "helpful", "healthy", "useful", "safe"}
+BAD_ADJ = {"bad", "harmful", "unhealthy", "dangerous", "detrimental"}
+RE_GOODBAD = re.compile(r"^(?P<be>is|are)\s+(?P<x>.+?)\s+(?:really\s+|actually\s+)?(?P<a>"
+                        + "|".join(sorted(GOOD_ADJ | BAD_ADJ)) + r")\s+(?:for|to)\s+(?P<y>.+)$")
+# inputs that are only the field's own short names ("AI", "VR"): CHI covers them, though the
+# off-topic check reads two letters as too little to go on
+WARN_WORDS = 3         # a topic this short ("loneliness", "TikTok") is on topic when
+WARN_MATCH = 5         # ... at least this many talks name it (real words 5-17, junk 0-1, 11/26)
+FIELD_TERMS = {"ai", "vr", "ar", "xr", "mr", "llm", "llms", "ux", "ui", "hci", "iot", "ml", "nlp", "bci", "hri", "cscw", "ehmi"}
+
+
 def parse_question(text):
     """-> {"kind": "relation" | "topic" | "open", "x", "y", "dir", "ctx", "verb"}.
     dir: "+" raise, "-" reduce, "?" no direction."""
@@ -439,6 +454,11 @@ def parse_question(text):
     low = raw.lower().replace("’", "'").strip().rstrip("?.! ")
     low = re.sub(r"^(?:i wonder |i want to know |i'm curious |i am curious )(?:if |whether |how )?", "", low)
     low = re.sub(r"^(?:whether|if)\s+", "does ", low)
+    # "Is TikTok bad for teenagers?" asks what "Does TikTok harm teenagers?" asks
+    m = RE_GOODBAD.match(low)
+    if m:
+        low = (f"{'does' if m.group('be') == 'is' else 'do'} {m.group('x')} "
+               f"{'improve' if m.group('a') in GOOD_ADJ else 'harm'} {m.group('y')}")
     out = {"kind": "", "x": "", "y": "", "dir": "?", "ctx": "", "verb": "", "text": raw}
     m = RE_PSYCH.match(low)
     if m and not RE_YESNO.match(low):
@@ -830,8 +850,19 @@ class Angles:
                 and not FAULT & set(X["toks"]) and self.arc._canon(i) in self._close(q)):
             yneg = any(w in NEG_OUTCOME for w in Y["toks"]) != Y["neg"]
             if (q["dir"] == "+") != yneg:
+                # a trade-off: the same X, as tested, also made something better in this talk
+                # (the LLM's better / worse, or, where it saw no change or no direction, a rise in
+                # or link to an outcome that is not a bad one: "improves ... emotional stability")
+                def helped(j, c):
+                    v = info["val"].get(j)
+                    if c["st"] != "result" or xdirect[j] < MATCH or (v and v[0] == WORSE):
+                        return False
+                    return (v is not None and v[0] == BETTER) or (
+                        c["e"] in ("increase", "associated") and not NEG_OUTCOME & set(self.ptoks[c["o"]]))
+                good = any(helped(j, c) for j, c, *_ in rows)
                 for k, c, mx, my in rows:
                     if (info["val"].get(k) == (WORSE, 1) and xdirect[k] >= STRICT and my < MATCH
+                            and (good or not COST_BOTH)
                             and X["neg"] == self.pneg[c["f"]] and not FAULT & set(self.ptoks[c["f"]])):
                         return {"angle": "challenge", "subtype": "cost", "conf": round(0.7 * mx, 3),
                                 "card": k, "caveat": None}
@@ -1078,7 +1109,9 @@ class Angles:
         _, pool, score = self._judged(q, types)
         sug = self._suggest(q, pool, score, types, k=SUGGEST_K)
         if not sug:
-            raise InputError('could not find a question in this topic; try a question like "Does X raise Y?"')
+            # no sharper question in the talks ("dating"): the Arc stays on the topic itself,
+            # filled with the topic's own first talks
+            return q, q["text"]
         return self.question(sug[0]["question"]), q["text"]
 
     def _arc_question(self, req, strict=False):
@@ -1092,6 +1125,23 @@ class Angles:
                 raise
             return q
 
+    def _warning(self, q, types=None, matching=None):
+        """Not English, or CHI may not cover it (the field's own short names always pass, and
+        so does a short topic that enough talks name: "loneliness", "TikTok", "passwords")."""
+        if _non_latin(q["text"]):
+            return ENGLISH_ONLY
+        words = _W.findall(q["text"].lower())
+        if words and all(w in FIELD_TERMS for w in words):
+            return None
+        if not self.arc._relevance({"research": q["text"], "keywords": [], "topics": []})["low"]:
+            return None
+        if q["kind"] != "relation" and len(words) <= WARN_WORDS:
+            if matching is None:
+                matching = self._matching(q, self._judged(q, types)[1])
+            if matching >= WARN_MATCH:
+                return None
+        return OFF_TOPIC
+
     # -- A-1 / A-2 ------------------------------------------------------------------
     def ask(self, req):
         text = req.get("text", req.get("question"))
@@ -1102,9 +1152,8 @@ class Angles:
                "parsed": {"x": q["x"], "y": q["y"], "direction": q["dir"], "context": q["ctx"]},
                "tribe": self._tribe(score, pool),
                "matching": self._matching(q, pool), "corrected": q["corrected"]}
-        rel = self.arc._relevance({"research": q["text"], "keywords": [], "topics": []})
-        out["on_topic"] = not rel["low"]
-        out["warning"] = ENGLISH_ONLY if _non_latin(q["text"]) else OFF_TOPIC if rel["low"] else None
+        out["warning"] = self._warning(q, types, out["matching"])
+        out["on_topic"] = out["warning"] is None
         if q["kind"] == "relation":
             out["counts"] = self._counts(judged)
             out["suggestions"] = []
@@ -1185,18 +1234,30 @@ class Angles:
                 text = self._wording(a_, b_, Counter({"increase": 1}))
                 if self.question(text)["kind"] == "relation":
                     mine = [self._suggestion(text, a_, b_, [], types)]
-            out = mine + [o for o in self._claims(q, pool, score, types, k) if o["question"] != (mine or [{}])[0].get("question")]
-            out = out[:k]
+            cq = [c for c in self._claims(q, pool, score, types, k) if c[0] != (mine or [{}])[0].get("question")]
+            out = (mine + [self._suggestion(*c, types) for c in cq if len(c[3]) >= 2])[:k]
             if len(out) >= CQ_ONLY:
                 return self._balanced(out, q)
+            # questions only one talk answers wait behind the topic's own broad questions
+            single = [c for c in cq if len(c[3]) < 2]
+        else:
+            single = []
         # a topic keeps its own words when its talks share an outcome or a cause
         if q["kind"] == "topic":
+            room = k - (1 if single else 0)
             for x, y, e, items in self._anchored(q, pool, score):
+                if len(out) >= room:
+                    break
                 text = self._wording(x, y, e)
                 if all(o["question"] != text for o in out):
                     out.append(self._suggestion(text, x, y, items, types))
-                if len(out) == k:
-                    return self._balanced(out, q)
+        for c in single:
+            if len(out) >= k:
+                break
+            if all(o["question"] != c[0] for o in out):
+                out.append(self._suggestion(*c, types))
+        if len(out) >= k:
+            return self._balanced(out, q)
         for _, key in ranked:
             g = groups[key]
             # a new pair, from talks not already behind another suggestion
@@ -1218,7 +1279,8 @@ class Angles:
     def _claims(self, q, pool, score, types, k):
         """Sharper questions from the questions the topic's talks answer (angles.json "cq"):
         the ones most talks back (cosine CARDQ_COS, same way up), those with the topic's
-        words first, no two alike. Each needs two talks."""
+        words first, no two alike. Each needs two talks, or for a short topic one talk
+        (see CQ_ONE). Returns (question, x, y, talks), not yet judged."""
         # questions with a direction only: the claim the Supports back and the Challenges push on
         cands = [(i, qp, g) for i in pool[:60] for _, qp, _, _, g in (self.info.get(i) or {}).get("cq", [])
                  if g != AFFECTS]
@@ -1228,17 +1290,23 @@ class Angles:
         S = V @ V.T
         qt = content(q["x"])[0] if q["kind"] != "relation" else []
         A_, B_ = (self._phrase(t) for t in _pair(q["x"])) if q["kind"] != "relation" else (None, None)
+        # one or two words ("sleep"): its talks rarely ask the same thing twice, so a question
+        # one talk answers will do when it names the topic and is short (the talk ranked first)
+        one = CQ_ONE and q["kind"] != "relation" and 0 < len(qt) <= WARN_WORDS
         rows = []
         for a, (i, qp, g) in enumerate(cands):
             # talks, not listings: a talk listed twice backs a question once
             backers = list(dict.fromkeys(self.arc._canon(cands[b][0]) for b in range(len(cands))
                                          if S[a, b] >= CARDQ_COS and not (g and cands[b][2] and g != cands[b][2])))
-            if len(backers) < 2:
+            keeps = any(_same(w, t) for w in qt for t in self.ptoks[qp])
+            nw = len(self.phrases[qp].split())
+            # ... and names all of it ("LLM agents": both words)
+            whole = all(any(_same(w, t) for t in self.ptoks[qp]) for w in qt)
+            if len(backers) < 2 and not (one and whole and nw <= CQ_ONE_WORDS):
                 continue
             # on the typed topic, and short enough to read as a question
-            if len(self.phrases[qp].split()) > CQ_WORDS or float(V[a] @ q["V"]) < CQ_TOPIC:
+            if nw > CQ_WORDS or (float(V[a] @ q["V"]) < CQ_TOPIC and not (one and whole)):
                 continue
-            keeps = any(_same(w, t) for w in qt for t in self.ptoks[qp])
             # "chatbots and mental health": the two named things as the question's X and Y
             pair = 1
             if A_ is not None and B_ is not None:
@@ -1246,9 +1314,12 @@ class Angles:
                 pair = 0 if self._pm(A_, xp, set()) >= MATCH and self._pm(B_, yp, set()) >= MATCH else 1
             rows.append((pair, 0 if keeps else 1, -len(backers), -round(sum(float(score[j]) for j in backers), 6), a, backers))
         rows.sort()
-        out, picked = [], []
+        out, picked, talks = [], [], set()
         for _, _, _, _, a, backers in rows:
             if any(S[a, b] >= CQ_SAME for b in picked):
+                continue
+            # one talk's question: one per talk, so three suggestions are three ideas
+            if len(backers) < 2 and backers[0] in talks:
                 continue
             i, qp, _ = cands[a]
             text = show(self.phrases[qp][:1].upper() + self.phrases[qp][1:])
@@ -1256,7 +1327,8 @@ class Angles:
             if pq["kind"] != "relation":
                 continue
             picked.append(a)
-            out.append(self._suggestion(text, show(pq["x"]), show(pq["y"]), backers, types))
+            talks.update(backers)
+            out.append((text, show(pq["x"]), show(pq["y"]), backers))
             if len(out) == k:
                 break
         return out
@@ -1385,7 +1457,7 @@ class Angles:
         q, asked = self._as_relation(self.question(req.get("question") or req.get("text")), req)
         judged, _, _ = self._judged(q, self._types(self._formats(req)))
         chips = self._chips(judged)
-        return {"question": q["text"], "asked": asked, "headline": "Choose your angles.",
+        return {"question": q["text"], "asked": asked if asked != q["text"] else None, "headline": "Choose your angles.",
                 "angles": [{"key": a, "name": ANGLE_NAME[a], "symbol": SYMBOL[a], "help": HELP[a],
                             "chips": chips[a],
                             "empty": NO_CHALLENGE if (a == "challenge" and not chips[a]) else None}
@@ -1553,7 +1625,8 @@ class Angles:
 
     def arc_screen(self, req):
         t0 = time.perf_counter()
-        q, asked = self._as_relation(self.question(req.get("question") or req.get("text")), req)
+        typed = self.question(req.get("question") or req.get("text"))
+        q, asked = self._as_relation(typed, req)
         formats = self._formats(req)
         types = self._types(formats)
         now = self._now_of(req)
@@ -1598,8 +1671,10 @@ class Angles:
             {"key": "tribe", "n": None, "text": f"You're in {tribe['name']} {tribe['symbol']}" if tribe else ""},
             {"key": "fit", "n": n_stops, "text": f"{n_stops} stops that fit your day"},
         ]
-        return {"question": q["text"], "asked": asked,
+        return {"question": q["text"], "asked": asked if asked != q["text"] else None,
                 "parsed": {"x": q["x"], "y": q["y"], "direction": q["dir"], "context": q["ctx"]},
+                # what was typed is not English or not something CHI covers: the stops are then a guess
+                "warning": self._warning(typed, types),
                 "tribe": tribe, "days": days, "formats": formats,
                 "loading": {"text": f"Reading {n_all:,} talks for you", "n": n_all},
                 "counts": {a: counts.get(a, 0) for a in ANGLES},
@@ -2163,7 +2238,8 @@ def _pair(topic):
     """"chatbots and mental health", "AI for learning" -> ("chatbots", "mental health");
     ("", "") when the topic names one thing or the second is who ("for blind users")."""
     m = re.match(r"^(.+?)\s+(?:and|for|vs|versus|on|&)\s+(.+)$", topic)
-    if not m:
+    # only a topic's few words; a sentence ("I study haptic feedback for VR training of ...") is not a pair
+    if not m or len(_W.findall(topic.lower())) > 6:
         return "", ""
     a, b = m.group(1).strip(), m.group(2).strip()
     if not content(a)[0] or not content(b)[0] or _W.findall(b)[-1] in PEOPLE:
