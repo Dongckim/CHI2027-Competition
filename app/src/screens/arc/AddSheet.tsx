@@ -54,7 +54,7 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
 
   const pick = (card: ArcNode) => { setQuery(''); onPick(card); };
   return (
-    <section aria-label="Swap" className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[480px] rounded-t-[32px] border border-arc-line bg-arc-sheet px-6 pt-[9px] pb-[calc(var(--safe-bottom)+16px)] shadow-[0_-8px_40px_rgba(0,0,0,0.4)]">
+    <section aria-label="Swap" className="arc-sheet-up fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[480px] rounded-t-[32px] border border-arc-line bg-arc-sheet px-6 pt-[9px] pb-[calc(var(--safe-bottom)+16px)] shadow-[0_-8px_40px_rgba(0,0,0,0.4)]">
       <div className="mx-auto mb-3.5 h-1 w-9 rounded-sm bg-arc-text/30" aria-hidden="true" />
       <h2 className="text-[17px] font-semibold tracking-[-0.012em]">{swap ? 'Swap' : `Add to ${ANGLE_NAME[target]}`}</h2>
       <label className="mt-3 flex h-11 items-center gap-2 rounded-full border border-arc-line bg-arc-surface pl-3.5">

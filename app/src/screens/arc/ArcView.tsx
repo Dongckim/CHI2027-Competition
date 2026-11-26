@@ -109,7 +109,7 @@ export type Own = { kept: Set<string>; yours: Set<string>; onToggle: (key: strin
 // rest dim to Figma's 22% and go inert); onSwap: the keyboard and screen reader way in, a "Swap" button per node.
 type Hold = { held: string | null; press: (key: string) => DOMAttributes<HTMLButtonElement>; onSwap: (key: string) => void };
 
-export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, pick, picture, readOnly, fit, hold, own, selected: chosen, hint, focus, totals, candidates, room }: {
+export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, pick, picture, readOnly, fit, hold, own, selected: chosen, hint, focus, totals, candidates, room, lift = 0 }: {
   /** 24b: the map moved toward this angle, all its talks shown (onBundle switches to another angle) */
   focus?: Angle | null;
   /** totals: each region's whole count, the Arc's talks + the engine's others at CHI (user 11/23 「각 영역을 보면 전체갯수」);
@@ -117,6 +117,8 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   totals?: Partial<Record<Angle, number>>; candidates?: Set<string>;
   /** room: the screen height the map may fill down to the bottom area (12): the regions reach that far */
   room?: number;
+  /** lift: px of empty room above the map (15 before a press): the regions run up behind it */
+  lift?: number;
   arc: Arc; states: Map<string, NodeState>; info: (key: string) => Info; scale?: number;
   /** 12c: the node shown in the card under the map (its ring); hint: 12a's first-time "Hold a stop" bubble */
   selected?: string | null; hint?: boolean;
@@ -142,6 +144,8 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   type Laid = { nodes: { node: Arc['nodes'][number]; at: Seat; oneLine?: boolean }[]; regions: { angle: Angle; count: number; more: number; at?: Seat }[]; emptyT: Seat | null };
   const f = focus ? focusLayout(arc, focus) as { nodes: Laid['nodes']; others: { angle: Angle; count: number; at: Seat }[] } : null;
   const l: Laid = f ? { nodes: f.nodes, regions: f.others.map(o => ({ ...o, more: 1 })), emptyT: null } : layout(arc, !!edit) as Laid; // map.js is untyped JS
+  // a node's label width: 24b's grid has columns 90 apart (iPhone 11/26: at 108 the third ran over the region line)
+  const NW = focus === 'R' || focus === 'T' ? 86 : 104;
   const shift: [number, number] = focus ? [FOCUS[focus].at[0] - BOX.cx, FOCUS[focus].at[1] - BOX.cy] : [0, 0];
   // 24b Reframes / Challenges: the box as tall as its lowest talk and label, not the full 530 (few talks left an empty band
   // and, on a short screen, a page that scrolled; iPhone 11/26)
@@ -178,7 +182,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   return (
     <div ref={rootRef} data-arc-map="" data-pending={pending || undefined} data-shift={shift.join()} className="relative mx-auto" style={{ width: BOX.w * scale, height: (tall ?? BOX.h + (fit ? 0 : BELOW)) * scale }} inert={picture || undefined} aria-hidden={picture || undefined}>
       <div className="absolute top-0 left-0 origin-top-left" style={{ width: BOX.w, height: BOX.h, transform: scale === 1 ? undefined : `scale(${scale})`, '--map-scale': picture ? 1 : scale } as CSSProperties}>
-        <Regions shift={shift} below={!picture && room ? Math.max(0, room / scale - BOX.h) : 0} above={focus === 'R' || focus === 'T' ? real(64) : 0} />
+        <Regions shift={shift} below={!picture && room ? Math.max(0, room / scale - BOX.h) : 0} above={focus === 'R' || focus === 'T' ? real(64) : lift / scale} />
         <div className="pointer-events-none absolute inset-0 motion-safe:transition-transform motion-safe:delay-[60ms] motion-safe:duration-[900ms] motion-safe:ease-[cubic-bezier(.22,1,.36,1)]" /* prototype 24b: regions, orb and talks slide together, 900 ms */ style={{ transform: shift[0] || shift[1] ? `translate(${shift[0]}px, ${shift[1]}px)` : undefined }}>
         <span aria-hidden="true" className="arc-holo" style={at(BOX.cx, BOX.cy, 164)} />
         <span aria-hidden="true" className="arc-orb" style={at(BOX.cx, BOX.cy, 144)} />
@@ -204,28 +208,28 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           const showKind = !!node.kind && !oneLine && !edit && !picture && !compact;
           return (
             <div key={node.key} data-node-wrap="" data-key={node.key} data-angle={node.angle} data-score={SCORE[st] + (order.get(node.key) ?? 0) / 100} data-candidate={candidates?.has(node.key) || undefined}
-              className="absolute" style={{ left: x - 52, top: y - 32, width: 104, opacity: dim ? 0.22 : undefined }} inert={dim || undefined}>
+              className="absolute" style={{ left: x - NW / 2, top: y - 32, width: NW, opacity: dim ? 0.22 : undefined }} inert={dim || undefined}>
               {hold?.held === node.key && <span aria-hidden="true" className="arc-held-ring absolute top-[-8px] left-3 size-20 rounded-full border-[1.5px] border-arc-text/55" />}{/* Figma 12b held ring */}
               <button type="button" data-node-key={node.key} {...hold?.press(node.key)} onClick={() => (own ? own.onToggle(node.key) : pick ? !lock && pick.onToggle(node.key) : edit ? edit.onSelect(node.key) : onNode?.(node.key))}
                 // the name is the node's own text (WCAG 2.5.3 label in name): "<angle> · <title> <time · room>", the angle
                 // as hidden text; day and state as the description
                 aria-description={(i.short !== i.title ? `${i.title} · ` : '') + (own ? `${i.time}${yours ? ' · Yours' : ''} · Keep` : `${node.kind && !showKind ? `${KIND_NAME[node.kind]} · ` : ''}${i.time} · ${pick ? (lock === 'mine' ? 'Already in your Arcs' : lock ? 'Ended' : kept ? 'Keep' : 'Skip') : pending ? 'Angle still sorting' : STATE_WORD[st]}${candidates?.has(node.key) ? ' · Not on your Arc' : ''}`)}
                 aria-pressed={own ? !!mine : edit ? selected : pick && !lock ? kept : undefined} aria-disabled={pick && lock ? true : undefined} disabled={readOnly && !pick}
-                className={`flex w-[104px] flex-col items-center gap-0.5 ${hold ? 'arc-hold' : ''} ${pick && lock ? 'opacity-35 blur-[0.78px]' : pick && !kept ? 'opacity-50' : ''}`}>
+                className={`flex w-full flex-col items-center gap-0.5 ${hold ? 'arc-hold' : ''} ${pick && lock ? 'opacity-35 blur-[0.78px]' : pick && !kept ? 'opacity-50' : ''}`}>
                 <span className={`arc-node ${pending ? '' : own ? (mine ? 'arc-node-upcoming' : 'arc-node-outline') : candidates?.has(node.key) ? 'arc-node-outline' : `arc-node-${st}`} ${selected || (pick && kept && !lock) ? 'arc-node-selected' : ''}`}>
                   {pending ? <img src={sortingOrb} alt="" width={64} height={64} /> : <span className="arc-node-core"><span className="arc-node-symbol" style={{ WebkitMaskImage: `url("${ANGLE_ICON[node.angle]}")`, maskImage: `url("${ANGLE_ICON[node.angle]}")` }} /></span>}
                 </span>
                 <span className="sr-only">{ANGLE_NAME[node.angle]} · </span>
                 <span data-node-text="" style={{ fontSize: real(12), lineHeight: `${real(15)}px` }} className={`${oneLine || showKind ? 'block truncate' /* one line, a long word cut with … rather than pushed to a hidden second line ("✦…") */ : 'line-clamp-2'} max-w-full text-center font-semibold ${own ? (mine ? 'text-arc-text/85' : 'text-arc-text/70' /* over the holo glow: 0.7 as 25 (text-3 was 4.2:1 on 19b) */) : candidates?.has(node.key) ? 'text-arc-text/70' : st === 'ended' && !pending ? 'text-arc-text-3' : st === 'heard' ? 'text-arc-text/75' : st === 'next' ? 'text-arc-text' : 'text-arc-text/85'}`}>
-                  {node.debut && <span aria-hidden="true">✦ </span>}{fitLabel(i.short, t => wrapsInto(node.debut ? `✦ ${t}` : t, (picture ? 104 : 104 * scale) - 2, oneLine || showKind ? 1 : 2, textWidth)) /* the whole words that fit the label's lines as drawn (12 px semibold in a 104-wide label) */ /* whole words, no "…" (user 11/25 「12자 정도만」) */}{/* Figma 12: the short name (the engine's label, ≤ 24) on up to two lines; the whole title is the description and the card's (user 11/24 「figma 대로」) */}
+                  {node.debut && <span aria-hidden="true">✦ </span>}{fitLabel(i.short, t => wrapsInto(node.debut ? `✦ ${t}` : t, (picture ? NW : NW * scale) - 2, oneLine || showKind ? 1 : 2, textWidth)) /* the whole words that fit the label's lines as drawn (12 px semibold in a 104-wide label) */ /* whole words, no "…" (user 11/25 「12자 정도만」) */}{/* Figma 12: the short name (the engine's label, ≤ 24) on up to two lines; the whole title is the description and the card's (user 11/24 「figma 대로」) */}
                 </span>
                 {/* Figma 10px; 12px is the floor. Editing (Figma 15) shows the title only.
                     Sorting (25): 0.7, not 0.55, as the two-line title puts the time over the holo ring's edge (3.6:1 at 0.55) */}
-                {!edit && !compact && <span data-node-text="" style={{ fontSize: picture ? 10 : real(12) }} className={`block max-w-[104px] truncate font-medium ${pending ? 'text-arc-text/70' : 'text-arc-text/72'}`}>{i.when}</span>}{/* 0.72, not Figma's 0.55: the regions' faint white under it left 3.0–4.1:1 */}
+                {!edit && !compact && <span data-node-text="" style={{ fontSize: picture ? 10 : real(12) }} className={`block max-w-full truncate font-medium ${pending ? 'text-arc-text/70' : 'text-arc-text/72'}`}>{i.when}</span>}{/* 0.72, not Figma's 0.55: the regions' faint white under it left 3.0–4.1:1 */}
                 {/* Arc 0.2.0: how a Reframe differs (user 11/21), in place of the title's second line so the node keeps its
                     height. Not where the layout already cut the title to one line (no room: 13 and 14 show it), on the share
                     picture or while editing */}
-                {showKind && <span style={{ fontSize: real(12) }} className="block max-w-[104px] truncate font-medium text-arc-text-3">{KIND_NAME[node.kind!]}</span>}
+                {showKind && <span style={{ fontSize: real(12) }} className="block max-w-full truncate font-medium text-arc-text-3">{KIND_NAME[node.kind!]}</span>}
               </button>
               {hold && !hold.held && ( /* hidden until focused: Tab or a screen reader reaches it right after its node */
                 <button type="button" onClick={() => hold.onSwap(node.key)}
