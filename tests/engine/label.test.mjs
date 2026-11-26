@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { fitLabel } from '../../app/src/arc/label.js';
 
 test('map names cut at whole words, never on a small word, no ellipsis (user 11/25: about 12 characters, 13 fit one line)', () => {
-  assert.equal(fitLabel('A Tree’s Perspective', 13), 'A Tree’s');
+  assert.equal(fitLabel('A Tree’s Perspective', 13), 'Tree’s') // opening a/the/do… skipped (iPhone 11/26);
+  assert.equal(fitLabel('Do AI explanations increase trust?', 13), 'AI'); assert.equal(fitLabel('When', 13), 'When');
   assert.equal(fitLabel('Effects of Virtual Reali…', 13), 'Effects');
   assert.equal(fitLabel('Virtual Perspectives', 13), 'Virtual');
   assert.equal(fitLabel('Body Swapping', 13), 'Body Swapping');
@@ -22,5 +23,5 @@ test('map names: wrapping by measured width', async () => {
   assert.equal(wrapsInto('Virtual Perspectives', 120, 2, m), true); // "Virtual" / "Perspectives"
   assert.equal(wrapsInto('Virtual Perspectives', 110, 2, m), false); // "Perspectives" alone is 120
   assert.equal(wrapsInto('A Tree’s Perspective', 120, 1, m), false);
-  assert.equal(fitLabel('A Tree’s Perspective', t => wrapsInto(t, 120, 1, m)), 'A Tree’s');
+  assert.equal(fitLabel('A Tree’s Perspective', t => wrapsInto(t, 120, 1, m)), 'Tree’s') // opening a/the/do… skipped (iPhone 11/26);
 });

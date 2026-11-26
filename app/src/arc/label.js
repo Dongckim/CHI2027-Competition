@@ -3,6 +3,9 @@
 export const labelOf = title => { const t = (title ?? '').trim(); const h = t.split(':')[0].trim() || t; return h.length <= 24 ? h : `${h.slice(0, 23).trimEnd()}…`; };
 
 // Small words a cut name must not end on ("Effects of" → "Effects")
+// Opening words a name skips: question titles start the same way and their first word alone told nothing (iPhone 11/26:
+// 24b showed "Do", "The", "When", "Who")
+const LEAD = new Set(['a', 'an', 'the', 'do', 'does', 'did', 'can', 'could', 'should', 'will', 'would', 'is', 'are', 'how', 'what', 'when', 'who', 'why', 'where', 'which']);
 const TAIL = new Set(['a', 'an', 'the', 'of', 'and', 'or', 'for', 'in', 'on', 'to', 'with', 'by', 'at', 'from', 'as', 'via', 'vs', 'is', 'are']);
 /**
  * The name as the map can show it (user 11/25 「12자 정도만 표시하는식으로 … 길게 오더라도」): whole words from the start,
@@ -15,6 +18,7 @@ export function fitLabel(label, max) {
   const cut = /…$/.test((label ?? '').trim()); // already cut mid-word: its last word is a piece ("Effects of Virtual Real…")
   const words = (label ?? '').replace(/…$/, '').trim().split(/\s+/).filter(Boolean);
   if (cut && words.length > 1) words.pop();
+  while (words.length > 1 && LEAD.has(words[0].toLowerCase().replace(/[^a-z]/g, ''))) words.shift();
   const out = [];
   for (const w of words) { if (!fits([...out, w].join(' '))) break; out.push(w); }
   while (out.length > 1 && TAIL.has(out.at(-1).toLowerCase().replace(/[^a-z]/g, ''))) out.pop();
