@@ -6,7 +6,8 @@ import { play, OUT } from '../../arc/motion';
 // 12c: the picked stop's card rises into place (prototype: 16 px, 520 ms)
 const cardIn = (el: HTMLElement | null) => { play(el, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 120, easing: OUT }); };
 import { update, useDevice } from '../../state/useDevice';
-import { arcOf, setHoldHintSeen } from '../../arc/draft.js';
+import { arcOf, setHoldHintSeen, setTourSeen } from '../../arc/draft.js';
+import { MapTour } from './MapTour';
 import { go, href } from '../../router';
 import { Screen, ArcLink, ArcButton, Pic } from '../../components/arc';
 import type { Angle } from '../../engine';
@@ -60,7 +61,14 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
     return () => { live = false; };
   }, [keys]); // eslint-disable-line react-hooks/exhaustive-deps
   // 12a: the first time, a bubble says a stop can be held; gone at the first touch, never again
-  const seen = !!arcOf(useDevice()).holdHint;
+  const dev = arcOf(useDevice());
+  const toured = !!dev.tour || dev.tourDue !== id; // only the first Arc built here, once
+  const [tour, setTour] = useState(false);
+  const endTour = useCallback(() => { setTour(false); update(setTourSeen); }, []);
+  // after the map has come in (its entrance is about 1 s), on 12 with a built Arc only
+  const ready = !!arc && arc.tension !== 'pending' && !focus && !!use.schedule;
+  useEffect(() => { if (toured || !ready) return; const t = setTimeout(() => setTour(true), 1400); return () => clearTimeout(t); }, [toured, ready]);
+  const seen = !!arcOf(useDevice()).holdHint || !toured; // the hold bubble waits until the tour has been
   const [hint, setHint] = useState(!seen);
   useEffect(() => { if (hint && !seen) update(setHoldHintSeen); }, [hint, seen]);
   if (!arc) return null;
@@ -102,7 +110,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
           </div>
         )}
         {next && ni && !outside && (
-          <a key={next.key} ref={sel ? cardIn : undefined} href={href(`talk/${next.key}`)} inert={!!held || undefined} aria-description={`${word === 'Next' ? 'Next up' : word}: ${ANGLE_NAME[next.angle]} · ${ni.title} · ${ni.time}`}
+          <a data-tour="card" key={next.key} ref={sel ? cardIn : undefined} href={href(`talk/${next.key}`)} inert={!!held || undefined} aria-description={`${word === 'Next' ? 'Next up' : word}: ${ANGLE_NAME[next.angle]} · ${ni.title} · ${ni.time}`}
             className="flex min-h-[88px] items-center gap-3.5 rounded-[20px] border border-arc-line bg-arc-surface py-3.5 pr-4 pl-3.5">
             {/* Figma: a 38 circle in a 40 frame, 18 px symbol */}
             <span className="m-px flex size-[38px] shrink-0 items-center justify-center rounded-full border border-arc-line bg-arc-surface"><Pic src={ANGLE_ICON[next.angle]} size={18} /></span>
@@ -150,6 +158,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
       </div>
       {held && <SwapFan hs={hs} title={info(held).title} />}
       <AngleHelp open={help} onClose={closeHelp} />
+      {tour && <MapTour onDone={endTour} />}
     </Screen>
   );
 }

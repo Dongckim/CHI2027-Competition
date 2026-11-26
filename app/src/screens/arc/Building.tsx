@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react';
 import { go, href } from '../../router';
 import { useDevice, update } from '../../state/useDevice';
-import { arcOf, buildOptions, whenChoice, walkOf } from '../../arc/draft.js';
+import { arcOf, buildOptions, whenChoice, walkOf, setTourDue } from '../../arc/draft.js';
 import { engine } from '../../engine';
 import { saveArc } from '../../arc/store';
 import { loadSchedule } from '../../data/load';
@@ -65,6 +65,7 @@ export function Building() {
     warm().then(() => engine.buildArc(query, opts), e => { if (live) setStuck(true); throw e; }).then(async arc => {
       if (!live) return; // StrictMode runs this effect twice in dev: only the live run saves
       await saveArc(arc);
+      update(s => setTourDue(s, arc.id)); // user 11/26: the first Arc's map explains itself
       await new Promise(r => setTimeout(r, Math.max(0, MIN_MS - (Date.now() - started))));
       if (!live) return;
       go(`hood/${arc.id}`, { replace: true }); // back from 11 does not build again

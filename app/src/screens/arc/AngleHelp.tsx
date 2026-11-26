@@ -13,6 +13,16 @@ const ROWS = [
   { icon: challenge, name: ANGLE_NAME.T, text: 'Same question, a different finding. Not a verdict on the paper.' },
 ];
 
+// user 11/26 「? 버튼에 각 색깔 표기도 해주고」: what the map's fills, rings and colour mean (not in Figma; drawn as the map does)
+const ring = 'size-[22px] shrink-0 rounded-full';
+const LEGEND = [
+  { mark: <span className={`${ring} bg-white/95`} />, name: 'Next', text: 'your next stop' },
+  { mark: <span className={`${ring} border-[1.5px] border-white/55`} />, name: 'Upcoming', text: 'later on your Arc' },
+  { mark: <span className={`${ring} border-[1.5px] border-dashed border-white/40`} />, name: 'Ended or not added', text: 'over, or a talk not on your Arc yet' },
+  { mark: <span className="flex size-[22px] shrink-0 items-center justify-center text-[14px] text-arc-text">✦</span>, name: 'New to CHI', text: 'a first CHI paper' },
+  { mark: <span className={`${ring} border-2`} style={{ borderColor: 'var(--tribe, #7c83ff)', boxShadow: '0 0 10px var(--tribe, #7c83ff)' }} />, name: 'Your field’s colour', text: 'the question and the screen edge' },
+];
+
 export function AngleHelp({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
     <Sheet open={open} onClose={onClose} title="Three angles">
@@ -28,7 +38,16 @@ export function AngleHelp({ open, onClose }: { open: boolean; onClose: () => voi
         ))}
       </ul>
       {/* Figma: 11px at 45% (≈ 4.1:1); raised to 12px at --arc-text-3 (≈ 5.3:1 on the sheet) */}
-      <p className="mt-[15px] mb-[13px] text-[12px] font-medium text-arc-text-3">Read from each paper’s abstract.</p>
+      <p className="mt-[15px] text-[12px] font-medium text-arc-text-3">Read from each paper’s abstract.</p>
+      <p id="legend" className="mt-5 text-[13px] font-semibold text-arc-text-2">On the map</p>
+      <ul aria-labelledby="legend" className="mt-2.5 mb-[13px] flex flex-col gap-2.5">
+        {LEGEND.map(r => (
+          <li key={r.name} className="flex items-center gap-3 text-[14px] leading-5">
+            <span aria-hidden="true" className="flex w-10 justify-center">{r.mark}</span>
+            <span><span className="font-semibold">{r.name}</span><span className="text-arc-text-2"> · {r.text}</span></span>
+          </li>
+        ))}
+      </ul>
       <ArcButton kind="secondary" className="-mb-[7px]" onClick={onClose}>Got it</ArcButton>{/* Figma: 14 above the safe area; Sheet gives 20 + its border */}
     </Sheet>
   );
