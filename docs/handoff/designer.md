@@ -367,3 +367,7 @@ Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your p
 - 홈 화면 앱: manifest·아이콘(ARC 표시, 180/192/512)·standalone. 홈 화면에 추가하면 따로 된 앱으로 열리고 7일 규칙에서 빠짐.
 - 20 홈 위 안내(새 표시, 디자이너 확인 전): 앱 안 브라우저면 "This app’s browser may delete your Arcs. Open arc2027.com in Safari or Chrome to keep them all week." + Copy link. iPhone Safari면 "Keep your Arcs all week: add ARC to your Home Screen. Tap Share ↑ and then “Add to Home Screen”." + Got it(한 번 닫으면 안 보임).
 - 한계: 저장 여부는 브라우저가 정함. 확실히 남기려면 홈 화면에 추가. 받은 링크(/s/…)에서는 Arc를 언제든 다시 만들 수 있음.
+
+## 25. New Arc → 07 + "Start from my paper" · 07b 걸러내기 (2026-11-26)
+- 사용자 결정 「New Arc 버튼: 07(질문)로 바로 가고, 07에 "Start from my paper" → 07p 링크 추가. 첫 사용(06c → 07p)은 Figma대로 유지」 (11/26 「OK, 진행해」). 07 시작 질문 목록 아래 글자 링크 "Start from my paper ›"(디자이너 확인 전).
+- 사용자 결정 「요인(X) 자리에 숫자나 연구 방법 단어(interview, survey, participants, study, N=)가 있으면 빼. … 걸러서 카드가 3개 미만이면 남은 것만」: 07b 조합 질문 중 요인에 숫자나 그 단어가 있으면 뺌. 원준 엔진이 고치면 지울 임시 규칙(테스트에 표시).

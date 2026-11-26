@@ -56,3 +56,14 @@ test('07b: the asker\'s lead-in is not part of the topic, and their pronoun is n
   for (const q of ['How does i study VR affect user experience?', 'Does i study VR improve usability?', 'Do we improve trust?']) assert.equal(brokenQuestion(q), true, q);
   assert.equal(brokenQuestion('Does haptic feedback improve immersion?'), false);
 });
+
+// 원준 확인 필요: remove this test with methodFactor once the engine no longer composes method or number factors (11/26)
+test('07b: a composed question whose factor is a number or a research method is dropped (user 11/26)', async () => {
+  const { methodFactor, factorOf } = await import('../../app/src/arc/topic.js');
+  assert.equal(factorOf('Do interviews with 18 older adults improve contextual factors?'), 'interviews with 18 older adults');
+  for (const q of ['Do interviews with 18 older adults improve contextual factors?', 'Does a survey of designers increase trust?',
+    'Do participants improve accuracy?', 'Does the study affect outcomes?', 'Does N=60 participants raise presence?', 'How do 3 conditions affect recall?'])
+    assert.equal(methodFactor(q), true, q);
+  for (const q of ['Does VR improve presence?', 'How does generative AI affect mental health?', 'Do older adults improve portal use?', 'Does studying improve recall?'])
+    assert.equal(methodFactor(q), false, q);
+});

@@ -179,6 +179,8 @@ export function Ask() {
           </li>
         ))}
       </ul>
+      {/* user 11/26 「New Arc → 07 + 07에 "Start from my paper" 링크」: the first run goes 06c → 07p (Figma); from here, 07p */}
+      <a href={href('paper')} className="mt-3 inline-flex min-h-touch items-center gap-1.5 self-start text-[14px] font-semibold text-arc-text-2">Start from my paper<Pic src={chevron} size={14} /></a>
       </>}
     </Screen>
   );

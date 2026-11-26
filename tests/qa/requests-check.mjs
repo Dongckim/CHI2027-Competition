@@ -44,9 +44,7 @@ try {
   await tab.waitFor(`/Bring one question/.test(document.body.innerText)`);
   await click(tab, 'Skip');
   await tab.waitFor(`location.hash === '#/home' && /Start with one question/.test(document.body.innerText)`);
-  await click(tab, 'New Arc'); // 07p, then no paper → 07
-  await tab.waitFor(`location.hash === '#/paper' && /No paper/.test(document.body.innerText)`);
-  await click(tab, 'No paper? Start from a question');
+  await click(tab, 'New Arc');
   await tab.waitFor(`location.hash === '#/ask' && !!document.querySelector('main input')`);
   window = true; // 07 → 12: the question stays on the phone
   await tab.ev(`(() => { const i = document.querySelector('main input'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, ${JSON.stringify(QUESTION)});

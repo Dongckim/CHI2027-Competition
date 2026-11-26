@@ -48,3 +48,14 @@ export function brokenQuestion(text) {
   const plural = PLURAL_WORD.has(head) || /[^s]s$/.test(head);
   return m[1].toLowerCase() === 'do' ? !plural : plural;
 }
+
+// The engine sometimes makes the method the factor: "Do interviews with 18 older adults improve contextual factors?"
+// (user 11/26 「요인(X) 자리에 숫자나 연구 방법 단어(interview, survey, participants, study, N=)가 있으면 빼」).
+// shortcut: a word list on our side until Wonjune's engine stops composing them (원준 확인 필요; then drop this and its test).
+const METHOD = /\b(?:interviews?|surveys?|participants?|stud(?:y|ies))\b|\bn\s*=/i;
+/** The factor X of "Do|Does X improve|increase|reduce|affect|raise Y?" or "How do|does X affect Y?", or null. */
+export function factorOf(text) {
+  return (text ?? '').trim().match(/^(?:how\s+)?(?:do|does)\s+(.+?)\s+(?:improve|increase|reduce|affect|raise)\b/i)?.[1] ?? null;
+}
+/** A composed question whose factor is a number or a research method, not a thing studied. */
+export const methodFactor = text => { const x = factorOf(text); return !!x && (/\d/.test(x) || METHOD.test(x)); };

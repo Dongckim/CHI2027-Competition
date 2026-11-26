@@ -49,7 +49,8 @@ const ROWS = [
   ['19', `#/r/${P}/pick`, ['link', 'Back'], new RegExp(`^#/r/${P}$`)],
   ['19', `#/r/${P}/pick`, ['button', /^Add \d+ to my Arcs$/], /^#\/home$/],
   ['19b', `#/r/${P}/yours`, ['button', 'Keep all theirs'], /^#\/home$/],
-  ['20', '#/home', ['link', 'New Arc'], /^#\/paper$/],
+  ['20', '#/home', ['link', 'New Arc'], /^#\/ask$/], // user 11/26: New Arc → 07
+  ['07', '#/ask', ['link', 'Start from my paper'], /^#\/paper$/],
   ['20', '#/home', `a[href$="#/arc/${ARC.id}"]`, new RegExp(`^#/arc/${ARC.id}$`)],
 ];
 
