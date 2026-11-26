@@ -55,12 +55,15 @@ const PENDING = [[70, 140], [320, 140], [60, 360], [330, 360], [195, 456]];
 // mirror. The other two angles' counts sit in the strip on the far side (clear of the talks). Seats: a 3 × 5 grid, rows 108 apart, inside the region, 150 or more from
 // the question (worked out once; 해석(확인 전), Figma draws Supports only).
 const FOCUS_R = [[170, 36], [170, 144], [278, 252], [170, 252], [62, 36], [62, 144], [278, 360], [62, 252], [170, 360], [62, 360], [170, 468], [62, 468]];
+// a few talks (6 or fewer) spread over the region, a zigzag away from the question, not packed beside it (iPhone 11/26
+// 「왜케 몰려있는거야」): indexes into FOCUS_R, the same for its mirror
+const SPREAD_R = [1, 7, 6, 10, 4, 2];
 export const FOCUS = {
   S: { at: [195, 500], seats: [[195, 340], [90.3, 366], [299.7, 366], [195, 235], [62.5, 270.5], [327.5, 270.5], [195, 130], [56.4, 157], [333.6, 157], [195, 30], [73.4, 46], [316.6, 46]],
     others: [['R', [54, 496]], ['T', [328, 496]]] },
   // the question 20 in from the corner (iPhone 11/26: at (320, 70) its ring ran off the screen)
-  R: { at: [300, 90], seats: FOCUS_R, others: [['S', [382, 196]], ['T', [382, 252]]] }, // 24b: one column on the screen edge, right-aligned
-  T: { at: [90, 90], seats: FOCUS_R.map(([x, y]) => [390 - x, y]), others: [['S', [8, 196]], ['R', [8, 252]]] }, // left-aligned
+  R: { at: [300, 90], seats: FOCUS_R, spread: SPREAD_R, others: [['S', [382, 196]], ['T', [382, 252]]] }, // 24b: one column on the screen edge, right-aligned
+  T: { at: [90, 90], seats: FOCUS_R.map(([x, y]) => [390 - x, y]), spread: SPREAD_R, others: [['S', [8, 196]], ['R', [8, 252]]] }, // left-aligned
 };
 // Where the rest of an angle lies, from its count: up for Supports, down-left for Reframes, down-right for Challenges
 // (prototype "More · …": the chevron turned 0 / 240 / 120 degrees)
@@ -71,8 +74,9 @@ export const MORE_AT = { S: { badge: [195, 34], arrow: [195, 9.5] }, R: { badge:
 /** 24b: the talks of one angle (up to twelve) and the other two angles' badges. */
 export function focusLayout(arc, angle) {
   const of = arc.nodes.filter(n => n.angle === angle), f = FOCUS[angle];
+  const seats = f.spread && of.length <= f.spread.length ? f.spread.map(i => f.seats[i]) : f.seats;
   return {
-    nodes: of.slice(0, f.seats.length).map((node, i) => ({ node, at: f.seats[i], oneLine: true })),
+    nodes: of.slice(0, seats.length).map((node, i) => ({ node, at: seats[i], oneLine: true })),
     count: of.length,
     others: f.others.map(([a, at]) => ({ angle: a, count: arc.nodes.filter(n => n.angle === a).length, at })),
   };

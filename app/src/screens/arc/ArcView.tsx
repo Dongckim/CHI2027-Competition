@@ -82,7 +82,11 @@ export function useMapFit(base = 1) {
     let low = top;
     for (const t of el.querySelectorAll('button, a')) {
       const r = t.getBoundingClientRect();
-      if (r.width > 2 && r.height > 2) low = Math.max(low, r.top + r.height / 2 + Math.max(44, r.height) / 2);
+      // where a stop will be, not where its slide-in has it now: 24b's talks rise from below, and measured mid-slide the
+      // map stepped down to half its size on a phone (iPhone 11/26; the checks run without motion and missed it)
+      const wrap = t.closest('[data-node-wrap]'), tf = wrap ? getComputedStyle(wrap).transform : 'none';
+      const dy = tf && tf !== 'none' ? new DOMMatrixReadOnly(tf).m42 * scale : 0;
+      if (r.width > 2 && r.height > 2) low = Math.max(low, r.top - dy + r.height / 2 + Math.max(44, r.height) / 2);
     }
     // and the page itself must not scroll (24: the nodes cleared the bar but the page was 8 px too tall)
     const over = Math.max(low - floor, document.documentElement.scrollHeight - innerHeight);
@@ -139,6 +143,9 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   const f = focus ? focusLayout(arc, focus) as { nodes: Laid['nodes']; others: { angle: Angle; count: number; at: Seat }[] } : null;
   const l: Laid = f ? { nodes: f.nodes, regions: f.others.map(o => ({ ...o, more: 1 })), emptyT: null } : layout(arc, !!edit) as Laid; // map.js is untyped JS
   const shift: [number, number] = focus ? [FOCUS[focus].at[0] - BOX.cx, FOCUS[focus].at[1] - BOX.cy] : [0, 0];
+  // 24b Reframes / Challenges: the box as tall as its lowest talk and label, not the full 530 (few talks left an empty band
+  // and, on a short screen, a page that scrolled; iPhone 11/26)
+  const tall = (focus === 'R' || focus === 'T') && l.nodes.length ? Math.min(BOX.h, Math.max(FOCUS[focus].at[1] + 100, ...l.nodes.map(n => n.at[1])) + 34 + (picture ? 40 : 40 / scale)) : null; // 40: a one-line name and its time, real size
   const pending = arc.tension === 'pending';
   const at = (x: number, y: number, w: number, h = w) => ({ position: 'absolute' as const, left: x - w / 2, top: y - h / 2, width: w, height: h });
   const lines: ReactNode[] = [];
@@ -169,7 +176,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
   for (const n of arc.nodes) counts[n.angle]++;
 
   return (
-    <div ref={rootRef} data-arc-map="" data-pending={pending || undefined} data-shift={shift.join()} className="relative mx-auto" style={{ width: BOX.w * scale, height: (BOX.h + (fit ? 0 : BELOW)) * scale }} inert={picture || undefined} aria-hidden={picture || undefined}>
+    <div ref={rootRef} data-arc-map="" data-pending={pending || undefined} data-shift={shift.join()} className="relative mx-auto" style={{ width: BOX.w * scale, height: (tall ?? BOX.h + (fit ? 0 : BELOW)) * scale }} inert={picture || undefined} aria-hidden={picture || undefined}>
       <div className="absolute top-0 left-0 origin-top-left" style={{ width: BOX.w, height: BOX.h, transform: scale === 1 ? undefined : `scale(${scale})`, '--map-scale': picture ? 1 : scale } as CSSProperties}>
         <Regions shift={shift} below={!picture && room ? Math.max(0, room / scale - BOX.h) : 0} above={focus === 'R' || focus === 'T' ? real(64) : 0} />
         <div className="pointer-events-none absolute inset-0 motion-safe:transition-transform motion-safe:delay-[60ms] motion-safe:duration-[900ms] motion-safe:ease-[cubic-bezier(.22,1,.36,1)]" /* prototype 24b: regions, orb and talks slide together, 900 ms */ style={{ transform: shift[0] || shift[1] ? `translate(${shift[0]}px, ${shift[1]}px)` : undefined }}>
