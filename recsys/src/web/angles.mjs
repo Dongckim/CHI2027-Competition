@@ -70,7 +70,7 @@ export const P = { JUDGE_N: 40, POOL: 200, SIZE: 7, MAX_READ: 2, GAP_MIN: 5, CAL
                    THEME_COS: 0.45, CLOSE_COS: 0.50,
                    MATCH: 0.70, STRICT: 0.80, COS_LO: 0.45, COS_HI: 0.80, CLAIM_W: 0.95, GEN_W: 0.95, ABOUT_W: 0.9, UP_W1: 0.8, UP_W2: 0.75,
                    NEAR_SCORE: 1.5, NEAR_TOP: 5, NEAR_CONF: 0.2, TOPIC_CONF: 0.1, COST: true, COST_BOTH: true, COST_TOP: 15,
-                   MINE_K: 8, MINE_Q: 3, BALANCE: true, SUGGEST_K: 3, WARN_WORDS: 3, WARN_MATCH: 5, CARDQ_COS: 0.75, CARDQ_X: 0.40, CQ_ONE: true, CQ_ONE_WORDS: 10,
+                   MINE_K: 8, MINE_Q: 3, BALANCE: true, SUGGEST_K: 3, WARN_WORDS: 3, WARN_MATCH: 5, PAIR_MIN: 5, PAIR_OUT: 0.6, CARDQ_COS: 0.75, CARDQ_X: 0.40, CQ_ONE: true, CQ_ONE_WORDS: 10,
                    CQ_SUGGEST: true, CQ_SAME: 0.85, CQ_ONLY: 1, CQ_TOPIC: 0.40, CQ_WORDS: 12 };
 
 const set = (s) => new Set(s.split(/\s+/).filter(Boolean));
@@ -477,6 +477,16 @@ export class Angles {
     const pc = this.phrases.map((p) => content(p));
     this.ptoks = pc.map((c) => c[0]);
     this.pneg = pc.map((c) => c[1]);
+    // how often a word heads a card's factor and its outcome (see _pairRoles)
+    this.asF = new Counter(); this.asO = new Counter();
+    for (const rec of Object.values(d.items)) {
+      for (const c of rec.cards || []) {
+        for (const [cnt, ph] of [[this.asF, c[0]], [this.asO, c[1]]]) {
+          const t = this.ptoks[ph];
+          if (t.length) cnt.add(stem(t[t.length - 1]));
+        }
+      }
+    }
     this.info = new Map();
     for (const [xid, rec] of Object.entries(d.items)) {
       const i = this.pos.get(+xid);
@@ -1207,12 +1217,12 @@ export class Angles {
     const usedF = new Set(), usedO = new Set(), usedI = new Set();
     if (P.CQ_SUGGEST) {
       // "chatbots and mental health": the asker's own two things, asked as they gave them
-      const [a_, b_] = q.kind !== "relation" ? pair(q.x) : ["", ""];
+      let [a_, b_] = q.kind !== "relation" ? pair(q.x) : ["", ""];
+      let e_ = null;
+      if (a_ && b_) [a_, b_, e_] = this._pairRoles(a_, b_);
       const mine = [];
       if (a_ && b_) {
-        const e = new Counter();
-        e.add("increase");
-        const text = this._wording(a_, b_, e);
+        const text = this._wording(a_, b_, e_);
         if ((await this.question(text)).kind === "relation") mine.push(await this._suggestion(text, a_, b_, [], types));
       }
       const first = mine.length ? mine[0].question : undefined;
@@ -1224,8 +1234,9 @@ export class Angles {
       // questions only one talk answers wait behind the topic's own broad questions
       single = cq.filter((c) => c[3].length < 2);
     }
-    // a topic keeps its own words when its talks share an outcome or a cause
-    if (q.kind === "topic") {
+    // a topic keeps its own words when its talks share an outcome or a cause (not "A & B":
+    // that is two things, never one factor, "Does design & AI improve creativity?")
+    if (q.kind === "topic" && !pair(q.x)[0]) {
       const room = k - (single.length ? 1 : 0);
       for (const [x, y, e, items] of await this._anchored(q, pool, score)) {
         if (out.length >= room) break;
@@ -1280,6 +1291,30 @@ export class Angles {
   // sharper questions from the questions the topic's talks answer (angles.json "cq"): the
   // ones most talks back (cosine CARDQ_COS, same way up), those with the topic's words first,
   // no two alike; each needs two talks
+  // "outcome" when the word mostly heads a card's outcome at CHI ("trust"), "factor" when it
+  // mostly heads a factor ("haptics", "social media"), else null
+  _role(phrase) {
+    const t = content(phrase)[0];
+    if (!t.length) return null;
+    const h = stem(t[t.length - 1]);
+    const f = this.asF.count(h), o = this.asO.count(h);
+    const share = (o + 1) / (f + o + 2);
+    if (o >= P.PAIR_MIN && share >= P.PAIR_OUT) return "outcome";
+    if (f >= P.PAIR_MIN && share <= 1 - P.PAIR_OUT) return "factor";
+    return null;
+  }
+
+  // a session name's "A & B" is two topics, not a cause and an effect (11/26: "Music & Haptics"
+  // became "Does music improve haptics?") -> [x, y, effects for _wording], or ["", "", null]
+  _pairRoles(a, b) {
+    const ra = this._role(a), rb = this._role(b);
+    const up = () => { const e = new Counter(); e.add("increase"); return e; };
+    if (rb === "outcome" && ra !== "outcome") return [a, b, up()];
+    if (ra === "outcome" && rb === "factor") return [b, a, up()];
+    if (ra === "factor" && rb === null) return [a, b, new Counter()];
+    return ["", "", null];
+  }
+
   async _claims(q, pool, score, types, k) {
     // questions with a direction only: the claim the Supports back and the Challenges push on
     const cands = [];
@@ -2194,7 +2229,7 @@ function pair(topic) {
   // only a topic's few words; a sentence ("I study haptic feedback for VR training of ...") is not a pair
   if (!m || (topic.toLowerCase().match(W_RE()) || []).length > 6) return ["", ""];
   const a = m[1].trim(), b = m[2].trim();
-  const bw = b.match(W_RE()) || [];
+  const bw = b.toLowerCase().match(W_RE()) || [];
   if (!content(a)[0].length || !content(b)[0].length || PEOPLE.has(bw[bw.length - 1])) return ["", ""];
   return [a, b];
 }

@@ -442,6 +442,8 @@ RE_GOODBAD = re.compile(r"^(?P<be>is|are)\s+(?P<x>.+?)\s+(?:really\s+|actually\s
                         + "|".join(sorted(GOOD_ADJ | BAD_ADJ)) + r")\s+(?:for|to)\s+(?P<y>.+)$")
 # inputs that are only the field's own short names ("AI", "VR"): CHI covers them, though the
 # off-topic check reads two letters as too little to go on
+PAIR_MIN = 5           # "A & B": a word counts as an outcome (or a factor) at CHI when it heads at
+PAIR_OUT = 0.6         # ... least this many cards' outcomes and this share of its cards (11/26)
 WARN_WORDS = 3         # a topic this short ("loneliness", "TikTok") is on topic when
 WARN_MATCH = 5         # ... at least this many talks name it (real words 5-17, junk 0-1, 11/26)
 FIELD_TERMS = {"ai", "vr", "ar", "xr", "mr", "llm", "llms", "ux", "ui", "hci", "iot", "ml", "nlp", "bci", "hri", "cscw", "ehmi"}
@@ -581,6 +583,14 @@ class Angles:
         pc = [content(p) for p in self.phrases]
         self.ptoks = [c for c, _ in pc]
         self.pneg = [n for _, n in pc]
+        # how often a word heads a card's factor and its outcome (see _pair_roles)
+        self.as_f, self.as_o = Counter(), Counter()
+        for rec in d["items"].values():
+            for c in rec.get("cards", []):
+                for cnt, ph in ((self.as_f, c[0]), (self.as_o, c[1])):
+                    t = self.ptoks[ph]
+                    if t:
+                        cnt[stem(t[-1])] += 1
         self.info = {}
         for xid, rec in d["items"].items():
             i = self.pos.get(int(xid))
@@ -1313,9 +1323,10 @@ class Angles:
         if CQ_SUGGEST:
             # "chatbots and mental health": the asker's own two things, asked as they gave them
             a_, b_ = _pair(q["x"]) if q["kind"] != "relation" else ("", "")
+            a_, b_, e_ = self._pair_roles(a_, b_) if a_ and b_ else ("", "", None)
             mine = []
             if a_ and b_:
-                text = self._wording(a_, b_, Counter({"increase": 1}))
+                text = self._wording(a_, b_, e_)
                 if self.question(text)["kind"] == "relation":
                     mine = [self._suggestion(text, a_, b_, [], types)]
             cq = [c for c in self._claims(q, pool, score, types, k) if c[0] != (mine or [{}])[0].get("question")]
@@ -1326,8 +1337,9 @@ class Angles:
             single = [c for c in cq if len(c[3]) < 2]
         else:
             single = []
-        # a topic keeps its own words when its talks share an outcome or a cause
-        if q["kind"] == "topic":
+        # a topic keeps its own words when its talks share an outcome or a cause (not "A & B":
+        # that is two things, never one factor, "Does design & AI improve creativity?")
+        if q["kind"] == "topic" and not _pair(q["x"])[0]:
             room = k - (1 if single else 0)
             for x, y, e, items in self._anchored(q, pool, score):
                 if len(out) >= room:
@@ -1359,6 +1371,35 @@ class Angles:
             if len(out) == k:
                 break
         return self._balanced(out, q)
+
+    def _role(self, phrase):
+        """"outcome" when the word mostly heads a card's outcome at CHI ("trust" 152 of 168),
+        "factor" when it mostly heads a factor ("haptics", "social media"), else None."""
+        t = content(phrase)[0]
+        if not t:
+            return None
+        h = stem(t[-1])
+        f, o = self.as_f[h], self.as_o[h]
+        share = (o + 1) / (f + o + 2)
+        if o >= PAIR_MIN and share >= PAIR_OUT:
+            return "outcome"
+        if f >= PAIR_MIN and share <= 1 - PAIR_OUT:
+            return "factor"
+        return None
+
+    def _pair_roles(self, a, b):
+        """A session name's "A & B" is two topics, not a cause and an effect (11/26: "Music &
+        Haptics" became "Does music improve haptics?"). -> (x, y, effects for _wording): B an
+        outcome, "Does A improve B?"; A an outcome and B a factor, the other way round; A a
+        factor and B unknown, "How does A affect B?"; else ("", "", None), nothing asked."""
+        ra, rb = self._role(a), self._role(b)
+        if rb == "outcome" and ra != "outcome":
+            return a, b, Counter({"increase": 1})
+        if ra == "outcome" and rb == "factor":
+            return b, a, Counter({"increase": 1})
+        if ra == "factor" and rb is None:
+            return a, b, Counter()
+        return "", "", None
 
     def _claims(self, q, pool, score, types, k):
         """Sharper questions from the questions the topic's talks answer (angles.json "cq"):
@@ -2328,7 +2369,7 @@ def _pair(topic):
     if not m or len(_W.findall(topic.lower())) > 6:
         return "", ""
     a, b = m.group(1).strip(), m.group(2).strip()
-    if not content(a)[0] or not content(b)[0] or _W.findall(b)[-1] in PEOPLE:
+    if not content(a)[0] or not content(b)[0] or _W.findall(b.lower())[-1:] in [[w] for w in PEOPLE]:
         return "", ""
     return a, b
 

@@ -284,6 +284,22 @@ Python·JavaScript 일치 271/271, Arc 80/80, 검색 42/42, 앵글 40/41.
 
 Python·JavaScript 일치 271/271, Arc 80/80, 검색 42/42, 앵글 41/42("How do people track their sleep?" 화요일 6개는 전부터 실패).
 
+## 저녁 점검과 고친 것 (11/26 저녁)
+
+**범위 밖 단어와 종족.** "quantization"처럼 CHI 발표가 하나도 쓰지 않는 단어는 경고는 되었지만, 좁히기가 "Does privacy protection tool improve trust?"를 만들어 Arc를 짰고 종족도 Society & communities(확신 0.87)로 나왔다. 이제 범위 밖 주제는 좁히지 않고 입력한 말 그대로 Arc를 만들며, 종족은 추측으로 margin 0을 준다(앱이 종족 없이는 오류를 내므로 종족 자체는 준다). "AI"를 넣으면 AI & agents가 된다. CHI에서 AI를 쓴 발표 745편 중 Society & communities가 208편, AI & agents가 171편이라 투표로는 Society가 나왔지만, 입력이 종족 이름 그 자체면 그 종족을 고른다.
+
+**Reframe이 무엇이 같고 무엇이 다른지.** 팀원 요청으로 Other factor / Other measure / Other people Reframe에 `why.contrast`를 준다. 예: "Same outcome: opinion formation · Other factor: reactive writing (AI co-writing)". 같은 쪽은 카드 이름 중 질문과 맞물린 것(원문, 질문 말투, 한두 단계 넓은 이름 중 가장 가까운 것), 다른 쪽은 질문 말투의 카드 구절과 그 첫 넓은 이름이다. 평가 Arc의 Reframe 501개 중 Same subject를 뺀 441개 모두에 붙고, 25개를 읽어 보니 20개가 자연스러웠다.
+
+**폰 메모리.** 구절 벡터를 불러올 때 float32(67 MB)와 float64(134 MB)로 두 번 펼쳤다. int8 그대로 두고 쓰는 줄만 같은 계산으로 펼쳐 두면 결과는 같고, 234번 호출 뒤 메모리가 623 MB에서 463 MB로 준다.
+
+**"A & B" 주제.** 세션 이름의 "&"는 원인과 결과가 아닌데 "Does music improve haptics?", "Does gender improve social media?", "Does design improve AI?"처럼 물었다. 결과 카드에서 그 말이 결과 쪽에 얼마나 나오는지 세어(trust 168번 중 152번은 결과, haptics·social media·music은 대부분 원인) B가 결과 쪽 말일 때만 "Does A improve B?"로 묻고, A가 결과 쪽이면 순서를 바꾸고, A만 원인 쪽이고 B는 근거가 적으면 "How does A affect B?"로, 둘 다 주제면 묻지 않고 발표들이 답하는 질문에서 고른다. "A & B" 전체를 한 원인으로 보는 좁히기("Does design & AI improve creativity?")도 하지 않는다. 주제어 99개 Arc: Support 있음 87 → 91, 각도 2종류 이상 92 → 94.
+
+**Same subject Reframe(holdout 51% 무관).** 어디서 나오는지 나눠 보았다. 검색 상위 5위라서 붙은 것 22개 중 11개, 초록에 질문 단어가 다 있어서 붙은 것 10개 중 6개가 무관했다(48문항에서는 21개 중 1개). 검색 점수와 순위, 질문 단어가 초록·카드에 있는지, 발표가 답하는 질문과의 거리 모두 맞는 것과 무관한 것을 가르지 못했다. 마지막 것이 조금 갈리지만(중앙값 0.53 대 0.45) 0.40으로 자르면 holdout에서 무관 9개를 빼는 대신 48문항에서 맞는 7개를 뺀다. holdout에 맞춰 고르면 평가도 오염되므로 바꾸지 않았다. 무관 라벨 중 절반쯤은 같은 주제로 볼 만하다. 고치는 길은 cross-encoder(크기 때문에 뺌)나, 근거가 약할 때 멈춤 수를 줄이는 것(팀과 정할 일)이다.
+
+**전체 점검.** 정답 라벨 대비 수치는 낮과 같다(48문항 Support .68/.26, Reframe .78/.78, on-map .87/.83; holdout Support .56/.19, Reframe .60/.74, Challenge .67/.67). 직접 읽기: Challenge 평가 질문 14개 중 8개, 주제어 15개 중 6개, Support 30개 중 19개. 폰 엔진은 입력 79개와 이상한 입력 40개에서 오류 0, 화면당 서버 기준 중앙값 0.3초. 검색은 11/11 그대로(폰 R@1 0.77, R@8 0.945).
+
+Python·JavaScript 일치 271/271(주제어 99개 제안도 같음), Arc 80/80, 검색 42/42, 앵글 42/43.
+
 ## 다시 만들기
 
 ```bash
@@ -298,6 +314,6 @@ python scripts/build_angles.py                         # 일반어까지 합쳐 
 python scripts/eval_angles.py                          # docs/angle_eval.json (--sweep: 임계값 탐색)
 sbatch scripts/compare_llm.slurm && python scripts/compare_llm_report.py   # 일반 LLM과 비교 (GPU 7개 약 15분)
 python scripts/package_model.py
-python tests/run_angle_cases.py                        # 42개 사례
+python tests/run_angle_cases.py                        # 43개 사례
 python tests/web_reference.py && node tests/run_web_parity.mjs   # JavaScript가 Python과 같은지 (271개)
 ```
