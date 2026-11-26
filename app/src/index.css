@@ -64,17 +64,18 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* Tribe glow (11 onward): the screen edge in the Arc's tribe colour, like a soft frame. It never blinks; it breathes slowly,
    and stands still with reduced motion or the "still" setting (<html data-glow="still">). Never the only cue: shape + name too. */
+:root[data-tribe] { position: relative; min-height: 100%; }
 :root[data-tribe] body::after {
-  content: ""; position: fixed; z-index: 50; pointer-events: none; left: 0; right: 0;
-  /* In Safari's browser the page runs under the status bar and the toolbar, but a fixed layer stops at them, and the glow
-     ended there as a straight line (iPhone 11/26, twice). There (insets 0) it reaches 100 px past both, so only the sides
-     show, running the whole screen; from the Home Screen (insets > 0) it is the screen, its corners the phone's (the top
-     inset is about the screen corner radius). */
-  top: calc(min(env(safe-area-inset-top, 0px) * 100, 100px) - 100px);
-  bottom: calc(min(env(safe-area-inset-bottom, 0px) * 100, 100px) - 100px);
-  border-radius: env(safe-area-inset-top, 0px);
+  /* In Safari's browser the page is drawn under the status bar and the toolbar but a fixed layer is not: the glow stopped
+     there in a straight line (iPhone 11/26, three times). So in the browser it is part of the page, as tall as the page:
+     the sides run under both bars like the text does, the top edge at the page's top, the bottom edge at its end. */
+  content: ""; position: absolute; inset: 0; z-index: 50; pointer-events: none;
   box-shadow: inset 0 0 56px color-mix(in srgb, var(--tribe) 32%, transparent); /* Figma 10/11/22: inner shadow, blur 56 */
   animation: tribe-breathe 6s ease-in-out infinite;
+}
+/* From the Home Screen there are no bars: the screen itself, its corners the phone's (the top inset is about its radius) */
+@media (display-mode: standalone) {
+  :root[data-tribe] body::after { position: fixed; border-radius: env(safe-area-inset-top, 0px); }
 }
 @keyframes tribe-breathe { 50% { opacity: 0.6; } }
 :root[data-glow="still"] body::after { animation: none; }
