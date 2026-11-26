@@ -312,6 +312,7 @@ const RE_GOODBAD = new RegExp("^(?<be>is|are)\\s+(?<x>.+?)\\s+(?:really\\s+|actu
   + [...GOOD_ADJ, ...BAD_ADJ].sort().join("|") + ")\\s+(?:for|to)\\s+(?<y>.+)$");
 // inputs that are only the field's own short names ("AI", "VR"): CHI covers them, though the
 // off-topic check reads two letters as too little to go on
+const PROW_CAP = 30000;   // decoded phrase rows kept (30 MB at most)
 const FIELD_TERMS = new Set(["ai", "vr", "ar", "xr", "mr", "llm", "llms", "ux", "ui", "hci", "iot", "ml", "nlp", "bci", "hri", "cscw", "ehmi"]);
 
 export function parseQuestion(text) {
@@ -447,7 +448,7 @@ const T = (iso) => DT.parse(iso);
 const RELATED = () => ({ angle: "reframe", subtype: "related", conf: 0.0, card: null, caveat: null });
 
 export class Angles {
-  /** pkg: loadPackage(...) plus angles (angles.json) and phraseEmb ({data, n, d}) */
+  /** pkg: loadPackage(...) plus angles (angles.json) and phraseEmb ({codes, scale, n, d} or {data, n, d}) */
   constructor(pkg, arc = null) {
     this.arc = arc || new ARC(pkg);
     const a = this.arc;
@@ -461,15 +462,18 @@ export class Angles {
     // "AI", "health", "XR": the words of each tribe's own name (see _tribe)
     this.tribeWords = this.tribes.map((t) => new Set(t.name.toLowerCase().match(W_RE()) || []));
     this.phrases = d.phrases;
-    const { data, n, d: D } = pkg.phraseEmb;
+    // phrase vectors stay int8 (17 MB, not 200 MB as float32 + float64); a row is decoded when
+    // first used, to the very same float64 values as before (float32 code x scale, over its norm)
+    const pe = pkg.phraseEmb, n = pe.n, D = pe.d;
     this.D = D;
-    this.pvec = new Float64Array(n * D);
+    this._pval = pe.codes ? ((i, k) => Math.fround(pe.codes[i * D + k] * pe.scale[i])) : ((i, k) => pe.data[i * D + k]);
+    this._pnrm = new Float64Array(n);
     for (let i = 0; i < n; i++) {
       let s = 0;
-      for (let k = 0; k < D; k++) s += data[i * D + k] * data[i * D + k];
-      const nrm = Math.max(Math.sqrt(s), 1e-9);
-      for (let k = 0; k < D; k++) this.pvec[i * D + k] = data[i * D + k] / nrm;
+      for (let k = 0; k < D; k++) { const x = this._pval(i, k); s += x * x; }
+      this._pnrm[i] = Math.max(Math.sqrt(s), 1e-9);
     }
+    this._prows = new Map();
     const pc = this.phrases.map((p) => content(p));
     this.ptoks = pc.map((c) => c[0]);
     this.pneg = pc.map((c) => c[1]);
@@ -546,8 +550,8 @@ export class Angles {
       lex = 0.3 * hit / qt.length;
     }
     let cos = 0;
-    const o = pi * this.D;
-    for (let k = 0; k < this.D; k++) cos += q.vec[k] * this.pvec[o + k];
+    const r = this._prow(pi);
+    for (let k = 0; k < this.D; k++) cos += q.vec[k] * r[k];
     const sem = Math.min(1.0, Math.max(0.0, (cos - P.COS_LO) / (P.COS_HI - P.COS_LO)));
     return pyRound(Math.max(lex, sem), 3);
   }
@@ -626,9 +630,66 @@ export class Angles {
 
   // -- one talk's angle -------------------------------------------------------
   judge(i, q) {
-    const v = this._judgeCards(i, q);
-    if ((v !== null && (v.angle === "support" || v.angle === "challenge")) || q.Y === null || !this.info.get(i)) return v;
-    return this._judgeQuestions(i, q) || v;
+    let v = this._judgeCards(i, q);
+    if (!((v !== null && (v.angle === "support" || v.angle === "challenge")) || q.Y === null || !this.info.get(i))) {
+      v = this._judgeQuestions(i, q) || v;
+    }
+    if (v !== null && v.angle === "reframe") v = { ...v, contrast: this._contrast(i, q, v) };
+    return v;
+  }
+
+  // what a Reframe keeps from the question and what it changes, for one line on its card (team
+  // 11/26): "Same outcome: opinion formation · Other factor: reactive writing (AI co-writing)"
+  _contrast(i, q, v) {
+    const info = this.info.get(i), sub = v.subtype;
+    if (!info || !["factor", "measure", "people"].includes(sub)) return null;
+    const k = v.card;
+    let same = null, other = null;
+    if (k === null || k === undefined) {
+      if (sub === "measure" && v.measure !== null && v.measure !== undefined) {
+        same = ["factor", show(q.x)];
+        other = ["outcome", show(this.phrases[info.measures[v.measure].c]), ""];
+      } else if (sub === "factor" && q.y) same = ["outcome", show(q.y)];
+      else same = ["factor", show(q.x)];
+    } else {
+      const absset = this._absset(i);
+      const c = info.cards[k], cl = info.claims.get(k);
+      const names = (side) => {
+        const [l1, l2] = info.up.get(c[side]) || [[], []];
+        const ns = [c[side], ...(cl ? [cl[side === "f" ? 0 : 1]] : []), ...l1, ...l2];
+        return [...new Set(ns)];
+      };
+      const met = (Q, side) => {
+        let best = null, bs = -1.0;
+        for (const p of names(side)) {
+          const m = Q !== null && Q !== undefined ? this._pm(Q, p, absset) : 0.0;
+          if (m > bs) { best = p; bs = m; }
+        }
+        return show(this.phrases[best]);
+      };
+      const changed = (side, role) => {
+        const p = cl ? cl[side === "f" ? 0 : 1] : c[side];
+        const [l1, l2] = info.up.get(c[side]) || [[], []];
+        const all = [...l1, ...l2];
+        const b = all.length ? all[0] : null;
+        // not when one only repeats the other ("tendon vibration" / "finger tendon vibration")
+        const tw = new Set(this.phrases[p].match(W_RE()) || []);
+        const bw = b !== null ? new Set(this.phrases[b].match(W_RE()) || []) : new Set();
+        const sub_ = (a, z) => [...a].every((w) => z.has(w));
+        const broader = b !== null && !(sub_(tw, bw) || sub_(bw, tw)) ? show(this.phrases[b]) : "";
+        return [role, show(this.phrases[p]), broader];
+      };
+      if (sub === "factor") { same = ["outcome", met(q.Y, "o")]; other = changed("f", "factor"); }
+      else if (sub === "measure") { same = ["factor", met(q.X, "f")]; other = changed("o", "outcome"); }
+      else {
+        same = ["factor", met(q.X, "f")];
+        other = c.p >= 0 ? ["people", show(this.phrases[c.p]), ""] : null;
+      }
+    }
+    let line = `Same ${same[0]}: ${same[1]}`;
+    if (other) line += ` \u00b7 Other ${other[0]}: ${other[1]}` + (other[2] ? ` (${other[2]})` : "");
+    return { same: { role: same[0], text: same[1] },
+             other: other ? { role: other[0], text: other[1], broader: other[2] } : null, line };
   }
 
   // +1 the question wants its Y up, -1 down (a bad Y flips it), 0 no direction
@@ -647,8 +708,8 @@ export class Angles {
       // g 2: "How does X affect Y?", a result with no direction, for undirected questions only
       if ((g === AFFECTS && lean) || (g !== AFFECTS && lean && g && lean !== g)) continue;
       let cos = 0;
-      const o = qp * this.D;
-      for (let t = 0; t < this.D; t++) cos += q.V[t] * this.pvec[o + t];
+      const r = this._prow(qp);
+      for (let t = 0; t < this.D; t++) cos += q.V[t] * r[t];
       if (cos < P.CARDQ_COS) continue;
       const my = this._pm(q.Y, yp, absset);
       if (my >= P.MATCH && this._pm(q.X, xp, absset) >= P.CARDQ_X) {
@@ -833,6 +894,8 @@ export class Angles {
     out.finding = (v.card !== null && v.card !== undefined && info.sum && info.sum.get(v.card)) || "";
     out.answers = v.asks !== null && v.asks !== undefined
       ? show(this.phrases[v.asks].slice(0, 1).toUpperCase() + this.phrases[v.asks].slice(1)) : "";
+    // a Reframe: what it keeps from the question and what it changes (see _contrast)
+    out.contrast = v.contrast === undefined ? null : v.contrast;
     out.text = show(Angles._whyText(v, out));
     return out;
   }
@@ -966,6 +1029,18 @@ export class Angles {
   }
 
   // The tribe of what the person typed, never of the sharpest question a topic is built on (team 11/22)
+  // phrase row p as float64, unit length; kept once decoded (at most PROW_CAP rows, ~1 KB each)
+  _prow(p) {
+    let r = this._prows.get(p);
+    if (r) return r;
+    if (this._prows.size >= PROW_CAP) this._prows.clear();
+    r = new Float64Array(this.D);
+    const nrm = this._pnrm[p];
+    for (let k = 0; k < this.D; k++) r[k] = this._pval(p, k) / nrm;
+    this._prows.set(p, r);
+    return r;
+  }
+
   _namedTribe(text) {
     const words = ((text || "").toLowerCase().match(W_RE()) || []).filter((w) => !STOPW.has(w));
     if (!words.length) return null;
@@ -1213,7 +1288,7 @@ export class Angles {
     }
     if (!cands.length) return [];
     const D = this.D;
-    const dot = (p1, p2) => { let c = 0; for (let t = 0; t < D; t++) c += this.pvec[p1 * D + t] * this.pvec[p2 * D + t]; return c; };
+    const dot = (p1, p2) => { const r1 = this._prow(p1), r2 = this._prow(p2); let c = 0; for (let t = 0; t < D; t++) c += r1[t] * r2[t]; return c; };
     const n = cands.length;
     const S = new Float64Array(n * n);
     for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) S[a * n + b] = dot(cands[a][1], cands[b][1]);
@@ -1244,7 +1319,8 @@ export class Angles {
       if (backers.length < 2 && !(one && whole && nw <= P.CQ_ONE_WORDS)) return;
       // on the typed topic, and short enough to read as a question
       let cq = 0;
-      for (let t = 0; t < D; t++) cq += this.pvec[qp * D + t] * q.V[t];
+      const r = this._prow(qp);
+      for (let t = 0; t < D; t++) cq += r[t] * q.V[t];
       if (nw > P.CQ_WORDS || (cq < P.CQ_TOPIC && !(one && whole))) return;
       // "chatbots and mental health": the two named things as the question's X and Y
       let pr = 1;

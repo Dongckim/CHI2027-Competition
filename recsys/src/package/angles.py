@@ -717,9 +717,71 @@ class Angles:
         """-> {"angle", "subtype", "conf", "card": index or None, "caveat": index or None}
         or None when the talk is not about X or Y."""
         v = self._judge_cards(i, q)
-        if (v is not None and v["angle"] in ("support", "challenge")) or q["Y"] is None or not self.info.get(i):
-            return v
-        return self._judge_questions(i, q) or v
+        if not ((v is not None and v["angle"] in ("support", "challenge")) or q["Y"] is None or not self.info.get(i)):
+            v = self._judge_questions(i, q) or v
+        if v is not None and v["angle"] == "reframe":
+            v = dict(v, contrast=self._contrast(i, q, v))
+        return v
+
+    def _contrast(self, i, q, v):
+        """What a Reframe keeps from the question and what it changes, for one line on its card
+        (team 11/26): "Same outcome: opinion formation · Other factor: reactive writing (AI
+        co-writing)". The kept side is the card's name that met the question (its own words, in
+        question words, or one or two steps broader); the changed side is the card in question
+        words, with its first broader name. None for a Same subject Reframe."""
+        info, sub = self.info.get(i), v["subtype"]
+        if not info or sub not in ("factor", "measure", "people"):
+            return None
+        k = v.get("card")
+        same, other = None, None
+        if k is None:
+            if sub == "measure" and v.get("measure") is not None:
+                same = ("factor", show(q["x"]))
+                other = ("outcome", show(self.phrases[info["measures"][v["measure"]]["c"]]), "")
+            elif sub == "factor" and q["y"]:
+                same = ("outcome", show(q["y"]))
+            else:
+                same = ("factor", show(q["x"]))
+        else:
+            absset = self._absset(i)
+            c, cl = info["cards"][k], info["claims"].get(k)
+
+            def names(side):
+                l1, l2 = info["up"].get(c[side], ((), ()))
+                ns = [c[side]] + ([cl[0 if side == "f" else 1]] if cl else []) + list(l1) + list(l2)
+                return list(dict.fromkeys(ns))
+
+            def met(Q, side):
+                best, bs = None, -1.0
+                for p_ in names(side):
+                    m = self._pm(Q, p_, absset) if Q is not None else 0.0
+                    if m > bs:
+                        best, bs = p_, m
+                return show(self.phrases[best])
+
+            def changed(side, role):
+                p_ = cl[0 if side == "f" else 1] if cl else c[side]
+                l1, l2 = info["up"].get(c[side], ((), ()))
+                b = (list(l1) + list(l2) + [None])[0]
+                text = show(self.phrases[p_])
+                # not when one only repeats the other ("tendon vibration" / "finger tendon vibration")
+                tw = set(_W.findall(self.phrases[p_])) if b is not None else set()
+                bw = set(_W.findall(self.phrases[b])) if b is not None else set()
+                broader = show(self.phrases[b]) if b is not None and not (tw <= bw or bw <= tw) else ""
+                return (role, text, broader)
+            if sub == "factor":
+                same, other = ("outcome", met(q["Y"], "o")), changed("f", "factor")
+            elif sub == "measure":
+                same, other = ("factor", met(q["X"], "f")), changed("o", "outcome")
+            else:
+                same = ("factor", met(q["X"], "f"))
+                other = ("people", show(self.phrases[c["p"]]), "") if c["p"] >= 0 else None
+        line = f"Same {same[0]}: {same[1]}"
+        if other:
+            line += f" \u00b7 Other {other[0]}: {other[1]}" + (f" ({other[2]})" if other[2] else "")
+        return {"same": {"role": same[0], "text": same[1]},
+                "other": {"role": other[0], "text": other[1], "broader": other[2]} if other else None,
+                "line": line}
 
     def _lean(self, q):
         """+1 the question wants its Y up, -1 down (a bad Y flips it), 0 no direction."""
@@ -928,6 +990,8 @@ class Angles:
         out["finding"] = (info.get("sum") or {}).get(v["card"], "") if v.get("card") is not None else ""
         out["answers"] = show(self.phrases[v["asks"]][:1].upper() + self.phrases[v["asks"]][1:]) \
             if v.get("asks") is not None else ""
+        # a Reframe: what it keeps from the question and what it changes (see _contrast)
+        out["contrast"] = v.get("contrast")
         out["text"] = show(self._why_text(v, out))
         return out
 
