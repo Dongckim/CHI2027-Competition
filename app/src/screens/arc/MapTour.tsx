@@ -38,6 +38,14 @@ export function MapTour({ onDone, steps: all = TOUR, label = 'How to read your A
     return () => removeEventListener('resize', measure);
   }, [step]);
   useEffect(() => { next.current?.focus(); }, [i]);
+  // the page under the tour stands still (user 11/26 「가이드 창일때는 뒤에 컨텐츠 스크롤 안되게」); iOS also needs the touch stopped
+  useEffect(() => {
+    const root = document.documentElement, was = root.style.overflow;
+    root.style.overflow = 'hidden';
+    const stop = (e: TouchEvent) => e.preventDefault();
+    addEventListener('touchmove', stop, { passive: false });
+    return () => { root.style.overflow = was; removeEventListener('touchmove', stop); };
+  }, []);
   useEffect(() => { const k = (e: KeyboardEvent) => { if (e.key === 'Escape') onDone(); }; addEventListener('keydown', k); return () => removeEventListener('keydown', k); }, [onDone]);
   useEffect(() => { if (!steps.length) onDone(); }, [steps, onDone]);
   if (!step || !box) return null;
