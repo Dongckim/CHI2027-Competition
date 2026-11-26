@@ -18,7 +18,7 @@ export const freshDraft = () => ({ query: '', topicsFor: null, topics: { S: [], 
 const freshArc = () => ({ onboarded: false, firstChi: null, draft: freshDraft() });
 
 /** holdHint: 12a's "Hold a stop" hint was shown (Figma 854:2034, once). walk: 09 "How you walk", kept for every Arc (this
- * phone only, never in an Arc or a link). @returns {{ onboarded: boolean, firstChi: boolean | null, draft: ReturnType<typeof freshDraft>, holdHint?: boolean, walk?: string[] }} */
+ * phone only, never in an Arc or a link). @returns {{ onboarded: boolean, firstChi: boolean | null, draft: ReturnType<typeof freshDraft>, holdHint?: boolean, tour?: boolean, tourDue?: string, walk?: string[] }} */
 export const arcOf = state => state.arc ?? { ...freshArc(), onboarded: !!state.builtAt || state.mode === 'browse' };
 const withArc = (state, change) => ({ ...state, arc: { ...arcOf(state), ...change } });
 const withDraft = (state, change) => withArc(state, { draft: { ...arcOf(state).draft, ...change } });
@@ -30,6 +30,10 @@ export const WALK = ['calm', 'step_free'];
 export const WALK_LABEL = { calm: 'Calm route', step_free: 'Step-free' };
 export const walkOf = state => arcOf(state).walk ?? ['calm'];
 export const toggleWalk = (state, w) => { const now = walkOf(state); return withArc(state, { walk: WALK.filter(x => (x === w ? !now.includes(x) : now.includes(x))) }); };
+/** user 11/26 「첫 arc 만들면 … 하나하나 눌러보면서 설명」: the map tour was shown (once, this phone). */
+/** the first Arc built on this phone: its map gives the tour (not an Arc opened, received or made before this) */
+export const setTourDue = (state, id) => (arcOf(state).tour || arcOf(state).tourDue ? state : withArc(state, { tourDue: id }));
+export const setTourSeen = state => (arcOf(state).tour ? state : withArc(state, { tour: true }));
 export const setHoldHintSeen = state => (arcOf(state).holdHint ? state : withArc(state, { holdHint: true }));
 
 /** 07: the question, at most 200 characters (the share link carries it). */
