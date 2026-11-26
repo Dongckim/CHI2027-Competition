@@ -82,8 +82,6 @@ try {
   await tap(p.locator('a, button').filter({ hasText: /^Skip$/ }).first());
   steps.home = await at(() => location.hash === '#/home' && /Start with one question/.test(document.body.innerText));
   await tap(p.locator('a').filter({ hasText: 'New Arc' }).last());
-  steps.paper = await at(() => location.hash === '#/paper' && /No paper/.test(document.body.innerText)); // 07p (Figma 11/25)
-  await tap(p.locator('a').filter({ hasText: 'No paper? Start from a question' }).first());
   steps.ask = await at(() => location.hash === '#/ask' && !!document.querySelector('main input'));
   await p.locator('main input').fill('haptic feedback');
   await at(() => [...document.querySelectorAll('button')].some(b => b.innerText.trim() === 'Find my angles' && !b.disabled));

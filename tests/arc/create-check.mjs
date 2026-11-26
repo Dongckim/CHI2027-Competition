@@ -3,7 +3,7 @@
 //   - first run: 01 → It's my first CHI → 02–05 → 06 → 07 (type a question, tribe chip) → 08 (? sheet opens and closes)
 //     → 09 → Build my Arc → 10 → 11 (tribe named, edge glows) → See my Arc → 12 → a node opens 14 (evidence
 //     highlighted); reload keeps the Arc
-//   - Skip on a fresh phone → 21 empty home; New Arc → 07p with a back button (no dots)
+//   - Skip on a fresh phone → 21 empty home; New Arc → 07 with a back button (no dots), Start from my paper
 // Exit code 1 on a fail.
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -144,7 +144,7 @@ try {
   check('Skip → 21 empty home', (await waitFor(`location.hash === '#/home' && /Start with one question/.test(document.body.innerText)`)) != null, {});
   await shot('21');
   await click('New Arc');
-  check('New Arc → 07p with a back button, no dots', (await waitFor(`location.hash === '#/paper' && !!document.querySelector('[aria-label=Back]') && !document.querySelector('[aria-label="Step 8 of 8"]')`)) != null, {});
+  check('New Arc → 07 with a back button, no dots, and Start from my paper', (await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label=Back]') && !document.querySelector('[aria-label="Step 8 of 8"]') && /Start from my paper/.test(document.body.innerText)`)) != null, {});
   check('no uncaught errors', errors.length === 0, { errors });
 } catch (e) {
   fails.push(`stopped: ${e.message}`);
