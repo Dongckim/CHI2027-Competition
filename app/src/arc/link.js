@@ -1,4 +1,8 @@
-// Share links (A3, decision 006): /s/<payload>, payload = base64url(JSON { v, e, q, t, n }).
+// Share links (A3, decision 006). v2 (user 11/26: messengers cut the ~600-character v1 at "/s", so no preview either):
+//   2.<edition>.<tribe>.<S|R|T + talk id in base 36, …>.<base64url(question)>.<check>  e.g. 2.chi2026.ai.S4rh0R4tkw.RG8gQUk….1x9k2a
+//   check: FNV-1a of the rest in base 36, so a link cut short in a chat is refused, not half-read
+//   no evidence places: the receiver's engine finds each talk's sentence again (Received). v1 links still open:
+//   v1: /s/<payload>, payload = base64url(JSON { v, e, q, t, n }).
 //   v 1 · e edition · q the question (200 characters at most) · t tribe · n [[talk id, angle, start?, end?], ...]
 // No name, place, device or time of sharing: only what the receiver needs to see the same Arc. start/end are the
 // evidence sentence's place in the abstract; the receiver checks them against its own abstract (quotes.js) and drops
@@ -6,7 +10,7 @@
 // Pure: the app (16, 18), functions/share.mjs and the tests share it.
 import { verifiedReasons } from '../explore/quotes.js';
 
-export const LINK_VERSION = 1;
+export const LINK_VERSION = 2;
 export const MAX_NODES = 60;
 const TRIBES = ['ai', 'xr', 'access', 'health', 'learning', 'society', 'devices', 'design'];
 const QUERY_MAX = 200;
@@ -16,12 +20,22 @@ const fromB64url = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, 
 
 /** @param {{ edition: string, query: string, tribe: string, nodes: { key: string, angle: string, evidence: { start: number, end: number } | null }[] }} arc */
 export function encodeLink(arc) {
-  const n = arc.nodes.slice(0, MAX_NODES).map(x => {
-    const id = x.key.split(':')[1];
-    return x.evidence ? [id, x.angle, x.evidence.start, x.evidence.end] : [id, x.angle];
-  });
-  const body = { v: LINK_VERSION, e: arc.edition, q: arc.query.slice(0, QUERY_MAX), t: arc.tribe, n };
-  return toB64url(new TextEncoder().encode(JSON.stringify(body)));
+  const n = arc.nodes.slice(0, MAX_NODES).map(x => x.angle + Number(x.key.split(':')[1]).toString(36)).join('');
+  const body = ['2', arc.edition, arc.tribe, n, toB64url(new TextEncoder().encode(arc.query.slice(0, QUERY_MAX)))].join('.');
+  return `${body}.${check(body)}`;
+}
+const check = s => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 0x01000193) >>> 0; return h.toString(36); };
+
+function decodeV2(payload) {
+  const parts = payload.split('.');
+  const [, e, t, n, q64, sum, extra] = parts;
+  if (extra != null || !e || !t || n == null || !q64 || sum !== check(parts.slice(0, 5).join('.'))) return { ok: false, why: 'not a share link' };
+  let q;
+  try { q = new TextDecoder('utf-8', { fatal: true }).decode(fromB64url(q64)); } catch { return { ok: false, why: 'not a share link' }; }
+  const nodes = [];
+  if (n && !/^([SRT][0-9a-z]{1,8})+$/.test(n)) return { ok: false, why: 'a talk in the link is broken' };
+  for (const [, angle, id36] of n.matchAll(/([SRT])([0-9a-z]+)/g)) nodes.push([String(parseInt(id36, 36)), angle]);
+  return { j: { v: 2, e, q, t, n: nodes } };
 }
 
 /**
@@ -29,11 +43,15 @@ export function encodeLink(arc) {
  * @returns {{ ok: true, link: { v: number, e: string, q: string, t: string, n: [string, string, number?, number?][] } } | { ok: false, why: string }}
  */
 export function decodeLink(payload) {
-  if (typeof payload !== 'string' || !/^[A-Za-z0-9_-]{1,4000}$/.test(payload)) return { ok: false, why: 'not a share link' };
+  if (typeof payload !== 'string' || !/^[A-Za-z0-9_.-]{1,4000}$/.test(payload)) return { ok: false, why: 'not a share link' };
   let j;
-  try { j = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(fromB64url(payload))); } catch { return { ok: false, why: 'not a share link' }; }
-  if (!j || typeof j !== 'object' || Array.isArray(j)) return { ok: false, why: 'not a share link' };
-  if (j.v !== LINK_VERSION) return { ok: false, why: 'made by another version of ARC' };
+  if (/^2\./.test(payload)) { const r = decodeV2(payload); if (!r.j) return r; j = r.j; }
+  else {
+    if (!/^[A-Za-z0-9_-]+$/.test(payload)) return { ok: false, why: 'not a share link' };
+    try { j = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(fromB64url(payload))); } catch { return { ok: false, why: 'not a share link' }; }
+    if (!j || typeof j !== 'object' || Array.isArray(j)) return { ok: false, why: 'not a share link' };
+    if (j.v !== 1) return { ok: false, why: 'made by another version of ARC' };
+  }
   if (typeof j.e !== 'string' || !/^(chi\d{4}|sandbox)$/.test(j.e)) return { ok: false, why: 'no conference in the link' };
   if (typeof j.q !== 'string' || !j.q.trim() || j.q.length > QUERY_MAX) return { ok: false, why: 'no question in the link' };
   if (!TRIBES.includes(j.t)) return { ok: false, why: 'no neighbourhood in the link' };

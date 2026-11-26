@@ -9,7 +9,8 @@ import { nodeStates, layout, type NodeState } from '../../arc/map.js';
 import { setOnboarded, QUERY_MAX } from '../../arc/draft.js';
 import { addedWords, mineFrom, tensionFor } from '../../arc/yours.js';
 import { saveArc, useArcs } from '../../arc/store';
-import { useTribe, setCurrentArc, setViewingArc } from '../../arc/live';
+import { useTribe, setCurrentArc, setViewingArc, warm } from '../../arc/live';
+import { engine } from '../../engine';
 import { update } from '../../state/useDevice';
 import { loadSchedule, loadAbstracts, loadDebut, type Schedule } from '../../data/load';
 import { abstractFileDay, firstSlot, dateOf, clockOf } from '../../explore/format';
@@ -44,7 +45,15 @@ function build(payload: string) {
     const debutSet = new Set(debut);
     const r = receivedArc(d.link, { edition: schedule.meta.edition, title: k => paper(k)?.title, abstract: k => abstracts[k], label: labelOf,
       firstAuthorNew: k => !!paper(k) && debutSet.has(paper(k)!.authors[0]), id: newId(), createdAt: nowMs() });
-    return { arc: r.arc as Arc, missing: r.missing, schedule }; // link.js is untyped JS; its Arc matches contracts/Arc
+    const arc = r.arc as Arc; // link.js is untyped JS; its Arc matches contracts/Arc
+    // v2 links carry no evidence places (user 11/26): this phone's engine finds each talk's sentence for the question again,
+    // the link's angle kept. Up to 4 s here; if the engine is still getting ready, the rest fill in when it is
+    const bare = arc.nodes.filter(n => !n.evidence);
+    if (bare.length) {
+      const fill = warm().then(() => engine.judge(arc.query, bare.map(n => n.key))).then(l => l.forEach((j, i) => { if (j?.evidence) bare[i].evidence = j.evidence; }), () => {});
+      await Promise.race([fill, new Promise(res => setTimeout(res, 4000))]);
+    }
+    return { arc, missing: r.missing, schedule };
   })());
   return built.get(payload)!;
 }
