@@ -12,3 +12,11 @@ test('07p: names match word starts, accents off, whole names first, at least 2 l
   assert.deepEqual(findAuthors('j', all), { hits: [], more: 0 });
   assert.equal(findAuthors('ji', all, 2).more, 2);
 });
+
+test('07: a whole author name typed offers 07p (user 11/26 「juho kim」)', async () => {
+  const { sameName } = await import('../../app/src/arc/authors.js');
+  const a = [{ key: '1', name: 'Juho Kim', institution: 'KAIST', papers: ['x'] }, { key: '2', name: 'Juho Kimura', institution: '', papers: ['y'] }];
+  assert.deepEqual(sameName('juho  KIM', a).map(x => x.key), ['1']);
+  assert.deepEqual(sameName('juho', a), []);
+  assert.deepEqual(sameName('Juho Kim?', a), []);
+});

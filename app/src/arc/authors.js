@@ -6,6 +6,17 @@
 export const fold = s => (s.normalize('NFKD').replace(/[^\x00-\x7f]/g, '').toLowerCase().match(/[a-z0-9]+/g) ?? []);
 
 /**
+ * 07: the authors whose whole name is what was typed ("juho kim"): the engine reads a name as a question and gives talks on
+ * other things (user 11/26 「juho kim을 검색어에 쓰니까 왜 health가 나오고」), so 07 offers 07p instead. Two words at least.
+ * @param {string} typed @param {Author[]} authors @returns {Author[]}
+ */
+export function sameName(typed, authors) {
+  const t = fold(typed);
+  if (t.length < 2 || /\?/.test(typed)) return [];
+  return authors.filter(a => fold(a.name).join(' ') === t.join(' '));
+}
+
+/**
  * The authors whose name has, for every typed word, a word starting with it (the engine's "mine" rule); whole-name
  * matches first, then by name. At least 2 letters typed.
  * @param {string} typed @param {Author[]} authors @returns {{ hits: Author[], more: number }}
