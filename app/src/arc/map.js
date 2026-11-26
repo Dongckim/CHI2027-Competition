@@ -35,16 +35,16 @@ const SEATS = {
   S: [[[195, 88]], [[110, 78], [280, 78]], [[72.1, 56.4], [195, 88], [317.9, 59.9]]],
   // the third Reframe / Challenge 8 right / left of Figma's 137.7 / 252.3: our 12 px time line under the middle one (Figma
   // 10 px) reached its ring (height-check "do not touch", 24 at 844)
-  R: [[[60, 280.4]], [[60, 270], [104, 404]], [[55.1, 236], [62, 350], [152, 452]]],
-  T: [[[330, 280.4]], [[330, 270], [286, 404]], [[334.9, 236], [328, 350], [238, 452]]],
+  R: [[[60, 280.4]], [[60, 270], [104, 404]], [[55.1, 236], [62, 350], [130, 460]]] /* 3rd 22 in from the region line: its time ran over it (iPhone 11/26) */,
+  T: [[[330, 280.4]], [[330, 270], [286, 404]], [[334.9, 236], [328, 350], [260, 460]]],
 };
 export const MAX_SEATS = 3;
 // Figma 15: where the + goes with 0 / 1 / 2 talks in a region (15's add slots, unscaled); with 3 or more, beside the
 // region's count, clear of every node and − (해석(확인 전): Figma 15 shows no full region)
 export const ADD_AT = {
   S: [[195, 88], [280, 78], [195, 88], [240, 20]],
-  R: [[60, 280.4], [104, 404], [162, 478], [90, 502]],
-  T: [[330, 280.4], [286, 404], [228, 478], [300, 502]],
+  R: [[60, 280.4], [104, 404], [130, 460], [40, 440]], // full: above the count, clear of the 3rd name
+  T: [[330, 280.4], [286, 404], [260, 460], [350, 440]],
 };
 // The region's count badge (Figma "Angle · support" etc., 30 tall): its centre
 export const BADGE_AT = { S: [191, 20], R: [40, 502], T: [342, 502] };
@@ -54,7 +54,8 @@ const PENDING = [[70, 140], [320, 140], [60, 360], [330, 360], [195, 456]];
 // talks above. Reframes: the question goes to the top right (320, 70) and the talks fill the lower left; Challenges the
 // mirror. The other two angles' counts sit in the strip on the far side (clear of the talks). Seats: a 3 × 5 grid, rows 108 apart, inside the region, 150 or more from
 // the question (worked out once; 해석(확인 전), Figma draws Supports only).
-const FOCUS_R = [[170, 36], [170, 144], [278, 252], [170, 252], [62, 36], [62, 144], [278, 360], [62, 252], [170, 360], [62, 360], [170, 468], [62, 468]];
+// columns 55 / 145 / 235: the third 65 inside the region line under the question at x 300 (iPhone 11/26)
+const FOCUS_R = [[145, 36], [145, 144], [235, 252], [145, 252], [55, 36], [55, 144], [235, 360], [55, 252], [145, 360], [55, 360], [145, 468], [55, 468]];
 // a few talks (6 or fewer) spread over the region, a zigzag away from the question, not packed beside it (iPhone 11/26
 // 「왜케 몰려있는거야」): indexes into FOCUS_R, the same for its mirror
 const SPREAD_R = [1, 7, 6, 10, 4, 2];

@@ -155,3 +155,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 @media (prefers-reduced-motion: reduce) { .arc-fan-in, .arc-fan-lines, .arc-held-ring { animation: none; } }
 /* prototype: what can be pressed gives a little as it is pressed */
 @media (prefers-reduced-motion: no-preference) { .arc :is(button, a):active { transition: transform 0.12s ease-out; transform: scale(0.97); } }
+
+/* 15: the Add / Swap sheet rises from below when a + or a talk is pressed (user 11/26); still with reduced motion */
+.arc-sheet-up { animation: arc-sheet-up 0.28s cubic-bezier(.2, .8, .2, 1); }
+@keyframes arc-sheet-up { from { transform: translateY(100%); } }
+@media (prefers-reduced-motion: reduce) { .arc-sheet-up { animation: none; } }
