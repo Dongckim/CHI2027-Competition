@@ -18,7 +18,7 @@ test('link round trip: question, talks, angles and evidence come back the same',
     const arc = buildArc(index, q, { angles: ['S', 'R', 'T'], days: [], types: [] }, { id: 'link-rt-000001', createdAt: 0 });
     assert.ok(arc.nodes.length, `${q}: an Arc with talks`);
     const payload = encodeLink(arc);
-    assert.match(payload, /^[A-Za-z0-9_-]+$/, 'base64url only, safe in a path');
+    assert.match(payload, /^[A-Za-z0-9_.-]+$/, 'safe in a path');
     const d = decodeLink(payload);
     assert.ok(d.ok, `${q}: ${d.why}`);
     const { arc: got, missing } = receivedArc(d.link, { edition: 'chi2026', title: k => byKey.get(k)?.title, abstract: k => byKey.get(k)?.abstract,
@@ -26,8 +26,9 @@ test('link round trip: question, talks, angles and evidence come back the same',
     assert.equal(missing, 0);
     assert.equal(got.query, q, 'the question, character for character');
     assert.equal(got.tribe, arc.tribe);
-    assert.deepEqual(got.nodes.map(n => [n.key, n.angle, n.evidence?.start ?? null, n.evidence?.end ?? null, n.evidence?.sentence ?? null]),
-      arc.nodes.map(n => [n.key, n.angle, n.evidence?.start ?? null, n.evidence?.end ?? null, n.evidence?.sentence ?? null]));
+    // v2 carries no evidence places: the receiver's engine finds the sentences again (user 11/26)
+    assert.deepEqual(got.nodes.map(n => [n.key, n.angle]), arc.nodes.map(n => [n.key, n.angle]));
+    assert.ok(got.nodes.every(n => n.evidence === null));
   }
 });
 

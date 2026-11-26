@@ -10,7 +10,8 @@ const papersFile = new URL('../../data/build/chi2026/papers.json', import.meta.u
 
 test('link: only question, tribe, talk ids, angles and quote places; round trip; any language', () => {
   const payload = encodeLink(example);
-  assert.match(payload, /^[A-Za-z0-9_-]+$/);
+  assert.match(payload, /^2\.[A-Za-z0-9_.-]+$/);
+  assert.ok(payload.length < 120, `v2 is short (user 11/26): ${payload.length}`);
   const d = decodeLink(payload);
   assert.ok(d.ok);
   assert.deepEqual(Object.keys(d.link).sort(), ['e', 'n', 'q', 't', 'v']);
