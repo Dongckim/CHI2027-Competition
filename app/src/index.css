@@ -65,7 +65,12 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* Tribe glow (11 onward): the screen edge in the Arc's tribe colour, like a soft frame. It never blinks; it breathes slowly,
    and stands still with reduced motion or the "still" setting (<html data-glow="still">). Never the only cue: shape + name too. */
 :root[data-tribe] body::after {
-  content: ""; position: fixed; inset: 0; z-index: 50; pointer-events: none;
+  content: ""; position: fixed; inset: 0 0 auto; z-index: 50; pointer-events: none;
+  /* the whole screen, not the part between Safari's bars: as tall as the largest viewport (it runs on behind the toolbar),
+     its corners the phone's own (a notch or island phone's top inset is about its screen corner radius, 47-59 px; 0 on
+     others). It stopped as a rectangle under the notch and above the bar when the list scrolled (iPhone 11/26). */
+  height: 100vh; height: 100lvh;
+  border-radius: env(safe-area-inset-top, 0px);
   box-shadow: inset 0 0 56px color-mix(in srgb, var(--tribe) 32%, transparent); /* Figma 10/11/22: inner shadow, blur 56 */
   animation: tribe-breathe 6s ease-in-out infinite;
 }
