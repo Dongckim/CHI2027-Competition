@@ -77,7 +77,9 @@ try {
 
   // keyboard: the node's Swap button
   await openMap();
-  const swapBtn = p.getByRole('button', { name: `Swap ${await p.locator(node).evaluate(b => b.querySelector('.line-clamp-1, .line-clamp-2').textContent.replace(/^✦ /, ''))}` });
+  const shown = await p.locator(node).evaluate(b => b.querySelector('[data-node-text]').textContent.replace(/^✦ /, ''));
+  // the button names the whole title; the node shows some of its words (an opening "A"/"The" skipped)
+  const swapBtn = p.getByRole('button', { name: new RegExp(`^Swap .*${shown.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`) }).first();
   await swapBtn.focus();
   await p.keyboard.press('Enter');
   const kbFan = await p.waitForFunction(() => document.querySelectorAll('[data-swap-key]').length === 3 && document.activeElement?.hasAttribute('data-swap-key'), null, { timeout: 5000 }).then(() => true, () => false);
