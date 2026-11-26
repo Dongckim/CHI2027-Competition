@@ -25,7 +25,7 @@ type Paper = { key: string; title: string; feedType: string; authors: string[]; 
 import { fold, findAuthors, type Author } from '../../arc/authors.js';
 
 let authorsOnce: Promise<{ authors: Author[]; schedule: Schedule }> | null = null;
-const authorsOf = () => (authorsOnce ??= Promise.all([loadSchedule(), loadPeople()]).then(([schedule, people]: [Schedule, People]) => {
+export const authorsOf = () => (authorsOnce ??= Promise.all([loadSchedule(), loadPeople()]).then(([schedule, people]: [Schedule, People]) => {
   const byPerson = new Map<string, string[]>();
   for (const p of schedule.index.papers.values() as Iterable<Paper>) for (const k of p.authors) (byPerson.get(k) ?? byPerson.set(k, []).get(k)!).push(p.key);
   const authors = [...byPerson].filter(([k]) => people[k]?.name).map(([k, papers]) => ({ key: k, name: people[k].name, institution: people[k].affiliations[0]?.institution ?? '', papers }));

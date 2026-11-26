@@ -1,5 +1,7 @@
 // 07 · Ask: one question (a word or a sentence). While typing, the tribe it would land in shows as a chip (engine.tribeOf).
 // First time this is step 6 of the onboarding dots with Skip; from home it has a back button instead.
+import { fold, sameName, type Author } from '../../arc/authors.js';
+import { authorsOf } from './Paper';
 import { useEffect, useId, useState } from 'react';
 import { go, href } from '../../router';
 import { update, useDevice } from '../../state/useDevice';
@@ -90,6 +92,10 @@ export function Ask() {
     const t = setTimeout(() => engine.tribeOf(q).then(r => { if (live) { setTribeChip(r.tribe); setPreviewTribe(r.tribe); } }, () => {}), 500);
     return () => { live = false; clearTimeout(t); };
   }, [draft.query]);
+  // a CHI author's name typed here: 07p (07r when one author has it), not a question for the engine (user 11/26 「이거로 하자」)
+  const [authors, setAuthors] = useState<Author[] | null>(null);
+  const named = authors && hasWords(draft.query) ? sameName(draft.query, authors) : [];
+  useEffect(() => { if (!authors && fold(draft.query).length >= 2) authorsOf().then(d => setAuthors(d.authors), () => {}); }, [authors, draft.query]);
   const topic = isTopic(draft.query) && topicOf(draft.query) ? topicOf(draft.query) : null; // 07b on "VR", not "I study VR" (persona review 11/25)
   const [help, setHelp] = useState<Help | null>(null);
   useEffect(() => { // 07b, half a second after typing stops; typing more or a question hides it
@@ -98,7 +104,7 @@ export function Ask() {
     const t = setTimeout(() => helpFor(topic, () => live).then(h => { if (live && h) setHelp(h); }, () => {}), 500);
     return () => { live = false; clearTimeout(t); };
   }, [topic]);
-  const shown = help && help.topic === topic && help.count > 0 ? help : null;
+  const shown = help && help.topic === topic && help.count > 0 && !named.length ? help : null; // a name: 07p, not 07b
   const ready = hasWords(draft.query);
   const next = () => { if (!ready) return; update(setOnboarded); go('angles'); };
   const now = () => { if (!ready) return; update(quickDraft); update(setOnboarded); go('building'); };
@@ -129,13 +135,22 @@ export function Ask() {
       </form>
       {/* Figma 591:684: chip at 26,303, the whole chip at 75%; the row keeps its height so the list below does not jump */}
       <div className="mt-[13px] h-[30px]" aria-live="polite">
-        {t && (
+        {t && !named.length && (
           <span key={t.id} ref={chipIn} className="ml-0.5 inline-flex items-center gap-1.5 rounded-2xl border py-1.5 pr-3 pl-2.5 text-[13px] font-semibold text-arc-text opacity-75"
             style={{ background: `color-mix(in srgb, ${t.color} 8%, transparent)`, borderColor: `color-mix(in srgb, ${t.color} 30%, transparent)` }}>
             <Pic src={TRIBE_ICON[t.id as TribeId]} size={14} />{t.name}
           </span>
         )}
       </div>
+      {named.length > 0 && (
+        <a href={href(named.length === 1 ? `paper/${named[0].key}` : 'paper')} className="mt-1 flex min-h-16 items-center gap-3 rounded-[18px] border border-arc-line bg-arc-surface py-2.5 pr-4 pl-4">
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="text-[15px] font-semibold tracking-[-0.006em]">Start from {named[0].name}’s paper</span>
+            <span className="text-[12px] font-medium text-arc-text-3">{named.length === 1 ? [named[0].institution, `${named[0].papers.length} ${named[0].papers.length === 1 ? 'paper' : 'papers'} at CHI`].filter(Boolean).join(' · ') : `${named.length} authors at CHI have this name`}</span>
+          </span>
+          <Pic src={chevron} size={16} />
+        </a>
+      )}
       {shown ? <>
         {/* Figma 741:1605: the note at y 348, cards 86 high every 96 from 428, the line under them at 724 */}
         <p id="topic-note" className="mt-[15px] min-h-16 rounded-2xl bg-gradient-to-b from-white/6 via-white/3 via-55% to-white/0 px-4 py-[13px] text-[13px] leading-[19px] font-medium text-arc-text/72">
