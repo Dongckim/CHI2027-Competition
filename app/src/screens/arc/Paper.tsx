@@ -54,7 +54,7 @@ export function FindPaper() {
       <p className="mt-2.5 text-[15px] text-arc-text-2">Type your name as it appears on your paper.</p>
       <label className="mt-[24px] flex h-16 items-center gap-2.5 rounded-[20px] bg-arc-surface pr-4 pl-[18px] shadow-[inset_0_0_0_1.5px_rgba(244,246,255,0.2)] focus-within:shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.6),0_0_0_4px_rgba(255,255,255,0.07)]">
         <Pic src={searchIcon} size={20} />
-        <input aria-labelledby="paper-title" value={typed} onChange={e => setTyped(e.target.value)} autoComplete="name" enterKeyHint="search" placeholder="Your name as on your paper"
+        <input aria-labelledby="paper-title" value={typed} onChange={e => setTyped(e.target.value)} autoComplete="name" autoCorrect="off" spellCheck={false} enterKeyHint="search" placeholder="Your name as on your paper"
           className="h-full min-w-0 flex-1 bg-transparent text-[17px] font-medium tracking-[-0.012em] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />
       </label>
       <div aria-live="polite">

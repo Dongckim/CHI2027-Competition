@@ -1,7 +1,7 @@
 // Final UI parts (Figma Components 588:446): the dark screen shell, pill buttons, chips, icon buttons, step marks and the
 // bottom sheet. Sizes are Figma's; where Figma is under the accessibility floor (44px touch, 12px text) the hit area or
 // size is raised without changing the look (docs/stages/A1-create.md lists each).
-import { useEffect, useLayoutEffect, useRef, type CSSProperties, type ReactNode, type ComponentPropsWithRef, type AnchorHTMLAttributes } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type ComponentPropsWithRef, type AnchorHTMLAttributes } from 'react';
 import { enter } from '../arc/motion';
 import chevronLeft from '../assets/arc/icon-chevron-left.svg';
 import helpIcon from '../assets/arc/icon-help.svg';
@@ -32,53 +32,54 @@ export function DemoBanner() {
 // one (Safari 664 with its toolbars, user 11/22) it ends at the bottom edge instead of making a short screen scroll
 export const FRAME_ART: CSSProperties = { height: 'min(844px, calc(100dvh + 54px - env(safe-area-inset-top, 0px)))', overflow: 'hidden' };
 
-export function Screen({ header, children, bottom, label, clock }: { header?: ReactNode; children: ReactNode; bottom?: ReactNode; label?: string; clock?: boolean }) {
+/**
+ * How far the visual viewport's bottom sits above the layout viewport's while someone types (iOS: the keyboard, its bar and
+ * Safari's address pill), 0 otherwise; height = the visual viewport's height. A fixed element with bottom = inset sits right
+ * on the keyboard. Measured on an iPhone (?kbdebug, 11/27): innerHeight 714, visual 404, so 310 hidden.
+ */
+export function useKeyboardInset() {
+  const [v, setV] = useState({ inset: 0, height: typeof innerHeight === 'number' ? innerHeight : 844 });
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const typing = () => { const a = document.activeElement; return !!a && (/^(TEXTAREA|SELECT)$/.test(a.tagName) || (a.tagName === 'INPUT' && !/^(button|checkbox|radio|submit|range)$/.test((a as HTMLInputElement).type))); };
+    const dbg = /[?&]kbdebug\b/.test(location.search) ? (document.getElementById('kbdebug') ?? document.body.appendChild(Object.assign(document.createElement('pre'), { id: 'kbdebug' }))) : null;
+    if (dbg) Object.assign(dbg.style, { position: 'fixed', top: '0', left: '0', zIndex: '99', margin: '0', padding: '2px 4px', font: '11px/13px monospace', background: '#ff0', color: '#000', pointerEvents: 'none' });
+    const on = () => {
+      const hidden = Math.max(0, Math.round(innerHeight - vv.offsetTop - vv.height));
+      const inset = typing() && hidden > 80 ? hidden : 0; // under 80: Safari's toolbar, not a keyboard
+      setV(o => (o.inset === inset && o.height === Math.round(vv.height) ? o : { inset, height: Math.round(vv.height) }));
+      if (dbg) dbg.textContent = `iH ${innerHeight} vvH ${Math.round(vv.height)} vvTop ${Math.round(vv.offsetTop)} scrollY ${Math.round(scrollY)} inset ${inset} typing ${typing()}`;
+    };
+    on();
+    const later = () => setTimeout(on, 50); // the focus has moved on by then
+    vv.addEventListener('resize', on); vv.addEventListener('scroll', on); addEventListener('focusin', on); addEventListener('focusout', later);
+    return () => { vv.removeEventListener('resize', on); vv.removeEventListener('scroll', on); removeEventListener('focusin', on); removeEventListener('focusout', later); };
+  }, []);
+  return v;
+}
+
+export function Screen({ header, children, bottom, label, clock, pinBottom }: { header?: ReactNode; children: ReactNode; bottom?: ReactNode; label?: string; clock?: boolean; pinBottom?: boolean }) {
   const root = useRef<HTMLDivElement>(null);
   // the prototype's entrance, once per screen: header, content and bottom parts rise in, top to bottom
   useLayoutEffect(() => { const r = root.current; if (r) enter([...r.querySelectorAll(':scope > header > *, :scope > main > *, :scope > .sticky > *')]); }, []);
-  // with the keyboard up, iOS shrinks only the visual viewport: the bottom area (14's question box) is lifted to sit right
-  // on the keyboard and follows it while the page scrolls, as chat pages do (user 11/27: the box scrolled away)
+  // pinBottom (14's question box, as chat pages do): with the keyboard up the bottom area sits right on it, fixed to the
+  // visual viewport's bottom edge; the page keeps its height as padding so nothing under it jumps. Other screens leave their
+  // buttons under the keyboard (search screens: the results stay in view)
   const bar = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv || !bottom) return;
-    // iOS 26 Safari: even with no keyboard the visual viewport is shorter than the page's by its floating toolbar, and that
-    // gap was added to the lift (the box floated ~70 pt over the keyboard, iPhone 11/27). The gap with nothing focused is the
-    // baseline; only what the keyboard adds lifts the box.
-    const typing = () => { const a = document.activeElement; return !!a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName); };
-    const gap = () => Math.max(0, Math.round(innerHeight - vv.height - vv.offsetTop));
-    let base = typing() ? 0 : gap();
-    // With the keyboard up the box is pinned to the visual viewport's bottom edge (fixed, top = offsetTop + height): a
-    // translate from its sticky place left a gap over the keyboard once the page was scrolled to its end (iPhone 11/27).
-    // The root keeps the box's height as padding meanwhile, so nothing under it jumps.
-    const reset = () => { const el = bar.current; if (!el) return; Object.assign(el.style, { position: '', top: '', left: '', right: '', transform: '', marginInline: '', maxWidth: '' }); if (root.current) root.current.style.paddingBottom = ''; };
-    const place = () => {
-      const el = bar.current;
-      if (!el) return;
-      if (!typing()) { base = gap(); reset(); return; }
-      if (gap() - base <= 40) { reset(); return; } // under 40: toolbars, not a keyboard
-      if (el.style.position !== 'fixed' && root.current) root.current.style.paddingBottom = `${el.offsetHeight}px`;
-      Object.assign(el.style, { position: 'fixed', left: '0', right: '0', marginInline: 'auto', maxWidth: '480px', top: `${vv.offsetTop + vv.height}px`, transform: 'translateY(-100%)' });
-    };
-    // ?kbdebug (user 11/27: the gap over the keyboard is still there on an iPhone): the numbers on screen, to read from a screenshot
-    const dbg = /[?&]kbdebug\b/.test(location.search) ? document.body.appendChild(Object.assign(document.createElement('pre'), { id: 'kbdebug' })) : null;
-    if (dbg) Object.assign(dbg.style, { position: 'fixed', top: '0', left: '0', zIndex: '99', margin: '0', padding: '2px 4px', font: '11px/13px monospace', background: '#ff0', color: '#000', pointerEvents: 'none' });
-    const show = () => { if (!dbg) return; const r = bar.current?.getBoundingClientRect(); dbg.textContent = `iH ${innerHeight} vvH ${Math.round(vv.height)} vvTop ${Math.round(vv.offsetTop)} scrollY ${Math.round(scrollY)} docH ${document.documentElement.scrollHeight}\nbar ${bar.current?.style.position || 'sticky'} top ${Math.round(r?.top ?? -1)} bottom ${Math.round(r?.bottom ?? -1)} base ${base} typing ${typing()}`; };
-    const place0 = place;
-    const placeShow = () => { place0(); show(); };
-    vv.addEventListener('resize', placeShow); vv.addEventListener('scroll', placeShow); addEventListener('focusout', placeShow); addEventListener('focusin', placeShow); addEventListener('scroll', show);
-    show();
-    return () => { vv.removeEventListener('resize', placeShow); vv.removeEventListener('scroll', placeShow); removeEventListener('focusout', placeShow); removeEventListener('focusin', placeShow); removeEventListener('scroll', show); dbg?.remove(); reset(); };
-  }, [!!bottom]); // eslint-disable-line react-hooks/exhaustive-deps
+  const kb = useKeyboardInset();
+  const [barH, setBarH] = useState(0);
+  const pinned = !!pinBottom && kb.inset > 0;
+  useLayoutEffect(() => { if (!pinned && bar.current) setBarH(bar.current.offsetHeight); }, [pinned]);
   return (
-    <div ref={root} className="arc mx-auto flex min-h-[calc(100dvh-env(safe-area-inset-top,0px))] max-w-[480px] flex-col overflow-x-clip bg-arc-bg font-sans text-arc-text">{/* nothing scrolls sideways (QA V7); the screen minus body's top safe-area padding, so a short screen never scrolls (user 11/20) */}
+    <div ref={root} style={pinned ? { paddingBottom: barH } : undefined} className="arc mx-auto flex min-h-[calc(100dvh-env(safe-area-inset-top,0px))] max-w-[480px] flex-col overflow-x-clip bg-arc-bg font-sans text-arc-text">{/* nothing scrolls sideways (QA V7); the screen minus body's top safe-area padding, so a short screen never scrolls (user 11/20) */}
       {/* Figma: buttons 44 at y 56 (54 + 2), so a 48 row centred */}
       {header && <header className="flex min-h-[48px] items-center justify-between px-4">{header}</header>}
       {clock && <DemoBanner />}
       <main aria-label={label} className="flex flex-1 flex-col px-6">{children}</main>
       {/* the one fixed bottom area: stays on screen while the content scrolls under it */}
       {/* Figma: the last button ends 14 above the home indicator, 14 between rows, nothing above the first row */}
-      {bottom && <div ref={bar} className="sticky bottom-0 z-10 flex flex-col gap-[14px] bg-arc-bg px-6 pb-[calc(var(--safe-bottom)+14px)]">{bottom}</div>}
+      {bottom && <div ref={bar} style={pinned ? { position: 'fixed', left: 0, right: 0, bottom: kb.inset, marginInline: 'auto', maxWidth: 480 } : undefined} className="sticky bottom-0 z-10 flex flex-col gap-[14px] bg-arc-bg px-6 pb-[calc(var(--safe-bottom)+14px)]">{bottom}</div>}
     </div>
   );
 }

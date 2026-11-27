@@ -13,7 +13,7 @@ import { engineFor, type Angle, type Arc, type ArcNode } from '../../engine';
 import { searchTalks } from '../../../../data/scripts/search.mjs';
 import { useExploreData } from '../../explore/useExplore';
 import { labelOf } from '../../arc/label.js';
-import { Pic, ArcButton } from '../../components/arc';
+import { Pic, ArcButton, useKeyboardInset } from '../../components/arc';
 import { ANGLE_NAME } from './AngleHelp';
 import { ANGLE_ICON, type Info } from './ArcView';
 import searchIcon from '../../assets/arc/icon-search.svg';
@@ -45,6 +45,7 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
   const [peek, setPeek] = useState<Card | null>(null);
   const [abs, setAbs] = useState<string | null>(null);
   const hold = useRef(0), held = useRef(false), sheet = useRef<HTMLElement>(null);
+  const kb = useKeyboardInset();
   // its own short tour the first time it has talks to show, after the map's (so not in a stranger's first look)
   const dev = arcOf(useDevice());
   const [tour, setTour] = useState(false);
@@ -81,7 +82,7 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
 
   const pick = (card: ArcNode) => { setQuery(''); onPick(card); };
   return (
-    <section ref={sheet} aria-label="Swap" className="arc-sheet-up fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[480px] rounded-t-[32px] border border-arc-line bg-arc-sheet px-6 pt-[9px] pb-[calc(var(--safe-bottom)+16px)] shadow-[0_-8px_40px_rgba(0,0,0,0.4)]">
+    <section ref={sheet} aria-label="Swap" style={kb.inset ? { bottom: kb.inset, maxHeight: kb.height - 8, overflowY: 'auto' } : undefined} /* typing in its search: the sheet sits on the keyboard (11/27) */ className="arc-sheet-up fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[480px] rounded-t-[32px] border border-arc-line bg-arc-sheet px-6 pt-[9px] pb-[calc(var(--safe-bottom)+16px)] shadow-[0_-8px_40px_rgba(0,0,0,0.4)]">
       <div className="mx-auto mb-3.5 h-1 w-9 rounded-sm bg-arc-text/30" aria-hidden="true" />
       <div className="flex items-center justify-between">
         <h2 className="text-[17px] font-semibold tracking-[-0.012em]">{swap ? 'Swap' : `Add to ${ANGLE_NAME[target]}`}</h2>
@@ -90,7 +91,8 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
       <label className="mt-3 flex h-11 items-center gap-2 rounded-full border border-arc-line bg-arc-surface pl-3.5">
         <Pic src={searchIcon} size={18} />
         <input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search all CHI talks by title or author" aria-label="Search talks"
-          className="h-full min-w-0 flex-1 bg-transparent pr-3 text-[14px] tracking-[-0.006em] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />
+          autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} enterKeyHint="search"
+          className="h-full min-w-0 flex-1 bg-transparent pr-3 text-[16px] tracking-[-0.006em] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />{/* 16 px: iOS zooms into smaller fields */}
       </label>
       {!query.trim() && (
         <div data-tour="sheet-chips" role="radiogroup" aria-label="Show" className="-mx-6 mt-3 flex gap-2 overflow-x-auto px-6 pb-1">
