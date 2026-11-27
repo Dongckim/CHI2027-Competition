@@ -83,8 +83,8 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
       return () => { live = false; clearTimeout(timer); };
     }
     const get = filter === 'wild' ? e.wildcard(arcQuery, exclude, 8, filters)
-      : e.suggest(arcQuery, target, exclude, filter === 'same' ? 40 : 8, filters).then(l => (filter === 'same' && sameTime ? l.filter(n => sameTime(n.key)).slice(0, 8) : l));
-    get.then(l => live && setCards(l.filter(notOver(paper, nowMs()))), () => live && setCards([]));
+      : e.suggest(arcQuery, target, exclude, filter === 'same' ? 40 : 20, filters).then(l => (filter === 'same' && sameTime ? l.filter(n => sameTime(n.key)).slice(0, 8) : l));
+    get.then(l => live && setCards(l.filter(notOver(paper, nowMs())).slice(0, 8)), () => live && setCards([]));
     return () => { live = false; };
   }, [arcQuery, engineName, target, filter, query, data, exclude]); // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -32,7 +32,7 @@ export function useHoldSwap({ arc, save, paper, schedule }: ReturnType<typeof us
   const choices = (key: string) => {
     const node = arc?.nodes.find(n => n.key === key);
     if (!arc || !node) return Promise.resolve([]);
-    if (!asked.current.has(key)) asked.current.set(key, engineFor(arc.engine).suggest(arc.query, node.angle, arc.nodes.map(n => n.key), 3, arc.filters).then(l => l.filter(notOver(paper, nowMs()))).catch(() => []));
+    if (!asked.current.has(key)) asked.current.set(key, engineFor(arc.engine).suggest(arc.query, node.angle, arc.nodes.map(n => n.key), 12, arc.filters).then(l => l.filter(notOver(paper, nowMs())).slice(0, 3)).catch(() => [])); // more asked, the over ones dropped, three kept
     return asked.current.get(key)!;
   };
   const open = (key: string, keyboard: boolean) => {

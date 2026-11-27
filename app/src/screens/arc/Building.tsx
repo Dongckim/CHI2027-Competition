@@ -80,7 +80,7 @@ export function Building() {
   return (
     <Screen label="Building your Arc" header={<BackButton href={href('when')} />} /* a way out while the model downloads (audit 11/27) */ bottom={setup ? <ArcButton className="mb-1.5" onClick={retry}>Try again</ArcButton>
       : failed ? <ArcLink href={href('when')} kind="secondary">Try again</ArcLink> : undefined}>
-      <div className="pointer-events-none relative mt-[156px] h-[340px] w-[390px] shrink-0 self-center" aria-hidden="true">
+      <div className="pointer-events-none relative mt-[108px] h-[340px] w-[390px] shrink-0 self-center" aria-hidden="true">
         <div className="absolute left-0 w-[390px]" style={{ top: -210, ...FRAME_ART }}>
           <img src={outer} alt="" data-anim="orbit 200" style={at(25, 210, 340)} />
           <img src={inner} alt="" data-anim="orbit 80" style={at(70, 255, 250)} />

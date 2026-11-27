@@ -129,7 +129,8 @@ try {
     return { n: add.length, clear: add.every(b => { const r = b.getBoundingClientRect(); return !rm.some(q => q.right > r.left + 1 && q.left < r.right - 1 && q.bottom > r.top + 1 && q.top < r.bottom - 1); }) }; })()`);
   check('15 a + for every angle, clear of the − buttons', adds?.n === 3 && adds.clear, adds ?? {});
   await click(`document.querySelector('button[aria-label^="Remove "]')`);
-  await click(`[...document.querySelectorAll('main button[aria-pressed]')].find(b => b.hasAttribute('aria-description'))`);
+  // a Reframe: at Tue 12:00 every other Support is over, and ended talks are not offered (audit 11/27)
+  await click(`[...document.querySelectorAll('main button[aria-pressed]')].filter(b => b.hasAttribute('aria-description')).find(b => b.closest('[data-angle=R]'))`);
   const cardsMs = await waitFor(`[...document.querySelectorAll('section[data-sheet] button')].some(b => b.getAttribute('aria-label')?.startsWith('Swap in'))`, 20000);
   await shot('15');
   const swapIn = await ev(`[...document.querySelectorAll('section[data-sheet] button')].find(b => b.getAttribute('aria-label')?.startsWith('Swap in'))?.getAttribute('aria-label')`);

@@ -137,7 +137,7 @@ try {
 
   // a broken link
   await open('#/r/not-a-real-link');
-  check('broken link: says why, no blank screen', (await waitFor(`/This link can't be opened/.test(document.body.innerText) && /not a share link/.test(document.body.innerText)`, 15000)) != null, {});
+  check('broken link: says why, no blank screen', (await waitFor(`/This link can't be opened/.test(document.body.innerText) && /Part of the link is missing/.test(document.body.innerText)`, 15000)) != null, {});
   check('no uncaught errors', errors.length === 0, { errors });
 } catch (e) {
   fails.push(`stopped: ${e.message}`);
