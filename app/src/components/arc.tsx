@@ -42,8 +42,15 @@ export function Screen({ header, children, bottom, label, clock }: { header?: Re
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv || !bottom) return;
+    // iOS 26 Safari: even with no keyboard the visual viewport is shorter than the page's by its floating toolbar, and that
+    // gap was added to the lift (the box floated ~70 pt over the keyboard, iPhone 11/27). The gap with nothing focused is the
+    // baseline; only what the keyboard adds lifts the box.
+    const typing = () => { const a = document.activeElement; return !!a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName); };
+    const gap = () => Math.max(0, Math.round(innerHeight - vv.height - vv.offsetTop));
+    let base = typing() ? 0 : gap();
     const place = () => {
-      const kb = Math.max(0, Math.round(innerHeight - vv.height - vv.offsetTop));
+      if (!typing()) { base = gap(); if (bar.current) bar.current.style.transform = ''; return; }
+      const kb = gap() - base;
       if (bar.current) bar.current.style.transform = kb > 40 ? `translateY(${-kb}px)` : ''; // under 40: toolbars, not a keyboard
     };
     vv.addEventListener('resize', place); vv.addEventListener('scroll', place); addEventListener('focusout', place);

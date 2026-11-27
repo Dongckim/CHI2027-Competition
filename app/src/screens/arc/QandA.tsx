@@ -114,7 +114,7 @@ export function QandAAsk({ qa }: { qa: ReturnType<typeof useQandA> }) {
       <label className="flex h-[52px] items-center gap-2.5 rounded-full border border-arc-line bg-arc-surface pr-2 pl-[18px]">
         <Pic src={chat} size={18} className="opacity-50" />
         <input value={qa.text} onChange={e => qa.setText(e.target.value.slice(0, MAX))} maxLength={MAX} disabled={!qa.online} enterKeyHint="send"
-          placeholder="Ask the authors anything you’re curious about!" aria-describedby="qa-note"
+          placeholder="Ask the authors anything" aria-describedby="qa-note"
           className="min-w-0 flex-1 bg-transparent text-[16px] tracking-[-0.006em] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />
         {qa.text.trim() && !close && <button type="submit" disabled={qa.busy} className="h-10 shrink-0 rounded-full bg-arc-primary px-4 text-[14px] font-semibold text-arc-on-primary">Ask</button>}
       </label>

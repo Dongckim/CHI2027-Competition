@@ -63,7 +63,8 @@ const MIN_SCALE = 0.55;
  * touch targets keep their real size whatever the scale (real() below), so it is measured, not computed; again on resize
  * (the toolbars hide and show). Put `ref` on the box that holds the ArcView.
  */
-export function useMapFit(base = 1) {
+/** reset: a change starts the fit over from the full width (15: a talk added or the sheet closed left it shrunk, 11/27) */
+export function useMapFit(base = 1, reset = '') {
   const ref = useRef<HTMLDivElement>(null);
   const [view, setView] = useState(() => (typeof innerWidth === 'number' ? [innerWidth, innerHeight] : [BOX.w, 844]));
   useEffect(() => {
@@ -73,7 +74,7 @@ export function useMapFit(base = 1) {
   }, []);
   const wide = base * Math.min(1, view[0] / BOX.w);
   const [scale, setScale] = useState(wide);
-  useLayoutEffect(() => { setScale(wide); }, [wide, view[1]]);
+  useLayoutEffect(() => { setScale(wide); }, [wide, view[1], reset]);
   useLayoutEffect(() => { // after every render: one more step down while the lowest target reaches the bottom area
     const el = ref.current;
     if (!el) return;
