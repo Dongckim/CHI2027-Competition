@@ -258,8 +258,8 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
                 <button type="button" onClick={() => edit.onRemove(node.key)} aria-label={`Remove ${i.title}`}
                   // Figma 15: 22 px with a 14 px icon outside the 0.74 scale, centred +21, −15 from the orb (screen px). The 44 px
                   // area starts just right of the node's middle (so the node keeps its own 44 px), the badge 2 px left in it
-                  className="absolute z-[2] flex items-center justify-center" style={{ width: real(44), height: real(44), left: 52 + real(1), top: 32 - real(15) - real(22) }}>
-                  <span className="flex items-center justify-center rounded-full border-solid border-white/24 bg-[rgba(34,29,54,0.94)]" style={{ width: real(22), height: real(22), borderWidth: real(1), transform: `translateX(${-real(2)}px)` }}><img src={minus} alt="" width={real(14)} height={real(14)} /></span>
+                  className="absolute z-[2] flex items-center justify-center" style={{ width: real(44), height: real(44), left: 52 + real(1), top: 32 - real(15) - real(28) }}>{/* 6 higher (11/27): at full size its area reached the node's own press points, a press on a talk could take it off */}
+                  <span className="flex items-center justify-center rounded-full border-solid border-white/24 bg-[rgba(34,29,54,0.94)]" style={{ width: real(22), height: real(22), borderWidth: real(1), transform: `translate(${-real(2)}px, ${real(6)}px)` }}><img src={minus} alt="" width={real(14)} height={real(14)} /></span>
                 </button>
               )}
             </div>
@@ -284,7 +284,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           </>;
           const box = { left: x, top: y, transform: 'translate(-50%, -50%)' };
           // every region's count moves the map toward it (prototype 12 "Angle · " → 24b), the chevron only when talks wait there
-          return onBundle && !still && !edit && !own && !pick && !pending
+          return onBundle && !still && !own && !pick && !pending /* 15 too (11/27): a count opens its angle wide, to edit all of it */
             ? <span key={a}><button type="button" onClick={() => onBundle?.(a)} inert={!!hold?.held || undefined} aria-label={`All ${count} ${ANGLE_NAME[a]}`}
                 className="absolute z-[2] flex items-center justify-center" style={{ ...box, minWidth: real(44), minHeight: real(44) }}>{body}</button></span>
             : <span key={a} aria-hidden="true" data-a11y-decor="region-count" className="pointer-events-none absolute flex" style={box}>{body}</span>; /* prototype 12b: counts stay at full while a stop is held */
@@ -315,7 +315,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           </div>
         )}
 
-        {(edit ?? own) && !pending && (['S', 'R', 'T'] as Angle[]).map(a => {
+        {(edit ?? own) && !pending && !focus && (['S', 'R', 'T'] as Angle[]).map(a => {
           const add = (edit ?? own)!;
           const [x, y] = ADD_AT[a][Math.min(counts[a], MAX_SEATS)];
           return (

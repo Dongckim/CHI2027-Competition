@@ -420,3 +420,4 @@ Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your p
 ## 32. 14 질문 입력 = 입력 전용 시트 (2026-11-27)
 - 사용자(붙여 넣은 지시) 「visualViewport로 입력창 따라붙이는 방식은 Safari가 레이아웃 뷰포트를 밀어 올리는 것과 계속 충돌해서 안 돼. 방식 바꿔」: 14 아래 상자는 누르면 열리는 버튼("Ask the authors anything"). 누르면 같은 탭 안에서 시트가 열리고 textarea에 초점(iOS는 같은 탭에서 초점을 줘야 키보드가 뜸). 시트는 fixed, top = visualViewport.offsetTop, height = visualViewport.height(resize·scroll 때 다시), 뒤 페이지는 body 고정(닫을 때 스크롤 위치 복원), 글자 16px, Esc·×로 닫기, 보내면 닫힘. 비슷한 질문이 있으면 시트 안에 "Me too + add mine"/"Post on its own".
 - 확인: iOS 26.5 시뮬레이터 Safari(safaridriver)에서 시트가 보이는 영역을 꽉 채움(0–678). 소프트웨어 키보드는 자동화로 띄울 수 없어 실기기 또는 시뮬레이터에서 손으로 확인 필요(tests/qa/sim-qa-ios.mjs).
+- 15(11/27): 사용자 「edit도 원래 화면이랑 비슷하게 각 영역에 가려진 애들 더 넓은 영역에서 볼 수 있게」: 각도 개수를 누르면 24b처럼 그 각도를 넓게(최대 12개, 각 − · 눌러 바꾸기), 머리 "‹ See all three angles" 또는 가운데 원으로 돌아옴. 지도 크기는 칸 높이로만 정함(목록 스크롤 중 지도가 줄던 것). − 버튼 영역을 6px 위로(노드 위쪽을 누르면 − 가 눌리던 것).
