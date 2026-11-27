@@ -38,7 +38,14 @@ const after = <T,>(op: string, args: object) => init().then(() => call<T>(op, ar
 // Every quote checked on our abstract (the one 14 shows), and moved when the package's trimmed abstract shifted it
 let abstracts: Promise<Record<string, string>> | null = null;
 const ours = () => (abstracts ??= Promise.all([...current.days, 'unscheduled'].map(d => loadAbstracts(d))).then(l => Object.assign({}, ...l)).catch(e => { abstracts = null; throw e; }));
-const placed = async (nodes: ArcNode[]) => { const a = await ours(); return nodes.map(n => ({ ...n, evidence: onOurAbstract(n.evidence, a[n.key]) })); };
+// the same paper can be in the programme twice (e.g. a paper and its journal or poster entry, same abstract under two keys):
+// keep the first, and none that repeats a talk already on the Arc (user 11/27)
+const paperOf = (a: Record<string, string>, k: string) => { const t = (a[k] ?? '').toLowerCase().replace(/\W+/g, ' ').trim(); return t.length > 40 ? t.slice(0, 300) : k; };
+const placed = async (nodes: ArcNode[], have: string[] = []) => {
+  const a = await ours(), seen = new Set(have.map(k => paperOf(a, k)));
+  return nodes.filter(n => { const p = paperOf(a, n.key); if (seen.has(p)) return false; seen.add(p); return true; })
+    .map(n => ({ ...n, evidence: onOurAbstract(n.evidence, a[n.key]) }));
+};
 
 export const ondeviceEngine: Engine = {
   async init(p) {
@@ -53,8 +60,8 @@ export const ondeviceEngine: Engine = {
     const arc = await after<Arc>('buildArc', { query, opts, id: newArcId(), createdAt: Date.now(), now: now() });
     return { ...arc, nodes: await placed(arc.nodes) };
   },
-  suggest: (query, angle, excludeKeys, limit, filters) => after<ArcNode[]>('suggest', { query, angle, excludeKeys, limit, filters }).then(placed),
-  wildcard: (query, excludeKeys, limit, filters) => after<ArcNode[]>('wildcard', { query, excludeKeys, limit, filters }).then(placed),
+  suggest: (query, angle, excludeKeys, limit, filters) => after<ArcNode[]>('suggest', { query, angle, excludeKeys, limit, filters }).then(l => placed(l, excludeKeys)),
+  wildcard: (query, excludeKeys, limit, filters) => after<ArcNode[]>('wildcard', { query, excludeKeys, limit, filters }).then(l => placed(l, excludeKeys)),
   judge: async (query, keys) => {
     const l = await after<(ArcNode | null)[]>('judge', { query, keys });
     const ok = await placed(l.filter((n): n is ArcNode => !!n));
