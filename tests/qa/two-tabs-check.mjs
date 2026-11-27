@@ -64,8 +64,6 @@ try {
   await B.ev(`[...document.querySelectorAll('button[aria-label^="Remove "]')][1].click(), true`);
   await A.waitFor(`/Find my angles/.test(document.body.innerText) && !document.querySelector('button[disabled]')?.innerText.includes('Find my angles')`, 15000);
   await click(A, 'Find my angles');
-  await A.waitFor(`location.hash === '#/angles' && document.querySelectorAll('main section button[aria-pressed]').length >= 2`, 30000); // the chips, as create-check
-  await click(A, 'Next');
   await A.waitFor(`location.hash === '#/when' && /Build my Arc/.test(document.body.innerText)`, 15000);
 
   // together

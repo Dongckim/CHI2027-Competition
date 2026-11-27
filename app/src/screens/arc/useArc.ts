@@ -51,7 +51,9 @@ export function useArc(id: string) {
   const off = (key: string) => {
     const days = arc?.filters.days ?? [], t = timeOf(key);
     if (!days.length || !t || !schedule) return false;
-    return !days.includes(localDay(t.start, tz)) || (t.end <= now && !heard.has(key));
+    // a missed talk leaves the map only on the day itself; a day chosen in 09 that is over keeps its talks, ended (user
+    // 11/26 「컨퍼런스 날짜들 안에서 선택 … 그거에 맞춰서 나오도록」: picking Monday shows Monday)
+    return !days.includes(localDay(t.start, tz)) || (t.end <= now && !heard.has(key) && localDay(t.start, tz) === localDay(now, tz));
   };
   const onMap = arc && schedule ? { ...arc, nodes: arc.nodes.filter(n => !off(n.key)) } : arc;
   const other = arc && schedule ? arc.nodes.filter(n => off(n.key)) : [];

@@ -55,9 +55,7 @@ try {
     set.call(i, 'haptic feedback'); i.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
   await waitFor(`/Ready offline/.test(document.body.innerText)`, 30000);
   await click('Find my angles');
-  const angles = await waitFor(`location.hash === '#/angles' && document.querySelectorAll('main section button[aria-pressed]').length >= 2`, 30000);
-  await click('Next');
-  await waitFor(`location.hash === '#/when' && /Build my Arc/.test(document.body.innerText)`);
+  const angles = await waitFor(`location.hash === '#/when' && /Build my Arc/.test(document.body.innerText)`, 30000); // 08 is gone (user 11/26)
   await click('Build my Arc');
   const hood = await waitFor(`location.hash.startsWith('#/hood/') && /YOU'RE IN/.test(document.body.innerText)`, 40000);
   await waitFor(`/See my Arc/.test(document.body.innerText)`);

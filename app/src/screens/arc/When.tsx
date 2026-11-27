@@ -1,20 +1,18 @@
-// 09 · When, and what kind? One "When" (Today / Tomorrow / All week on a conference day, else the days themselves),
-// any number of "What". Filters only; no engine call here.
+// 09 · When, and what kind? "When": the conference days, any number, or All week (user 11/26); any number of "What".
+// Filters only; no engine call here. 08 is gone: Back goes to 07.
 import current from '../../../../data/build/app-data/chi2026/current.json';
 import venue from '../../../../data/venue/chi2026.json';
 import type { ReactNode } from 'react';
 import { go, href } from '../../router';
 import { update, useDevice } from '../../state/useDevice';
-import { arcOf, setWhen, toggleWhat, whenOptions, whenChoice, WHAT, WHAT_LABEL, WALK, WALK_LABEL, walkOf, toggleWalk } from '../../arc/draft.js';
-import { localDay } from '../../planner/plan.js';
-import { useNow } from '../../clock.js';
+import { arcOf, setWhen, toggleWhat, whenOptions, whenDays, toggleWhenDay, WHAT, WHAT_LABEL, WALK, WALK_LABEL, walkOf, toggleWalk } from '../../arc/draft.js';
 import { useTribe } from '../../arc/live';
-import { Screen, ArcButton, BackButton, StepBar, Chip, SectionHeader } from '../../components/arc';
+import { Screen, ArcButton, BackButton, Chip, SectionHeader } from '../../components/arc';
 import clock from '../../assets/arc/icon-clock.svg';
 import talk from '../../assets/arc/icon-talk.svg';
 
 export const TIME_ZONE: string = venue.timeZone;
-export const whenNow = (ms: number) => whenOptions(current.days, localDay(ms, TIME_ZONE));
+export const DAYS: string[] = current.days;
 
 // prototype 09 Icon_6 (route: four stops and their links) and Icon_7 (check), 16 px, stroke in currentColor
 const WALK_ICON: Record<string, ReactNode> = {
@@ -27,21 +25,23 @@ const WALK_ICON: Record<string, ReactNode> = {
 export function When() {
   const state = useDevice();
   const { draft } = arcOf(state);
-  const options = whenNow(useNow());
-  const chosen = whenChoice(options, draft.when);
+  const options = whenOptions(DAYS);
+  const chosen = whenDays(draft.when, DAYS);
   const walk = walkOf(state) as string[];
   useTribe(null);
   if (!draft.query.trim()) { go('ask', { replace: true }); return null; }
   return (
     <Screen clock label="When and what"
-      header={<><BackButton href={href('angles')} /><StepBar at={2} /><span className="w-11" /></>}
+      header={<><BackButton href={href('ask')} /><span /><span className="w-11" /></>}
       bottom={<ArcButton className="mb-1.5" onClick={() => go('building')} disabled={!draft.what.length}>Build my Arc</ArcButton>}>
       <h1 className="mt-[14px] text-[28px] leading-[34px] font-semibold tracking-[-0.024em]">When, and what kind?</h1>
       <div className="mt-9 flex flex-col gap-[30px]">
         <section aria-labelledby="when-h" className="flex flex-col gap-3">
           <div className="flex h-[21px] items-center"><SectionHeader id="when-h" icon={clock} label="When" /></div>{/* Figma row 21; the 17px line renders 20 */}
-          <div role="radiogroup" aria-labelledby="when-h" className="flex flex-wrap gap-2">
-            {options.map(o => <Chip key={o.id} single selected={o.id === chosen.id} onClick={() => update(s => setWhen(s, o.id))}>{o.label}</Chip>)}
+          <div role="group" aria-labelledby="when-h" className="flex flex-wrap gap-2">
+            {options.map(o => o.id === 'all'
+              ? <Chip key="all" selected={!chosen.length} onClick={() => update(s => setWhen(s, 'all'))}>{o.label}</Chip>
+              : <Chip key={o.id} selected={chosen.includes(o.id)} onClick={() => update(s => toggleWhenDay(s, o.id, DAYS))}>{o.label}</Chip>)}
           </div>
         </section>
         <section aria-labelledby="what-h" className="flex flex-col gap-3">

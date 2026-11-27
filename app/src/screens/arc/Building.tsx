@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react';
 import { go, href } from '../../router';
 import { useDevice, update } from '../../state/useDevice';
-import { arcOf, buildOptions, whenChoice, walkOf, setTourDue } from '../../arc/draft.js';
+import { arcOf, buildOptions, whenDays, walkOf, setTourDue } from '../../arc/draft.js';
 import { engine } from '../../engine';
 import { saveArc } from '../../arc/store';
 import { loadSchedule } from '../../data/load';
@@ -14,7 +14,7 @@ import { localDay } from '../../planner/plan.js';
 import { now } from '../../clock.js';
 import { warm, useTribe, previewTribe, setPreviewTribe, useWarm, useWarmRatio } from '../../arc/live';
 import { Screen, ArcLink, ArcButton, FRAME_ART } from '../../components/arc';
-import { whenNow, TIME_ZONE } from './When';
+import { DAYS, TIME_ZONE } from './When';
 import outer from '../../assets/arc/10-orbit-outer.svg';
 import inner from '../../assets/arc/10-orbit-inner.svg';
 
@@ -55,7 +55,7 @@ export function Building() {
     const query = draft.query.trim();
     if (!query) { go('ask', { replace: true }); return; }
     let live = true;
-    const opts = { ...buildOptions(draft, whenChoice(whenNow(now()), draft.when).days), walk } as Parameters<typeof engine.buildArc>[1] & { days: string[]; types: string[] }; // draft.js is untyped JS
+    const opts = { ...buildOptions(draft, whenDays(draft.when, DAYS)), walk } as Parameters<typeof engine.buildArc>[1] & { days: string[]; types: string[] }; // draft.js is untyped JS
     const started = Date.now();
     loadSchedule().then(s => {
       const papers = [...s.index.papers.values()] as { feedType: string; slots: { start: number | null }[] }[];

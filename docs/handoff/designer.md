@@ -378,3 +378,9 @@ Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your p
 - ② 12·24b: 노드를 누르면 그 자리에 제목 팝업(상태 · 시간 · 방, 전체 제목, "View details ›", 24b에서 Arc에 없는 발표는 "Add to my Arc"). 나머지는 어둡게, 바깥 누르기·×·Esc로 닫힘, 같은 노드를 한 번 더 누르면 14. 아래 카드는 다음 발표를 그대로 보여 줌(전에는 누른 발표로 바뀜).
 - ③ 06b: 분야 칩 격자 대신 프로토타입의 사람 그림("You"와 같은 모양 두 사람), 두 카드에 그림(Figma SVG를 잘라 씀: assets/arc/06b-*.svg). "Spot the shape on their phone or badge."
 - 넣지 않음: 14b·14f 번역(본선 예정, §7), 14e 삭제는 앱에 따로 화면이 없어 그대로.
+
+## 27. 컨퍼런스 날짜 · 08 없앰 · 07 논문 입구 · 통역 (2026-11-26 밤, 동결 예외)
+- 사용자 「날짜기준으로 혹시 컨퍼런스 날짜 기준으로 해줄래? … arc 생성하더라도 컨퍼런스 날짜들 안에서 선택할 수 있게 해주고 그거에 맞춰서 나오도록」: 09 "When"은 컨퍼런스 날짜 칩(여러 개) + All week. Today/Tomorrow 없음. 고른 날의 발표만 지도에. 끝난 날을 골라도 그날 발표는 지도에 남음(끝난 표시); 오늘 이미 끝난 발표만 빠짐.
+- 사용자 「choose angle 부분은 지워주고 굳이 필요없을꺼 같아」: 08 없앰. 07(Find my angles, 07b 카드)·07r(Build my Arc from this paper) → 09. 09의 뒤로 → 07, 단계 막대 없음. 각도는 엔진이 정함.
+- 사용자 「Start from my paper 왜 html 대로 안했어. Have a paper? 이거대로 해야지」: 07 시작 질문 아래 가운데 알약 "📖 Have a paper at CHI? Find it ›" → 07p.
+- 사용자 「통역 부분도 다 진행해줘」: 14g Talk face to face. 14 머리의 통역 아이콘, 14f "Start live translation"에서 들어감. 폰을 둘 사이에 놓고 위쪽 반은 상대 쪽으로 뒤집힘. Soniox 양방향 통역(/api/soniox-key 임시 키), 저장 없음(멈추거나 닫으면 지움). 14b의 "글로 쓴 질문 번역"은 글 번역 서비스가 없어 넣지 않음.

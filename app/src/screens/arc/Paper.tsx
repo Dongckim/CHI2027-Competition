@@ -110,7 +110,7 @@ export function ConfirmPaper({ person }: { person: string }) {
   const build = () => {
     const q = (question ?? '').trim();
     if (!q) return;
-    update(s => setPaperStart(s, q, a.papers)); update(setOnboarded); go('angles');
+    update(s => setPaperStart(s, q, a.papers)); update(setOnboarded); go('when'); // no 08 (user 11/26)
   };
   return (
     <Screen label="Is this your paper" header={<Header onboarded={onboarded} />}

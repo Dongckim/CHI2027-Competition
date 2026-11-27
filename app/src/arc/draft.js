@@ -81,20 +81,22 @@ export function buildOptions(draft, days) {
 const dayLabel = day => new Date(`${day}T12:00:00Z`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', timeZone: 'UTC' });
 
 /**
- * 09 "When" chips (one at a time). On a conference day: Today, Tomorrow (if there is one), All week, as in Figma.
- * Any other day "Today" would mean nothing, so the chips are the conference days themselves, then All week.
+ * 09 "When" (user 11/26 「컨퍼런스 날짜 기준 … 컨퍼런스 날짜들 안에서 선택할 수 있게」): the conference days themselves, any
+ * number of them, or All week. Not Today / Tomorrow: those depend on the day the Arc is made, not the conference.
+ * draft.when: 'all' or the chosen days joined by ','.
  * @param {string[]} days conference days YYYY-MM-DD (venue-local)
- * @param {string} today venue-local YYYY-MM-DD
- * @returns {{ id: string, label: string, days: string[] }[]}
+ * @returns {{ id: string, label: string }[]}
  */
-export function whenOptions(days, today) {
-  const all = { id: 'all', label: 'All week', days: [] };
-  const i = days.indexOf(today);
-  if (i < 0) return [...days.map(d => ({ id: d, label: dayLabel(d), days: [d] })), all];
-  return [{ id: 'today', label: 'Today', days: [today] }, ...(days[i + 1] ? [{ id: 'tomorrow', label: 'Tomorrow', days: [days[i + 1]] }] : []), all];
-}
-/** The chosen option, or All week when the saved one is not offered any more (e.g. "today" after the conference). */
-export const whenChoice = (options, when) => options.find(o => o.id === when) ?? options.find(o => o.id === 'all');
+export const whenOptions = days => [...days.map(d => ({ id: d, label: dayLabel(d) })), { id: 'all', label: 'All week' }];
+/** The chosen conference days ([] = all week); days no longer in the programme drop out. */
+export const whenDays = (when, days) => (!when || when === 'all' ? [] : when.split(',').filter(d => days.includes(d)));
+/** A day chip on or off; none left, or every day, is All week. */
+export const toggleWhenDay = (state, day, days) => {
+  const now = new Set(whenDays(arcOf(state).draft.when, days));
+  if (now.has(day)) now.delete(day); else now.add(day);
+  const list = days.filter(d => now.has(d));
+  return setWhen(state, !list.length || list.length === days.length ? 'all' : list.join(','));
+};
 
 // 14 "I heard it": talks the person marked as heard (paper keys), on this device only. Heard = tribe colour on the map.
 export const heardOf = state => new Set(arcOf(state).heard ?? []);

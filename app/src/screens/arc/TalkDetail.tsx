@@ -35,7 +35,9 @@ import { minutesText } from '../../venue/directions.js';
 import { localDay } from '../../planner/plan.js';
 import { venueClock } from '../../time.js';
 import { chairOf, shortRoom } from './useArc';
-import { go } from '../../router';
+import { go, href } from '../../router';
+import { Interpret } from './Interpret';
+import translate from '../../assets/arc/icon-translate.svg';
 
 type People = Awaited<ReturnType<typeof loadPeople>>;
 type Slot = { start: number | null; end: number; roomKey: string; sessionKey: string };
@@ -50,7 +52,7 @@ const AUTHORS_SHOWN = 4;
 export const Tag = ({ icon, children }: { icon: string; children: React.ReactNode }) =>
   <span className="inline-flex items-center gap-1.5 rounded-2xl border border-arc-line bg-arc-surface py-1.5 pr-3 pl-2.5 text-[13px] font-semibold"><Pic src={icon} size={14} />{children}</span>;
 
-export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shape?: boolean }) {
+export function TalkDetail({ paperKey, shape = false, interpret = false }: { paperKey: string; shape?: boolean; interpret?: boolean }) {
   const [data, setData] = useState<{ schedule: Schedule; people: People; debut: Set<string> } | null>(null);
   const [failed, setFailed] = useState(false);
   const [abstract, setAbstract] = useState<string | null>(null);
@@ -98,7 +100,9 @@ export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shap
     {live && <p className="ml-3 flex min-w-0 flex-1 items-center gap-[7px] text-[12px] font-medium text-arc-text-2">
       {/* Figma #FF8E86 (also the Health tribe's colour); the word Now says it, the dot only decorates */}
       <span aria-hidden="true" className="size-[7px] shrink-0 translate-y-[0.5px] rounded-full bg-[#ff8e86]" /><span className="-translate-y-[1.5px] truncate">{live}</span></p>}
-    {doi ? <IconButton icon={external} label="Open the paper (ACM DL)" href={doi} /> : <span />}</>;
+    <span className="flex gap-2">{doi && <IconButton icon={external} label="Open the paper (ACM DL)" href={doi} />}
+      {/* prototype 14b: talk to the authors in your own language (14g) */}
+      <IconButton icon={translate} label="Talk face to face, interpreted" href={href(`talk/${paperKey}/interpret`)} /></span></>;
   if (failed) return <Screen header={header()} label="Talk"><p role="alert" className="mt-6 text-[16px]">Could not load the programme.</p><p className="mt-2 text-[14px] text-arc-text-2">Connect to the internet once and try again.</p><button type="button" onClick={() => location.reload()} className="mt-5 h-11 self-start rounded-full border border-arc-line px-5 text-[15px] font-semibold">Try again</button></Screen>;
   if (!data) return <Screen header={header()} label="Talk"><p className="mt-6 text-[16px] text-arc-text-3">Loading…</p></Screen>;
   if (!p) return <Screen header={header()} label="Talk"><p className="mt-6 text-[16px]">This talk is not in the programme any more.</p></Screen>;
@@ -132,6 +136,7 @@ export function TalkDetail({ paperKey, shape = false }: { paperKey: string; shap
   const nextWalk = next && slot ? walkSummary(schedule.venue, schedule.venueMap, slot.roomKey, next.roomKey) : null;
   const chair = slot ? chairOf(schedule, slot.sessionKey) : null;
 
+  if (interpret) return <Interpret paperKey={paperKey} who={p.first?.split(' · ')[0] ?? null} />; // 14g (prototype 3)
   if (shape && found && slot && roomName) return <ShowShape schedule={schedule} roomKey={slot.roomKey} roomName={roomName} tribe={found.arc.tribe} paperKey={paperKey} />;
 
   return (
