@@ -1,6 +1,8 @@
 // The Swap / Add sheet of 15 (Figma 598:917), also 19b's Add: search, then chips — the angle (engine.suggest), New to CHI
 // (Same time: when swapping, talks at the hour of the one going out), Wildcard (engine.wildcard) — and cards to swap in or add. Every card goes under the angle the engine
 // gives it (search: engine.judge), which the card says when it is not the sheet's own angle.
+import { notOver } from './useArc';
+import { now as nowMs } from '../../clock.js';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { loadAbstracts } from '../../data/load';
@@ -46,10 +48,16 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
   const [abs, setAbs] = useState<string | null>(null);
   const hold = useRef(0), held = useRef(false), opened = useRef(0), sheet = useRef<HTMLElement>(null);
   const kb = useKeyboardInset();
+  // Escape closes the top layer: the preview, then the question, then the sheet (audit 11/27)
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => { if (e.key !== 'Escape') return; if (peek) setPeek(null); else if (confirm) setConfirm(null); else onClose?.(); };
+    addEventListener('keydown', k); return () => removeEventListener('keydown', k);
+  }, [peek, confirm, onClose]);
   // its own short tour the first time it has talks to show, after the map's (so not in a stranger's first look)
   const dev = arcOf(useDevice());
   const [tour, setTour] = useState(false);
-  useEffect(() => { if (!dev.tour || dev.sheetTour || !cards?.length) return; const t = setTimeout(() => setTour(true), 500); return () => clearTimeout(t); }, [dev.tour, dev.sheetTour, cards?.length]);
+  // the Add sheet's tour (Swap has no angle chips)
+  useEffect(() => { if (swap || !dev.tour || dev.sheetTour || !cards?.length) return; const t = setTimeout(() => setTour(true), 500); return () => clearTimeout(t); }, [dev.tour, dev.sheetTour, cards?.length]);
   useEffect(() => {
     setAbs(null);
     const p = peek && (paper(peek.key) as { slots?: { start: number | null }[] } | undefined);
@@ -76,13 +84,13 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
     }
     const get = filter === 'wild' ? e.wildcard(arcQuery, exclude, 8, filters)
       : e.suggest(arcQuery, target, exclude, filter === 'same' ? 40 : 8, filters).then(l => (filter === 'same' && sameTime ? l.filter(n => sameTime(n.key)).slice(0, 8) : l));
-    get.then(l => live && setCards(l), () => live && setCards([]));
+    get.then(l => live && setCards(l.filter(notOver(paper, nowMs()))), () => live && setCards([]));
     return () => { live = false; };
   }, [arcQuery, engineName, target, filter, query, data, exclude]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pick = (card: ArcNode) => { setQuery(''); onPick(card); };
   return (
-    <section ref={sheet} aria-label="Swap" style={kb.inset ? { bottom: kb.inset, maxHeight: kb.height - 8, overflowY: 'auto' } : undefined} /* typing in its search: the sheet sits on the keyboard (11/27) */ className="arc-sheet-up fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[480px] rounded-t-[32px] border border-arc-line bg-arc-sheet px-6 pt-[9px] pb-[calc(var(--safe-bottom)+16px)] shadow-[0_-8px_40px_rgba(0,0,0,0.4)]">
+    <section ref={sheet} data-sheet="" aria-label={swap ? 'Swap' : `Add to ${ANGLE_NAME[target]}`} style={kb.inset ? { bottom: kb.inset, maxHeight: kb.height - 8, overflowY: 'auto' } : undefined} /* typing in its search: the sheet sits on the keyboard (11/27) */ className="arc-sheet-up fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[480px] rounded-t-[32px] border border-arc-line bg-arc-sheet px-6 pt-[9px] pb-[calc(var(--safe-bottom)+16px)] shadow-[0_-8px_40px_rgba(0,0,0,0.4)]">
       <div className="mx-auto mb-3.5 h-1 w-9 rounded-sm bg-arc-text/30" aria-hidden="true" />
       <div className="flex items-center justify-between">
         <h2 className="text-[17px] font-semibold tracking-[-0.012em]">{swap ? 'Swap' : `Add to ${ANGLE_NAME[target]}`}</h2>
@@ -90,7 +98,7 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
       </div>
       <label className="mt-3 flex h-11 items-center gap-2 rounded-full border border-arc-line bg-arc-surface pl-3.5">
         <Pic src={searchIcon} size={18} />
-        <input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search all CHI talks by title or author" aria-label="Search talks"
+        <input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search talks or authors" aria-label="Search talks"
           autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} enterKeyHint="search"
           className="h-full min-w-0 flex-1 bg-transparent pr-3 text-[16px] tracking-[-0.006em] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />{/* 16 px: iOS zooms into smaller fields */}
       </label>
@@ -141,7 +149,7 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
             );
           })}
       </div>
-      <p className="mt-1 text-[12px] text-arc-text-3">Hold a card to read the paper · tap it to add</p>
+      {!!cards?.length && <p className="mt-1 text-[12px] text-arc-text-3">Hold a card to read the paper · tap it to {swap ? 'swap it in' : 'add'}</p>}
       {peek && (() => {
         // user 11/27 「B로 해줘」, as iOS does: the preview opens on a long press and stays after the finger lifts, so the
         // abstract can be scrolled; a press outside it or × closes it, and Add is right there

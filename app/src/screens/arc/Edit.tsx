@@ -25,6 +25,8 @@ export function Edit({ id }: { id: string }) {
   const [adding, setAdding] = useState<Angle | null>(null);
   // user 11/27 「edit도 원래 화면이랑 비슷하게 각 영역에 가려진 애들 더 넓은 영역에서」: a region's count opens it as 24b does
   const [wide, setWide] = useState<Angle | null>(null);
+  const [removed, setRemoved] = useState<{ node: ArcNode; at: number } | null>(null);
+  useEffect(() => { if (!removed) return; const t = setTimeout(() => setRemoved(null), 5000); return () => clearTimeout(t); }, [removed]);
   // the regions reach the bottom of the screen, as on 12 (prototype 15: no bare lower half before the sheet opens)
   const [room, setRoom] = useState(0);
   // the map fills the screen as on 12 until a + or a talk is pressed; then 0.74 and the sheet rises from below (user 11/26
@@ -65,26 +67,37 @@ export function Edit({ id }: { id: string }) {
     if (selected) { setNodes(nodes.map(n => (n.key === selected ? card : n))); setSelected(null); }
     else setNodes([...nodes, card]); // Add keeps the sheet open on its angle: add more, or switch angle in the sheet (11/27)
   };
-  const done = async () => { await save(draft); go(`arc/${id}`); };
+  const done = async () => { await save(draft); go(`arc/${id}`, { replace: true }); }; // back after Done does not reopen Edit (audit 11/27)
+  // Cancel throws the changes away, asking first when there are some (audit 11/27: back dropped them without a word)
+  const changed = nodes.map(n => n.key).join() !== arc.nodes.map(n => n.key).join();
+  const cancel = () => { if (!changed || confirm('Discard your changes?')) go(`arc/${id}`, { replace: true }); };
+  // a talk taken off can be put back for a few seconds, as a swap can on 12
+  const take = (k: string) => { const at = nodes.findIndex(n => n.key === k); if (at < 0) return; setRemoved({ node: nodes[at], at }); setNodes(nodes.filter(n => n.key !== k)); if (selected === k) setSelected(null); };
 
   return (
     <Screen clock label="Editing" header={<>
       {/* Figma: "Editing" at y 66, Done 40 high at y 58 ending 24 from the edge */}
       {wide ? <button type="button" onClick={() => setWide(null)} className="flex min-h-touch items-center gap-1 rounded-full pl-2 pr-3 text-[16px] font-semibold"><span aria-hidden="true">‹</span>See all three angles</button>
         : <h1 className="mb-[3px] pl-2 text-[17px] font-semibold tracking-[-0.012em]">Editing</h1>}
-      <button type="button" onClick={done} className="relative z-10 mr-2 h-10 rounded-full tracking-[-0.006em] before:absolute before:inset-x-0 before:-inset-y-0.5 before:content-[''] bg-arc-primary px-5 text-[16px] font-semibold text-arc-on-primary shadow-[var(--arc-shadow-primary)]">Done</button>
+      <span className="flex items-center gap-1">{!wide && <button type="button" onClick={cancel} className="min-h-touch px-3 text-[15px] font-semibold text-arc-text-2">Cancel</button>}
+      <button type="button" data-tour="done" onClick={done} disabled={!nodes.length} className="relative z-10 mr-2 h-10 disabled:opacity-50 rounded-full tracking-[-0.006em] before:absolute before:inset-x-0 before:-inset-y-0.5 before:content-[''] bg-arc-primary px-5 text-[16px] font-semibold text-arc-on-primary shadow-[var(--arc-shadow-primary)]">Done</button></span>
     </>}>
       <div ref={box} className="-mx-6 -mt-1.5 flex min-h-[calc(100dvh-110px)] flex-1 flex-col">{/* Figma: the 0.74 map at y 96; the list of every talk is under it */}
         {/* before a press: the room the map leaves split above and below it, so no bare band at the bottom (user 11/26) */}
         <div style={{ height: pad }} className="transition-[height] duration-300 motion-reduce:transition-none" />
         <ArcView arc={draft} states={states} info={info} scale={target ? 0.74 : fill} room={room - pad} lift={pad} focus={wide} onBundle={target ? undefined : a => setWide(a)} onOrb={wide ? () => setWide(null) : undefined}
           edit={{ selected, adding, onSelect: k => { setSelected(s => (s === k ? null : k)); setAdding(null); },
-            onRemove: k => { setNodes(nodes.filter(n => n.key !== k)); if (selected === k) setSelected(null); },
+            onRemove: take,
             onAdd: a => { setAdding(x => (x === a ? null : a)); setSelected(null); } }} />
       </div>
       {/* user 11/27 「editing 할때 각 파트 전부 다 노드 볼 수 있도록」: the map shows three a region; every talk of each angle
           is listed under it, to swap or take off from here too */}
-      {!target && (
+      {removed && (
+        <div role="status" className="fixed inset-x-0 bottom-[calc(var(--safe-bottom)+20px)] z-30 mx-auto flex w-fit items-center gap-1 rounded-full bg-arc-primary py-1 pr-1 pl-4 text-[14px] font-semibold text-arc-on-primary">
+          Removed<button type="button" onClick={() => { const r = removed; setRemoved(null); setNodes(ns => ns && [...ns.slice(0, r.at), r.node, ...ns.slice(r.at)]); }} className="min-h-touch rounded-full px-3 underline">Undo</button>
+        </div>
+      )}
+      {!target && arc.tension !== 'pending' && ( /* sorting: the map shows no angles yet, nor does the list (audit 11/27) */
         <section aria-label="Every talk on this Arc" className="mt-2 mb-6 flex flex-col gap-5">
           {(['S', 'R', 'T'] as Angle[]).map(a => {
             const list = nodes.filter(n => n.angle === a);
@@ -102,7 +115,7 @@ export function Edit({ id }: { id: string }) {
                         <span className="truncate text-[12px] text-arc-text-3">{i.when}</span>
                       </span>
                       <button type="button" onClick={() => { setSelected(n.key); setAdding(null); }} className="min-h-touch shrink-0 rounded-full px-3 text-[13px] font-semibold text-arc-text-2">Swap</button>
-                      <button type="button" onClick={() => setNodes(nodes.filter(m => m.key !== n.key))} aria-label={`Remove ${i.title}`} className="flex size-11 shrink-0 items-center justify-center text-[20px] text-arc-text-2">−</button>
+                      <button type="button" onClick={() => take(n.key)} aria-label={`Remove ${i.title}`} className="flex size-11 shrink-0 items-center justify-center text-[20px] text-arc-text-2">−</button>
                     </div>
                   );
                 })}

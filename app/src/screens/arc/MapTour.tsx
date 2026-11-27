@@ -30,7 +30,7 @@ export const EDIT_TOUR: TourStep[] = [
   { at: 'button[aria-label^="Add a talk to"]', title: 'Add a talk', text: 'Tap + to open the talks for that angle in a sheet below.' },
   { at: '[data-arc-map] [data-node-key]', title: 'Swap a talk', text: 'Tap a talk on your Arc to swap it for another of the same angle. (Holding a talk here does nothing in Edit.)' },
   { at: 'button[aria-label^="Remove"]', title: 'Remove', text: 'The − takes a talk off your Arc.' },
-  { at: 'header button', title: 'Done', text: 'Done keeps your changes.' },
+  { at: '[data-tour="done"]', title: 'Done', text: 'Done keeps your changes; Cancel throws them away.' },
 ];
 
 // the sheet of 15, the first time it shows talks (user 11/27 「노드 꾹 누르는게 아니라 서칭 창에서 꾹 누르면 << 이거 가이드가 정정해주고」)
