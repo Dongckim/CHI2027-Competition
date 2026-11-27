@@ -329,6 +329,26 @@ Python·JavaScript 일치 271/271(주제어 99개 제안도 같음), Arc 80/80, 
 
 Python·JavaScript 일치 271/271, Arc 80/80, 검색 42/42, 실시간 feed 2/2, 앵글 42/43.
 
+## 입력한 말의 종족(분야) 분류와 맞춤법 (11/27)
+
+**종족.** 지금까지 입력한 말의 종족은 검색 상위 20개 발표의 종족 투표로만 정했다. 질문 80개(48문항 + holdout, 질문마다 만들 때의 종족이 있다)와 단어 100개(종족 설명을 보고 손으로 붙인 정답, 둘 이상 허용)로 재니 질문 67/80, 단어 83/100(허용 92)이었다. "generative AI"가 Society, "journaling"이 Design, "AI assistance가 비판적 사고를 줄이나"가 Learning으로 나왔다. 두 가지를 더했다.
+- 입력에 종족을 가리키는 말이 있으면 그것을 본다(`TRIBE_RULES`: 발표에 LLM 종족이 없을 때 쓰는 build_angles.py의 키워드 규칙과 종족 설명의 말, "gaming"·"artificial" 고침). 하나면 그 종족, 여럿이면 그중 점수가 높은 것.
+- 투표에 입력한 말만으로 본 종족 확률을 더한다(발표 단어로 센 naive Bayes, `tribe_words.json` 160 KB, 압축 50 KB, 가중치 0.5).
+
+| | 질문 80 | 단어 100 (가장 맞음 / 허용) |
+|---|---|---|
+| 투표만 | 67 | 83 / 92 |
+| + 키워드 규칙 | 68 | 86 / 94 |
+| + 단어 확률 | 70 | 86 / 94 |
+
+남은 질문 10개는 대부분 두 종족에 걸친 것이다("대화형 에이전트가 외로움을 줄이나"는 AI와 Health). 단어 중 voice assistants, empathy, remote work, journaling, body image는 아직 틀린다. 규칙은 JavaScript처럼 ASCII 단어 경계로 읽는다("VR에서"는 VR).
+
+**맞춤법.** 교정이 CHI 발표에 나오는 단어만 기준으로 해서 "KV caching"이 "KV coaching"이 되었다. 질문 encoder의 WordPiece 단어 목록(4글자 이상 20,365개, 원래 패키지에 있음)에 있거나, 어미(-ing, -s, -ed …)를 뗀 꼴이 있으면 고치지 않는다(caching은 cache, passwords는 password). "hapitc feedbak … presense"는 그대로 고친다.
+
+**폰.** zip 28.5 MB(11/26e)에서 28.7 MB, 질문 제안 중앙값 0.30초에서 0.19초(미리 쓴 질문이 있으면 조합 계산을 건너뜀), Arc 0.35초에서 0.22초, 234번 호출 뒤 메모리 455 MB에서 466 MB, 오류 0.
+
+Python·JavaScript 일치 271/271, Arc 80/80, 검색 42/42, 실시간 feed 2/2, 앵글 44/45.
+
 ## 다시 만들기
 
 ```bash

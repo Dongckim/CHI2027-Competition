@@ -299,6 +299,35 @@ def main():
         return errs, f"{arc['question']} · {arc['tribe']['name']} (guess) · AI -> {t}"
     case("off-topic word: no made-up question, tribe a guess; AI names its tribe", off_topic_word)
 
+    def english_not_typo():
+        # 11/27: an English word no talk uses is not a typo ("KV caching" became "KV coaching");
+        # real typos are still fixed
+        errs = []
+        for t in ("KV caching for LLM inference", "passwords in VR", "embedding models"):
+            c = eng.handle({"screen": "ask", "text": t})["corrected"]
+            if c:
+                errs.append(f"{t!r} corrected to {c!r}")
+        c = eng.handle({"screen": "ask", "text": "Does hapitc feedbak improve presense in VR?"})["corrected"]
+        if c != "Does haptic feedback improve presence in VR?":
+            errs.append(f"typos not fixed: {c!r}")
+        return errs, c
+    case("spelling: English words left alone, typos fixed", english_not_typo)
+
+    def tribe_of_typed():
+        # 11/27: the typed words count beside the talks' vote ("generative AI" was Society)
+        errs, seen = [], []
+        for t, want in (("generative AI", "AI & agents"), ("gaming", "Design & creativity"),
+                        ("artificial intelligence in classrooms", None), ("VR", "XR & immersive"),
+                        ("older adults", "Accessibility & aging"), ("Do AI tools reduce critical thinking?", "AI & agents")):
+            got = eng.handle({"screen": "ask", "text": t})["tribe"]["name"]
+            seen.append(f"{t}: {got}")
+            if want and got != want:
+                errs.append(f"{t}: {got}, not {want}")
+            if want is None and got == "Design & creativity":
+                errs.append(f"{t}: artificial read as art")
+        return errs, " | ".join(seen)
+    case("tribe: what was typed counts", tribe_of_typed)
+
     def acronyms():
         out = eng.handle({"screen": "angles", "question": Q})
         labels = [c["label"] for a in out["angles"] for c in a["chips"]]
