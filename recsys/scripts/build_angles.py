@@ -17,7 +17,9 @@ Checks made here, so a wrong LLM answer never reaches a screen:
   - a card the LLM stored as a "result" must sit on a sentence that can carry the study's own
     result: an aim or method ("This study investigated how ..."), a system the paper presents,
     prior work, a gap in the literature or the abstract's opening sentence is stored as "aim",
-    "claim" or "prior" instead, so it never becomes a Challenge or an Evidence Support (11/22).
+    "claim" or "prior" instead, so it never becomes a Challenge or an Evidence Support (11/22);
+  - a "claim" card must sit on a sentence that can present something to try: an argument
+    ("We argue ...") is stored as "aim", a problem ("However, ...") as "prior" (11/26).
 
 Debut authors: names of 2026 paper authors not among the paper authors of CHI 2023-2025
 (programme data in data/raw/chi20xx.json, or CHI_PAST_DIR). Name match only.
@@ -43,7 +45,7 @@ from angles import NEG_OUTCOME, NO_FINDINGS, content, lemma, parse_question, ste
 PROC = os.path.join(config.ROOT, "data", "processed")
 PKG = os.path.join(config.ROOT, "dist", "chi2026-retriever")
 PAST_DIR = os.environ.get("CHI_PAST_DIR", os.path.join(config.ROOT, "data", "raw"))
-VERSION = os.environ.get("CHI_ANGLES_VERSION", "2026-11-25c")
+VERSION = os.environ.get("CHI_ANGLES_VERSION", "2026-11-26b")
 # directions the third pass may correct: a card stored without one ("associated")
 EFFECT_FIX = set(os.environ.get("CHI_EFFECT_FIX", "associated").split(","))
 
@@ -184,6 +186,9 @@ _AIM_V = (r"aim(?:s|ed)? to|set out to|seek(?:s)? to|sought to|investigat(?:e|es
           r"interview(?:s|ed)?|surve(?:y|ys|yed)|record(?:s|ed)?")
 _SYS_V = r"present(?:s|ed)?|propos(?:e|es|ed)|introduc(?:e|es|ed)|design(?:s|ed)?|develop(?:s|ed)?|buil[dt]s?|implement(?:s|ed)?"
 AIM_RE = re.compile(rf"\b{_WE}\s+(?:also\s+|first\s+|then\s+|further\s+)?(?:{_AIM_V})\b", re.I)
+# "We present an exploratory longitudinal study of ...": the study itself, not what it found (11/26)
+STUDY_RE = re.compile(rf"\b{_WE}\s+(?:also\s+)?(?:{_SYS_V}|report(?:s|ed)?)\s+(?:an?|the|our|two|three|four)\s+(?:[\w-]+\s+){{0,4}}"
+                      r"(?:study|studies|analysis|investigation|survey|review|experiment|evaluation|deployment|interviews?)\b", re.I)
 SYS_RE = re.compile(rf"\b{_WE}\s+(?:also\s+|first\s+|then\s+|further\s+)?(?:{_SYS_V})\b"
                     r"(?![^.]{0,40}\b(?:study|studies|analysis|investigation|survey|review|interviews?|experiment)\b)", re.I)
 METHOD_RE = re.compile(r"^(?:to (?:address|investigate|examine|explore|understand|answer|fill|bridge|study|evaluate|test)\b|"
@@ -191,9 +196,9 @@ METHOD_RE = re.compile(r"^(?:to (?:address|investigate|examine|explore|understan
                        r"interviews?|workshops?|evaluation)\b[^,]*,\s*we (?!found|find|show|observ|reveal|demonstrat|identif|learn|"
                        r"discover|uncover|saw|note)|an? (?:[\w-]+ ){0,5}(?:experiment|study|survey|evaluation|deployment)s? "
                        r"(?:with|involving|of) (?:\d|n\s*=)[^.]*\b(?:tested|compared|examined|explored|was conducted)\b)", re.I)
-BACKGROUND_RE = re.compile(r"\b(?:prior|previous|past|existing|current|traditional) (?:work|works|studies|research|"
+BACKGROUND_RE = re.compile(r"\b(?:prior|previous|past|existing|current|traditional) (?:[A-Z][\w-]* |[a-z-]+ (?=research\b|work\b|studies\b))?(?:work|works|studies|research|"
                            r"approaches|systems|tools|methods|care|literature)\b", re.I)
-GAP_RE = re.compile(r"\b(?:lack of|little is known|remains? (?:limited|unclear|unexplored|underexplored|understudied)|"
+GAP_RE = re.compile(r"\b(?:lack of|little is known|little (?:research|work|attention) has|(?:has|have) (?:rarely|seldom) been|remains? (?:limited|unclear|unexplored|underexplored|understudied)|"
                     r"few (?:studies|works)|under-?explored|has not been)\b", re.I)
 RESULT_RE = re.compile(r"\b(?:found|find(?:s|ings?)?|results?|show(?:s|ed|n)?|reveal(?:s|ed)?|demonstrat(?:e|es|ed)|"
                        r"indicat(?:e|es|ed)|suggest(?:s|ed)?|observ(?:e|es|ed)|identif(?:y|ies|ied)|uncover(?:s|ed)?|"
@@ -215,11 +220,36 @@ def sentence_status(text, first=False):
         return "result"
     if first:
         return "prior"
+    if STUDY_RE.search(s):
+        return "aim"
     if SYS_RE.search(s):
         return "claim"
     if AIM_RE.search(s) or METHOD_RE.search(s):
         return "aim"
     return "result"
+
+
+# a "claim" card should present something one can try (a system, a tool, a design); an argument
+# ("We argue ...", "our argument for ...") or a problem ("However, keeping ... forces ...") is not
+# (11/26: these were "Try it" Supports)
+ARGUE_RE = re.compile(r"\b(?:we|i)\s+(?:also\s+|further\s+)?argue\b|\bour argument\b|\bwe take the position\b", re.I)
+PROBLEM_RE = re.compile(r"^(?:however|yet|but|unfortunately|still)\b", re.I)
+NAMED_RE = re.compile(r"\b[A-Z][a-z]+[A-Z][A-Za-z]*\b")       # a system's name: HistoryPalette, PersonaCite
+
+
+def claim_status(text):
+    """"claim" when the sentence can present something to try, else "aim" (an argument) or
+    "prior" (a problem, prior work or a gap)."""
+    s = " ".join(text.split())
+    if ARGUE_RE.search(s):
+        return "aim"
+    # a sentence that states a result ("However, analysis revealed ...") or names the system
+    # ("HistoryPalette enables creators to ... reuse their prior work") is no problem statement
+    if RESULT_RE.search(s) or OWN_RE.search(s) or SYS_RE.search(s) or NAMED_RE.search(s):
+        return "claim"
+    if PROBLEM_RE.search(s) or BACKGROUND_RE.search(s) or GAP_RE.search(s):
+        return "prior"
+    return "claim"
 
 
 def clean_claim(p):
@@ -351,6 +381,10 @@ def main():
                 st = sentence_status(ab[sent[0]:sent[1]], first=not ab[:sent[0]].strip())
                 if st != "result":
                     stats[f"result_to_{st}"] += 1
+            if st == "claim":
+                st = claim_status(ab[sent[0]:sent[1]])
+                if st != "claim":
+                    stats[f"claim_to_{st}"] += 1
             cards.append([pid(ab[fs[0]:fs[1]]), pid(ab[os_[0]:os_[1]]),
                           pid(ab[ps[0]:ps[1]]) if ps else -1,
                           EFFECTS.index(c["effect"]), STATUS.index(st),
@@ -395,6 +429,8 @@ def main():
                 continue
             have.add((f_, o_))
             st = sentence_status(ab[sent[0]:sent[1]], first=not ab[:sent[0]].strip())
+            if st == "claim":
+                st = claim_status(ab[sent[0]:sent[1]])
             if st != "result":
                 stats[f"more_result_to_{st}"] += 1
             cards.append([f_, o_, -1, EFFECTS.index(m["effect"]), STATUS.index(st),

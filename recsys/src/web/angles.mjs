@@ -58,6 +58,7 @@ const FORMAT_LABEL = { PAPER: "Paper talk", POSTER: "Poster", DEMO: "Demo", PANE
 const EFFECTS = ["increase", "decrease", "no_effect", "mixed", "associated"];
 const STATUS = ["result", "claim", "prior", "aim"];
 const WORSE = 1;
+const BETTER = 0;
 const AFFECTS = 2;    // angles.json "cq" lean of a "How does X affect Y?" question
 // the why line: what the angle means for the asker, then the card's finding (LLM, offline)
 const WHY_LEAD = { support: { evidence: "Goes the way your question expects.", try: "Something you can try." },
@@ -68,8 +69,8 @@ const WHY_LEAD = { support: { evidence: "Goes the way your question expects.", t
 export const P = { JUDGE_N: 40, POOL: 200, SIZE: 7, MAX_READ: 2, GAP_MIN: 5, CALM_GAP: 10, HOLD_K: 3, HOLD_WIN: 90, HOLD_MORE: 30,
                    THEME_COS: 0.45, CLOSE_COS: 0.50,
                    MATCH: 0.70, STRICT: 0.80, COS_LO: 0.45, COS_HI: 0.80, CLAIM_W: 0.95, GEN_W: 0.95, ABOUT_W: 0.9, UP_W1: 0.8, UP_W2: 0.75,
-                   NEAR_SCORE: 1.5, NEAR_TOP: 5, NEAR_CONF: 0.2, TOPIC_CONF: 0.1, COST: true, COST_TOP: 15,
-                   MINE_K: 8, MINE_Q: 3, BALANCE: true, SUGGEST_K: 3, CARDQ_COS: 0.75, CARDQ_X: 0.40,
+                   NEAR_SCORE: 1.5, NEAR_TOP: 5, NEAR_CONF: 0.2, TOPIC_CONF: 0.1, COST: true, COST_BOTH: true, COST_TOP: 10,
+                   MINE_K: 8, MINE_Q: 3, BALANCE: true, SUGGEST_K: 3, WARN_WORDS: 3, WARN_MATCH: 5, PAIR_MIN: 5, PAIR_OUT: 0.6, CARDQ_COS: 0.75, CARDQ_X: 0.40, CQ_ONE: true, CQ_ONE_WORDS: 10,
                    CQ_SUGGEST: true, CQ_SAME: 0.85, CQ_ONLY: 1, CQ_TOPIC: 0.40, CQ_WORDS: 12 };
 
 const set = (s) => new Set(s.split(/\s+/).filter(Boolean));
@@ -305,11 +306,23 @@ function doing(y) {
   return [[...toks, ...(state ? [state] : [])].join(" "), people, flip];
 }
 
+const GOOD_ADJ = new Set(["good", "beneficial", "helpful", "healthy", "useful", "safe"]);
+const BAD_ADJ = new Set(["bad", "harmful", "unhealthy", "dangerous", "detrimental"]);
+const RE_GOODBAD = new RegExp("^(?<be>is|are)\\s+(?<x>.+?)\\s+(?:really\\s+|actually\\s+)?(?<a>"
+  + [...GOOD_ADJ, ...BAD_ADJ].sort().join("|") + ")\\s+(?:for|to)\\s+(?<y>.+)$");
+// inputs that are only the field's own short names ("AI", "VR"): CHI covers them, though the
+// off-topic check reads two letters as too little to go on
+const PROW_CAP = 30000;   // decoded phrase rows kept (30 MB at most)
+const FIELD_TERMS = new Set(["ai", "vr", "ar", "xr", "mr", "llm", "llms", "ux", "ui", "hci", "iot", "ml", "nlp", "bci", "hri", "cscw", "ehmi"]);
+
 export function parseQuestion(text) {
   const raw = pyStr(text).split(/\s+/u).filter(Boolean).join(" ");
   let low = pyStrip(raw.toLowerCase().replaceAll("’", "'").trim(), "?.! ");
   low = low.replace(/^(?:i wonder |i want to know |i'm curious |i am curious )(?:if |whether |how )?/, "");
   low = low.replace(/^(?:whether|if)\s+/, "does ");
+  // "Is TikTok bad for teenagers?" asks what "Does TikTok harm teenagers?" asks
+  const gb = RE_GOODBAD.exec(low);
+  if (gb) low = `${gb.groups.be === "is" ? "does" : "do"} ${gb.groups.x} ${GOOD_ADJ.has(gb.groups.a) ? "improve" : "harm"} ${gb.groups.y}`;
   const out = { kind: "", x: "", y: "", dir: "?", ctx: "", verb: "", text: raw };
   let m = RE_PSYCH.exec(low);
   if (m && !RE_YESNO.exec(low)) {
@@ -435,7 +448,7 @@ const T = (iso) => DT.parse(iso);
 const RELATED = () => ({ angle: "reframe", subtype: "related", conf: 0.0, card: null, caveat: null });
 
 export class Angles {
-  /** pkg: loadPackage(...) plus angles (angles.json) and phraseEmb ({data, n, d}) */
+  /** pkg: loadPackage(...) plus angles (angles.json) and phraseEmb ({codes, scale, n, d} or {data, n, d}) */
   constructor(pkg, arc = null) {
     this.arc = arc || new ARC(pkg);
     const a = this.arc;
@@ -446,19 +459,34 @@ export class Angles {
     const d = pkg.angles;
     this.version = d.version;
     this.tribes = d.tribes;
+    // "AI", "health", "XR": the words of each tribe's own name (see _tribe)
+    this.tribeWords = this.tribes.map((t) => new Set(t.name.toLowerCase().match(W_RE()) || []));
     this.phrases = d.phrases;
-    const { data, n, d: D } = pkg.phraseEmb;
+    // phrase vectors stay int8 (17 MB, not 200 MB as float32 + float64); a row is decoded when
+    // first used, to the very same float64 values as before (float32 code x scale, over its norm)
+    const pe = pkg.phraseEmb, n = pe.n, D = pe.d;
     this.D = D;
-    this.pvec = new Float64Array(n * D);
+    this._pval = pe.codes ? ((i, k) => Math.fround(pe.codes[i * D + k] * pe.scale[i])) : ((i, k) => pe.data[i * D + k]);
+    this._pnrm = new Float64Array(n);
     for (let i = 0; i < n; i++) {
       let s = 0;
-      for (let k = 0; k < D; k++) s += data[i * D + k] * data[i * D + k];
-      const nrm = Math.max(Math.sqrt(s), 1e-9);
-      for (let k = 0; k < D; k++) this.pvec[i * D + k] = data[i * D + k] / nrm;
+      for (let k = 0; k < D; k++) { const x = this._pval(i, k); s += x * x; }
+      this._pnrm[i] = Math.max(Math.sqrt(s), 1e-9);
     }
+    this._prows = new Map();
     const pc = this.phrases.map((p) => content(p));
     this.ptoks = pc.map((c) => c[0]);
     this.pneg = pc.map((c) => c[1]);
+    // how often a word heads a card's factor and its outcome (see _pairRoles)
+    this.asF = new Counter(); this.asO = new Counter();
+    for (const rec of Object.values(d.items)) {
+      for (const c of rec.cards || []) {
+        for (const [cnt, ph] of [[this.asF, c[0]], [this.asO, c[1]]]) {
+          const t = this.ptoks[ph];
+          if (t.length) cnt.add(stem(t[t.length - 1]));
+        }
+      }
+    }
     this.info = new Map();
     for (const [xid, rec] of Object.entries(d.items)) {
       const i = this.pos.get(+xid);
@@ -532,8 +560,8 @@ export class Angles {
       lex = 0.3 * hit / qt.length;
     }
     let cos = 0;
-    const o = pi * this.D;
-    for (let k = 0; k < this.D; k++) cos += q.vec[k] * this.pvec[o + k];
+    const r = this._prow(pi);
+    for (let k = 0; k < this.D; k++) cos += q.vec[k] * r[k];
     const sem = Math.min(1.0, Math.max(0.0, (cos - P.COS_LO) / (P.COS_HI - P.COS_LO)));
     return pyRound(Math.max(lex, sem), 3);
   }
@@ -612,9 +640,66 @@ export class Angles {
 
   // -- one talk's angle -------------------------------------------------------
   judge(i, q) {
-    const v = this._judgeCards(i, q);
-    if ((v !== null && (v.angle === "support" || v.angle === "challenge")) || q.Y === null || !this.info.get(i)) return v;
-    return this._judgeQuestions(i, q) || v;
+    let v = this._judgeCards(i, q);
+    if (!((v !== null && (v.angle === "support" || v.angle === "challenge")) || q.Y === null || !this.info.get(i))) {
+      v = this._judgeQuestions(i, q) || v;
+    }
+    if (v !== null && v.angle === "reframe") v = { ...v, contrast: this._contrast(i, q, v) };
+    return v;
+  }
+
+  // what a Reframe keeps from the question and what it changes, for one line on its card (team
+  // 11/26): "Same outcome: opinion formation · Other factor: reactive writing (AI co-writing)"
+  _contrast(i, q, v) {
+    const info = this.info.get(i), sub = v.subtype;
+    if (!info || !["factor", "measure", "people"].includes(sub)) return null;
+    const k = v.card;
+    let same = null, other = null;
+    if (k === null || k === undefined) {
+      if (sub === "measure" && v.measure !== null && v.measure !== undefined) {
+        same = ["factor", show(q.x)];
+        other = ["outcome", show(this.phrases[info.measures[v.measure].c]), ""];
+      } else if (sub === "factor" && q.y) same = ["outcome", show(q.y)];
+      else same = ["factor", show(q.x)];
+    } else {
+      const absset = this._absset(i);
+      const c = info.cards[k], cl = info.claims.get(k);
+      const names = (side) => {
+        const [l1, l2] = info.up.get(c[side]) || [[], []];
+        const ns = [c[side], ...(cl ? [cl[side === "f" ? 0 : 1]] : []), ...l1, ...l2];
+        return [...new Set(ns)];
+      };
+      const met = (Q, side) => {
+        let best = null, bs = -1.0;
+        for (const p of names(side)) {
+          const m = Q !== null && Q !== undefined ? this._pm(Q, p, absset) : 0.0;
+          if (m > bs) { best = p; bs = m; }
+        }
+        return show(this.phrases[best]);
+      };
+      const changed = (side, role) => {
+        const p = cl ? cl[side === "f" ? 0 : 1] : c[side];
+        const [l1, l2] = info.up.get(c[side]) || [[], []];
+        const all = [...l1, ...l2];
+        const b = all.length ? all[0] : null;
+        // not when one only repeats the other ("tendon vibration" / "finger tendon vibration")
+        const tw = new Set(this.phrases[p].match(W_RE()) || []);
+        const bw = b !== null ? new Set(this.phrases[b].match(W_RE()) || []) : new Set();
+        const sub_ = (a, z) => [...a].every((w) => z.has(w));
+        const broader = b !== null && !(sub_(tw, bw) || sub_(bw, tw)) ? show(this.phrases[b]) : "";
+        return [role, show(this.phrases[p]), broader];
+      };
+      if (sub === "factor") { same = ["outcome", met(q.Y, "o")]; other = changed("f", "factor"); }
+      else if (sub === "measure") { same = ["factor", met(q.X, "f")]; other = changed("o", "outcome"); }
+      else {
+        same = ["factor", met(q.X, "f")];
+        other = c.p >= 0 ? ["people", show(this.phrases[c.p]), ""] : null;
+      }
+    }
+    let line = `Same ${same[0]}: ${same[1]}`;
+    if (other) line += ` \u00b7 Other ${other[0]}: ${other[1]}` + (other[2] ? ` (${other[2]})` : "");
+    return { same: { role: same[0], text: same[1] },
+             other: other ? { role: other[0], text: other[1], broader: other[2] } : null, line };
   }
 
   // +1 the question wants its Y up, -1 down (a bad Y flips it), 0 no direction
@@ -633,8 +718,8 @@ export class Angles {
       // g 2: "How does X affect Y?", a result with no direction, for undirected questions only
       if ((g === AFFECTS && lean) || (g !== AFFECTS && lean && g && lean !== g)) continue;
       let cos = 0;
-      const o = qp * this.D;
-      for (let t = 0; t < this.D; t++) cos += q.V[t] * this.pvec[o + t];
+      const r = this._prow(qp);
+      for (let t = 0; t < this.D; t++) cos += q.V[t] * r[t];
       if (cos < P.CARDQ_COS) continue;
       const my = this._pm(q.Y, yp, absset);
       if (my >= P.MATCH && this._pm(q.X, xp, absset) >= P.CARDQ_X) {
@@ -737,9 +822,20 @@ export class Angles {
         && !X.toks.some((w) => FAULT.has(w)) && q.close.has(this.arc._canon(i))) {
       const yneg = Y.toks.some((w) => NEG_OUTCOME.has(w)) !== Y.neg;
       if ((q.dir === "+") !== yneg) {
+        // a trade-off: the same X, as tested, also made something better in this talk
+        // (the LLM's better / worse, or, where it saw no change or no direction, a rise in
+        // or link to an outcome that is not a bad one: "improves ... emotional stability")
+        const helped = (j, c) => {
+          const v = info.val.get(j);
+          if (c.st !== "result" || xdirect.get(j) < P.MATCH || (v && v[0] === WORSE)) return false;
+          return (v !== undefined && v[0] === BETTER)
+            || ((c.e === "increase" || c.e === "associated") && !this.ptoks[c.o].some((w) => NEG_OUTCOME.has(w)));
+        };
+        const good = rows.some(([j, c]) => helped(j, c));
         for (const [k, c, mx, my] of rows) {
           const v = info.val.get(k);
           if (v && v[0] === WORSE && v[1] === 1 && xdirect.get(k) >= P.STRICT && my < P.MATCH
+              && (good || !P.COST_BOTH)
               && X.neg === this.pneg[c.f] && !this.ptoks[c.f].some((w) => FAULT.has(w))) {
             return { angle: "challenge", subtype: "cost", conf: pyRound(0.7 * mx, 3), card: k, caveat: null };
           }
@@ -808,6 +904,8 @@ export class Angles {
     out.finding = (v.card !== null && v.card !== undefined && info.sum && info.sum.get(v.card)) || "";
     out.answers = v.asks !== null && v.asks !== undefined
       ? show(this.phrases[v.asks].slice(0, 1).toUpperCase() + this.phrases[v.asks].slice(1)) : "";
+    // a Reframe: what it keeps from the question and what it changes (see _contrast)
+    out.contrast = v.contrast === undefined ? null : v.contrast;
     out.text = show(Angles._whyText(v, out));
     return out;
   }
@@ -918,7 +1016,9 @@ export class Angles {
     return [...new Set(out)];
   }
 
-  _tribe(score, idx) {
+  // the tribe most of the first 20 talks belong to; what was typed may name a tribe ("AI"),
+  // and a guess (what was typed is off-topic, 11/26) has margin 0
+  _tribe(score, idx, text = null, guess = false) {
     const w = new Map();
     for (const i of idx.slice(0, 20)) {
       const t = (this.info.get(i) || {}).tribe;
@@ -926,20 +1026,42 @@ export class Angles {
     }
     if (!w.size) return null;
     const s = sortedBy([...w.entries()], (kv) => [-kv[1], kv[0]]);
-    const [t1, w1] = s[0];
-    const [t2, w2] = s.length > 1 ? s[1] : [null, 0.0];
+    let [t1, w1] = s[0];
+    let [t2, w2] = s.length > 1 ? s[1] : [null, 0.0];
+    let margin = w1 ? pyRound((w1 - w2) / w1, 3) : 0.0;
+    const named = this._namedTribe(text);
+    if (named !== null && named !== t1) [t1, t2, margin] = [named, t1, 1.0];
     const tr = { ...this.tribes[t1] };
-    tr.margin = w1 ? pyRound((w1 - w2) / w1, 3) : 0.0;
+    tr.margin = guess ? 0.0 : margin;
     tr.runner_up = t2 !== null ? this.tribes[t2].name : null;
     tr.look_for = `Look for the ${COLOR_NAME[tr.color] ?? "white"} ${tr.shape}.`;
     return tr;
   }
 
   // The tribe of what the person typed, never of the sharpest question a topic is built on (team 11/22)
-  async _tribeOf(text, types = null) {
+  // phrase row p as float64, unit length; kept once decoded (at most PROW_CAP rows, ~1 KB each)
+  _prow(p) {
+    let r = this._prows.get(p);
+    if (r) return r;
+    if (this._prows.size >= PROW_CAP) this._prows.clear();
+    r = new Float64Array(this.D);
+    const nrm = this._pnrm[p];
+    for (let k = 0; k < this.D; k++) r[k] = this._pval(p, k) / nrm;
+    this._prows.set(p, r);
+    return r;
+  }
+
+  _namedTribe(text) {
+    const words = ((text || "").toLowerCase().match(W_RE()) || []).filter((w) => !STOPW.has(w));
+    if (!words.length) return null;
+    const k = this.tribeWords.findIndex((tw) => words.every((w) => tw.has(w)));
+    return k >= 0 ? k : null;
+  }
+
+  async _tribeOf(text, types = null, guess = false) {
     const score = await this._rank(text);
     const pool = argsortDesc(score).filter((i) => this.aliveSet.has(i) && (types === null || types.has(this.items[i].type))).slice(0, 20);
-    return this._tribe(score, pool);
+    return this._tribe(score, pool, text, guess);
   }
 
   async _judged(q, types, score = null) {
@@ -980,8 +1102,11 @@ export class Angles {
     if (q.kind === "relation") return [q, null];
     const types = this._types(this._formats(req));
     const [, pool, score] = await this._judged(q, types);
+    // CHI may not cover it ("quantization"): no sharper question is made up for it
+    if (await this._warning(q, types, await this._matching(q, pool))) return [q, q.text];
     const sug = await this._suggest(q, pool, score, types, P.SUGGEST_K);
-    if (!sug.length) throw new InputError('could not find a question in this topic; try a question like "Does X raise Y?"');
+    // no sharper question in the talks ("dating"): the Arc stays on the topic itself
+    if (!sug.length) return [q, q.text];
     return [await this.question(sug[0].question), q.text];
   }
 
@@ -997,17 +1122,32 @@ export class Angles {
     }
   }
 
+  // not English, or CHI may not cover it (the field's own short names always pass)
+  // ... and so does a short topic that enough talks name ("loneliness", "TikTok")
+  async _warning(q, types = null, matching = null) {
+    if (nonLatin(q.text)) return ENGLISH_ONLY;
+    const words = q.text.toLowerCase().match(W_RE()) || [];
+    if (words.length && words.every((w) => FIELD_TERMS.has(w))) return null;
+    if (!(await this.arc._relevance({ research: q.text, keywords: [], topics: [] })).low) return null;
+    if (q.kind !== "relation" && words.length <= P.WARN_WORDS) {
+      if (matching === null) matching = await this._matching(q, (await this._judged(q, types))[1]);
+      if (matching >= P.WARN_MATCH) return null;
+    }
+    return OFF_TOPIC;
+  }
+
   // -- A-1 / A-2 ------------------------------------------------------------------
   async ask(req) {
     const text = "text" in req ? req.text : req.question;
     const q = await this.question(text);
     const types = this._types(this._formats(req));
     const [judged, pool, score] = await this._judged(q, types);
+    const nMatch = await this._matching(q, pool);
+    const warn = await this._warning(q, types, nMatch);
     const out = { text: q.text, kind: q.kind, parsed: { x: q.x, y: q.y, direction: q.dir, context: q.ctx },
-                  tribe: this._tribe(score, pool), matching: await this._matching(q, pool), corrected: q.corrected };
-    const rel = await this.arc._relevance({ research: q.text, keywords: [], topics: [] });
-    out.on_topic = !rel.low;
-    out.warning = nonLatin(q.text) ? ENGLISH_ONLY : rel.low ? OFF_TOPIC : null;
+                  tribe: this._tribe(score, pool, q.text, warn !== null), matching: nMatch, corrected: q.corrected };
+    out.warning = warn;
+    out.on_topic = out.warning === null;
     if (q.kind === "relation") {
       out.counts = this._counts(judged);
       out.suggestions = [];
@@ -1073,30 +1213,42 @@ export class Angles {
     const ov = new Map([...groups.entries()].map(([key, g]) => [key, overlap(g)]));
     const ranked = sortedBy([...groups.entries()].filter(([key, g]) => g.items.length >= 2 || ov.get(key) > 0)
       .map(([key, g]) => [pyRound(g.w * (1 + ov.get(key)), 6), JSON.parse(key)]), (t) => [-t[0], t[1]]);
-    let out = [];
+    let out = [], single = [];
     const usedF = new Set(), usedO = new Set(), usedI = new Set();
     if (P.CQ_SUGGEST) {
       // "chatbots and mental health": the asker's own two things, asked as they gave them
-      const [a_, b_] = q.kind !== "relation" ? pair(q.x) : ["", ""];
+      let [a_, b_] = q.kind !== "relation" ? pair(q.x) : ["", ""];
+      let e_ = null;
+      if (a_ && b_) [a_, b_, e_] = this._pairRoles(a_, b_);
       const mine = [];
       if (a_ && b_) {
-        const e = new Counter();
-        e.add("increase");
-        const text = this._wording(a_, b_, e);
+        const text = this._wording(a_, b_, e_);
         if ((await this.question(text)).kind === "relation") mine.push(await this._suggestion(text, a_, b_, [], types));
       }
       const first = mine.length ? mine[0].question : undefined;
-      out = mine.concat((await this._claims(q, pool, score, types, k)).filter((o) => o.question !== first)).slice(0, k);
+      const cq = (await this._claims(q, pool, score, types, k)).filter((c) => c[0] !== first);
+      out = mine.slice();
+      for (const c of cq) if (c[3].length >= 2) out.push(await this._suggestion(...c, types));
+      out = out.slice(0, k);
       if (out.length >= P.CQ_ONLY) return this._balanced(out, q);
+      // questions only one talk answers wait behind the topic's own broad questions
+      single = cq.filter((c) => c[3].length < 2);
     }
-    // a topic keeps its own words when its talks share an outcome or a cause
-    if (q.kind === "topic") {
+    // a topic keeps its own words when its talks share an outcome or a cause (not "A & B":
+    // that is two things, never one factor, "Does design & AI improve creativity?")
+    if (q.kind === "topic" && !pair(q.x)[0]) {
+      const room = k - (single.length ? 1 : 0);
       for (const [x, y, e, items] of await this._anchored(q, pool, score)) {
+        if (out.length >= room) break;
         const text = this._wording(x, y, e);
         if (out.every((o) => o.question !== text)) out.push(await this._suggestion(text, x, y, items, types));
-        if (out.length === k) return this._balanced(out, q);
       }
     }
+    for (const c of single) {
+      if (out.length >= k) break;
+      if (out.every((o) => o.question !== c[0])) out.push(await this._suggestion(...c, types));
+    }
+    if (out.length >= k) return this._balanced(out, q);
     for (const [, key] of ranked) {
       const g = groups.get(JSON.stringify(key));
       if ((usedF.has(key[0]) && usedO.has(key[1])) || g.items.every((i) => usedI.has(i))) continue;
@@ -1139,6 +1291,30 @@ export class Angles {
   // sharper questions from the questions the topic's talks answer (angles.json "cq"): the
   // ones most talks back (cosine CARDQ_COS, same way up), those with the topic's words first,
   // no two alike; each needs two talks
+  // "outcome" when the word mostly heads a card's outcome at CHI ("trust"), "factor" when it
+  // mostly heads a factor ("haptics", "social media"), else null
+  _role(phrase) {
+    const t = content(phrase)[0];
+    if (!t.length) return null;
+    const h = stem(t[t.length - 1]);
+    const f = this.asF.count(h), o = this.asO.count(h);
+    const share = (o + 1) / (f + o + 2);
+    if (o >= P.PAIR_MIN && share >= P.PAIR_OUT) return "outcome";
+    if (f >= P.PAIR_MIN && share <= 1 - P.PAIR_OUT) return "factor";
+    return null;
+  }
+
+  // a session name's "A & B" is two topics, not a cause and an effect (11/26: "Music & Haptics"
+  // became "Does music improve haptics?") -> [x, y, effects for _wording], or ["", "", null]
+  _pairRoles(a, b) {
+    const ra = this._role(a), rb = this._role(b);
+    const up = () => { const e = new Counter(); e.add("increase"); return e; };
+    if (rb === "outcome" && ra !== "outcome") return [a, b, up()];
+    if (ra === "outcome" && rb === "factor") return [b, a, up()];
+    if (ra === "factor" && rb === null) return [a, b, new Counter()];
+    return ["", "", null];
+  }
+
   async _claims(q, pool, score, types, k) {
     // questions with a direction only: the claim the Supports back and the Challenges push on
     const cands = [];
@@ -1147,7 +1323,7 @@ export class Angles {
     }
     if (!cands.length) return [];
     const D = this.D;
-    const dot = (p1, p2) => { let c = 0; for (let t = 0; t < D; t++) c += this.pvec[p1 * D + t] * this.pvec[p2 * D + t]; return c; };
+    const dot = (p1, p2) => { const r1 = this._prow(p1), r2 = this._prow(p2); let c = 0; for (let t = 0; t < D; t++) c += r1[t] * r2[t]; return c; };
     const n = cands.length;
     const S = new Float64Array(n * n);
     for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) S[a * n + b] = dot(cands[a][1], cands[b][1]);
@@ -1158,6 +1334,9 @@ export class Angles {
       A_ = await this._phrase(pa);
       B_ = await this._phrase(pb);
     }
+    // one or two words ("sleep"): its talks rarely ask the same thing twice, so a question
+    // one talk answers will do when it names the topic and is short (the talk ranked first)
+    const one = P.CQ_ONE && q.kind !== "relation" && qt.length > 0 && qt.length <= P.WARN_WORDS;
     const rows = [];
     cands.forEach(([i, qp, g], a) => {
       // talks, not listings: a talk listed twice backs a question once
@@ -1168,12 +1347,16 @@ export class Angles {
           if (!backers.includes(c)) backers.push(c);
         }
       }
-      if (backers.length < 2) return;
+      const keeps = qt.some((w) => this.ptoks[qp].some((t) => same(w, t)));
+      const nw = this.phrases[qp].split(/\s+/).filter(Boolean).length;
+      // ... and names all of it ("LLM agents": both words)
+      const whole = qt.every((w) => this.ptoks[qp].some((t) => same(w, t)));
+      if (backers.length < 2 && !(one && whole && nw <= P.CQ_ONE_WORDS)) return;
       // on the typed topic, and short enough to read as a question
       let cq = 0;
-      for (let t = 0; t < D; t++) cq += this.pvec[qp * D + t] * q.V[t];
-      if (this.phrases[qp].split(" ").length > P.CQ_WORDS || cq < P.CQ_TOPIC) return;
-      const keeps = qt.some((w) => this.ptoks[qp].some((t) => same(w, t)));
+      const r = this._prow(qp);
+      for (let t = 0; t < D; t++) cq += r[t] * q.V[t];
+      if (nw > P.CQ_WORDS || (cq < P.CQ_TOPIC && !(one && whole))) return;
       // "chatbots and mental health": the two named things as the question's X and Y
       let pr = 1;
       if (A_ !== null && B_ !== null) {
@@ -1185,15 +1368,18 @@ export class Angles {
       rows.push([pr, keeps ? 0 : 1, -backers.length, -pyRound(w, 6), a, backers]);
     });
     const sorted = sortedBy(rows, (r) => r.slice(0, 5));
-    const out = [], picked = [];
+    const out = [], picked = [], talks = new Set();
     for (const [, , , , a, backers] of sorted) {
       if (picked.some((b) => S[a * n + b] >= P.CQ_SAME)) continue;
+      // one talk's question: one per talk, so three suggestions are three ideas
+      if (backers.length < 2 && talks.has(backers[0])) continue;
       const qp = cands[a][1];
       const text = show(this.phrases[qp].slice(0, 1).toUpperCase() + this.phrases[qp].slice(1));
       const pq = await this.question(text);
       if (pq.kind !== "relation") continue;
       picked.push(a);
-      out.push(await this._suggestion(text, show(pq.x), show(pq.y), backers, types));
+      for (const b of backers) talks.add(b);
+      out.push([text, show(pq.x), show(pq.y), backers]);
       if (out.length === k) break;
     }
     return out;
@@ -1289,7 +1475,7 @@ export class Angles {
     const [q, asked] = await this._asRelation(await this.question(req.question || req.text), req);
     const [judged] = await this._judged(q, this._types(this._formats(req)));
     const chips = this._chips(judged);
-    return { question: q.text, asked, headline: "Choose your angles.",
+    return { question: q.text, asked: asked !== q.text ? asked : null, headline: "Choose your angles.",
              angles: ANGLES.map((a) => ({ key: a, name: ANGLE_NAME[a], symbol: SYMBOL[a], help: HELP[a], chips: chips[a],
                                           empty: a === "challenge" && !chips[a].length ? NO_CHALLENGE : null })),
              help_note: HELP_NOTE, button: "Next" };
@@ -1442,7 +1628,8 @@ export class Angles {
 
   async arcScreen(req) {
     const t0 = performance.now();
-    const [q, asked] = await this._asRelation(await this.question(req.question || req.text), req);
+    const typed = await this.question(req.question || req.text);
+    const [q, asked] = await this._asRelation(typed, req);
     const formats = this._formats(req);
     const types = this._types(formats);
     const now = this._nowOf(req);
@@ -1471,7 +1658,8 @@ export class Angles {
     const nodes = this._route(placed, reads, chosen, now, heard);
     const counts = new Counter();
     for (const nd of nodes) counts.add(nd.angle);
-    const tribe = asked ? await this._tribeOf(asked, types) : this._tribe(score, pool);
+    const warn = await this._warning(typed, types);
+    const tribe = asked ? await this._tribeOf(asked, types, warn !== null) : this._tribe(score, pool, typed.text, warn !== null);
     let nAll = 0, nDay = 0;
     for (const i of this.aliveSet) {
       if (!types.has(this.items[i].type)) continue;
@@ -1490,7 +1678,9 @@ export class Angles {
     const empty = {};
     for (const a of ANGLES) if (!counts.count(a)) empty[a] = a === "challenge" ? NO_CHALLENGE : null;
     return {
-      question: q.text, asked, parsed: { x: q.x, y: q.y, direction: q.dir, context: q.ctx },
+      question: q.text, asked: asked !== q.text ? asked : null, parsed: { x: q.x, y: q.y, direction: q.dir, context: q.ctx },
+      // what was typed is not English or not something CHI covers: the stops are then a guess
+      warning: warn,
       tribe, days, formats, loading: { text: `Reading ${nAll.toLocaleString("en-US")} talks for you`, n: nAll },
       counts: Object.fromEntries(ANGLES.map((a) => [a, counts.count(a)])),
       summary_line: `${nodes.length} stops · ` + ANGLES.map((a) => `${counts.count(a)} ${a}`).join(" · "),
@@ -2036,9 +2226,10 @@ function cmpStr(a, b) {
 // when the topic names one thing or the second is who ("for blind users")
 function pair(topic) {
   const m = topic.match(/^(.+?)\s+(?:and|for|vs|versus|on|&)\s+(.+)$/);
-  if (!m) return ["", ""];
+  // only a topic's few words; a sentence ("I study haptic feedback for VR training of ...") is not a pair
+  if (!m || (topic.toLowerCase().match(W_RE()) || []).length > 6) return ["", ""];
   const a = m[1].trim(), b = m[2].trim();
-  const bw = b.match(W_RE()) || [];
+  const bw = b.toLowerCase().match(W_RE()) || [];
   if (!content(a)[0].length || !content(b)[0].length || PEOPLE.has(bw[bw.length - 1])) return ["", ""];
   return [a, b];
 }

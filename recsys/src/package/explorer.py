@@ -47,7 +47,7 @@ from collections import Counter
 
 import numpy as np
 
-from retriever import BM25, InputError, QueryEncoder, Speller, _minmax, _non_latin, load_expansions, load_matrix
+from retriever import BM25, InputError, QueryEncoder, Speller, _minmax, _non_latin, load_expansions, load_program
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FILTERS = ("institution", "department", "country", "author", "type", "session", "day")
@@ -167,7 +167,7 @@ class Explorer:
     def __init__(self, root=HERE, threads=4):
         with open(os.path.join(root, "program.json"), encoding="utf-8") as f:
             self.items = json.load(f)
-        self.emb = load_matrix(root, "program")
+        self.emb = load_program(root, [it["id"] for it in self.items])
         self.embed = QueryEncoder(root, threads)
         self.cfg = self.embed.cfg
         # papers and posters also carry their doc2query search phrases (expansions.json)

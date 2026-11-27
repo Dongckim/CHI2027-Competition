@@ -1133,5 +1133,42 @@
    "screen": "ask",
    "text": "Does feeling in control improve attention in VR?"
   }
+ },
+ {
+  "id": "arc_cost_3",
+  "input": {
+   "screen": "arc",
+   "question": "Do conversational agents reduce loneliness?",
+   "when": "week"
+  }
+ },
+ {
+  "id": "ask_goodbad",
+  "input": {
+   "screen": "ask",
+   "text": "Is TikTok bad for teenagers?"
+  }
+ },
+ {
+  "id": "ask_acronym",
+  "input": {
+   "screen": "ask",
+   "text": "AI"
+  }
+ },
+ {
+  "id": "ask_sentence_for",
+  "input": {
+   "screen": "ask",
+   "text": "I study haptic feedback for VR training of surgeons and want to know whether vibration cues improve accuracy"
+  }
+ },
+ {
+  "id": "arc_offtopic_warning",
+  "input": {
+   "screen": "arc",
+   "question": "What is the best pizza in Barcelona?",
+   "when": "week"
+  }
  }
 ]
