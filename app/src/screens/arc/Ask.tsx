@@ -156,6 +156,11 @@ export function Ask() {
           <Pic src={chevron} size={16} />
         </a>
       )}
+      {/* prototype 07's pill (user 11/26 「Have a paper? 이거대로 해야지」), right under the input so it shows on every phone without
+          scrolling (user 11/27 「스크롤 없이 누구나 쉽게」: under the starters it fell off iPhone SE and in-app browsers) */}
+      <a href={href('paper')} className="mt-1 inline-flex min-h-touch items-center gap-2 self-center rounded-full border border-arc-line bg-arc-surface px-4 text-[14px] font-medium text-arc-text-2">
+        <Pic src={book} size={16} />Have a paper at CHI?{' '}<span className="font-semibold text-arc-text">Find it</span><Pic src={chevron} size={14} />
+      </a>
       {shown ? <>
         {/* Figma 741:1605: the note at y 348, cards 86 high every 96 from 428, the line under them at 724 */}
         <p id="topic-note" className="mt-[15px] min-h-16 rounded-2xl bg-gradient-to-b from-white/6 via-white/3 via-55% to-white/0 px-4 py-[13px] text-[13px] leading-[19px] font-medium text-arc-text/72">
@@ -199,10 +204,6 @@ export function Ask() {
           </li>
         ))}
       </ul>
-      {/* prototype 07 (user 11/26 「Have a paper? 이거대로 해야지」): a pill under the starters, centred, to 07p */}
-      <a href={href('paper')} className="mt-3 inline-flex min-h-touch items-center gap-2 self-center rounded-full border border-arc-line bg-arc-surface px-4 text-[14px] font-medium text-arc-text-2">
-        <Pic src={book} size={16} />Have a paper at CHI?{' '}<span className="font-semibold text-arc-text">Find it</span><Pic src={chevron} size={14} />
-      </a>
       </>}
     </Screen>
   );

@@ -394,3 +394,7 @@ Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your p
 - 07: 664에서 스크롤 없음: 간격을 줄이고 Build now · Find my angles를 한 줄에.
 - 14g: 언어 시트(자주 쓰는 12개 버튼 + 전체 목록), 내 언어도 바꿀 수 있음, 첫 사용 전 동의 시트. 01에 통역 예외 문구. docs/privacy/interpreting.md.
 - 어제 목록: 07p "Find your paper", 14 방 "Room 116", 다른 날 노드 시간 줄은 "Wed · Rm 132", 20b 타일을 모든 Arc로.
+
+- 사용자 결정 「D: "No clear challenge at CHI this year." 유지 (관점 이름과 통일)」 (11/27): 23 문구는 프로토타입의 "clash"가 아니라 "challenge" 그대로.
+- 사용자 결정 「캐싱은 지금 방식 유지」 (11/27): 서버 백업 없음. Arc는 폰(IndexedDB, persist 요청)에만, 홈 화면 추가·앱 안 브라우저 안내 그대로.
+- 사용자 「Soniox 언급하지 말고 어디에도 저장되지 않는다는걸 확인만」 (11/27): 01 "Live interpreting is never saved, anywhere", 14g 안내 "Nothing you say is saved, anywhere." Soniox 이름은 동의 시트에만(사용자 11/27 동의 화면 요청).

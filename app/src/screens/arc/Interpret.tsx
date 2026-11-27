@@ -123,7 +123,7 @@ export function Interpret({ paperKey, who }: { paperKey: string; who?: string | 
           <button type="button" onClick={close} aria-label="Close" className="flex size-11 items-center justify-center rounded-full border border-arc-line text-[18px]">×</button>
         </div>
         {half(view.me, `${who ? `${who} · ` : ''}from ${native(theirs)}`, mine)}
-        <p className="mt-3 px-6 text-center text-[12px] text-arc-text-3">{note || 'Put the phone flat between you. The top half faces them. Your voice goes to Soniox to be interpreted; nothing is saved.'}</p>
+        <p className="mt-3 px-6 text-center text-[12px] text-arc-text-3">{note || 'Put the phone flat between you. The top half faces them. Nothing you say is saved, anywhere.'}</p>
         <button type="button" onClick={toggle} disabled={state === 'starting'} className="mx-6 mt-3 mb-2 min-h-[52px] rounded-full bg-arc-primary text-[15px] font-semibold text-arc-on-primary">{talk(mine)}</button>
       </div>
       <LanguageSheet open={picking != null} title={picking === 'mine' ? 'Your language' : 'Their language'} value={picking === 'mine' ? mine : theirs}

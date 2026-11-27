@@ -6,7 +6,7 @@
 - 처음 "Tap to talk"을 누르면 동의 시트 "Before you start"가 뜬다: 목소리는 Soniox로 가서 말하는 동안 번역된다 / ARC도 Soniox도 저장하지 않는다(녹음·받아쓰기 없음), 화면 글자는 멈추면 지운다 / ARC의 나머지는 폰에만, 통역만 실행 중에 폰을 떠난다. "Start interpreting"을 누른 뒤에만 마이크를 켠다. 동의했다는 표시(`arc.interpretOk`)만 폰에 남는다.
 - 키: 폰은 Soniox의 긴 키를 갖지 않는다. `/api/soniox-key`(functions/soniox-key.mjs)가 서버의 `SONIOX_API_KEY`로 Soniox 임시 키를 받아 준다: 60초 안에 열어야 하는 1회용, 한 연결 최대 2시간. 요청 내용은 로그에 남기지 않고, 기기별·하루 한도는 메모리에서만 센다.
 - 화면 글자: `captions.js`가 마지막 몇 줄만 메모리에 두고, 멈추거나 화면을 닫으면 지운다. 음성·대화는 어디에도 저장하지 않는다.
-- 문구: 01 "Unofficial · No account · Stays on your phone" 아래 "Except live interpreting: sent to Soniox, never saved" 14g 아래 안내에도 같은 말.
+- 문구: 01 "Unofficial · No account · Stays on your phone" 아래 "Live interpreting is never saved, anywhere"(사용자 11/27 「Soniox 언급하지 말고 어디에도 저장되지 않는다는걸 확인만」). 14g 아래 안내는 "Nothing you say is saved, anywhere." Soniox 이름은 첫 사용 전 동의 시트에만
 
 ## Soniox 데이터 보관 정책 (2026-11-27 확인)
 - 실시간 API 요청은 일시적으로 처리되고 Soniox가 저장하지 않는다(개인정보 처리방침).
