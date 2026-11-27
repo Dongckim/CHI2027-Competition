@@ -60,8 +60,15 @@ export function Screen({ header, children, bottom, label, clock }: { header?: Re
       if (el.style.position !== 'fixed' && root.current) root.current.style.paddingBottom = `${el.offsetHeight}px`;
       Object.assign(el.style, { position: 'fixed', left: '0', right: '0', marginInline: 'auto', maxWidth: '480px', top: `${vv.offsetTop + vv.height}px`, transform: 'translateY(-100%)' });
     };
-    vv.addEventListener('resize', place); vv.addEventListener('scroll', place); addEventListener('focusout', place); addEventListener('focusin', place);
-    return () => { vv.removeEventListener('resize', place); vv.removeEventListener('scroll', place); removeEventListener('focusout', place); removeEventListener('focusin', place); reset(); };
+    // ?kbdebug (user 11/27: the gap over the keyboard is still there on an iPhone): the numbers on screen, to read from a screenshot
+    const dbg = /[?&]kbdebug\b/.test(location.search) ? document.body.appendChild(Object.assign(document.createElement('pre'), { id: 'kbdebug' })) : null;
+    if (dbg) Object.assign(dbg.style, { position: 'fixed', top: '0', left: '0', zIndex: '99', margin: '0', padding: '2px 4px', font: '11px/13px monospace', background: '#ff0', color: '#000', pointerEvents: 'none' });
+    const show = () => { if (!dbg) return; const r = bar.current?.getBoundingClientRect(); dbg.textContent = `iH ${innerHeight} vvH ${Math.round(vv.height)} vvTop ${Math.round(vv.offsetTop)} scrollY ${Math.round(scrollY)} docH ${document.documentElement.scrollHeight}\nbar ${bar.current?.style.position || 'sticky'} top ${Math.round(r?.top ?? -1)} bottom ${Math.round(r?.bottom ?? -1)} base ${base} typing ${typing()}`; };
+    const place0 = place;
+    const placeShow = () => { place0(); show(); };
+    vv.addEventListener('resize', placeShow); vv.addEventListener('scroll', placeShow); addEventListener('focusout', placeShow); addEventListener('focusin', placeShow); addEventListener('scroll', show);
+    show();
+    return () => { vv.removeEventListener('resize', placeShow); vv.removeEventListener('scroll', placeShow); removeEventListener('focusout', placeShow); removeEventListener('focusin', placeShow); removeEventListener('scroll', show); dbg?.remove(); reset(); };
   }, [!!bottom]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div ref={root} className="arc mx-auto flex min-h-[calc(100dvh-env(safe-area-inset-top,0px))] max-w-[480px] flex-col overflow-x-clip bg-arc-bg font-sans text-arc-text">{/* nothing scrolls sideways (QA V7); the screen minus body's top safe-area padding, so a short screen never scrolls (user 11/20) */}
