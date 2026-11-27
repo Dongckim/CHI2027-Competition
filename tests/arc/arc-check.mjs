@@ -79,7 +79,7 @@ try {
     authors: [...document.querySelectorAll('main li')].filter(l => l.querySelector('img') && / · |\\w/.test(l.innerText)).length,
     newToChi: [...document.querySelectorAll('main button')].filter(b => b.innerText.trim() === 'New to CHI').length,
     heardButton: !!document.querySelector('button[aria-pressed=false]'), qa: /Be the first to ask/.test(document.body.innerText),
-    input: document.querySelector('input[placeholder="Add a question for the Q&A"]') != null, mark: document.querySelector('main mark')?.textContent?.length ?? 0 })`);
+    input: document.querySelector('input[aria-describedby="qa-note"]') != null, mark: document.querySelector('main mark')?.textContent?.length ?? 0 })`);
   await shot('14');
   check('14: tags, why, session and authors with New to CHI, I heard it, Q&A area, evidence marked', talkMs != null && talk.tags.length >= 2 && /^WHY IT/.test(talk.why ?? '') && talk.heardButton && talk.qa && talk.input && talk.mark > 0, talk);
   await click(`[...document.querySelectorAll('button')].find(b => b.innerText.trim() === 'I heard it')`);

@@ -113,9 +113,9 @@ try {
   await p.locator('input').fill('VR presence');
   await keep.waitFor({ timeout: 10000 });
   await keep.click();
-  const toAngles = await p.waitForFunction(() => location.hash === '#/angles', null, { timeout: 5000 }).then(() => true, () => false);
+  const toAngles = await p.waitForFunction(() => location.hash === '#/when', null, { timeout: 5000 }).then(() => true, () => false);
   const query = await p.evaluate(() => JSON.parse(localStorage.getItem('arc.device')).arc.draft.query);
-  R.check('07b: Keep goes on to 08 with the topic unchanged', toAngles && query === 'VR presence', { toAngles, query });
+  R.check('07b: Keep goes on to 09 with the topic unchanged (no 08, user 11/26)', toAngles && query === 'VR presence', { toAngles, query });
   code = R.done();
 } catch (e) {
   console.error(`stopped: ${e.message.split('\n')[0]}`);

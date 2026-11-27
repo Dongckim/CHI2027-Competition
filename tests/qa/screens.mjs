@@ -29,7 +29,7 @@ export const seedArcs = arcs => `new Promise(r => { const q = indexedDB.open('ar
 export const SCREENS = [['10', '#/building', 'Reading'],
   ['01', '#/start/1', 'Bring one question'], ['02', '#/start/2', 'What is CHI 2027'], ['03', '#/start/3', 'What do I do all day'], ['04', '#/start/4', 'What are all these formats'],
   ['05', '#/start/5', 'How do people meet'], ['06', '#/start/6', 'What is ARC'], ['06b', '#/start/6b', 'Where are my people'], ['06c', '#/start/6c', 'When do I use ARC'],
-  ['07p', '#/paper', 'Do you have a paper'], ['07r', `#/paper/${PERSON}`, 'Your Arc starts from its question'], ['07', '#/ask', 'What are you'],
+  ['07p', '#/paper', 'Find your paper'], ['07r', `#/paper/${PERSON}`, 'Your Arc starts from its question'], ['07', '#/ask', 'What are you'],
   ['09', '#/when', 'Build my Arc'], ['11', `#/hood/${ARC.id}`, "YOU'RE IN"], ['12', `#/arc/${ARC.id}`, 'Share'] /* the card says Next or Now by the clock */, ['13', `#/arc/${ARC.id}/list`, 'Reframes'],
   ['14', `#/talk/${ARC.nodes[0].key}`, 'WHY IT'], ['14f', `#/talk/${ARC.nodes[0].key}/shape`, 'Look for the same shape'], ['15', `#/arc/${ARC.id}/edit`, 'Editing'], ['16', `#/share/${ARC.id}`, 'Never your name'],
   ['17', `#/qr/${ARC.id}`, 'Scan to get'], ['18', `#/r/${encodeLink(OTHER)}`, 'Shared Arc'], ['19', `#/r/${encodeLink(OTHER)}/pick`, 'Pick what to keep'],

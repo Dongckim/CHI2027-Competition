@@ -36,6 +36,19 @@ export function Screen({ header, children, bottom, label, clock }: { header?: Re
   const root = useRef<HTMLDivElement>(null);
   // the prototype's entrance, once per screen: header, content and bottom parts rise in, top to bottom
   useLayoutEffect(() => { const r = root.current; if (r) enter([...r.querySelectorAll(':scope > header > *, :scope > main > *, :scope > .sticky > *')]); }, []);
+  // with the keyboard up, iOS shrinks only the visual viewport: the bottom area (14's question box) is lifted to sit right
+  // on the keyboard and follows it while the page scrolls, as chat pages do (user 11/27: the box scrolled away)
+  const bar = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv || !bottom) return;
+    const place = () => {
+      const kb = Math.max(0, Math.round(innerHeight - vv.height - vv.offsetTop));
+      if (bar.current) bar.current.style.transform = kb > 40 ? `translateY(${-kb}px)` : ''; // under 40: toolbars, not a keyboard
+    };
+    vv.addEventListener('resize', place); vv.addEventListener('scroll', place); addEventListener('focusout', place);
+    return () => { vv.removeEventListener('resize', place); vv.removeEventListener('scroll', place); removeEventListener('focusout', place); };
+  }, [!!bottom]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div ref={root} className="arc mx-auto flex min-h-[calc(100dvh-env(safe-area-inset-top,0px))] max-w-[480px] flex-col overflow-x-clip bg-arc-bg font-sans text-arc-text">{/* nothing scrolls sideways (QA V7); the screen minus body's top safe-area padding, so a short screen never scrolls (user 11/20) */}
       {/* Figma: buttons 44 at y 56 (54 + 2), so a 48 row centred */}
@@ -44,7 +57,7 @@ export function Screen({ header, children, bottom, label, clock }: { header?: Re
       <main aria-label={label} className="flex flex-1 flex-col px-6">{children}</main>
       {/* the one fixed bottom area: stays on screen while the content scrolls under it */}
       {/* Figma: the last button ends 14 above the home indicator, 14 between rows, nothing above the first row */}
-      {bottom && <div className="sticky bottom-0 z-10 flex flex-col gap-[14px] bg-arc-bg px-6 pb-[calc(var(--safe-bottom)+14px)]">{bottom}</div>}
+      {bottom && <div ref={bar} className="sticky bottom-0 z-10 flex flex-col gap-[14px] bg-arc-bg px-6 pb-[calc(var(--safe-bottom)+14px)]">{bottom}</div>}
     </div>
   );
 }

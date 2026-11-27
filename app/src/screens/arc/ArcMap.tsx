@@ -79,6 +79,8 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
   const candidates = new Set(extra.map(n => n.key));
   const map = use.onMap ?? arc; // the talks of the chosen days still to come or heard (useArc)
   const shown = focus ? { ...map, nodes: [...map.nodes, ...extra] } : map;
+  // 24b draws up to 12 (FOCUS seats); the header counts those, and the rest are a tap away in the list (11/26 review: "19" over 12)
+  const drawn = focus ? Math.min(12, shown.nodes.filter(n => n.angle === focus).length) : 0;
   const totals = Object.fromEntries((['S', 'R', 'T'] as Angle[]).map(a => [a, map.nodes.filter(n => n.angle === a).length + (others[a]?.length ?? 0)]));
   // prototype 3: the card keeps the next stop; a tapped stop opens its own title over the map (NodePopup)
   const picked = sel ? shown.nodes.find(n => n.key === sel) ?? null : null;
@@ -98,7 +100,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
   return (
     <Screen clock label="My Arc" header={<ArcHeader id={id} view="map" onHelp={() => setHelp(true)} back={focus ? `arc/${id}` : 'home'} title={focus ? (
       <h2 className="mt-0.5 flex h-[42px] items-center gap-2 rounded-[21px] border border-arc-line bg-arc-surface pr-4 pl-[15px] text-[15px] font-semibold">
-        <Pic src={ANGLE_ICON[focus]} size={16} />{ANGLE_NAME[focus]}<span className="font-medium text-arc-text/60">{totals[focus]}</span>
+        <Pic src={ANGLE_ICON[focus]} size={16} />{ANGLE_NAME[focus]}<span className="font-medium text-arc-text/60">{Math.min(totals[focus], drawn)}</span>
       </h2>) : undefined} />}
       bottom={<>
         <SwapUndo hs={hs} />
@@ -140,7 +142,10 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
           the map's counts. Pinned inside the scaled map they sat at odd places against the region lines (iPhone 11/25) */}
       {(focus === 'R' || focus === 'T') && (
         <div className="relative z-[1] mt-2 flex justify-center gap-2">{/* over the region field, which runs up behind it */}
-          {(['S', 'R', 'T'] as Angle[]).filter(a => a !== focus).map(a => (
+          {totals[focus] > drawn && (
+            <a href={href(`arc/${id}/list`)} className="flex min-h-touch items-center gap-1 px-1 text-[13px] font-medium text-arc-text-2">{drawn} on the map · <span className="font-semibold text-arc-text">See all {totals[focus]}</span><Pic src={chevron} size={12} /></a>
+          )}
+          {(['S'] as Angle[]).filter(a => a !== focus).map(a => ( /* Supports lies up: its count stays on top */
             <button key={a} type="button" onClick={() => toFocus(a)} aria-label={`All ${totals[a]} ${ANGLE_NAME[a]}`} className="flex min-h-touch items-center">
               <span data-badge={a} className="flex h-[30px] items-center gap-[5px] rounded-full border border-white/10 bg-arc-surface pr-[11px] pl-[9px] text-[13px] font-semibold text-arc-text/78">
                 <Pic src={ANGLE_ICON[a]} size={16} /><span data-count="">{totals[a]}</span>
@@ -158,6 +163,19 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
         {use.schedule && <ArcView arc={shown} states={states} info={info} scale={fit} fit onNode={tapNode} selected={sel} hint={hint && !pending && !focus} onBundle={a => toFocus(a)} focus={focus} onOrb={focus ? () => toFocus(null) : undefined}
           totals={pending ? undefined : totals} candidates={candidates} room={room}
           hold={pending || focus ? undefined : { held, press: hs.press, onSwap: k => hs.open(k, true) }} />}{/* drawn once the times are in: the bloom orders talks by their state */}
+        {/* 24b Reframes / Challenges: the other lower angle's count sits in its own corner, the way it lies on the map
+            (user 11/27 「우하단을 눌렀을때 … 좌하단쪽에 버튼이 있어야 … vice versa」); 24b Supports keeps its corners in the map */}
+        {(focus === 'R' || focus === 'T') && (() => {
+          const a: Angle = focus === 'R' ? 'T' : 'R';
+          return (
+            <button type="button" onClick={() => toFocus(a)} aria-label={`All ${totals[a]} ${ANGLE_NAME[a]}`}
+              className={`absolute bottom-1 z-[3] flex min-h-touch items-center ${a === 'R' ? 'left-4' : 'right-4'}`}>
+              <span data-badge={a} className="flex h-[30px] items-center gap-[5px] rounded-full border border-white/10 bg-arc-surface pr-[11px] pl-[9px] text-[13px] font-semibold text-arc-text/78">
+                {a === 'R' && <span aria-hidden="true" className="text-[12px]">‹</span>}<Pic src={ANGLE_ICON[a]} size={16} /><span data-count="">{totals[a]}</span>{a === 'T' && <span aria-hidden="true" className="text-[12px]">›</span>}
+              </span>
+            </button>
+          );
+        })()}
       </div>
       {held && <SwapFan hs={hs} title={info(held).title} />}
       <AngleHelp open={help} onClose={closeHelp} />
@@ -165,7 +183,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
         const pi = info(picked.key), off = candidates.has(picked.key), st = states.get(picked.key) ?? 'upcoming';
         const w = off ? '' : pi.on && st === 'next' ? 'Now' : st === 'upcoming' ? '' : STATE_WORD[st];
         const line = [w, pi.when.replace(' · Rm ', ' · Room '), off && 'Not in your Arc'].filter(Boolean).join(' · ');
-        return <NodePopup k={picked.key} line={line} title={pi.title} outside={off} onClose={closePop} onAdd={() => { setSel(null); add(picked); }} />;
+        return <NodePopup k={picked.key} line={line} title={pi.title} by={pi.first} outside={off} onClose={closePop} onAdd={() => { setSel(null); add(picked); }} />;
       })()}
       {tour && <MapTour onDone={endTour} />}
     </Screen>

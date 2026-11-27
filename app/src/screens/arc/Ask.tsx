@@ -124,13 +124,16 @@ export function Ask() {
         <p className="mb-1.5 flex items-center justify-center gap-1.5 text-[12px] font-medium text-arc-text-3" aria-live="polite">
           <Pic src={offline} size={16} />{warmState === 'ready' ? 'Ready offline' : warmState === 'failed' ? 'Needs a connection to get ready' : 'Getting ready for offline…'}
         </p>
-        <ArcButton onClick={next} disabled={!ready}>Find my angles</ArcButton>
-        {/* user 11/25 B: straight to the map with the defaults (every angle, all week, talks · posters · demos) */}
-        <ArcButton kind="ghost" className="mb-1.5" onClick={now} disabled={!ready}>Build now</ArcButton>
+        {/* user 11/27 「스크롤 없이 누구나 쉽게」: the two side by side, so 07 fits Safari's 664 without scrolling */}
+        <div className="mb-1.5 flex gap-3">
+          {/* user 11/25 B: Build now goes straight to the map with the defaults (every angle, all week, talks · posters · demos) */}
+          <ArcButton kind="secondary" data-arc-wrap="" className="h-auto min-h-[var(--arc-button-h)] flex-1 py-2 text-center" onClick={now} disabled={!ready}>Build now</ArcButton>
+          <ArcButton data-arc-wrap="" className="h-auto min-h-[var(--arc-button-h)] flex-[1.4] py-2 text-center" onClick={next} disabled={!ready}>Find my angles</ArcButton>
+        </div>
       </>}>
       <h1 id="ask-title" className="mt-[10px] text-[30px] leading-9 font-semibold tracking-[-0.024em]">What are you<br />bringing to CHI?</h1>
       {/* Figma 591:680: input at y 226. The 1.5px edge is an inset shadow: Chromium draws a 1.5px border as 1px */}
-      <form className="mt-[42px]" onSubmit={e => { e.preventDefault(); next(); }}>
+      <form className="mt-5" onSubmit={e => { e.preventDefault(); next(); }}>
         <input aria-labelledby="ask-title" value={draft.query} maxLength={QUERY_MAX} enterKeyHint="go" autoComplete="off" placeholder="A word or a question…"
           onChange={e => update(s => setQuery(s, e.target.value))}
           className="h-16 w-full rounded-[20px] bg-arc-surface pr-4 pl-[16.5px] text-[17px] font-medium tracking-[-0.012em] text-arc-text shadow-[inset_0_0_0_1.5px_rgba(244,246,255,0.2)] placeholder:text-arc-text-3 focus:shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.6),0_0_0_4px_rgba(255,255,255,0.07)] focus:outline-none" />
@@ -185,7 +188,7 @@ export function Ask() {
         </button>
         <p className="mt-[18px] mb-4 text-[13px] font-medium text-arc-text-3">Or keep typing your own.</p>{/* Figma 0.5; 0.55 is the floor */}
       </> : <>
-      <p id="starters" className="mt-[37px] text-[12px] font-medium text-arc-text-3">Or start from one of these</p>
+      <p id="starters" className="mt-4 text-[12px] font-medium text-arc-text-3">Or start from one of these</p>
       <ul className="mt-[9.5px] flex flex-col gap-2" aria-labelledby="starters">
         {STARTERS.map(([tid, q]) => (
           <li key={q}>
@@ -197,7 +200,7 @@ export function Ask() {
         ))}
       </ul>
       {/* prototype 07 (user 11/26 「Have a paper? 이거대로 해야지」): a pill under the starters, centred, to 07p */}
-      <a href={href('paper')} className="mt-5 inline-flex min-h-touch items-center gap-2 self-center rounded-full border border-arc-line bg-arc-surface px-4 text-[14px] font-medium text-arc-text-2">
+      <a href={href('paper')} className="mt-3 inline-flex min-h-touch items-center gap-2 self-center rounded-full border border-arc-line bg-arc-surface px-4 text-[14px] font-medium text-arc-text-2">
         <Pic src={book} size={16} />Have a paper at CHI?{' '}<span className="font-semibold text-arc-text">Find it</span><Pic src={chevron} size={14} />
       </a>
       </>}

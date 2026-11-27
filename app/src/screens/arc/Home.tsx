@@ -34,6 +34,12 @@ const fresh = () => update(resetDraft);
 
 const at = (x: number, y: number, w: number) => ({ position: 'absolute' as const, left: x, top: y, width: w, height: w });
 type Period = 'today' | 'week' | 'after';
+const dayName = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', timeZone: 'UTC' });
+/** An Arc's heading on 20: the conference days it was made for (09), All week last */
+const groupOf = (a: { filters?: { days?: string[] } }) => {
+  const d = [...(a.filters?.days ?? [])].sort();
+  return d.length ? { label: d.map(dayName).join(' · '), order: d.join(',') } : { label: 'All week', order: '~' };
+};
 const PERIOD_TABS: [Period, string][] = [['today', 'Today'], ['week', 'This week'], ['after', 'After CHI']];
 type Slot = { start: number | null; end: number; roomKey: string; sessionKey: string };
 // Figma 20 "Mini Arc" (11/23, 600:1128): the 12 map's three regions in a 100 box, 2 Supports at the top, 2 Reframes lower
@@ -182,19 +188,24 @@ export function Home() {
       <div id="arc-list" role="tabpanel">
       {/* opens 20b (Figma 743:1741) once CHI is over; Figma 20 has no such card: its words are ours, designer to confirm */}
       {/* during CHI the tab was an empty page (persona review 11/25): say what will come here */}
-      {period === 'after' && !isOver(now, { days: current.days, timeZone: schedule?.meta.timeZone ?? DEMO_TZ }) && !rows.some(r => r.period.after) && (
-        <p className="mt-8 text-center text-[16px] text-arc-text-2">When CHI ends, what you heard and what is left to read come here.</p>
-      )}
-      {period === 'after' && isOver(now, { days: current.days, timeZone: schedule?.meta.timeZone ?? DEMO_TZ }) && (
-        <a href={href('after')} className="mt-5 flex h-14 items-center gap-3 rounded-[20px] border border-arc-line bg-arc-surface pr-3.5 pl-4 text-[15px] font-semibold tracking-[-0.006em]">
-          <span className="flex-1">Your CHI</span><Pic src={chevron} size={18} />
+      {/* user 11/27 「After CHI는 뭐 아무것도 안나와?」: the summary (20b) is there at any time, "so far" until CHI ends,
+          and every Arc is listed with what was heard and what is left to read */}
+      {period === 'after' && (
+        <a href={href('after')} className="mt-5 flex min-h-14 items-center gap-3 rounded-[20px] border border-arc-line bg-arc-surface py-2 pr-3.5 pl-4">
+          <span className="flex flex-1 flex-col">
+            <span className="text-[15px] font-semibold tracking-[-0.006em]">{isOver(now, { days: current.days, timeZone: schedule?.meta.timeZone ?? DEMO_TZ }) ? 'Your CHI' : 'Your CHI so far'}</span>
+            <span className="text-[12px] font-medium text-arc-text-3">What you heard, and a reading list of the rest</span>
+          </span><Pic src={chevron} size={18} />
         </a>
       )}
       <ul className="mt-5 flex flex-col gap-4">
-        {rows.filter(r => r.period[period]).map(({ a, day }, i) => {
+        {rows.filter(r => period === 'after' || r.period[period]).sort((x, y) => groupOf(x.a).order.localeCompare(groupOf(y.a).order)).map(({ a, day }, i, list) => {
           const t = TRIBE[a.tribe], h = a.nodes.filter(n => heard.has(n.key)).length;
+          // user 11/27 「My arcs 페이지에 날짜별로 나눠지게」: Arcs under the conference days they were made for
+          const g = groupOf(a), head = i === 0 || groupOf(list[i - 1].a).label !== g.label;
           return (
-            <li key={a.id}>
+            <li key={a.id} className="flex flex-col">
+              {head && <h2 className="mb-2 mt-1 text-[13px] font-semibold text-arc-text-3">{g.label}</h2>}
               <a href={href(`arc/${a.id}`)} aria-description={`${a.nodes.length} talks${h ? `, ${h} heard` : ''}${a.source === 'received' ? ', shared with you' : ''}`}
                 className="flex min-h-[136px] items-center gap-3.5 rounded-3xl border border-arc-line py-4 pr-4 pl-3.5"
                 style={{ background: `linear-gradient(color-mix(in srgb, ${t.color} 8%, transparent), color-mix(in srgb, ${t.color} 8%, transparent)), var(--arc-surface)` }}>

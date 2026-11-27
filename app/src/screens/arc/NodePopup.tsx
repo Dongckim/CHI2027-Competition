@@ -6,8 +6,8 @@ import { href } from '../../router';
 import { Pic } from '../../components/arc';
 import chevron from '../../assets/arc/icon-chevron-right.svg';
 
-export function NodePopup({ k, line, title, outside, onAdd, onClose }: {
-  k: string; line: string; title: string; outside: boolean; onAdd: () => void; onClose: () => void;
+export function NodePopup({ k, line, title, by, outside, onAdd, onClose }: {
+  k: string; line: string; title: string; by?: string | null; outside: boolean; onAdd: () => void; onClose: () => void;
 }) {
   const [box, setBox] = useState<DOMRect | null>(null);
   const card = useRef<HTMLDivElement>(null);
@@ -39,6 +39,8 @@ export function NodePopup({ k, line, title, outside, onAdd, onClose }: {
           <div className="min-w-0 flex-1">
             <p className="text-[12px] font-medium text-arc-text-3">{line}</p>
             <p className="mt-1 text-[16px] leading-[21px] font-semibold tracking-[-0.012em]">{title}</p>
+            {/* user 11/27 「간이 디테일 페이지에 1저자랑 소속까진」 */}
+            {by && <p className="mt-1 text-[13px] leading-[18px] font-medium text-arc-text-2">by {by}</p>}
           </div>
           <button type="button" onClick={onClose} aria-label="Close" className="-mt-1.5 -mr-1 flex size-11 shrink-0 items-center justify-center">
             <span aria-hidden="true" className="flex size-7 items-center justify-center rounded-full bg-white/10 text-[15px] leading-none text-arc-text-2">×</span>

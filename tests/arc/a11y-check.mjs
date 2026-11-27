@@ -173,6 +173,8 @@ try {
       await ev(`[...document.querySelectorAll('button')].find(b => /What are the three angles/.test(b.getAttribute('aria-label') ?? ''))?.click()`);
       await waitFor(`!!document.querySelector('[role=dialog]')`, 5000);
       results['22'] = await axe();
+      // the map under the sheet is covered by its dimmed backdrop: 22 measures the sheet's own text (as it did over 08)
+      results['22'].cc = await ev(`${JSON.stringify(results['22'].cc)}.filter(t => { try { return !!document.querySelector(t)?.closest('[role=dialog]'); } catch { return false; } })`);
       results['22'].pixels = await pixelContrast(results['22'].cc);
       results['22'].sizes = await sizes();
       results['22'].buttons = await buttons();

@@ -94,7 +94,9 @@ function Welcome() {
         <ArcButton className="-mb-0.5" onClick={() => { update(s => setFirstChi(s, true)); go('start/2'); }}>It's my first CHI</ArcButton>
         <ArcButton kind="secondary" onClick={() => { update(s => setFirstChi(s, false)); go('start/6'); }}>I've been before</ArcButton>
         {/* Figma 11px at x 33; 12px is the floor (same line centre) */}
-        <p className={`${LAST} mt-[1.5px] pl-[9px] text-[12px] font-medium whitespace-pre text-arc-text-3`}>{'Unofficial  ·  No account  ·  Stays on your phone'}</p>
+        <p className={`mt-[1.5px] pl-[9px] text-[12px] font-medium whitespace-pre text-arc-text-3`}>{'Unofficial  ·  No account  ·  Stays on your phone'}</p>
+        {/* user 11/27: live interpreting is the one exception */}
+        <p className={`${LAST} -mt-3 pl-[9px] text-[12px] font-medium text-arc-text-3`}>Except live interpreting: sent to Soniox, never saved</p>
       </>}>
       <Frame top={102} height={368} className="arc-welcome-art">
         {/* Figma 844:1847 (11/23): a filled orb; the ring draws itself and the neighbourhoods land and drift (prototype) */}
