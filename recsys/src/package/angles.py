@@ -167,6 +167,7 @@ CQ_SAME = 0.85        # two such questions closer than this are the same suggest
 CQ_ONLY = 1           # ... used alone when there are at least this many
 CQ_TOPIC = 0.40       # ... each at or above this cosine to what was typed
 CQ_WORDS = 12         # ... and at most this many words
+NARROW = True         # sharper questions written offline for typed words and session names
 CQ_ONE = True         # a short topic ("sleep", "older adults") may take a written question only one
 CQ_ONE_WORDS = 10     # ... talk answers, when it names the topic and is at most this many words
 AFFECTS = 2           # angles.json "cq" lean of a "How does X affect Y?" question
@@ -574,6 +575,10 @@ class Angles:
         with open(os.path.join(adir, "angles.json"), encoding="utf-8") as f:
             d = json.load(f)
         self.version = d["version"]
+        # sharper questions written offline for what attendees type (scripts/build_narrow.py)
+        np_ = next((p for p in (os.path.join(adir, "narrow.json"), os.path.join(root, "narrow.json"))
+                    if os.path.exists(p)), None)
+        self.narrow = json.load(open(np_, encoding="utf-8")) if np_ else {}
         self.tribes = d["tribes"]
         # "AI", "health", "XR": the words of each tribe's own name (see _tribe)
         self.tribe_words = [set(_W.findall(t["name"].lower())) for t in self.tribes]
@@ -808,6 +813,10 @@ class Angles:
         for k, qp, xp, yp, g in info["cq"]:
             # g 2: "How does X affect Y?", a result with no direction, for undirected questions only
             if (g == AFFECTS and lean) or (g != AFFECTS and lean and g and lean != g):
+                continue
+            # "Does the absence of privacy policies reduce bystander privacy?" does not answer
+            # "Do privacy policies reduce bystander privacy?" (11/27): the factors must agree on "no"
+            if self.pneg[xp] != q["X"]["neg"]:
                 continue
             cos = sum(float(a) * float(b) for a, b in zip(q["V"], self.pvec[qp]))
             if cos < CARDQ_COS:
@@ -1286,9 +1295,24 @@ class Angles:
                 n += 1
         return n
 
+    @staticmethod
+    def _narrow_key(x):
+        """"LLMs", "llm" and "LLM" alike: content words, stemmed (scripts/build_narrow_todo.py)."""
+        return " ".join(stem(w) for w in content(x.lower())[0])
+
     def _suggest(self, q, pool, score, types, k=3):
         """Sharper questions from the findings of the talks that match a topic: the most
         common factor -> outcome pairs, each with the Arc it would give."""
+        # a word or a session name an LLM already wrote questions for, from its talks, and the
+        # engine found Supports for (11/27: "sleep", "older adults", "Music & Haptics")
+        if NARROW and q["kind"] != "relation":
+            out = []
+            for text in self.narrow.get(self._narrow_key(q["x"]), [])[:k]:
+                pq = self.question(text)
+                if pq["kind"] == "relation":
+                    out.append(self._suggestion(show(text), show(pq["x"]), show(pq["y"]), [], types))
+            if out:
+                return self._balanced(out, q)
         groups = {}
         for rank, i in enumerate(pool[:60]):
             info = self.info.get(i)

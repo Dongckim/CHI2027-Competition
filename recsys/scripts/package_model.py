@@ -17,6 +17,7 @@
     explorer.py        filter the whole program by institution, country, author, day
     arc.py             the ARC app's screen API (one JSON request per wireframe screen)
     angles.py          the Arc engine: Support / Reframe / Challenge around a question
+    narrow.json        sharper questions written offline for typed words and session names
     angles.json        finding cards per talk (offsets into program.json), tribes, labels,
                        debut authors; phrase_vec.npy + phrase_scale.npy: their phrase vectors
     venue.json         conference days, floors + map images, rooms, sponsors, sessions
@@ -44,7 +45,7 @@ LIGHT = os.path.join(config.MODELS_DIR, "student_light")
 USE_LIGHT = os.environ.get("CHI_LIGHT", "1") != "0" and os.path.exists(os.path.join(LIGHT, "light_config.json"))
 # files an earlier package may have left that this one may not write
 STALE = ["model_int8.onnx", "paper_emb.npy", "program_emb.npy", "encoder.json", "static_tokens.npy",
-         "static_scales.npy", "static_head.npy", "program_vec.npy", "program_scale.npy", "program_ids.json",
+         "static_scales.npy", "static_head.npy", "program_vec.npy", "program_scale.npy", "program_ids.json", "narrow.json",
          "tokenizer_config.json", "summaries.json"]
 NAME = "chi2026-retriever"
 OUT = os.path.join(config.ROOT, "dist", NAME)
@@ -154,7 +155,7 @@ accuracy on real user queries may be lower.
 | `tokenizer.json`, `tokenizer_config.json` | MIT, unchanged from `BAAI/bge-small-en-v1.5` (© BAAI) |
 | `web/vendor/tokenizers.min.mjs` | Apache 2.0, the npm package `@huggingface/tokenizers`, bundled unchanged |
 | `program.json`, `papers.json`, `venue.json`, `program_*.npy`, `program_ids.json` | CC BY-NC-SA 4.0: ACM CHI 2026 programme data, and vectors of its abstracts |
-| `angles.json`, `phrase_*.npy`, `summaries.json`, `expansions.json`, `clusters.json` | CC BY-NC-SA 4.0, as derived from the programme data: finding cards and phrases quoted from the abstracts, and text written offline by `Qwen/Qwen3-14B` and `Qwen/Qwen2.5-7B-Instruct` (Apache 2.0, no claim on their outputs) |
+| `angles.json`, `phrase_*.npy`, `summaries.json`, `expansions.json`, `clusters.json`, `narrow.json` | CC BY-NC-SA 4.0, as derived from the programme data: finding cards and phrases quoted from the abstracts, and text written offline by `Qwen/Qwen3-14B` and `Qwen/Qwen2.5-7B-Instruct` (Apache 2.0, no claim on their outputs) |
 """
 
 
@@ -341,8 +342,9 @@ def main():
     # (scripts/gen_findings.py + scripts/build_angles.py)
     if os.path.exists(os.path.join(config.ROOT, "data", "processed", "angles.json")):
         shutil.copy(os.path.join(config.ROOT, "src", "package", "angles.py"), OUT)
-        for f in ("angles.json", "phrase_vec.npy", "phrase_scale.npy"):
-            shutil.copy(os.path.join(config.ROOT, "data", "processed", f), OUT)
+        for f in ("angles.json", "phrase_vec.npy", "phrase_scale.npy", "narrow.json"):
+            if os.path.exists(os.path.join(config.ROOT, "data", "processed", f)):
+                shutil.copy(os.path.join(config.ROOT, "data", "processed", f), OUT)
     # the same models in JavaScript, for the phone's browser (src/web)
     web = os.path.join(OUT, "web")
     shutil.rmtree(web, ignore_errors=True)

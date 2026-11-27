@@ -70,7 +70,7 @@ export const P = { JUDGE_N: 40, POOL: 200, SIZE: 7, MAX_READ: 2, GAP_MIN: 5, CAL
                    THEME_COS: 0.45, CLOSE_COS: 0.50,
                    MATCH: 0.70, STRICT: 0.80, COS_LO: 0.45, COS_HI: 0.80, CLAIM_W: 0.95, GEN_W: 0.95, ABOUT_W: 0.9, UP_W1: 0.8, UP_W2: 0.75,
                    NEAR_SCORE: 1.5, NEAR_TOP: 5, NEAR_CONF: 0.2, TOPIC_CONF: 0.1, COST: true, COST_BOTH: true, COST_TOP: 10,
-                   MINE_K: 8, MINE_Q: 3, BALANCE: true, SUGGEST_K: 3, WARN_WORDS: 3, WARN_MATCH: 5, PAIR_MIN: 5, PAIR_OUT: 0.6, CARDQ_COS: 0.75, CARDQ_X: 0.40, CQ_ONE: true, CQ_ONE_WORDS: 10,
+                   MINE_K: 8, MINE_Q: 3, BALANCE: true, SUGGEST_K: 3, WARN_WORDS: 3, WARN_MATCH: 5, PAIR_MIN: 5, PAIR_OUT: 0.6, CARDQ_COS: 0.75, CARDQ_X: 0.40, CQ_ONE: true, CQ_ONE_WORDS: 10, NARROW: true,
                    CQ_SUGGEST: true, CQ_SAME: 0.85, CQ_ONLY: 1, CQ_TOPIC: 0.40, CQ_WORDS: 12 };
 
 const set = (s) => new Set(s.split(/\s+/).filter(Boolean));
@@ -459,6 +459,7 @@ export class Angles {
     const d = pkg.angles;
     this.version = d.version;
     this.tribes = d.tribes;
+    this.narrow = pkg.narrow || {};
     // "AI", "health", "XR": the words of each tribe's own name (see _tribe)
     this.tribeWords = this.tribes.map((t) => new Set(t.name.toLowerCase().match(W_RE()) || []));
     this.phrases = d.phrases;
@@ -717,6 +718,9 @@ export class Angles {
     for (const [k, qp, xp, yp, g] of info.cq) {
       // g 2: "How does X affect Y?", a result with no direction, for undirected questions only
       if ((g === AFFECTS && lean) || (g !== AFFECTS && lean && g && lean !== g)) continue;
+      // "Does the absence of privacy policies reduce bystander privacy?" does not answer
+      // "Do privacy policies reduce bystander privacy?" (11/27): the factors must agree on "no"
+      if (this.pneg[xp] !== q.X.neg) continue;
       let cos = 0;
       const r = this._prow(qp);
       for (let t = 0; t < this.D; t++) cos += q.V[t] * r[t];
@@ -1186,7 +1190,22 @@ export class Angles {
     return n;
   }
 
+  // "LLMs", "llm" and "LLM" alike: content words, stemmed (scripts/build_narrow_todo.py)
+  static _narrowKey(x) {
+    return content(x.toLowerCase())[0].map((w) => stem(w)).join(" ");
+  }
+
   async _suggest(q, pool, score, types, k = 3) {
+    // a word or a session name an LLM already wrote questions for, from its talks, and the
+    // engine found Supports for (11/27: "sleep", "older adults", "Music & Haptics")
+    if (P.NARROW && q.kind !== "relation") {
+      const out = [];
+      for (const text of (this.narrow[Angles._narrowKey(q.x)] || []).slice(0, k)) {
+        const pq = await this.question(text);
+        if (pq.kind === "relation") out.push(await this._suggestion(show(text), show(pq.x), show(pq.y), [], types));
+      }
+      if (out.length) return this._balanced(out, q);
+    }
     const groups = new Map();
     for (const i of pool.slice(0, 60)) {
       const info = this.info.get(i);

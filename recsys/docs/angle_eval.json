@@ -7,7 +7,7 @@
  },
  "dev": {
   "n": 360,
-  "accuracy": 0.694,
+  "accuracy": 0.697,
   "support": {
    "precision": 0.75,
    "recall": 0.25,
@@ -16,17 +16,17 @@
    "gold": 36
   },
   "reframe": {
-   "precision": 0.782,
-   "recall": 0.803,
+   "precision": 0.777,
+   "recall": 0.807,
    "f1": 0.792,
-   "predicted": 261,
+   "predicted": 264,
    "gold": 254
   },
   "challenge": {
    "precision": 0.0,
    "recall": 0.0,
    "f1": 0.0,
-   "predicted": 6,
+   "predicted": 3,
    "gold": 1
   },
   "off": {
@@ -50,8 +50,8 @@
    },
    "reframe": {
     "support": 3,
-    "reframe": 204,
-    "challenge": 4,
+    "reframe": 205,
+    "challenge": 3,
     "off": 43
    },
    "challenge": {
@@ -62,8 +62,8 @@
    },
    "off": {
     "support": 0,
-    "reframe": 30,
-    "challenge": 2,
+    "reframe": 32,
+    "challenge": 0,
     "off": 37
    }
   }
@@ -133,7 +133,7 @@
  },
  "all": {
   "n": 720,
-  "accuracy": 0.678,
+  "accuracy": 0.679,
   "support": {
    "precision": 0.682,
    "recall": 0.263,
@@ -142,17 +142,17 @@
    "gold": 57
   },
   "reframe": {
-   "precision": 0.776,
-   "recall": 0.78,
+   "precision": 0.773,
+   "recall": 0.782,
    "f1": 0.778,
-   "predicted": 517,
+   "predicted": 520,
    "gold": 514
   },
   "challenge": {
    "precision": 0.0,
    "recall": 0.0,
    "f1": 0.0,
-   "predicted": 9,
+   "predicted": 6,
    "gold": 6
   },
   "off": {
@@ -176,8 +176,8 @@
    },
    "reframe": {
     "support": 7,
-    "reframe": 401,
-    "challenge": 7,
+    "reframe": 402,
+    "challenge": 6,
     "off": 99
    },
    "challenge": {
@@ -188,15 +188,15 @@
    },
    "off": {
     "support": 0,
-    "reframe": 69,
-    "challenge": 2,
+    "reframe": 71,
+    "challenge": 0,
     "off": 72
    }
   }
  },
  "holdout": {
   "n": 480,
-  "accuracy": 0.623,
+  "accuracy": 0.625,
   "support": {
    "precision": 0.556,
    "recall": 0.192,
@@ -205,17 +205,17 @@
    "gold": 26
   },
   "reframe": {
-   "precision": 0.604,
-   "recall": 0.741,
-   "f1": 0.665,
-   "predicted": 293,
+   "precision": 0.605,
+   "recall": 0.745,
+   "f1": 0.668,
+   "predicted": 294,
    "gold": 239
   },
   "challenge": {
-   "precision": 0.667,
+   "precision": 1.0,
    "recall": 0.667,
-   "f1": 0.667,
-   "predicted": 3,
+   "f1": 0.8,
+   "predicted": 2,
    "gold": 3
   },
   "off": {
@@ -225,7 +225,7 @@
    "predicted": 175,
    "gold": 212
   },
-  "macro_f1": 0.553,
+  "macro_f1": 0.587,
   "on_map": {
    "precision": 0.682,
    "recall": 0.776
@@ -239,8 +239,8 @@
    },
    "reframe": {
     "support": 4,
-    "reframe": 177,
-    "challenge": 1,
+    "reframe": 178,
+    "challenge": 0,
     "off": 57
    },
    "challenge": {
