@@ -72,6 +72,7 @@ export function QandAList({ qa }: { qa: ReturnType<typeof useQandA> }) {
             <li key={q.id} className="flex min-h-16 items-center gap-2.5 rounded-[20px] border border-arc-line bg-arc-surface py-2 pr-2.5 pl-4">
               <div className="min-w-0 flex-1">
                 <p className="text-[15px] leading-5 tracking-[-0.006em] break-words">{q.text}</p>
+                {q.hidden && <p className="text-[12px] text-arc-text-3">Hidden after reports. Only you can see it.</p>}
                 <div className="-ml-2 flex">
                   {q.mine
                     ? <button type="button" onClick={() => qa.deleteOn(q)} className="min-h-touch px-2 text-[13px] font-semibold text-arc-text-2 underline">Delete</button>

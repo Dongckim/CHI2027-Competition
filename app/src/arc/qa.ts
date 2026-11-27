@@ -2,7 +2,7 @@
 import { update, useDevice } from '../state/useDevice';
 import { withQaToken, qaTokenOf } from './draft.js';
 
-export type Question = { id: string; text: string; votes: number; createdAt: number; mine: boolean; voted: boolean };
+export type Question = { id: string; text: string; votes: number; createdAt: number; mine: boolean; voted: boolean; /** reported three times: only its author sees it */ hidden?: boolean };
 const newToken = () => Array.from(crypto.getRandomValues(new Uint8Array(18)), b => b.toString(16).padStart(2, '0')).join('');
 
 export function useQaToken(): string {

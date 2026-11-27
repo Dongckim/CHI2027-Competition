@@ -1,18 +1,101 @@
 {
   "buildCommand": "npm run build:deploy",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/s/:d", "destination": "/api/share?d=:d" }],
+  "rewrites": [
+    {
+      "source": "/s/:d",
+      "destination": "/api/share?d=:d"
+    }
+  ],
   "headers": [
-    { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
-    { "source": "/app-data/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
-    { "source": "/model/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
-    { "source": "/", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
-    { "source": "/index.html", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
-    { "source": "/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
-    { "source": "/data/(.*)", "headers": [{ "key": "Cache-Control", "value": "max-age=300" }] }
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "microphone=(self), camera=(), geolocation=(), payment=()"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/app-data/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/model/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/data/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "max-age=300"
+        }
+      ]
+    }
   ],
   "functions": {
-    "api/push.mjs": { "maxDuration": 90 },
-    "api/og.mjs": { "includeFiles": "{node_modules/@resvg/resvg-wasm/index_bg.wasm,node_modules/@fontsource/inter/files/inter-latin-{400,600}-normal.woff,app/src/assets/arc/{tribe-*,angle-*,og-regions}.svg}" }
+    "api/og.mjs": {
+      "includeFiles": "{node_modules/@resvg/resvg-wasm/index_bg.wasm,node_modules/@fontsource/inter/files/inter-latin-{400,600}-normal.woff,app/src/assets/arc/{tribe-*,angle-*,og-regions}.svg}"
+    }
   }
 }

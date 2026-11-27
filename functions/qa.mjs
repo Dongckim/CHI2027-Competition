@@ -14,6 +14,20 @@ export const TEXT_MAX = 280;
 export const PER_MINUTE = 3;
 export const PER_DAY = 30;
 export const HIDE_AT_FLAGS = 3;
+// Per client address, in this instance's memory only (never stored, like soniox-key): the device token is made by the
+// phone, so a script could make a new one per request (audit 11/27: spam, vote stuffing, hiding any question with three
+// made-up tokens). Writes per minute and flags per ten minutes from one address.
+export const IP_WRITES_PER_MINUTE = 60, IP_FLAGS_PER_10_MIN = 12; // generous: a venue Wi-Fi puts many phones behind one address
+const ipHits = new Map(); // address|kind -> times
+function overIp(request, kind, limit, windowMs, now) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || '';
+  if (!ip) return false;
+  if (ipHits.size > 20_000) ipHits.clear();
+  const k = `${ip}|${kind}`, recent = (ipHits.get(k) ?? []).filter(t => now - t < windowMs);
+  recent.push(now); ipHits.set(k, recent);
+  return recent.length > limit;
+}
+export const resetIpLimits = () => ipHits.clear(); // tests
 export const DELETE_AT = Date.UTC(2027, 5, 13) / 1000; // 2027-06-13 00:00 UTC, as seconds for EXPIREAT
 const PAPER = /^(chi\d{4}|sandbox):\d{1,12}$/;
 const ID = /^[0-9a-f]{16}$/;
@@ -55,7 +69,7 @@ export function memoryStore() {
 export function upstashStore(url, token, fetcher = fetch) {
   return {
     async cmd(...c) {
-      const r = await fetcher(url, { method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify(c) });
+      const r = await fetcher(url, { signal: AbortSignal.timeout(4000), method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify(c) });
       if (!r.ok) throw new Error(`store ${r.status}`);
       return (await r.json()).result;
     },
@@ -89,14 +103,18 @@ export async function handle(request, env, store, now = Date.now()) {
     for (const id of ids) {
       const q = await load(id);
       if (!q) continue;
-      if (await store.cmd('SCARD', `${ns}:qa:f:${id}`) >= HIDE_AT_FLAGS) continue; // hidden after three flags
+      const mine = q.authorToken === me;
+      // hidden after three flags, except to its author, who can still delete it (the app promises they can)
+      const hidden = await store.cmd('SCARD', `${ns}:qa:f:${id}`) >= HIDE_AT_FLAGS;
+      if (hidden && !mine) continue;
       out.push({ id, text: q.text, createdAt: q.createdAt, votes: await store.cmd('SCARD', `${ns}:qa:v:${id}`),
-        mine: q.authorToken === me, voted: !!(await store.cmd('SISMEMBER', `${ns}:qa:v:${id}`, me)) });
+        mine, voted: !!(await store.cmd('SISMEMBER', `${ns}:qa:v:${id}`, me)), ...(hidden ? { hidden: true } : {}) });
     }
     out.sort((a, b) => b.votes - a.votes || a.createdAt - b.createdAt);
     return json(200, { questions: out });
   }
 
+  if (overIp(request, 'w', IP_WRITES_PER_MINUTE, 60_000, now)) return json(429, { error: 'too many changes from this network, try again in a minute' });
   let body;
   try { body = await request.json(); } catch { return json(400, { error: 'JSON body' }); }
   if (request.method === 'DELETE') {
@@ -125,6 +143,7 @@ export async function handle(request, env, store, now = Date.now()) {
     return json(201, { question: { id, text, createdAt: now, votes: 0, mine: true, voted: false } });
   }
   if (body?.action === 'vote' || body?.action === 'flag') {
+    if (body.action === 'flag' && overIp(request, 'f', IP_FLAGS_PER_10_MIN, 600_000, now)) return json(429, { error: 'too many reports from this network, try again later' });
     if (!ID.test(body.id ?? '') || !(await load(body.id))) return json(404, { error: 'no such question' });
     const k = `${ns}:qa:${body.action === 'vote' ? 'v' : 'f'}:${body.id}`;
     await store.cmd('SADD', k, me); await keep(k); // once per device: a set of device hashes
