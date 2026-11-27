@@ -27,10 +27,16 @@ export const TALK_TOUR: TourStep[] = [
 
 // 15, the first time Edit opens after the map tour (user 11/27 「처음 editing들어가면 다른 곳처럼 가이드」)
 export const EDIT_TOUR: TourStep[] = [
-  { at: 'button[aria-label^="Add a talk to"]', title: 'Add a talk', text: 'Tap + to see talks for that angle; switch angles in the sheet. Tap one, then confirm. Hold one to read it first.' },
-  { at: '[data-arc-map] [data-node-key]', title: 'Swap a talk', text: 'Tap a talk on your Arc to swap it for another of the same angle.' },
+  { at: 'button[aria-label^="Add a talk to"]', title: 'Add a talk', text: 'Tap + to open the talks for that angle in a sheet below.' },
+  { at: '[data-arc-map] [data-node-key]', title: 'Swap a talk', text: 'Tap a talk on your Arc to swap it for another of the same angle. (Holding a talk here does nothing in Edit.)' },
   { at: 'button[aria-label^="Remove"]', title: 'Remove', text: 'The − takes a talk off your Arc.' },
   { at: 'header button', title: 'Done', text: 'Done keeps your changes.' },
+];
+
+// the sheet of 15, the first time it shows talks (user 11/27 「노드 꾹 누르는게 아니라 서칭 창에서 꾹 누르면 << 이거 가이드가 정정해주고」)
+export const SHEET_TOUR: TourStep[] = [
+  { at: '[data-tour="sheet-chips"]', title: 'Pick the angle', text: 'Switch between Supports, Reframes and Challenges right here.' },
+  { at: '[data-tour="sheet-cards"]', title: 'Hold to read, tap to add', text: 'Hold a card: the paper opens above it, and closes when you let go. Tap a card to add it; ARC asks first.' },
 ];
 
 export function MapTour({ onDone, steps: all = TOUR, label = 'How to read your Arc' }: { onDone: () => void; steps?: TourStep[]; label?: string }) {
