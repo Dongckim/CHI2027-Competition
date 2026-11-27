@@ -371,3 +371,10 @@ Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your p
 ## 25. New Arc → 07 + "Start from my paper" · 07b 걸러내기 (2026-11-26)
 - 사용자 결정 「New Arc 버튼: 07(질문)로 바로 가고, 07에 "Start from my paper" → 07p 링크 추가. 첫 사용(06c → 07p)은 Figma대로 유지」 (11/26 「OK, 진행해」). 07 시작 질문 목록 아래 글자 링크 "Start from my paper ›"(디자이너 확인 전).
 - 사용자 결정 「요인(X) 자리에 숫자나 연구 방법 단어(interview, survey, participants, study, N=)가 있으면 빼. … 걸러서 카드가 3개 미만이면 남은 것만」: 07b 조합 질문 중 요인에 숫자나 그 단어가 있으면 뺌. 원준 엔진이 고치면 지울 임시 규칙(테스트에 표시).
+
+## 26. 프로토타입 (3) 반영 (2026-11-26 밤, 동결 예외)
+- 사용자 결정 「①②③ 모두 지금 머지」 (11/26 22:27, 동결 뒤 예외로 승인).
+- ① 02–06c 제목을 질문으로, 그 아래 한 줄 답: "What is CHI 2027?", "What do I do all day?", "What are all these formats?", "How do people meet?", "What is ARC?", "Where are my people?", "When do I use ARC?". 06의 그림은 윗부분 16 px를 덜 보여 줌(844에서 스크롤 없음).
+- ② 12·24b: 노드를 누르면 그 자리에 제목 팝업(상태 · 시간 · 방, 전체 제목, "View details ›", 24b에서 Arc에 없는 발표는 "Add to my Arc"). 나머지는 어둡게, 바깥 누르기·×·Esc로 닫힘, 같은 노드를 한 번 더 누르면 14. 아래 카드는 다음 발표를 그대로 보여 줌(전에는 누른 발표로 바뀜).
+- ③ 06b: 분야 칩 격자 대신 프로토타입의 사람 그림("You"와 같은 모양 두 사람), 두 카드에 그림(Figma SVG를 잘라 씀: assets/arc/06b-*.svg). "Spot the shape on their phone or badge."
+- 넣지 않음: 14b·14f 번역(본선 예정, §7), 14e 삭제는 앱에 따로 화면이 없어 그대로.

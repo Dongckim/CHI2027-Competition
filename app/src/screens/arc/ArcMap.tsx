@@ -8,6 +8,7 @@ const cardIn = (el: HTMLElement | null) => { play(el, [{ opacity: 0, transform: 
 import { update, useDevice } from '../../state/useDevice';
 import { arcOf, setHoldHintSeen, setTourSeen } from '../../arc/draft.js';
 import { MapTour } from './MapTour';
+import { NodePopup } from './NodePopup';
 import { go, href } from '../../router';
 import { Screen, ArcLink, ArcButton, Pic } from '../../components/arc';
 import type { Angle } from '../../engine';
@@ -79,8 +80,9 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
   const map = use.onMap ?? arc; // the talks of the chosen days still to come or heard (useArc)
   const shown = focus ? { ...map, nodes: [...map.nodes, ...extra] } : map;
   const totals = Object.fromEntries((['S', 'R', 'T'] as Angle[]).map(a => [a, map.nodes.filter(n => n.angle === a).length + (others[a]?.length ?? 0)]));
+  // prototype 3: the card keeps the next stop; a tapped stop opens its own title over the map (NodePopup)
   const picked = sel ? shown.nodes.find(n => n.key === sel) ?? null : null;
-  const next = pending ? null : picked ?? (focus ? map.nodes.find(n => n.angle === focus) : map.nodes.find(n => states.get(n.key) === 'next')) ?? null;
+  const next = pending ? null : (focus ? map.nodes.find(n => n.angle === focus) : map.nodes.find(n => states.get(n.key) === 'next')) ?? null;
   const ni = next ? info(next.key) : null;
   const outside = !!next && candidates.has(next.key);
   // the talk under way says Now, not Next (14 says "Now · Talk 2 of 7")
@@ -91,7 +93,8 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
   };
   // the stop the card already shows opens 14 at once (prototype 12: the Next node → 14); any other is picked first (12c)
   // prototype 12c: the Next stop while another is picked goes back to plain 12 (nothing picked)
-  const tapNode = (k: string) => { if (!hs.tap()) return; if (k === next?.key && sel && sel !== k) setSel(null); else if (k === next?.key || k === sel) go(`talk/${k}`); else setSel(k); };
+  const tapNode = (k: string) => { if (!hs.tap()) return; if (k === sel) go(`talk/${k}`); else setSel(k); }; // a second tap opens 14
+  const closePop = () => setSel(null); // not a hook: this runs after the early return above
   return (
     <Screen clock label="My Arc" header={<ArcHeader id={id} view="map" onHelp={() => setHelp(true)} back={focus ? `arc/${id}` : 'home'} title={focus ? (
       <h2 className="mt-0.5 flex h-[42px] items-center gap-2 rounded-[21px] border border-arc-line bg-arc-surface pr-4 pl-[15px] text-[15px] font-semibold">
@@ -110,7 +113,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
           </div>
         )}
         {next && ni && !outside && (
-          <a data-tour="card" key={next.key} ref={sel ? cardIn : undefined} href={href(`talk/${next.key}`)} inert={!!held || undefined} aria-description={`${word === 'Next' ? 'Next up' : word}: ${ANGLE_NAME[next.angle]} · ${ni.title} · ${ni.time}`}
+          <a data-tour="card" key={next.key} href={href(`talk/${next.key}`)} inert={!!held || undefined} aria-description={`${word === 'Next' ? 'Next up' : word}: ${ANGLE_NAME[next.angle]} · ${ni.title} · ${ni.time}`}
             className="flex min-h-[88px] items-center gap-3.5 rounded-[20px] border border-arc-line bg-arc-surface py-3.5 pr-4 pl-3.5">
             {/* Figma: a 38 circle in a 40 frame, 18 px symbol */}
             <span className="m-px flex size-[38px] shrink-0 items-center justify-center rounded-full border border-arc-line bg-arc-surface"><Pic src={ANGLE_ICON[next.angle]} size={18} /></span>
@@ -158,6 +161,12 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
       </div>
       {held && <SwapFan hs={hs} title={info(held).title} />}
       <AngleHelp open={help} onClose={closeHelp} />
+      {picked && (() => {
+        const pi = info(picked.key), off = candidates.has(picked.key), st = states.get(picked.key) ?? 'upcoming';
+        const w = off ? '' : pi.on && st === 'next' ? 'Now' : st === 'upcoming' ? '' : STATE_WORD[st];
+        const line = [w, pi.when.replace(' · Rm ', ' · Room '), off && 'Not in your Arc'].filter(Boolean).join(' · ');
+        return <NodePopup k={picked.key} line={line} title={pi.title} outside={off} onClose={closePop} onAdd={() => { setSel(null); add(picked); }} />;
+      })()}
       {tour && <MapTour onDone={endTour} />}
     </Screen>
   );
