@@ -4,7 +4,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 export type TourStep = { at: string | string[]; title: string; text: string }; // several: the first found
-const find = (at: TourStep['at']) => [at].flat().map(q => document.querySelector(q)).find(Boolean) ?? null;
+// a count of 0 is not a step to point at (audit 11/27: "Challenges" over ⊣ 0)
+const find = (at: TourStep['at']) => [at].flat().map(q => document.querySelector(q)).find(el => el && el.querySelector('[data-count]')?.textContent?.trim() !== '0') ?? null;
 export const TOUR: TourStep[] = [
   { at: '[data-arc-map] .arc-orb', title: 'Your question', text: 'Every talk on this map answers it. The ring is your field’s colour.' },
   { at: '[data-badge="S"]', title: '↑ Supports', text: 'Talks with the same finding.' },

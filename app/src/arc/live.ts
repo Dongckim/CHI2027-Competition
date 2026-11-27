@@ -10,6 +10,7 @@ let started: Promise<void> | null = null;
 const listeners = new Set<() => void>();
 const notify = () => listeners.forEach(l => l());
 export function warm() {
+  if (!started) { failed = false; notify(); } // a new attempt (audit 11/27: "Needs a connection" stayed after a retry worked)
   return (started ??= engine.init(p => { progress = p; notify(); }).catch(e => { failed = true; started = null; notify(); throw e; }));
 }
 const snapshot = () => (failed ? 'failed' : progress.stage === 'ready' ? 'ready' : 'loading');

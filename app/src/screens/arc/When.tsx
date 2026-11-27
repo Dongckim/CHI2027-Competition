@@ -33,7 +33,7 @@ export function When() {
   return (
     <Screen clock label="When and what"
       header={<><BackButton href={href('ask')} /><span /><span className="w-11" /></>}
-      bottom={<ArcButton className="mb-1.5" onClick={() => go('building')} disabled={!draft.what.length}>Build my Arc</ArcButton>}>
+      bottom={<>{!draft.what.length && <p className="text-center text-[13px] text-arc-text-2">Pick at least one kind of session.</p>}<ArcButton className="mb-1.5" onClick={() => go('building')} disabled={!draft.what.length}>Build my Arc</ArcButton></>}>
       <h1 className="mt-[14px] text-[28px] leading-[34px] font-semibold tracking-[-0.024em]">When, and what kind?</h1>
       <div className="mt-9 flex flex-col gap-[30px]">
         <section aria-labelledby="when-h" className="flex flex-col gap-3">
