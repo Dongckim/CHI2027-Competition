@@ -60,7 +60,7 @@ try {
   await shot('01');
   await click("It's my first CHI");
   const seen = [];
-  for (const [n, title] of [[2, 'The biggest week'], [3, '10+ talks run at once'], [4, 'Know what to do'], [5, 'Breaks are'], [6, 'Your question,'], ['6b', 'Same colour,'], ['6c', 'Before, during,']]) {
+  for (const [n, title] of [[2, 'What is CHI 2027?'], [3, 'What do I do all day?'], [4, 'What are all these formats?'], [5, 'How do people meet?'], [6, 'What is ARC?'], ['6b', 'Where are my people?'], ['6c', 'When do I use ARC?']]) {
     const ok = await waitFor(`location.hash === '#/start/${n}' && document.body.innerText.includes(${JSON.stringify(title)})`);
     seen.push(ok != null); await shot(`0${n}`);
     await click('Next');
@@ -120,11 +120,11 @@ try {
   const node = await ev(`(() => { const b = ${NODE}; const f = b[0];
     return { count: b.length, named: b.every(x => /^(Supports|Reframes|Challenges) · .+ \\d\\d:\\d\\d/.test(x.innerText.replace(/\\s+/g, ' ').trim())), label: f?.innerText.replace(/\\s+/g, ' ').trim(),
       title: f?.querySelector('.line-clamp-2')?.textContent.replace(/^✦ /, '').trim(), desc: f?.getAttribute('aria-description') ?? '' }; })()`);
-  // 12c (Figma 851:1855): a tap picks the stop and the card under the map shows its paper; a second tap opens 14
+  // 12c (prototype 3, 11/26): a tap opens the stop's whole title over the map, with View details; a second tap opens 14
   await ev(`${NODE}[0].click()`);
   const want = JSON.stringify(node.title ?? '');
-  const card = await waitFor(`[...document.querySelectorAll('.arc > .sticky a[href*="talk/"]')].some(a => a.innerText.replace(/\\s+/g, ' ').includes(${JSON.stringify(node.desc.split(' · ')[0] || node.title)}.slice(0, 20)))`, 5000); // the card shows the whole title
-  check('12c: a tap shows the stop\'s paper in the card', card != null, {});
+  const card = await waitFor(`[...document.querySelectorAll('[role=dialog] a[href*="talk/"]')].length > 0 && document.querySelector('[role=dialog]').innerText.replace(/\\s+/g, ' ').includes(${JSON.stringify(node.desc.split(' · ')[0] || node.title)}.slice(0, 20))`, 5000);
+  check('12c: a tap shows the stop\'s whole title over the map', card != null, {});
   await ev(`${NODE}[0].click()`);
   // 14 is its own chunk: wait for its title (not the 12 still on screen) and for the abstract
   const talkMs = await waitFor(`location.hash.startsWith('#/talk/chi2026:') && (${JSON.stringify(node.desc)}.startsWith(document.querySelector('h1')?.innerText + ' · ') || document.querySelector('h1')?.innerText === ${want}) && !/Loading/.test(document.querySelector('main').innerText)`, 30000);

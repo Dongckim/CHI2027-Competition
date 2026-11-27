@@ -1,6 +1,9 @@
 // 01 Welcome → 02–05 CHI 101 (first CHI) → 06 How ARC works → 06b Your colour → 06c Before, during, after → 07.
 // "I've been before" goes 01 → 06. Skip → home.
 // Copy and pictures are Figma Final UI (590:453 … 591:586, 741:1448, 741:1512). Pictures are decorative; every meaning is in text.
+import peopleArt from '../../assets/arc/06b-people.svg';
+import afarArt from '../../assets/arc/06b-afar.svg';
+import closeArt from '../../assets/arc/06b-close.svg';
 import { useEffect } from 'react';
 import { go, href } from '../../router';
 import { update } from '../../state/useDevice';
@@ -57,8 +60,11 @@ export const SKIP_CLASS = 'pb-[10px] tracking-[-0.006em]';
 export const StepDots = ({ at }: { at: number }) => <div className="relative -top-[3px]"><Dots at={at} /></div>;
 const Skip = () => <TextAction href={href('home')} className={SKIP_CLASS} onClick={e => { e.preventDefault(); skip(); }}>Skip</TextAction>;
 // Figma: titles at y 112, 10 below the 48px header row (54–102)
-const Title = ({ lines }: { lines: [string, string] }) =>
-  <h1 className="mt-[10px] text-[30px] leading-9 font-semibold tracking-[-0.024em]">{lines[0]}<br />{lines[1]}</h1>;
+// prototype (3) 11/26: each page asks its question, a line under it answers (02–06c)
+const Title = ({ lines }: { lines: [string, string] }) => <>
+  <h1 className="mt-[10px] text-[30px] leading-9 font-semibold tracking-[-0.024em]">{lines[0]}</h1>
+  <p className="mt-2 text-[15px] leading-5 text-arc-text-2">{lines[1]}</p>
+</>;
 // Figma draws the pictures on the 390-wide frame; this box keeps their coordinates (y is from the frame top).
 // top is where the box starts on the frame: 102 under the header, 184 under a two-line title.
 const Frame = ({ top, height, children, className = '' }: { top: number; height: number; children: React.ReactNode; className?: string }) => (
@@ -112,7 +118,7 @@ function WhatIsChi() {
   // Figma places each label on its own x (gaps after the numbers differ), 38 below the number's top
   const stats: [string, string, number][] = [['4,000', 'people', 223], ['10+', 'rooms at once', 161], ['5', 'days', 79]];
   return (
-    <Page dot={1} label="What is CHI" title={['The biggest week', 'in HCI research.']} next="start/3">
+    <Page dot={1} label="What is CHI" title={['What is CHI 2027?', 'CHI is the biggest week in HCI research.']} next="start/3">
       <dl className="mt-[116px] flex flex-col gap-10">{/* rows at y 300 / 412 / 524 */}
         {stats.map(([n, l, x]) => (
           <div key={l} className="relative">
@@ -130,7 +136,7 @@ function WhatIsChi() {
 const PICKS = new Set(['0-2', '1-0', '2-3', '3-1']);
 function ADay() {
   return (
-    <Page dot={2} label="A day at CHI" title={['10+ talks run at once.', 'Pick one per time slot.']} next="start/4">
+    <Page dot={2} label="A day at CHI" title={['What do I do all day?', '10+ talks run at once. Pick one per time slot.']} next="start/4">
       <p className="sr-only">Many talks run at the same time; you choose one in each slot.</p>
       <Frame top={184} height={415}>
         {Array.from({ length: 4 }, (_, c) => Array.from({ length: 6 }, (_, r) => (
@@ -152,7 +158,7 @@ function Formats() {
   const cells: [string, string, string][] = [[talk, 'Listen', 'Paper talk'], [poster, 'Chat', 'Poster'], [demo, 'Try', 'Demo'],
     [panel, 'Debate', 'Panel'], [meetup, 'Join', 'SIG & meetup'], [keynote, 'Zoom out', 'Keynote']];
   return (
-    <Page dot={3} label="Formats" title={['Know what to do', 'where.']} next="start/5">
+    <Page dot={3} label="Formats" title={['What are all these formats?', 'Here’s what to do at each one.']} next="start/5">
       <ul className="mt-[64px] grid grid-cols-2 gap-3">{/* Figma 590:650…: 165×132 tiles, radius 20, fade from 6% white */}
         {cells.map(([icon, verb, name]) => (
           <li key={name} className="flex h-[132px] flex-col items-center justify-center rounded-[20px] px-2 text-center" style={FADE}>
@@ -169,7 +175,7 @@ function Formats() {
 function HowPeopleTalk() {
   const rules: [string, string][] = [[pin, 'Switch rooms anytime'], [clock, 'Keep questions short'], [chat, 'Say hi at posters']];
   return (
-    <Page dot={4} label="How people talk" title={['Breaks are', 'for talking.']} next="start/6">
+    <Page dot={4} label="How people talk" title={['How do people meet?', 'Mostly in the breaks. Three rules help.']} next="start/6">
       <Frame top={184} height={286}>{/* rules start at y 470 */}
         <img src={arc05} alt="" data-anim="reveal 620 700" style={at(0, 0, 390, 844)} />{/* prototype 05: ? then !, then the arc between them */}
         <img src={bubbleQ} alt="" data-anim="pop 120" data-flash="640" style={at(68, 328, 84)} />
@@ -202,10 +208,10 @@ function HowArcWorks() {
     </div>
   );
   return (
-    <Page dot={5} label="How ARC works" title={['Your question,', 'seen from three sides.']} next="start/6b">
+    <Page dot={5} label="How ARC works" title={['What is ARC?', 'ARC finds talks that support, reframe or challenge your question.']} next="start/6b">
       {/* not Frame: the node names are read out, only the pictures are hidden */}
-      <div className="pointer-events-none relative h-[462px] w-[390px] shrink-0 self-center">
-        <div className="absolute left-0 w-[390px]" style={{ top: -184, ...FRAME_ART }}>
+      <div className="pointer-events-none relative h-[446px] w-[390px] shrink-0 self-center">
+        <div className="absolute left-0 w-[390px]" style={{ top: -200, /* the answer line under the title took 16 more (prototype 3) */ ...FRAME_ART }}>
           {/* prototype 06: the 12 map's bloom — orb, ring, the three regions, then Supports, Challenges, Reframes */}
           <img src={regions06} alt="" aria-hidden="true" data-anim="fade 560" style={at(0, 196, 390, 524)} />{/* Figma 11/23: the 12 map's three regions */}
           <img src={lines06} alt="" aria-hidden="true" data-anim="fade 760" style={at(0, 0, 390, 844)} />
@@ -225,22 +231,19 @@ function HowArcWorks() {
 const CHIPS: [TribeId, string][] = [['ai', 'AI & agents'], ['xr', 'XR & immersive'], ['access', 'Accessibility'], ['health', 'Health & care'],
   ['learning', 'Learning'], ['society', 'Society'], ['devices', 'Devices'], ['design', 'Design']];
 function YourColour() {
-  const ways: [string, string, string][] = [[person, 'From afar', 'Spot the colour and shape on their screen.'], [qr, 'Up close', 'Scan their QR to get their Arc.']];
+  // prototype (3) 11/26: people with shapes, "You" joined to the two with yours; each way has its picture (Figma's own art)
+  const ways: [string, string, string][] = [[afarArt, 'From afar', 'Spot the shape on their phone or badge.'], [closeArt, 'Up close', 'Scan their QR to get their Arc.']];
   return (
-    <Page dot={6} label="Your colour" title={['Same colour,', 'same neighbourhood.']} next="start/6c">
-      <ul className="mt-12 grid grid-cols-2 gap-3">{/* Figma 741:1703…: rows at y 232 / 282 / 332 / 382, columns at x 24 / 201 */}
-        {CHIPS.map(([id, name]) => (
-          <li key={id} className="flex h-[38px] items-center gap-1.5 justify-self-start rounded-full border border-arc-line bg-arc-surface px-3.5 text-[14px] font-medium tracking-[-0.006em] whitespace-nowrap text-arc-text/62">
-            <Pic src={TRIBE_ICON[id]} size={16} className="opacity-62" />{name}
-          </li>
-        ))}
-      </ul>
-      <ul className="mt-9 grid grid-cols-2 gap-3">{/* cards at y 456, 165×150 */}
-        {ways.map(([icon, title, text]) => (
-          <li key={title} className="h-[150px] rounded-[20px] px-4 pt-[18px]" style={FADE}>
-            <Pic src={icon} size={24} />
-            <h2 className="mt-[14px] text-[17px] leading-5 font-semibold tracking-[-0.012em]">{title}</h2>
-            <p className="mt-1.5 text-[13px] leading-[17px] font-medium text-arc-text-3">{text}</p>
+    <Page dot={6} label="Your colour" title={['Where are my people?', 'ARC finds people who share your interests. Same colour, same neighbourhood.']} next="start/6c">
+      <img src={peopleArt} alt="" aria-hidden="true" width={390} height={226} className="mt-4 w-[390px] max-w-none shrink-0 self-center" />
+      <ul className="mt-[42px] grid grid-cols-2 gap-3">{/* cards 165×190 at y 500, the picture is the card */}
+        {ways.map(([art, title, text]) => (
+          <li key={title} className="relative h-[190px] overflow-hidden rounded-[20px]">
+            <img src={art} alt="" aria-hidden="true" width={165} height={190} className="absolute inset-0 h-full w-full max-w-none" />
+            <div className="absolute inset-x-4 top-[110px]">
+              <h2 className="text-[17px] leading-5 font-semibold tracking-[-0.012em]">{title}</h2>
+              <p className="mt-1.5 text-[13px] leading-[17px] font-medium text-arc-text-3">{text}</p>
+            </div>
           </li>
         ))}
       </ul>
@@ -252,7 +255,7 @@ function BeforeDuringAfter() {
   const stages: [string, string, string, string][] = [[sparkle, 'Before', 'Ask', 'Bring one question tonight.'],
     [mapIcon, 'During', 'Arc', 'Follow it. Swap a stop. Share it.'], [book, 'After', 'Keep', 'CHI’s answer, a reading list, and what’s still open.']];
   return (
-    <Page dot={7} label="Before, during, after" title={['Before, during,', 'after.']} next="paper">{/* Figma 11/25: 06c → 07p (a paper?) → 07r, or 07 */}
+    <Page dot={7} label="Before, during, after" title={['When do I use ARC?', 'ARC helps you get the most out of CHI, before, during and after.']} next="paper">{/* Figma 11/25: 06c → 07p (a paper?) → 07r, or 07 */}
       <ul className="mt-12 flex flex-col gap-3">{/* Figma 741:1536…: 342×110 at y 232 / 354 / 476 */}
         {stages.map(([icon, when, name, text]) => (
           <li key={name} className="relative h-[110px] rounded-[20px]" style={FADE}>

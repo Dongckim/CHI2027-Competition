@@ -27,8 +27,8 @@ export const device = onboarded => JSON.stringify({ version: 1, edition: 'chi202
 export const seedArcs = arcs => `new Promise(r => { const q = indexedDB.open('arc', 1); q.onupgradeneeded = () => q.result.createObjectStore('arcs', { keyPath: 'id' });
   q.onsuccess = () => { const t = q.result.transaction('arcs', 'readwrite'); for (const a of ${JSON.stringify(arcs)}) t.objectStore('arcs').put(a); t.oncomplete = () => { q.result.close(); r(true); }; }; })`;
 export const SCREENS = [['10', '#/building', 'Reading'],
-  ['01', '#/start/1', 'Bring one question'], ['02', '#/start/2', 'The biggest week'], ['03', '#/start/3', '10+ talks run'], ['04', '#/start/4', 'Know what to do'],
-  ['05', '#/start/5', 'Breaks are'], ['06', '#/start/6', 'three sides'], ['06b', '#/start/6b', 'same neighbourhood'], ['06c', '#/start/6c', 'Before, during'],
+  ['01', '#/start/1', 'Bring one question'], ['02', '#/start/2', 'What is CHI 2027'], ['03', '#/start/3', 'What do I do all day'], ['04', '#/start/4', 'What are all these formats'],
+  ['05', '#/start/5', 'How do people meet'], ['06', '#/start/6', 'What is ARC'], ['06b', '#/start/6b', 'Where are my people'], ['06c', '#/start/6c', 'When do I use ARC'],
   ['07p', '#/paper', 'Do you have a paper'], ['07r', `#/paper/${PERSON}`, 'Your Arc starts from its question'], ['07', '#/ask', 'What are you'], ['08', '#/angles', 'Supports'],
   ['09', '#/when', 'Build my Arc'], ['11', `#/hood/${ARC.id}`, "YOU'RE IN"], ['12', `#/arc/${ARC.id}`, 'Share'] /* the card says Next or Now by the clock */, ['13', `#/arc/${ARC.id}/list`, 'Reframes'],
   ['14', `#/talk/${ARC.nodes[0].key}`, 'WHY IT'], ['14f', `#/talk/${ARC.nodes[0].key}/shape`, 'Look for the same shape'], ['15', `#/arc/${ARC.id}/edit`, 'Editing'], ['16', `#/share/${ARC.id}`, 'Never your name'],
