@@ -130,13 +130,14 @@ try {
   await click(`document.querySelector('section[aria-labelledby=qa] li button[aria-pressed=false]')`);
   const voted = await waitFor(`document.querySelector('section[aria-labelledby=qa] li button[aria-pressed=true]')?.getAttribute('aria-label')?.includes('1 vote')`, 10000);
   await shot('14-qa');
+  await ev('window.confirm = () => true'); // Delete asks first (11/27)
   await click(byText('Delete'));
   const gone = await waitFor(`!document.querySelector('section[aria-labelledby=qa] li') && /Be the first to ask/.test(document.body.innerText)`, 10000);
   check('14 Q&A: ask, vote once (pressed, 1 vote), delete your own', asked != null && voted != null && gone != null, {});
 
   // a broken link
   await open('#/r/not-a-real-link');
-  check('broken link: says why, no blank screen', (await waitFor(`/This link can't be opened/.test(document.body.innerText) && /not a share link/.test(document.body.innerText)`, 15000)) != null, {});
+  check('broken link: says why, no blank screen', (await waitFor(`/This link can't be opened/.test(document.body.innerText) && /Part of the link is missing/.test(document.body.innerText)`, 15000)) != null, {});
   check('no uncaught errors', errors.length === 0, { errors });
 } catch (e) {
   fails.push(`stopped: ${e.message}`);

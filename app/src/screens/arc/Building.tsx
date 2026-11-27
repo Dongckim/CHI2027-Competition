@@ -13,7 +13,7 @@ import { loadSchedule } from '../../data/load';
 import { localDay } from '../../planner/plan.js';
 import { now } from '../../clock.js';
 import { warm, useTribe, previewTribe, setPreviewTribe, useWarm, useWarmRatio } from '../../arc/live';
-import { Screen, ArcLink, ArcButton, FRAME_ART } from '../../components/arc';
+import { Screen, ArcLink, ArcButton, BackButton, FRAME_ART } from '../../components/arc';
 import { DAYS, TIME_ZONE } from './When';
 import outer from '../../assets/arc/10-orbit-outer.svg';
 import inner from '../../assets/arc/10-orbit-inner.svg';
@@ -64,10 +64,12 @@ export function Building() {
     }, () => {});
     warm().then(() => engine.buildArc(query, opts), e => { if (live) setStuck(true); throw e; }).then(async arc => {
       if (!live) return; // StrictMode runs this effect twice in dev: only the live run saves
+      await new Promise(r => setTimeout(r, Math.max(0, MIN_MS - (Date.now() - started))));
+      // saved only once the person is still here after the wait: Back during 10 cancels (audit 11/27: Back then Build again
+      // left two Arcs, and the first-Arc tour went to the one nobody saw)
+      if (!live) return;
       await saveArc(arc);
       update(s => setTourDue(s, arc.id)); // user 11/26: the first Arc's map explains itself
-      await new Promise(r => setTimeout(r, Math.max(0, MIN_MS - (Date.now() - started))));
-      if (!live) return;
       go(`hood/${arc.id}`, { replace: true }); // back from 11 does not build again
     }, () => { if (live) setFailed(true); });
     return () => { live = false; };
@@ -76,9 +78,9 @@ export function Building() {
   const setup = stuck && warmState !== 'ready';
 
   return (
-    <Screen label="Building your Arc" bottom={setup ? <ArcButton className="mb-1.5" onClick={retry}>Try again</ArcButton>
+    <Screen label="Building your Arc" header={<BackButton href={href('when')} />} /* a way out while the model downloads (audit 11/27) */ bottom={setup ? <ArcButton className="mb-1.5" onClick={retry}>Try again</ArcButton>
       : failed ? <ArcLink href={href('when')} kind="secondary">Try again</ArcLink> : undefined}>
-      <div className="pointer-events-none relative mt-[156px] h-[340px] w-[390px] shrink-0 self-center" aria-hidden="true">
+      <div className="pointer-events-none relative mt-[108px] h-[340px] w-[390px] shrink-0 self-center" aria-hidden="true">
         <div className="absolute left-0 w-[390px]" style={{ top: -210, ...FRAME_ART }}>
           <img src={outer} alt="" data-anim="orbit 200" style={at(25, 210, 340)} />
           <img src={inner} alt="" data-anim="orbit 80" style={at(70, 255, 250)} />

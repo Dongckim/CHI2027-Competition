@@ -79,7 +79,7 @@ try {
   await sleep(200);
   await click(tab, 'Ask');
   const asked = await tab.waitFor(`/requests-check question/.test(document.querySelector('section[aria-labelledby=qa]').innerText)`, 15000);
-  await tab.ev(`[...document.querySelectorAll('section[aria-labelledby=qa] button')].find(b => b.innerText.trim() === 'Delete')?.click(), true`);
+  await tab.ev(`(window.confirm = () => true, [...document.querySelectorAll('section[aria-labelledby=qa] button')].find(b => b.innerText.trim() === 'Delete')?.click(), true)`); // Delete asks first (11/27)
   R.check('14: a Q&A question posted (and deleted)', asked != null, asked != null ? {} : { qa: await tab.ev(`document.querySelector('section[aria-labelledby=qa]')?.innerText.replace(/\\s+/g, ' ').slice(0, 200)`) });
   await tab.ev(`history.back(), true`);
   await tab.waitFor(`location.hash.startsWith('#/arc/')`);

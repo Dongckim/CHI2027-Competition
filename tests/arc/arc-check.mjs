@@ -129,14 +129,15 @@ try {
     return { n: add.length, clear: add.every(b => { const r = b.getBoundingClientRect(); return !rm.some(q => q.right > r.left + 1 && q.left < r.right - 1 && q.bottom > r.top + 1 && q.top < r.bottom - 1); }) }; })()`);
   check('15 a + for every angle, clear of the − buttons', adds?.n === 3 && adds.clear, adds ?? {});
   await click(`document.querySelector('button[aria-label^="Remove "]')`);
-  await click(`[...document.querySelectorAll('main button[aria-pressed]')].find(b => b.hasAttribute('aria-description'))`);
-  const cardsMs = await waitFor(`[...document.querySelectorAll('section[aria-label=Swap] button')].some(b => b.getAttribute('aria-label')?.startsWith('Swap in'))`, 20000);
+  // a Reframe: at Tue 12:00 every other Support is over, and ended talks are not offered (audit 11/27)
+  await click(`[...document.querySelectorAll('main button[aria-pressed]')].filter(b => b.hasAttribute('aria-description')).find(b => b.closest('[data-angle=R]'))`);
+  const cardsMs = await waitFor(`[...document.querySelectorAll('section[data-sheet] button')].some(b => b.getAttribute('aria-label')?.startsWith('Swap in'))`, 20000);
   await shot('15');
-  const swapIn = await ev(`[...document.querySelectorAll('section[aria-label=Swap] button')].find(b => b.getAttribute('aria-label')?.startsWith('Swap in'))?.getAttribute('aria-label')`);
-  await click(`[...document.querySelectorAll('section[aria-label=Swap] button')].find(b => b.getAttribute('aria-label')?.startsWith('Swap in'))`);
-  await waitFor(`!!document.querySelector('section[aria-label=Swap] [role=dialog]')`, 5000); // 11/27: it asks first
-  await click(`[...document.querySelectorAll('section[aria-label=Swap] [role=dialog] button')].at(-1)`);
-  await click(`[...document.querySelectorAll('section[aria-label=Swap] button[role=radio]')].find(b => b.innerText.includes('Wildcard'))`); // sheet closed after a swap: no-op
+  const swapIn = await ev(`[...document.querySelectorAll('section[data-sheet] button')].find(b => b.getAttribute('aria-label')?.startsWith('Swap in'))?.getAttribute('aria-label')`);
+  await click(`[...document.querySelectorAll('section[data-sheet] button')].find(b => b.getAttribute('aria-label')?.startsWith('Swap in'))`);
+  await waitFor(`!!document.querySelector('section[data-sheet] [role=dialog]')`, 5000); // 11/27: it asks first
+  await click(`[...document.querySelectorAll('section[data-sheet] [role=dialog] button')].at(-1)`);
+  await click(`[...document.querySelectorAll('section[data-sheet] button[role=radio]')].find(b => b.innerText.includes('Wildcard'))`); // sheet closed after a swap: no-op
   await click(`[...document.querySelectorAll('button')].find(b => b.innerText.trim() === 'Done')`);
   await waitFor(`location.hash === '#/arc/${ARCS.normal.id}'`, 10000);
   const stored = await ev(`new Promise(r => { const q = indexedDB.open('arc'); q.onsuccess = () => { const g = q.result.transaction('arcs').objectStore('arcs').get('${ARCS.normal.id}'); g.onsuccess = () => r(g.result.nodes.map(n => n.key)); }; })`);
@@ -146,9 +147,9 @@ try {
   await open(`#/arc/${ARCS.normal.id}/edit`);
   await waitFor(`document.querySelectorAll('button[aria-label^="Add a talk to "], button[aria-label^="Remove "]').length > 0`, 20000);
   await click(`[...document.querySelectorAll('main button[aria-pressed]')].find(b => b.hasAttribute('aria-description'))`);
-  await waitFor(`!!document.querySelector('section[aria-label=Swap]')`, 5000);
-  await click(`[...document.querySelectorAll('section[aria-label=Swap] button[role=radio]')].find(b => b.innerText.includes('Wildcard'))`);
-  check('15 Wildcard chip shows cards', (await waitFor(`[...document.querySelectorAll('section[aria-label=Swap] button')].filter(b => b.getAttribute('aria-label')?.startsWith('Swap in')).length > 0`, 20000)) != null, {});
+  await waitFor(`!!document.querySelector('section[data-sheet]')`, 5000);
+  await click(`[...document.querySelectorAll('section[data-sheet] button[role=radio]')].find(b => b.innerText.includes('Wildcard'))`);
+  check('15 Wildcard chip shows cards', (await waitFor(`[...document.querySelectorAll('section[data-sheet] button')].filter(b => b.getAttribute('aria-label')?.startsWith('Swap in')).length > 0`, 20000)) != null, {});
   check('no uncaught errors', errors.length === 0, { errors });
 } catch (e) {
   fails.push(`stopped: ${e.message}`);

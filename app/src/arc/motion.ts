@@ -36,12 +36,18 @@ export function countUp(el: Element | null | undefined, delay = 0) {
   if (!n) return;
   const fmt = (v: number) => m[1] + (comma ? v.toLocaleString('en-US') : String(v)) + m[3];
   const t0 = performance.now() + delay;
-  el.textContent = fmt(0);
+  // write into React's own text node (textContent would swap in a new node, and React's later updates went to the old one)
+  const set = (v: string) => { const t = el.firstChild; if (t && t.nodeType === 3 && !t.nextSibling) t.nodeValue = v; else el.textContent = v; };
+  let last = fmt(0);
+  set(last);
+  // React may write a newer number while this counts (the engine's other talks arrive): then stop, and never put the old
+  // one back (audit 11/27: the map said ↻ 3 under "All 12 Reframes")
   const step = (now: number) => {
-    if (!el.isConnected) return;
+    if (!el.isConnected || el.textContent !== last) return;
     const p = Math.min(1, Math.max(0, (now - t0) / 700));
-    el.textContent = fmt(Math.round(n * (1 - Math.pow(1 - p, 3))));
-    if (p < 1) requestAnimationFrame(step); else el.textContent = raw;
+    last = p < 1 ? fmt(Math.round(n * (1 - Math.pow(1 - p, 3)))) : raw;
+    set(last);
+    if (p < 1) requestAnimationFrame(step);
   };
   requestAnimationFrame(step);
 }

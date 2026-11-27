@@ -87,7 +87,7 @@ export function Interpret({ paperKey, who }: { paperKey: string; who?: string | 
       };
       ws.onclose = () => { if (run.current === r) { setNote('The connection closed. Tap to talk again.'); stop(); } };
     } catch (err) {
-      setNote(/denied|NotAllowed/i.test(String(err)) ? 'ARC needs the microphone to interpret.' : `Could not start: ${String((err as Error).message ?? err)}`);
+      setNote(/denied|NotAllowed/i.test(String(err)) ? 'ARC needs the microphone to interpret.' : "Interpreting isn't available right now. Try again in a moment.");
       stop();
     }
   };
@@ -134,7 +134,7 @@ export function Interpret({ paperKey, who }: { paperKey: string; who?: string | 
         <ul className="mt-2 flex list-disc flex-col gap-2 pl-5 text-[15px] leading-[21px] text-arc-text-2">
           <li>Your voice goes to Soniox, an interpreting service, to be translated as you speak.</li>
           <li>Neither ARC nor Soniox saves it: no recording, no transcript. The words on screen are wiped when you stop.</li>
-          <li>Everything else in ARC stays on your phone. Interpreting is the one thing that leaves it, only while it runs.</li>
+          <li>Interpreting sends your voice only while it runs. Apart from questions you post to a talk's Q&amp;A, the rest of ARC stays on your phone.</li>
         </ul>
         <ArcButton className="mt-5" onClick={agree}>Start interpreting</ArcButton>
         <ArcButton kind="ghost" className="mt-2" onClick={() => setAsking(false)}>Not now</ArcButton>

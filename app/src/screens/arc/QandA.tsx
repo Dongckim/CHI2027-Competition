@@ -47,8 +47,9 @@ export function useQandA(paperKey: string) {
   return {
     questions, error, text, setText, busy, note, send, online, close,
     voteOn: (q: Question) => act(async () => { await vote(token, q.id); update(s => addVoted(s, q.id)); }, 'Vote counted.'),
-    flagOn: (q: Question) => act(() => flag(token, q.id), 'Reported. Three reports hide a question.'),
-    deleteOn: (q: Question) => act(() => remove(token, q.id), 'Your question was deleted.'),
+    // one tap is easy to make by mistake (audit 11/27): both ask first
+    flagOn: (q: Question) => { if (confirm('Report this question? Three reports hide it.')) act(() => flag(token, q.id), 'Reported. Three reports hide a question.'); },
+    deleteOn: (q: Question) => { if (confirm('Delete your question?')) act(() => remove(token, q.id), 'Your question was deleted.'); },
     isVoted: (q: Question) => q.voted || voted.has(q.id),
   };
 }
@@ -72,15 +73,16 @@ export function QandAList({ qa }: { qa: ReturnType<typeof useQandA> }) {
             <li key={q.id} className="flex min-h-16 items-center gap-2.5 rounded-[20px] border border-arc-line bg-arc-surface py-2 pr-2.5 pl-4">
               <div className="min-w-0 flex-1">
                 <p className="text-[15px] leading-5 tracking-[-0.006em] break-words">{q.text}</p>
+                {q.hidden && <p className="text-[12px] text-arc-text-3">Hidden after reports. Only you can see it.</p>}
                 <div className="-ml-2 flex">
                   {q.mine
-                    ? <button type="button" onClick={() => qa.deleteOn(q)} className="min-h-touch px-2 text-[13px] font-semibold text-arc-text-2 underline">Delete</button>
-                    : <button type="button" onClick={() => qa.flagOn(q)} className="min-h-touch px-2 text-[13px] font-semibold text-arc-text-2 underline">Report</button>}
+                    ? <button type="button" disabled={!qa.online} onClick={() => qa.deleteOn(q)} className="min-h-touch px-2 text-[13px] font-semibold text-arc-text-2 underline">Delete</button>
+                    : <button type="button" disabled={!qa.online} onClick={() => qa.flagOn(q)} className="min-h-touch px-2 text-[13px] font-semibold text-arc-text-2 underline">Report</button>}
                 </div>
               </div>
               {/* voted = filled arrow on the primary fill (user 「누른 상태가 눈으로 구분되게(아이콘 채움 + 색, 비텍스트 대비 3:1)」:
                   #f4f3f8 on the #1c1b24 card is 15:1); Figma's surface fill read the same as not voted. Screen readers: aria-pressed */}
-              <button type="button" onClick={() => !v && qa.voteOn(q)} aria-pressed={v} aria-label={`${v ? 'Voted' : 'Vote for this question'}, ${q.votes} ${q.votes === 1 ? 'vote' : 'votes'}`}
+              <button type="button" disabled={!qa.online} onClick={() => !v && qa.voteOn(q)} aria-pressed={v} aria-label={`${v ? 'Voted' : 'Vote for this question'}, ${q.votes} ${q.votes === 1 ? 'vote' : 'votes'}`}
                 className={`flex h-12 w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border ${v ? 'border-transparent bg-arc-primary text-arc-on-primary' : 'border-arc-text/[0.14]'}`}>
                 <Pic src={v ? voteOnIcon : voteIcon} size={16} />
                 <span className="text-[12px] font-medium">{q.votes}</span>
@@ -100,7 +102,8 @@ export function QandAAsk({ qa }: { qa: ReturnType<typeof useQandA> }) {
   const field = useRef<HTMLTextAreaElement>(null);
   // the composer opens and takes the focus in the same tap, or iOS does not raise the keyboard
   const start = () => { flushSync(() => setOpen(true)); field.current?.focus(); };
-  const note = qa.note || (left < 40 ? `${left} characters left` : 'Public · No personal info · Deleted 13 Jun 2027');
+  // the privacy line stays; a status (sent, an error) is its own line over it (audit 11/27: errors took its place)
+  const note = left < 40 ? `${left} characters left` : 'Public · No personal info · Deleted 13 Jun 2027';
   return (
     // 14 (user 11/27): the box under the talk only opens the composer; typing happens there, over the page
     <div className="-mb-[13px] flex flex-col">
@@ -109,6 +112,7 @@ export function QandAAsk({ qa }: { qa: ReturnType<typeof useQandA> }) {
         <Pic src={chat} size={18} className="opacity-50" />
         <span className={`min-w-0 flex-1 truncate text-[16px] tracking-[-0.006em] ${qa.text ? 'text-arc-text' : 'text-arc-text-3'}`}>{qa.text || 'Ask the authors anything'}</span>
       </button>
+      {qa.note && <p role="status" className="mt-1 text-center text-[13px] font-medium text-arc-text-2">{qa.note}</p>}
       <p id="qa-note" className="flex min-h-[15px] items-center justify-center gap-1 text-center text-[12px] leading-[15px] text-arc-text-3" aria-live="polite">
         {/* user 「안내는 한 줄 "Public · No personal info · Deleted 13 Jun 2027" + ⓘ(누르면 자세한 설명)」 */}
         {note}
@@ -157,7 +161,7 @@ function Composer({ qa, field, note, onClose }: { qa: ReturnType<typeof useQandA
       </div>
       <textarea ref={field} value={qa.text} onChange={e => qa.setText(e.target.value.slice(0, MAX))} maxLength={MAX} rows={4} enterKeyHint="send"
         placeholder="Ask the authors anything" aria-describedby="qa-note-sheet"
-        onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!close) send(); } }}
+        onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }} /* with a close question shown, Send = Post on its own */
         className="mt-2 min-h-0 flex-1 resize-none rounded-2xl border border-arc-line bg-arc-surface px-4 py-3 text-[16px] leading-[22px] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />
       {close && (
         <div role="status" className="mt-2 rounded-2xl bg-white/5 px-4 py-2.5">
@@ -165,12 +169,13 @@ function Composer({ qa, field, note, onClose }: { qa: ReturnType<typeof useQandA
           <p className="mt-1 line-clamp-2 text-[13px] leading-[18px] text-arc-text-2">“{close.question.text}”</p>
         </div>
       )}
+      {qa.note && <p role="status" className="mt-1.5 text-center text-[13px] font-medium text-arc-text-2">{qa.note}</p>}
       <p id="qa-note-sheet" className="mt-1.5 text-center text-[12px] text-arc-text-3">{note}</p>
       <div className="mt-2 flex gap-2">
         {close
           ? <><ArcButton kind="secondary" className="flex-1" disabled={qa.busy} onClick={() => send()}>Post on its own</ArcButton>
               <ArcButton className="flex-1" disabled={qa.busy} onClick={() => send(close.question)}>Me too + add mine</ArcButton></>
-          : <ArcButton disabled={qa.busy || !qa.text.trim()} onClick={() => send()}>Ask</ArcButton>}
+          : <ArcButton disabled={qa.busy || !qa.text.trim()} onClick={() => send()}>{qa.busy ? 'Sending…' : 'Ask'}</ArcButton>}
       </div>
     </div>, document.body);
 }

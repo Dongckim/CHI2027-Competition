@@ -4,7 +4,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 export type TourStep = { at: string | string[]; title: string; text: string }; // several: the first found
-const find = (at: TourStep['at']) => [at].flat().map(q => document.querySelector(q)).find(Boolean) ?? null;
+// a count of 0 is not a step to point at (audit 11/27: "Challenges" over ⊣ 0)
+const find = (at: TourStep['at']) => [at].flat().map(q => document.querySelector(q)).find(el => el && el.querySelector('[data-count]')?.textContent?.trim() !== '0') ?? null;
 export const TOUR: TourStep[] = [
   { at: '[data-arc-map] .arc-orb', title: 'Your question', text: 'Every talk on this map answers it. The ring is your field’s colour.' },
   { at: '[data-badge="S"]', title: '↑ Supports', text: 'Talks with the same finding.' },
@@ -30,7 +31,7 @@ export const EDIT_TOUR: TourStep[] = [
   { at: 'button[aria-label^="Add a talk to"]', title: 'Add a talk', text: 'Tap + to open the talks for that angle in a sheet below.' },
   { at: '[data-arc-map] [data-node-key]', title: 'Swap a talk', text: 'Tap a talk on your Arc to swap it for another of the same angle. (Holding a talk here does nothing in Edit.)' },
   { at: 'button[aria-label^="Remove"]', title: 'Remove', text: 'The − takes a talk off your Arc.' },
-  { at: 'header button', title: 'Done', text: 'Done keeps your changes.' },
+  { at: '[data-tour="done"]', title: 'Done', text: 'Done keeps your changes; Cancel throws them away.' },
 ];
 
 // the sheet of 15, the first time it shows talks (user 11/27 「노드 꾹 누르는게 아니라 서칭 창에서 꾹 누르면 << 이거 가이드가 정정해주고」)
@@ -47,6 +48,9 @@ export function MapTour({ onDone, steps: all = TOUR, label = 'How to read your A
   const step = steps[i];
   useLayoutEffect(() => {
     const measure = () => { const el = step && find(step.at); setBox(el ? el.getBoundingClientRect() : null); };
+    // a step below the fold comes into view first (audit 11/27: 14's steps 4–5 described what the dim hid)
+    const el = step && find(step.at);
+    if (el) { const r = el.getBoundingClientRect(); if (r.top < 60 || r.bottom > innerHeight - 200) el.scrollIntoView({ block: 'center' }); }
     measure();
     addEventListener('resize', measure);
     return () => removeEventListener('resize', measure);

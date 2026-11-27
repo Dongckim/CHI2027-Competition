@@ -74,10 +74,10 @@ try {
     // search: a found talk goes to the angle the engine judges (user 11/25 「A로 하고」; the mock puts "haptic" titles under
     // Reframes), so it may sit beyond the three a region shows: its "Yours" is then in the All talks list
     await p.getByRole('searchbox', { name: 'Search talks' }).fill('haptic');
-    const card = p.locator('section[aria-label=Swap] button[aria-label^="Add to "]:not([disabled])').first();
+    const card = p.locator('section[data-sheet] button[aria-label^="Add to "]:not([disabled])').first();
     await card.waitFor({ timeout: 20000 });
     await card.click();
-    await p.locator('section[aria-label=Swap] [role=dialog] button').last().click(); // 11/27: "Add this talk?" first
+    await p.locator('section[data-sheet] [role=dialog] button').last().click(); // 11/27: "Add this talk?" first
     await p.waitForFunction(() => [...document.querySelectorAll('main span')].some(s => /(^| · )Yours$/.test(s.textContent)));
     const yoursKept = await p.locator('main button[aria-pressed="true"][aria-description*="Yours"]').count()
       + await p.locator('section[aria-label="All talks"] button[aria-pressed="true"]', { hasText: '· Yours' }).count();

@@ -24,7 +24,8 @@ function call<T>(op: string, args: object): Promise<T> {
       waiting.delete(data.id);
       if (data.ok) w?.resolve(data.value); else w?.reject(new Error(data.error));
     };
-    worker.onerror = e => { for (const w of waiting.values()) w.reject(new Error(e.message || 'ondevice worker failed')); waiting.clear(); worker = null; };
+    // a crash after init (e.g. memory on a phone) starts the next call in a fresh worker, which must load the model again (audit 11/27)
+    worker.onerror = e => { for (const w of waiting.values()) w.reject(new Error(e.message || 'ondevice worker failed')); waiting.clear(); worker = null; ready = null; };
   }
   const id = ++seq;
   return new Promise<T>((resolve, reject) => { waiting.set(id, { resolve: resolve as (v: unknown) => void, reject }); worker!.postMessage({ id, op, args }); });

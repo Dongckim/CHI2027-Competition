@@ -81,11 +81,17 @@ function useReceived(payload: string) {
 const keep = async (arc: Arc, to: 'arc' | 'home' = 'arc') => { await saveArc(arc); update(setOnboarded); go(to === 'home' ? 'home' : `arc/${arc.id}`, { replace: true }); };
 // 18 "Make it mine" opens 19b (user 「18 "Make it mine" → 19b로 변경. 15는 내 Arc 편집용으로 유지」).
 
+// a sentence per reason (audit 11/27: "It is no neighbourhood in the link." read broken)
+const brokenText = (why: string) => why === 'not a share link' ? 'Part of the link is missing or changed (a chat may have cut it short). Ask for the link again.'
+  : why === 'made by another version of ARC' ? 'It was made by another version of ARC. Ask for a new link.'
+  : why.startsWith('made for another CHI') ? `It was ${why}.`
+  : why === 'could not load the programme' ? "The CHI programme couldn't load. Check your connection and open the link again."
+  : 'Something in the link is broken. Ask for the link again.';
 function Broken({ why }: { why: string }) {
   return (
     <Screen label="Shared Arc" bottom={<a href={href('home')} className="inline-flex h-[54px] w-full items-center justify-center rounded-full bg-arc-primary text-[16px] font-semibold text-arc-on-primary">Go to my Arcs</a>}>
-      <h1 className="mt-16 text-[26px] leading-8 font-semibold">This link can't be opened</h1>
-      <p className="mt-3 text-[16px] text-arc-text-2">It is {why}. Ask for the link again.</p>
+      <h1 className="mt-16 text-[26px] leading-8 font-semibold break-words">This link can't be opened</h1>
+      <p className="mt-3 text-[16px] text-arc-text-2">{brokenText(why)}</p>
     </Screen>
   );
 }
@@ -112,7 +118,7 @@ export function Received({ payload }: { payload: string }) {
       <ArcButton kind="ghost" className="mt-3" onClick={() => go(`r/${payload}/read`)} disabled={!arc.nodes.length}>Just read</ArcButton>
     </div>}>
       <p className="mt-2 inline-flex items-center gap-1.5 self-start rounded-2xl border border-arc-line bg-arc-surface py-1.5 pr-3 pl-2.5 text-[13px] font-semibold"><Pic src={linkIcon} size={14} />Shared Arc</p>
-      <h1 className="mt-3 text-[26px] leading-8 font-semibold tracking-[-0.02em]">{arc.query}</h1>
+      <h1 className="mt-3 text-[26px] leading-8 font-semibold tracking-[-0.02em] break-words">{arc.query}</h1>
       {missing > 0 && <p className="mt-2 text-[14px] text-arc-text-2">{missing} {missing === 1 ? 'talk is' : 'talks are'} not in this programme and were left out.</p>}
       <div ref={mapRef} className="-mx-6 mt-4"><ArcView arc={arc} states={states} info={info} scale={fit} readOnly fit /></div>
     </Screen>
@@ -133,7 +139,7 @@ export function JustRead({ payload }: { payload: string }) {
         <p className="flex-1 text-[14px] font-medium text-arc-text-2">Not saved · Add to keep it</p>
         <ArcButton kind="primary" className="h-11 min-w-[72px]" onClick={() => keep(arc)}>Add</ArcButton>
       </div>
-      <h1 className="mt-4 max-w-[300px] text-[22px] leading-7 font-semibold tracking-[-0.02em]">{arc.query}</h1>
+      <h1 className="mt-4 max-w-[300px] text-[22px] leading-7 font-semibold tracking-[-0.02em] break-words">{arc.query}</h1>
       <AngleRows arc={arc} states={states} info={info} />
     </Screen>
   );
@@ -160,7 +166,7 @@ export function Pick({ payload }: { payload: string }) {
   return (
     <Screen clock label="Pick some" header={<><BackButton href={href(`r/${payload}`)} /><span /></>}
       bottom={<ArcButton onClick={save} disabled={!picked.size}>{picked.size ? `Add ${picked.size} to my Arcs` : 'Pick at least one talk'}</ArcButton>}>
-      <h1 className="mt-2.5 text-[26px] leading-8 font-semibold tracking-[-0.02em]">Pick what to keep.</h1>
+      <h1 className="mt-2.5 text-[26px] leading-8 font-semibold tracking-[-0.02em] break-words">Pick what to keep.</h1>
       <div className="-mx-6 mt-7"><ArcView arc={arc} states={states} info={info} scale={0.78} readOnly pick={{ picked, locked, onToggle: toggle }} /></div>
       {/* the map box keeps room for two-line labels below the bottom row; Figma's legend sits 30 under its one-line labels */}
       <div className="mt-3 flex flex-wrap justify-center gap-x-[18px] gap-y-2" aria-hidden="true">
@@ -232,7 +238,7 @@ export function Yours({ payload }: { payload: string }) {
       {editing
         ? <input autoFocus defaultValue={q} maxLength={QUERY_MAX} aria-label="Your question" onBlur={e => commit(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); if (e.key === 'Escape') setEditing(false); }}
             className="mt-3 h-14 w-full rounded-2xl border border-arc-line bg-arc-surface px-4 text-[16px] font-semibold text-arc-text focus:outline-none" />
-        : <h1 className="mt-3 text-[24px] leading-8 font-semibold tracking-[-0.02em]">
+        : <h1 className="mt-3 text-[24px] leading-8 font-semibold tracking-[-0.02em] break-words">
             <button type="button" onClick={() => setEditing(true)} aria-description="Edit the question" className="min-h-touch text-left">
               {before}{words && <span className="underline">{words}</span>}{after}
             </button>

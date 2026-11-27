@@ -1,5 +1,7 @@
 // 12 · My Arc · map (Figma 597:711) with its states: 23 no clear Challenge, 24 crowded (+N), 25 angles still sorting.
 // Bottom: the next talk (to 14), Edit (15) and Share (A3).
+import { notOver } from './useArc';
+import { now as nowMs } from '../../clock.js';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { engineFor, type ArcNode } from '../../engine';
 import { play, OUT } from '../../arc/motion';
@@ -57,7 +59,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
       const mine = arc.nodes.filter(n => n.angle === a).length;
       if (mine >= 12) continue;
       engineFor(arc.engine).suggest(arc.query, a, arc.nodes.map(n => n.key), 12 - mine, arc.filters)
-        .then(c => { if (live) setOthers(o => ({ ...o, [a]: c.filter(n => n.angle === a) })); }, () => {});
+        .then(c => { if (live) setOthers(o => ({ ...o, [a]: c.filter(n => n.angle === a).filter(notOver(use.paper, nowMs())) })); }, () => {});
     }
     return () => { live = false; };
   }, [keys]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -148,7 +150,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
           {(['S'] as Angle[]).filter(a => a !== focus).map(a => ( /* Supports lies up: its count stays on top */
             <button key={a} type="button" onClick={() => toFocus(a)} aria-label={`All ${totals[a]} ${ANGLE_NAME[a]}`} className="flex min-h-touch items-center">
               <span data-badge={a} className="flex h-[30px] items-center gap-[5px] rounded-full border border-white/10 bg-arc-surface pr-[11px] pl-[9px] text-[13px] font-semibold text-arc-text/78">
-                <Pic src={ANGLE_ICON[a]} size={16} /><span data-count="">{totals[a]}</span>
+                <Pic src={ANGLE_ICON[a]} size={16} /><span key={totals[a]} data-count="">{totals[a]}</span>
               </span>
             </button>
           ))}
@@ -165,13 +167,16 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
           hold={pending || focus ? undefined : { held, press: hs.press, onSwap: k => hs.open(k, true) }} />}{/* drawn once the times are in: the bloom orders talks by their state */}
         {/* 24b Reframes / Challenges: the other lower angle's count sits in its own corner, the way it lies on the map
             (user 11/27 「우하단을 눌렀을때 … 좌하단쪽에 버튼이 있어야 … vice versa」); 24b Supports keeps its corners in the map */}
+        {focus && use.schedule && !shown.nodes.some(n => n.angle === focus) && ( /* audit 11/27: an empty angle showed nothing at all */
+          <p className="absolute inset-x-6 top-1/2 text-center text-[15px] text-arc-text-2">{focus === 'T' ? 'No clear challenge at CHI this year.' : `No ${ANGLE_NAME[focus]} at CHI for this question yet.`}</p>
+        )}
         {(focus === 'R' || focus === 'T') && (() => {
           const a: Angle = focus === 'R' ? 'T' : 'R';
           return (
             <button type="button" onClick={() => toFocus(a)} aria-label={`All ${totals[a]} ${ANGLE_NAME[a]}`}
               className={`absolute bottom-1 z-[3] flex min-h-touch items-center ${a === 'R' ? 'left-4' : 'right-4'}`}>
               <span data-badge={a} className="flex h-[30px] items-center gap-[5px] rounded-full border border-white/10 bg-arc-surface pr-[11px] pl-[9px] text-[13px] font-semibold text-arc-text/78">
-                {a === 'R' && <span aria-hidden="true" className="text-[12px]">‹</span>}<Pic src={ANGLE_ICON[a]} size={16} /><span data-count="">{totals[a]}</span>{a === 'T' && <span aria-hidden="true" className="text-[12px]">›</span>}
+                {a === 'R' && <span aria-hidden="true" className="text-[12px]">‹</span>}<Pic src={ANGLE_ICON[a]} size={16} /><span key={totals[a]} data-count="">{totals[a]}</span>{a === 'T' && <span aria-hidden="true" className="text-[12px]">›</span>}
               </span>
             </button>
           );
@@ -182,7 +187,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
       {picked && (() => {
         const pi = info(picked.key), off = candidates.has(picked.key), st = states.get(picked.key) ?? 'upcoming';
         const w = off ? '' : pi.on && st === 'next' ? 'Now' : st === 'upcoming' ? '' : STATE_WORD[st];
-        const line = [w, pi.when.replace(' · Rm ', ' · Room '), off && 'Not in your Arc'].filter(Boolean).join(' · ');
+        const line = [w, pi.when.replace(' · Rm ', ' · Room '), off && 'Not on your Arc'].filter(Boolean).join(' · ');
         return <NodePopup k={picked.key} line={line} title={pi.title} by={pi.first} outside={off} onClose={closePop} onAdd={() => { setSel(null); add(picked); }} />;
       })()}
       {tour && <MapTour onDone={endTour} />}

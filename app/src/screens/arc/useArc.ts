@@ -1,5 +1,8 @@
 // What 12, 13 and 15 need about one Arc: the stored Arc, the programme (titles, times, rooms), the node states on the
 // clock (app/src/arc/demoClock.ts: real, or the demo day outside the conference), and the text a node shows.
+import { isOver } from '../../arc/period.js';
+import { DEMO_TZ } from '../../arc/demoClock';
+import current from '../../../../data/build/app-data/chi2026/current.json';
 import { useEffect, useMemo, useState } from 'react';
 import { go } from '../../router';
 import { getArc, saveArc } from '../../arc/store';
@@ -27,6 +30,13 @@ export const whenLine = (start: number, room: string, tz: string, nowMs: number)
   `${localDay(start, tz) !== localDay(nowMs, tz) ? `${weekdayOf(start, tz)} ` : ''}${venueClock(start, tz)}${room ? ` · ${shortRoom(room)}` : ''}`;
 /** The session's first chair as "Name · Institution" (schedule.json sessions[].chairs, user 11/25 E). */
 export const chairOf = (schedule: Schedule, sessionKey: string) => ((schedule.index.sessions.get(sessionKey) as { chairs?: string[] } | undefined)?.chairs ?? [])[0] ?? null;
+/** A talk that has not ended yet (or has no time): what Add, Swap and 24b may offer (audit 11/27: they offered talks that
+ * were over, and a swap turned an upcoming stop into an ended one) */
+export const notOver = (paper: (k: string) => unknown, now: number) => (n: { key: string }) => {
+  if (isOver(now, { days: current.days, timeZone: DEMO_TZ })) return true; // after CHI (the demo) every talk is over: keep them all
+  const ends = ((paper(n.key) as { slots?: { end?: number | null }[] } | undefined)?.slots ?? []).map(s => s.end).filter((e): e is number => typeof e === 'number');
+  return !ends.length || Math.max(...ends) > now;
+};
 export const shortRoom = (name: string) => {
   const room = name.match(/Room\s+(\S+)/i)?.[1];
   return room ? `Rm ${room}` : /posters?/i.test(name) ? 'Posters' : name; // "Area 1 + 2 + 3: posters" → "Posters"

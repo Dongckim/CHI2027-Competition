@@ -29,7 +29,8 @@ test('qa: three flags hide, only the asker deletes, limits and checks', async ()
   const s = memoryStore();
   const q = (await call(s, 'POST', A, { action: 'ask', paper, text: 'q?' })).body.question;
   for (const t of [B, C, D]) await call(s, 'POST', t, { action: 'flag', id: q.id });
-  assert.equal((await call(s, 'GET', A, null, `?paper=${paper}`)).body.questions.length, 0, 'hidden after three flags');
+  assert.deepEqual((await call(s, 'GET', A, null, `?paper=${paper}`)).body.questions.map(x => [x.id, x.hidden]), [[q.id, true]], 'its author still sees it, marked, so they can delete it (11/27)');
+  assert.equal((await call(s, 'GET', B, null, `?paper=${paper}`)).body.questions.length, 0, 'hidden after three flags');
   const q2 = (await call(s, 'POST', A, { action: 'ask', paper, text: 'another?' })).body.question;
   assert.equal((await call(s, 'DELETE', B, { id: q2.id })).status, 403);
   assert.equal((await call(s, 'DELETE', A, { id: q2.id })).status, 200);
@@ -85,4 +86,15 @@ test('qa: the expiry check passes real keys and catches one that never expires',
   assert.ok(ok.content >= 3 && ok.rate === 2 && ok.bad.length === 0, JSON.stringify(ok));
   await s.cmd('SET', 'preview:qa:q:ffffffffffffffff', '{}');
   assert.deepEqual((await checkExpiry(s, 'preview', now)).bad.map(b => [b.key, b.ttl]), [['preview:qa:q:ffffffffffffffff', -1]]);
+});
+
+test('qa: one network cannot hide a question with made-up tokens (11/27 audit): flags and writes per address', async () => {
+  const { resetIpLimits, IP_FLAGS_PER_10_MIN } = await import('../../functions/qa.mjs');
+  resetIpLimits();
+  const s = memoryStore(), now = Date.UTC(2026, 10, 21, 10);
+  const q = (await call(s, 'POST', A, { action: 'ask', paper, text: 'A fair question?' })).body.question;
+  const flag = async i => (await handle(new Request('http://x/api/qa', { method: 'POST', headers: { 'x-arc-device': `token${String(i).padStart(16, '0')}`, 'x-forwarded-for': '203.0.113.7', 'content-type': 'application/json' }, body: JSON.stringify({ action: 'flag', id: q.id }) }), {}, s, now)).status;
+  const codes = []; for (let i = 0; i < IP_FLAGS_PER_10_MIN + 2; i++) codes.push(await flag(i));
+  assert.equal(codes.filter(c => c === 429).length, 2, `past the limit, refused: ${codes}`);
+  resetIpLimits();
 });

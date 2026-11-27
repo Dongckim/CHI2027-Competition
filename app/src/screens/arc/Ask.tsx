@@ -1,7 +1,7 @@
 // 07 · Ask: one question (a word or a sentence). While typing, the tribe it would land in shows as a chip (engine.tribeOf).
 // First time this is step 6 of the onboarding dots with Skip; from home it has a back button instead.
 import book from '../../assets/arc/icon-book.svg';
-import { fold, sameName, type Author } from '../../arc/authors.js';
+import { fold, sameName, findAuthors, type Author } from '../../arc/authors.js';
 import { authorsOf } from './Paper';
 import { useEffect, useId, useState } from 'react';
 import { go, href } from '../../router';
@@ -95,7 +95,10 @@ export function Ask() {
   }, [draft.query]);
   // a CHI author's name typed here: 07p (07r when one author has it), not a question for the engine (user 11/26 「이거로 하자」)
   const [authors, setAuthors] = useState<Author[] | null>(null);
-  const named = authors && hasWords(draft.query) ? sameName(draft.query, authors) : [];
+  // the whole name, or (two words or more) the authors 07p finds for it (audit 11/27: "Alicia Lee" for "Alicia (Hyun Jin) Lee")
+  const named = authors && hasWords(draft.query) ? (() => { const exact = sameName(draft.query, authors); if (exact.length || fold(draft.query).length < 2 || /\?/.test(draft.query)) return exact; const f = findAuthors(draft.query, authors, 3); return f.hits.length === 1 && !f.more ? f.hits : []; })() : [];
+  // the engine reads English (audit 11/27: a Korean question built an Arc of unrelated talks without a word)
+  const latin = /[A-Za-z]/.test(draft.query);
   useEffect(() => { if (!authors && fold(draft.query).length >= 2) authorsOf().then(d => setAuthors(d.authors), () => {}); }, [authors, draft.query]);
   const topic = isTopic(draft.query) && topicOf(draft.query) ? topicOf(draft.query) : null; // 07b on "VR", not "I study VR" (persona review 11/25)
   const [help, setHelp] = useState<Help | null>(null);
@@ -156,6 +159,7 @@ export function Ask() {
           <Pic src={chevron} size={16} />
         </a>
       )}
+      {!latin && hasWords(draft.query) && <p role="note" className="-mt-2 mb-1 text-[13px] text-arc-text-2">ARC reads questions in English for now.</p>}
       {/* prototype 07's pill (user 11/26 「Have a paper? 이거대로 해야지」), right under the input so it shows on every phone without
           scrolling (user 11/27 「스크롤 없이 누구나 쉽게」: under the starters it fell off iPhone SE and in-app browsers) */}
       <a href={href('paper')} className="mt-1 inline-flex min-h-touch items-center gap-2 self-center rounded-full border border-arc-line bg-arc-surface px-4 text-[14px] font-medium text-arc-text-2">
@@ -172,7 +176,7 @@ export function Ask() {
               <button type="button" onClick={() => ask(text)}
                 className="relative flex h-[86px] w-full items-start gap-3.5 rounded-[20px] border border-arc-line bg-arc-surface pt-[11px] pr-[30px] pl-[10px] text-left">
                 <MiniArc arc={arc} />
-                <span className="line-clamp-2 min-w-0 flex-1 pt-px text-[15px] leading-[19px] font-semibold tracking-[-0.006em]">{text}</span>
+                <span className="line-clamp-3 min-w-0 flex-1 pt-px text-[15px] leading-[19px] font-semibold tracking-[-0.006em]">{text}</span>
                 {/* Figma: the counts at y 57 in the card, the angle symbols as text; read out by name. "Suggested" before them:
                     the card is the engine's suggestion, not a talk (user 11/21 「제안 카드라는 게 보이게」; designer to confirm) */}
                 <span className="absolute top-[56px] left-[84px] text-[12px] font-medium whitespace-pre text-arc-text/60">
