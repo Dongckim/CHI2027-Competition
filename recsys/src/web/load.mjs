@@ -83,6 +83,8 @@ export async function loadPackage(base, opts = {}) {
   // the Arc engine's finding cards and phrase vectors (angles.json, phrase_vec.npy)
   if (await rd.exists("angles.json")) {
     pkg.angles = await json(rd, "angles.json");
+    // sharper questions written offline for what attendees type (scripts/build_narrow.py)
+    pkg.narrow = (await rd.exists("narrow.json")) ? await json(rd, "narrow.json") : null;
     pkg.phraseEmb = await matrix(rd, "phrase", true);
   }
   pkg.programEmb = alignRows(await matrix(rd, "program"), program.map((it) => it.id),
