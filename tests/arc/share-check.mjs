@@ -120,8 +120,8 @@ try {
   // 14 Q&A against the memory store
   const talk = (await stored()).find(a => a.query === 'Does VR fidelity raise presence?').nodes[0].key;
   await open(`#/talk/${talk}`);
-  await waitFor(`/Be the first to ask|Questions/.test(document.body.innerText) && !!document.querySelector('input[placeholder="Add a question for the Q&A"]')`, 20000);
-  await ev(`(() => { const i = document.querySelector('input[placeholder="Add a question for the Q&A"]'); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+  await waitFor(`/Be the first to ask|Questions/.test(document.body.innerText) && !!document.querySelector('input[aria-describedby="qa-note"]')`, 20000);
+  await ev(`(() => { const i = document.querySelector('input[aria-describedby="qa-note"]'); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
     set.call(i, 'Did presence hold after 20 minutes?'); i.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
   await click(byText('Ask'));
   const asked = await waitFor(`[...document.querySelectorAll('section[aria-labelledby=qa] li')].some(l => l.innerText.includes('Did presence hold after 20 minutes?'))`, 10000);

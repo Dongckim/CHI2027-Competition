@@ -119,7 +119,7 @@ export function ShowShape({ schedule, roomKey, roomName, tribe, paperKey }: { sc
     <Screen label="Show my shape"
       bottom={<>
         {/* prototype 3 14f: found each other → talk, interpreted (14g) */}
-        <ArcButton className="-mb-0.5" onClick={() => go(`talk/${paperKey}/interpret`, { replace: true })}>Start live translation</ArcButton>
+        <ArcButton data-arc-wrap="" className="-mb-0.5 h-auto min-h-[var(--arc-button-h)] py-2 text-center" onClick={() => go(`talk/${paperKey}/interpret`, { replace: true })}>Start live translation</ArcButton>
         <ArcButton kind="ghost" onClick={() => leaveShape(paperKey)}>Cancel</ArcButton>
       </>}>
       {/* Figma 745:1839 at y 104 (no header row: 54 + 50) */}

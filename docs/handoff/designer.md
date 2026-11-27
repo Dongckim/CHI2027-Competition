@@ -384,3 +384,17 @@ Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your p
 - 사용자 「choose angle 부분은 지워주고 굳이 필요없을꺼 같아」: 08 없앰. 07(Find my angles, 07b 카드)·07r(Build my Arc from this paper) → 09. 09의 뒤로 → 07, 단계 막대 없음. 각도는 엔진이 정함.
 - 사용자 「Start from my paper 왜 html 대로 안했어. Have a paper? 이거대로 해야지」: 07 시작 질문 아래 가운데 알약 "📖 Have a paper at CHI? Find it ›" → 07p.
 - 사용자 「통역 부분도 다 진행해줘」: 14g Talk face to face. 14 머리의 통역 아이콘, 14f "Start live translation"에서 들어감. 폰을 둘 사이에 놓고 위쪽 반은 상대 쪽으로 뒤집힘. Soniox 양방향 통역(/api/soniox-key 임시 키), 저장 없음(멈추거나 닫으면 지움). 14b의 "글로 쓴 질문 번역"은 글 번역 서비스가 없어 넣지 않음.
+
+## 28. 11/27 요청 묶음 (테스트 기간, 사용자 요청)
+- Q&A(14): 입력 글자 16px(iOS는 16px 미만 입력창을 누르면 확대), 키보드가 올라오면 아래 영역을 visualViewport에 맞춰 키보드 바로 위로(스크롤해도 따라옴). 안내 "Ask the authors anything you’re curious about!". 14 가이드: 저자가 세션에서 직접 답하고, 표가 많은 질문이 먼저.
+- 12b 꾹 누르기: iPhone에서 글자 선택·링크 메뉴가 먼저 잡던 것을 노드에서 막음(touch-callout, user-select, touch-action).
+- 노드 팝업: 제목 아래 "by 1저자 · 소속".
+- 24b: 아래쪽 다른 각도 버튼을 그 방향 모서리에(Challenges에서 Reframes는 왼쪽 아래, 반대도), Supports는 위. 머리 숫자는 지도에 그린 수, 넘치면 "12 on the map · See all 19 ›"(목록으로).
+- 20: Arc를 만든 컨퍼런스 날짜별로 묶음(All week는 끝). After CHI 탭: 언제든 "Your CHI so far"(20b) + 모든 Arc.
+- 07: 664에서 스크롤 없음: 간격을 줄이고 Build now · Find my angles를 한 줄에.
+- 14g: 언어 시트(자주 쓰는 12개 버튼 + 전체 목록), 내 언어도 바꿀 수 있음, 첫 사용 전 동의 시트. 01에 통역 예외 문구. docs/privacy/interpreting.md.
+- 어제 목록: 07p "Find your paper", 14 방 "Room 116", 다른 날 노드 시간 줄은 "Wed · Rm 132", 20b 타일을 모든 Arc로.
+
+- 사용자 결정 「D: "No clear challenge at CHI this year." 유지 (관점 이름과 통일)」 (11/27): 23 문구는 프로토타입의 "clash"가 아니라 "challenge" 그대로.
+- 사용자 결정 「캐싱은 지금 방식 유지」 (11/27): 서버 백업 없음. Arc는 폰(IndexedDB, persist 요청)에만, 홈 화면 추가·앱 안 브라우저 안내 그대로.
+- 사용자 「Soniox 언급하지 말고 어디에도 저장되지 않는다는걸 확인만」 (11/27): 01 "Live interpreting is never saved, anywhere", 14g 안내 "Nothing you say is saved, anywhere." Soniox 이름은 동의 시트에만(사용자 11/27 동의 화면 요청).

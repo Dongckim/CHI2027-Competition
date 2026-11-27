@@ -22,7 +22,7 @@ export const TALK_TOUR: TourStep[] = [
   { at: '[data-tour="next"]', title: 'Next stop', text: 'The next talk on your Arc, and the walk there.' },
   { at: 'section[aria-labelledby="why"]', title: 'Why it’s here', text: 'The sentence from this paper’s abstract that puts it on your map.' },
   { at: '[data-tour="when"]', title: 'When and where', text: 'Time, room and session. ✦ marks an author new to CHI.' },
-  { at: '[data-tour="qa"]', title: 'Ask', text: 'Questions for the Q&A, seen by everyone at this talk.' },
+  { at: '[data-tour="qa"]', title: 'Ask the authors', text: 'The authors answer in the session. Questions with the most votes come first, so vote for the ones you want asked.' },
 ];
 
 export function MapTour({ onDone, steps: all = TOUR, label = 'How to read your Arc' }: { onDone: () => void; steps?: TourStep[]; label?: string }) {

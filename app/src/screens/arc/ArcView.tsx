@@ -97,6 +97,9 @@ export function useMapFit(base = 1) {
 
 const BELOW = 0; // 11/23: every seat's label ends inside Figma's 530 box
 
+// a node's time line has one line of ~104 px: another day's "Wed 12:15 · Rm 132" lost the room to "…" (11/26 review).
+// Then the day and the place stay and the clock goes (the title popup, 13 and 14 give it)
+const nodeWhen = (w: string) => { const m = w.match(/^([A-Z][a-z]{2}) \d{1,2}:\d\d · (.+)$/); return m && w.length > 15 ? `${m[1]} · ${m[2]}` : w; };
 export type Info = { title: string; short: string; time: string; when: string; room: string; /** on now */ on?: boolean;
   /** "Name · Institution" of the first author and the session's chair (user 11/25 E; never "Presenter") */ first?: string | null; chair?: string | null };
 // 19: tap a talk to keep or skip it; locked talks (over, or already in one of my Arcs) cannot be picked.
@@ -228,7 +231,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
                 </span>
                 {/* Figma 10px; 12px is the floor. Editing (Figma 15) shows the title only.
                     Sorting (25): 0.7, not 0.55, as the two-line title puts the time over the holo ring's edge (3.6:1 at 0.55) */}
-                {!edit && !compact && <span data-node-text="" style={{ fontSize: picture ? 10 : real(12) }} className={`block max-w-full truncate font-medium ${pending ? 'text-arc-text/70' : 'text-arc-text/72'}`}>{i.when}</span>}{/* 0.72, not Figma's 0.55: the regions' faint white under it left 3.0–4.1:1 */}
+                {!edit && !compact && <span data-node-text="" style={{ fontSize: picture ? 10 : real(12) }} className={`block max-w-full truncate font-medium ${pending ? 'text-arc-text/70' : 'text-arc-text/72'}`}>{nodeWhen(i.when)}</span>}{/* 0.72, not Figma's 0.55: the regions' faint white under it left 3.0–4.1:1 */}
                 {/* Arc 0.2.0: how a Reframe differs (user 11/21), in place of the title's second line so the node keeps its
                     height. Not where the layout already cut the title to one line (no room: 13 and 14 show it), on the share
                     picture or while editing */}

@@ -67,7 +67,7 @@ try {
   }
   check('02–06c in order, each with Next', seen.every(Boolean), { seen });
   // Figma 11/25: 06c → 07p "Do you have a paper at CHI?"; no paper → 07
-  check('06c Next → 07p with dots and Skip', !!(await waitFor(`location.hash === '#/paper' && !!document.querySelector('[aria-label="Step 8 of 8"]') && /Do you have a paper/.test(document.body.innerText)`)), { hash: await hash() });
+  check('06c Next → 07p with dots and Skip', !!(await waitFor(`location.hash === '#/paper' && !!document.querySelector('[aria-label="Step 8 of 8"]') && /Find your paper/.test(document.body.innerText)`)), { hash: await hash() });
   await click('No paper? Start from a question');
   check('07p No paper → 07 with dots and Skip', !!(await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label="Step 8 of 8"]') && /Skip/.test(document.body.innerText)`)), { hash: await hash() });
 
@@ -108,7 +108,7 @@ try {
   // a node's name is its own text: "<angle> · <short name> <time · room>" (WCAG 2.5.3; Figma's short name); the whole title
   // opens its description (or is the name, when they are the same)
   const node = await ev(`(() => { const b = ${NODE}; const f = b[0];
-    return { count: b.length, named: b.every(x => /^(Supports|Reframes|Challenges) · .+ \\d\\d:\\d\\d/.test(x.innerText.replace(/\\s+/g, ' ').trim())), label: f?.innerText.replace(/\\s+/g, ' ').trim(),
+    return { count: b.length, named: b.every(x => /^(Supports|Reframes|Challenges) · .+ (\\d\\d:\\d\\d|[A-Z][a-z]{2} · )/.test(x.innerText.replace(/\\s+/g, ' ').trim())), label: f?.innerText.replace(/\\s+/g, ' ').trim(),
       title: f?.querySelector('.line-clamp-2')?.textContent.replace(/^✦ /, '').trim(), desc: f?.getAttribute('aria-description') ?? '' }; })()`);
   // 12c (prototype 3, 11/26): a tap opens the stop's whole title over the map, with View details; a second tap opens 14
   await ev(`${NODE}[0].click()`);

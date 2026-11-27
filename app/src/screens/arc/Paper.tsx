@@ -48,10 +48,10 @@ export function FindPaper() {
   useEffect(() => { authorsOf().then(setData, () => setFailed(true)); }, []);
   const found = useMemo(() => (data ? findAuthors(typed, data.authors) : { hits: [], more: 0 }), [typed, data]);
   return (
-    <Screen label="Do you have a paper" header={<Header onboarded={onboarded} />}
+    <Screen label="Find your paper" header={<Header onboarded={onboarded} />}
       bottom={<ArcLink kind="secondary" data-arc-wrap="" className="h-auto min-h-[var(--arc-button-h)] py-2 text-center mb-1.5" href={href('ask')}>No paper? Start from a question</ArcLink>}>
-      <h1 id="paper-title" className="mt-[10px] text-[30px] leading-9 font-semibold tracking-[-0.024em]">Do you have a paper<br />at CHI?</h1>
-      <p className="mt-2.5 text-[15px] text-arc-text-2">Find your name to start from your paper.</p>
+      <h1 id="paper-title" className="mt-[10px] text-[30px] leading-9 font-semibold tracking-[-0.024em]">Find your paper</h1>{/* prototype 07p */}
+      <p className="mt-2.5 text-[15px] text-arc-text-2">Type your name as it appears on your paper.</p>
       <label className="mt-[24px] flex h-16 items-center gap-2.5 rounded-[20px] bg-arc-surface pr-4 pl-[18px] shadow-[inset_0_0_0_1.5px_rgba(244,246,255,0.2)] focus-within:shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.6),0_0_0_4px_rgba(255,255,255,0.07)]">
         <Pic src={searchIcon} size={20} />
         <input aria-labelledby="paper-title" value={typed} onChange={e => setTyped(e.target.value)} autoComplete="name" enterKeyHint="search" placeholder="Your name as on your paper"

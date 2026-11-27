@@ -68,7 +68,7 @@ export function AfterChi() {
       </>}>
       <h1 className="mt-3 text-[30px] leading-9 font-semibold tracking-[-0.024em]">Your CHI,<br />in {n} {n === 1 ? 'question' : 'questions'}.</h1>
       <div className="mt-[22px] grid grid-cols-3 gap-[21px]" aria-hidden="true">
-        {arcs.slice(0, 3).map(a => <MiniArc key={a.id} arc={a} heard={heard} />)}
+        {arcs.map(a => <MiniArc key={a.id} arc={a} heard={heard} />)}{/* every one the title counts (it said 4 over 3) */}
       </div>
       <div className="mt-5 grid grid-cols-3 gap-[21px]">
         {stat(heard.size, 'heard')}{stat(toRead.length, 'to read')}{stat(n, 'questions')}

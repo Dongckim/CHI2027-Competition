@@ -161,3 +161,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .arc-sheet-up { animation: arc-sheet-up 0.28s cubic-bezier(.2, .8, .2, 1); }
 @keyframes arc-sheet-up { from { transform: translateY(100%); } }
 @media (prefers-reduced-motion: reduce) { .arc-sheet-up { animation: none; } }
+
+/* 12b hold (user 11/27 「꾹 눌렀을때 아무것도 안되는데」): on iPhone a long press on a stop started text selection or the
+   link callout, which cancels the pointer before the 0.5 s hold; the map does not scroll, so the stop takes the touch */
+[data-node-key] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: none; }

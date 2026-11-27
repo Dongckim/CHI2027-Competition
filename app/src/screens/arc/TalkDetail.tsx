@@ -181,7 +181,7 @@ export function TalkDetail({ paperKey, shape = false, interpret = false }: { pap
 
       <ul data-tour="when" className="mt-[35px] flex flex-col gap-3.5">
         <li className="flex items-center gap-3 text-[15px] font-medium tracking-[-0.006em]"><Pic src={clock} size={20} className="opacity-70" />
-          <span>{slot ? `${dateOf(slot.start, tz)} · ${clockOf(slot.start, tz)}` : 'Time to be announced'}{room && ` · ${room}`}</span></li>
+          <span>{slot ? `${dateOf(slot.start, tz)} · ${clockOf(slot.start, tz)}` : 'Time to be announced'}{room && ` · ${room.split(' - ').pop()}` /* "P1 - Room 116" → "Room 116" (prototype 14) */}</span></li>
         {session && <li className="flex items-center gap-3 text-[15px] tracking-[-0.006em]"><Pic src={pin} size={20} className="opacity-70" />
           <span>{session.name}{pos && <span className="text-arc-text-2"> · talk {pos.index} of {pos.count}</span>}</span></li>}
         {authors.map(k => {
