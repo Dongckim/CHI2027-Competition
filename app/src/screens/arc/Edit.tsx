@@ -79,7 +79,7 @@ export function Edit({ id }: { id: string }) {
       {/* Figma: "Editing" at y 66, Done 40 high at y 58 ending 24 from the edge */}
       {wide ? <button type="button" onClick={() => setWide(null)} className="flex min-h-touch items-center gap-1 rounded-full pl-2 pr-3 text-[16px] font-semibold"><span aria-hidden="true">‹</span>See all three angles</button>
         : <h1 className="mb-[3px] pl-2 text-[17px] font-semibold tracking-[-0.012em]">Editing</h1>}
-      <span className="flex items-center gap-1">{!wide && <button type="button" onClick={cancel} className="min-h-touch px-3 text-[15px] font-semibold text-arc-text-2">Cancel</button>}
+      <span className="flex items-center gap-1">{!wide && <button type="button" onClick={cancel} className="relative z-10 min-h-touch px-3 text-[15px] font-semibold text-arc-text-2">Cancel</button>}
       <button type="button" data-tour="done" onClick={done} disabled={!nodes.length} className="relative z-10 mr-2 h-10 disabled:opacity-50 rounded-full tracking-[-0.006em] before:absolute before:inset-x-0 before:-inset-y-0.5 before:content-[''] bg-arc-primary px-5 text-[16px] font-semibold text-arc-on-primary shadow-[var(--arc-shadow-primary)]">Done</button></span>
     </>}>
       <div ref={box} className="-mx-6 -mt-1.5 flex min-h-[calc(100dvh-110px)] flex-1 flex-col">{/* Figma: the 0.74 map at y 96; the list of every talk is under it */}
