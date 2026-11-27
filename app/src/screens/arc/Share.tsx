@@ -58,10 +58,10 @@ export function Share({ id }: { id: string }) {
   const url = shareUrl(arc);
   const c = angleCounts(arc.nodes.map(n => [n.key, n.angle]));
   const copy = async () => {
-    try { await navigator.clipboard.writeText(url); setNote('Link copied.'); } catch { setNote(url); } // no clipboard: show it to copy by hand
+    try { await navigator.clipboard.writeText(url); setNote('Link copied.'); setTimeout(() => setNote(n => (n === 'Link copied.' ? '' : n)), 3000); } catch { setNote(url); } // no clipboard: show it to copy by hand
   };
   const more = async () => {
-    if (navigator.share) { try { await navigator.share({ title: arc.query, text: 'An Arc for CHI', url }); return; } catch { return; } }
+    if (navigator.share) { try { await navigator.share({ title: arc.query, text: 'An Arc for CHI', url }); return; } catch (e) { if ((e as Error).name === 'AbortError') return; } } // closed by the person: nothing; refused: copy instead
     copy();
   };
   const round = (icon: string, label: string, onClick: () => void, link?: string) => (
@@ -129,7 +129,7 @@ export function Share({ id }: { id: string }) {
         {round(shareIcon, 'More', more)}
       </div>
       <p role="status" className="sr-only">{note}</p>
-      {note && <p aria-hidden="true" className="fixed inset-x-0 bottom-24 mx-auto w-fit max-w-[90%] rounded-full bg-arc-primary px-4 py-2 text-[14px] font-semibold break-all text-arc-on-primary">{note}</p>}
+      {note && <p aria-hidden="true" className="fixed inset-x-0 top-[max(16px,env(safe-area-inset-top))] z-50 mx-auto w-fit max-w-[90%] [font-feature-settings:'calt'_0] rounded-full bg-arc-primary px-4 py-2 text-[14px] font-semibold break-all text-arc-on-primary">{note}</p>}
     </Screen>
   );
 }

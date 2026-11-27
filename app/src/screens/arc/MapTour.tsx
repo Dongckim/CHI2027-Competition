@@ -47,6 +47,9 @@ export function MapTour({ onDone, steps: all = TOUR, label = 'How to read your A
   const step = steps[i];
   useLayoutEffect(() => {
     const measure = () => { const el = step && find(step.at); setBox(el ? el.getBoundingClientRect() : null); };
+    // a step below the fold comes into view first (audit 11/27: 14's steps 4–5 described what the dim hid)
+    const el = step && find(step.at);
+    if (el) { const r = el.getBoundingClientRect(); if (r.top < 60 || r.bottom > innerHeight - 200) el.scrollIntoView({ block: 'center' }); }
     measure();
     addEventListener('resize', measure);
     return () => removeEventListener('resize', measure);

@@ -105,7 +105,7 @@ export function TalkDetail({ paperKey, shape = false, interpret = false }: { pap
       <IconButton icon={translate} label="Talk face to face, interpreted" href={href(`talk/${paperKey}/interpret`)} /></span></>;
   if (failed) return <Screen header={header()} label="Talk"><p role="alert" className="mt-6 text-[16px]">Could not load the programme.</p><p className="mt-2 text-[14px] text-arc-text-2">Connect to the internet once and try again.</p><button type="button" onClick={() => location.reload()} className="mt-5 h-11 self-start rounded-full border border-arc-line px-5 text-[15px] font-semibold">Try again</button></Screen>;
   if (!data) return <Screen header={header()} label="Talk"><p className="mt-6 text-[16px] text-arc-text-3">Loading…</p></Screen>;
-  if (!p) return <Screen header={header()} label="Talk"><p className="mt-6 text-[16px]">This talk is not in the programme any more.</p></Screen>;
+  if (!p) return <Screen header={<BackButton />} label="Talk"><p className="mt-6 text-[16px]">We couldn't find this talk in the CHI programme.</p><a href={href('home')} className="mt-4 inline-flex min-h-touch items-center text-[15px] font-semibold underline">Go to My Arcs</a></Screen>; // no translate icon for a talk that isn't there
 
   const { schedule, people, debut } = data;
   const tz = schedule.meta.timeZone;

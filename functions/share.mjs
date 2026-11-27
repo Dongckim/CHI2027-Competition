@@ -24,7 +24,7 @@ export function describe(n, edition, talks = TALKS) {
 
 export function sharePage(payload, origin, talks = TALKS) {
   const d = decodeLink(payload);
-  const to = `/#/r/${d.ok ? payload : ''}`; // a broken link still opens the app, which says why
+  const to = `/#/r/${d.ok || /^[A-Za-z0-9_.-]{1,4000}$/.test(payload) ? payload : ''}`; // a broken link still opens the app, which says why (the payload kept when it is safe to carry)
   const title = d.ok ? d.link.q : 'An Arc for CHI';
   const desc = d.ok ? describe(d.link.n, d.link.e, talks) : 'ARC lays CHI talks around one research question. Unofficial.';
   return `<!doctype html>

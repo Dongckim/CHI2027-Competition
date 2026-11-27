@@ -130,6 +130,7 @@ try {
   await click(`document.querySelector('section[aria-labelledby=qa] li button[aria-pressed=false]')`);
   const voted = await waitFor(`document.querySelector('section[aria-labelledby=qa] li button[aria-pressed=true]')?.getAttribute('aria-label')?.includes('1 vote')`, 10000);
   await shot('14-qa');
+  await ev('window.confirm = () => true'); // Delete asks first (11/27)
   await click(byText('Delete'));
   const gone = await waitFor(`!document.querySelector('section[aria-labelledby=qa] li') && /Be the first to ask/.test(document.body.innerText)`, 10000);
   check('14 Q&A: ask, vote once (pressed, 1 vote), delete your own', asked != null && voted != null && gone != null, {});

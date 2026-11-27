@@ -177,7 +177,11 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
       <div ref={ref} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}
         className="relative w-full max-w-[480px] rounded-t-[32px] border border-arc-line bg-arc-sheet px-[23px] pt-[9px] pb-[calc(var(--safe-bottom)+20px)] text-arc-text shadow-[0_-8px_40px_rgba(0,0,0,0.4)] outline-none">
         <div className="mx-auto mb-5 h-1 w-9 rounded-sm bg-arc-text/30" aria-hidden="true" />
-        <h2 className="mb-6 text-[22px] font-semibold tracking-[-0.02em]">{title}</h2>
+        <div className="mb-6 flex items-start justify-between gap-2">
+          <h2 className="text-[22px] font-semibold tracking-[-0.02em]">{title}</h2>
+          {/* a close every reader can reach (audit 11/27: VoiceOver has no Escape, and the backdrop is hidden from it) */}
+          <button type="button" onClick={onClose} aria-label="Close" className="-mt-1.5 -mr-2.5 flex size-11 shrink-0 items-center justify-center"><span aria-hidden="true" className="flex size-7 items-center justify-center rounded-full bg-white/10 text-[15px] text-arc-text-2">×</span></button>
+        </div>
         {children}
       </div>
     </div>
