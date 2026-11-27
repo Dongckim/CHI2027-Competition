@@ -102,7 +102,7 @@ try {
         if (!o.n || o.bad.length) overlaps.push({ screen: name, nodes: o.n, bad: o.bad });
       }
       if (MAPS.includes(name)) {
-        if (m.scroll > m.view) bad.push({ screen: name, map: 'scrolls', ...m });
+        if (m.scroll > m.view && name !== '15') bad.push({ screen: name, map: 'scrolls', ...m }); // 15: every talk is listed under its map (user 11/27), the map itself still fits the first screen
         const c = await tab.ev(`(${mapProbe})()`);
         gaps.push(`${name}:${c.gap}`);
         if (!c.n || c.bad.length) clear.push({ screen: name, targets: c.n, bad: c.bad });

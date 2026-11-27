@@ -7,8 +7,9 @@ import { type Angle, type Arc, type ArcNode } from '../../engine';
 import { firstSlot } from '../../explore/format';
 import { tensionFor } from '../../arc/yours.js';
 import { BOX } from '../../arc/map.js';
-import { Screen } from '../../components/arc';
-import { ArcView, useMapFit } from './ArcView';
+import { Screen, Pic } from '../../components/arc';
+import { ANGLE_NAME } from './AngleHelp';
+import { ArcView, useMapFit, ANGLE_ICON } from './ArcView';
 import { AddSheet } from './AddSheet';
 import { useArc } from './useArc';
 import { MapTour, EDIT_TOUR } from './MapTour';
@@ -67,7 +68,7 @@ export function Edit({ id }: { id: string }) {
       <h1 className="mb-[3px] pl-2 text-[17px] font-semibold tracking-[-0.012em]">Editing</h1>
       <button type="button" onClick={done} className="relative z-10 mr-2 h-10 rounded-full tracking-[-0.006em] before:absolute before:inset-x-0 before:-inset-y-0.5 before:content-[''] bg-arc-primary px-5 text-[16px] font-semibold text-arc-on-primary shadow-[var(--arc-shadow-primary)]">Done</button>
     </>}>
-      <div ref={box} className="-mx-6 -mt-1.5 flex-1">{/* Figma: the 0.74 map at y 96 */}
+      <div ref={box} className="-mx-6 -mt-1.5 flex min-h-[calc(100dvh-110px)] flex-1 flex-col">{/* Figma: the 0.74 map at y 96; the list of every talk is under it */}
         {/* before a press: the room the map leaves split above and below it, so no bare band at the bottom (user 11/26) */}
         <div style={{ height: pad }} className="transition-[height] duration-300 motion-reduce:transition-none" />
         <ArcView arc={draft} states={states} info={info} scale={target ? 0.74 : fill} room={room - pad} lift={pad}
@@ -75,6 +76,35 @@ export function Edit({ id }: { id: string }) {
             onRemove: k => { setNodes(nodes.filter(n => n.key !== k)); if (selected === k) setSelected(null); },
             onAdd: a => { setAdding(x => (x === a ? null : a)); setSelected(null); } }} />
       </div>
+      {/* user 11/27 「editing 할때 각 파트 전부 다 노드 볼 수 있도록」: the map shows three a region; every talk of each angle
+          is listed under it, to swap or take off from here too */}
+      {!target && (
+        <section aria-label="Every talk on this Arc" className="mt-2 mb-6 flex flex-col gap-5">
+          {(['S', 'R', 'T'] as Angle[]).map(a => {
+            const list = nodes.filter(n => n.angle === a);
+            return (
+              <div key={a} className="flex flex-col gap-2">
+                <h2 className="flex items-center gap-2 text-[15px] font-semibold"><Pic src={ANGLE_ICON[a]} size={18} />{ANGLE_NAME[a]}<span className="font-medium text-arc-text-3">{list.length}</span>
+                  <button type="button" onClick={() => { setAdding(a); setSelected(null); }} className="ml-auto min-h-touch px-2 text-[14px] font-semibold text-arc-text-2">+ Add</button></h2>
+                {!list.length && <p className="text-[13px] text-arc-text-3">None yet.</p>}
+                {list.map(n => {
+                  const i = info(n.key);
+                  return (
+                    <div key={n.key} className="flex items-center gap-2 rounded-[16px] border border-arc-line bg-arc-surface py-2 pr-1.5 pl-3.5">
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate text-[14px] font-semibold">{i.title}</span>
+                        <span className="truncate text-[12px] text-arc-text-3">{i.when}</span>
+                      </span>
+                      <button type="button" onClick={() => { setSelected(n.key); setAdding(null); }} className="min-h-touch shrink-0 rounded-full px-3 text-[13px] font-semibold text-arc-text-2">Swap</button>
+                      <button type="button" onClick={() => setNodes(nodes.filter(m => m.key !== n.key))} aria-label={`Remove ${i.title}`} className="flex size-11 shrink-0 items-center justify-center text-[20px] text-arc-text-2">−</button>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </section>
+      )}
       {tour && <MapTour steps={EDIT_TOUR} label="How to edit" onDone={endTour} />}
       {target && <AddSheet key={selected ?? 'add'} query={arc.query} engineName={arc.engine} filters={arc.filters} target={target} exclude={exclude} swap={!!selected} info={info} paper={paper} clash={clash} sameTime={sameTime} onPick={pick} onTarget={selected ? undefined : a => setAdding(a)} onClose={() => { setSelected(null); setAdding(null); }} />}
     </Screen>
