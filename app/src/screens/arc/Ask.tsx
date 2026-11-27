@@ -1,5 +1,6 @@
 // 07 · Ask: one question (a word or a sentence). While typing, the tribe it would land in shows as a chip (engine.tribeOf).
 // First time this is step 6 of the onboarding dots with Skip; from home it has a back button instead.
+import book from '../../assets/arc/icon-book.svg';
 import { fold, sameName, type Author } from '../../arc/authors.js';
 import { authorsOf } from './Paper';
 import { useEffect, useId, useState } from 'react';
@@ -106,9 +107,10 @@ export function Ask() {
   }, [topic]);
   const shown = help && help.topic === topic && help.count > 0 && !named.length ? help : null; // a name: 07p, not 07b
   const ready = hasWords(draft.query);
-  const next = () => { if (!ready) return; update(setOnboarded); go('angles'); };
+  // user 11/26 「choose angle 부분은 지워주고」: 07 goes straight to 09 (no 08); the engine picks the angles
+  const next = () => { if (!ready) return; update(setOnboarded); go('when'); };
   const now = () => { if (!ready) return; update(quickDraft); update(setOnboarded); go('building'); };
-  const ask = (q: string) => { update(s => setQuery(s, q)); update(setOnboarded); go('angles'); };
+  const ask = (q: string) => { update(s => setQuery(s, q)); update(setOnboarded); go('when'); };
   const count = (arc: Arc, a: Angle) => arc.nodes.filter(n => n.angle === a).length;
   const t = tribe ? TRIBE[tribe] : null;
 
@@ -194,8 +196,10 @@ export function Ask() {
           </li>
         ))}
       </ul>
-      {/* user 11/26 「New Arc → 07 + 07에 "Start from my paper" 링크」: the first run goes 06c → 07p (Figma); from here, 07p */}
-      <a href={href('paper')} className="mt-3 inline-flex min-h-touch items-center gap-1.5 self-start text-[14px] font-semibold text-arc-text-2">Start from my paper<Pic src={chevron} size={14} /></a>
+      {/* prototype 07 (user 11/26 「Have a paper? 이거대로 해야지」): a pill under the starters, centred, to 07p */}
+      <a href={href('paper')} className="mt-5 inline-flex min-h-touch items-center gap-2 self-center rounded-full border border-arc-line bg-arc-surface px-4 text-[14px] font-medium text-arc-text-2">
+        <Pic src={book} size={16} />Have a paper at CHI?{' '}<span className="font-semibold text-arc-text">Find it</span><Pic src={chevron} size={14} />
+      </a>
       </>}
     </Screen>
   );

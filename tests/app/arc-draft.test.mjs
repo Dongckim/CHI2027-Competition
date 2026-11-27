@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { arcOf, setOnboarded, setQuery, setTopics, toggleTopic, toggleWhat, buildOptions, whenOptions, whenChoice, QUERY_MAX } from '../../app/src/arc/draft.js';
+import { arcOf, setOnboarded, setQuery, setTopics, toggleTopic, toggleWhat, buildOptions, whenOptions, whenDays, toggleWhenDay, QUERY_MAX } from '../../app/src/arc/draft.js';
 
 test('arc state: old saved plans count as onboarded; new ones start at 01', () => {
   assert.equal(arcOf({ builtAt: 1 }).onboarded, true);
@@ -30,11 +30,14 @@ test('08 topics: Figma defaults, kept for the same question, and the build optio
   assert.deepEqual(o.days, ['2026-04-14']);
 });
 
-test('09 when: Today/Tomorrow on a conference day, the days themselves otherwise, All week as fallback', () => {
+test('09 when: the conference days, any number, or All week (user 11/26)', () => {
   const days = ['2026-04-13', '2026-04-14', '2026-04-15'];
-  assert.deepEqual(whenOptions(days, '2026-04-14').map(o => o.label), ['Today', 'Tomorrow', 'All week']);
-  assert.deepEqual(whenOptions(days, '2026-04-15').map(o => o.id), ['today', 'all']); // last day: no tomorrow
-  const off = whenOptions(days, '2026-11-20');
-  assert.deepEqual(off.map(o => o.label), ['Mon 13', 'Tue 14', 'Wed 15', 'All week']);
-  assert.equal(whenChoice(off, 'today').id, 'all');
+  assert.deepEqual(whenOptions(days).map(o => o.label), ['Mon 13', 'Tue 14', 'Wed 15', 'All week']);
+  assert.deepEqual(whenDays('all', days), []);
+  assert.deepEqual(whenDays('2026-04-15,2026-04-13,2025-01-01', days), ['2026-04-15', '2026-04-13']);
+  let st = {}; const on = d => (st = toggleWhenDay(st, d, days), arcOf(st).draft.when);
+  assert.equal(on('2026-04-14'), '2026-04-14');
+  assert.equal(on('2026-04-13'), '2026-04-13,2026-04-14');
+  assert.equal(on('2026-04-15'), 'all', 'every day is All week');
+  assert.equal(on('2026-04-15'), '2026-04-15', 'from All week a day picks just that day');
 });

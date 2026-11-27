@@ -169,8 +169,8 @@ try {
     }
     if (ok && name === '10') results[name].still = await ev(`document.body.innerText.includes(${JSON.stringify(text)})`); // measured while 10 was showing
     if (SHOTS) { await ev('scrollTo(0, 0), true'); writeFileSync(`${SHOTS}/${name}.png`, Buffer.from((await send('Page.captureScreenshot', { format: 'png' })).result.data, 'base64')); }
-    if (name === '08') { // 22: the ? sheet over 08
-      await ev(`[...document.querySelectorAll('button')].find(b => /What are Supports/.test(b.getAttribute('aria-label') ?? ''))?.click()`);
+    if (name === '12') { // 22: the ? sheet over 12 (08 is gone, user 11/26)
+      await ev(`[...document.querySelectorAll('button')].find(b => /What are the three angles/.test(b.getAttribute('aria-label') ?? ''))?.click()`);
       await waitFor(`!!document.querySelector('[role=dialog]')`, 5000);
       results['22'] = await axe();
       results['22'].pixels = await pixelContrast(results['22'].cc);

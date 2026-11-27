@@ -118,7 +118,8 @@ export function ShowShape({ schedule, roomKey, roomName, tribe, paperKey }: { sc
   return (
     <Screen label="Show my shape"
       bottom={<>
-        <ArcButton className="-mb-0.5" onClick={() => leaveShape(paperKey)}>Found them</ArcButton>
+        {/* prototype 3 14f: found each other → talk, interpreted (14g) */}
+        <ArcButton className="-mb-0.5" onClick={() => go(`talk/${paperKey}/interpret`, { replace: true })}>Start live translation</ArcButton>
         <ArcButton kind="ghost" onClick={() => leaveShape(paperKey)}>Cancel</ArcButton>
       </>}>
       {/* Figma 745:1839 at y 104 (no header row: 54 + 50) */}

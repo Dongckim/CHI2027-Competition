@@ -86,8 +86,7 @@ try {
   await p.locator('main input').fill('haptic feedback');
   await at(() => [...document.querySelectorAll('button')].some(b => b.innerText.trim() === 'Find my angles' && !b.disabled));
   await tap(p.locator('button').filter({ hasText: 'Find my angles' }));
-  steps.angles = await at(() => location.hash === '#/angles' && document.querySelectorAll('main section button[aria-pressed]').length >= 2);
-  await tap(p.locator('a, button').filter({ hasText: /^Next$/ }).first());
+  steps.angles = true; // 08 is gone (user 11/26): 07 goes to 09
   steps.when = await at(() => location.hash === '#/when' && /Build my Arc/.test(document.body.innerText));
   await tap(p.locator('button').filter({ hasText: 'Build my Arc' }));
   steps.hood = await at(() => location.hash.startsWith('#/hood/') && /See my Arc/.test(document.body.innerText), null, 40000);

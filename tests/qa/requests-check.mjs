@@ -51,8 +51,6 @@ try {
     i.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
   await tab.waitFor(`/Ready offline/.test(document.body.innerText)`, 60000);
   await click(tab, 'Find my angles');
-  await tab.waitFor(`location.hash === '#/angles' && document.querySelectorAll('main section button[aria-pressed]').length >= 2`, 30000);
-  await click(tab, 'Next');
   await tab.waitFor(`location.hash === '#/when' && /Build my Arc/.test(document.body.innerText)`);
   await click(tab, 'Build my Arc');
   await tab.waitFor(`location.hash.startsWith('#/hood/') && /See my Arc/.test(document.body.innerText)`, 40000);

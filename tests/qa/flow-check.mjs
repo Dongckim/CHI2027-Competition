@@ -26,8 +26,7 @@ const ROWS = [
   ['06c', '#/start/6c', ['link', 'Next'], /^#\/paper$/, fresh], // Figma 11/25: 07p
   ['07p', '#/paper', ['link', 'No paper? Start from a question'], /^#\/ask$/, fresh],
   ['03', '#/start/3', ['link', 'Skip'], /^#\/home$/, fresh],
-  ['08', '#/angles', ['link', 'Back'], /^#\/ask$/],
-  ['09', '#/when', ['link', 'Back'], /^#\/angles$/],
+  ['09', '#/when', ['link', 'Back'], /^#\/ask$/],
   ['12', `#/arc/${ARC.id}`, ['link', 'List'], new RegExp(`^#/arc/${ARC.id}/list$`)],
   ['12', `#/arc/${ARC.id}`, ['link', 'Edit'], new RegExp(`^#/arc/${ARC.id}/edit$`)],
   ['12', `#/arc/${ARC.id}`, ['link', 'Share'], new RegExp(`^#/share/${ARC.id}$`)],
@@ -50,7 +49,7 @@ const ROWS = [
   ['19', `#/r/${P}/pick`, ['button', /^Add \d+ to my Arcs$/], /^#\/home$/],
   ['19b', `#/r/${P}/yours`, ['button', 'Keep all theirs'], /^#\/home$/],
   ['20', '#/home', ['link', 'New Arc'], /^#\/ask$/], // user 11/26: New Arc → 07
-  ['07', '#/ask', ['link', 'Start from my paper'], /^#\/paper$/],
+  ['07', '#/ask', ['link', 'Have a paper at CHI? Find it'], /^#\/paper$/],
   ['20', '#/home', `a[href$="#/arc/${ARC.id}"]`, new RegExp(`^#/arc/${ARC.id}$`)],
 ];
 
@@ -112,9 +111,9 @@ try {
     if (listed) await row.click();
     const confirm = await p.waitForFunction(() => /Is this/.test(document.body.innerText) && !/Reading your paper/.test(document.body.innerText), null, { timeout: 20000 }).then(() => true, () => false);
     if (confirm) await p.getByRole('button', { name: 'Build my Arc from this paper' }).click();
-    const angles = await p.waitForFunction(() => location.hash === '#/angles', null, { timeout: 10000 }).then(() => true, () => false);
+    const angles = await p.waitForFunction(() => location.hash === '#/when', null, { timeout: 10000 }).then(() => true, () => false);
     const draft = await p.evaluate(() => JSON.parse(localStorage.getItem('arc.device') ?? '{}').arc?.draft ?? {});
-    R.check('07p finds the author, 07r shows the paper and its question, Build → 08 with their talks kept out', listed && confirm && angles && !!draft.query && draft.mine?.length > 0, { name, listed, confirm, angles, query: draft.query, mine: draft.mine?.length });
+    R.check('07p finds the author, 07r shows the paper and its question, Build → 09 with their talks kept out', listed && confirm && angles && !!draft.query && draft.mine?.length > 0, { name, listed, confirm, angles, query: draft.query, mine: draft.mine?.length });
     await ctx.close();
   }
 

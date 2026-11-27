@@ -3,7 +3,7 @@
 //   - first run: 01 → It's my first CHI → 02–05 → 06 → 07 (type a question, tribe chip) → 08 (? sheet opens and closes)
 //     → 09 → Build my Arc → 10 → 11 (tribe named, edge glows) → See my Arc → 12 → a node opens 14 (evidence
 //     highlighted); reload keeps the Arc
-//   - Skip on a fresh phone → 21 empty home; New Arc → 07 with a back button (no dots), Start from my paper
+//   - Skip on a fresh phone → 21 empty home; New Arc → 07 with a back button (no dots), the "Have a paper at CHI? Find it" pill
 // Exit code 1 on a fail.
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -80,20 +80,10 @@ try {
   await shot('07');
   await click('Find my angles');
 
-  // 08: chips per angle, Figma defaults, ? opens 22 and Escape closes it
-  const chipsMs = await waitFor(`location.hash === '#/angles' && document.querySelectorAll('main section button[aria-pressed]').length >= 3`, 20000);
-  const on = await ev(`[...document.querySelectorAll('main section')].map(s => ({ h: s.querySelector('h2')?.innerText, on: s.querySelectorAll('button[aria-pressed=true]').length, all: s.querySelectorAll('button[aria-pressed]').length }))`);
-  check('08 angles: Supports, Reframes, Challenges with defaults on', chipsMs != null && on?.map(x => x.h).join() === 'Supports,Reframes,Challenges' && on.every(x => x.on === Math.min(x.all, x.h === 'Challenges' ? 1 : 2)), { chipsMs, on });
-  await shot('08');
-  await click('What are Supports?');
-  const sheet = await waitFor(`!!document.querySelector('[role=dialog][aria-label="Three angles"]') && /Not a verdict on the paper/.test(document.body.innerText)`, 5000);
-  await shot('22');
-  await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
-  check('? opens 22 Three angles, Escape closes it', sheet != null && (await waitFor(`!document.querySelector('[role=dialog]')`, 3000)) != null, {});
-  await click('Next');
+  // 08 is gone (user 11/26 「choose angle 부분은 지워주고」): 07 goes straight to 09
 
   // 09 → 10 → 11
-  check('09 When and what', !!(await waitFor(`location.hash === '#/when' && document.querySelectorAll('[role=radio]').length >= 2`)), {});
+  check('09 When and what', !!(await waitFor(`location.hash === '#/when' && document.querySelectorAll('main section button[aria-pressed]').length >= 5`)), {}); // the conference days (user 11/26)
   await shot('09');
   await click('Build my Arc');
   const reading = await waitFor(`location.hash === '#/building' && /Reading [\\d,]+ talks for you/.test(document.body.innerText)`, 10000);
@@ -144,7 +134,7 @@ try {
   check('Skip → 21 empty home', (await waitFor(`location.hash === '#/home' && /Start with one question/.test(document.body.innerText)`)) != null, {});
   await shot('21');
   await click('New Arc');
-  check('New Arc → 07 with a back button, no dots, and Start from my paper', (await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label=Back]') && !document.querySelector('[aria-label="Step 8 of 8"]') && /Start from my paper/.test(document.body.innerText)`)) != null, {});
+  check('New Arc → 07 with a back button, no dots, and the Have a paper pill', (await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label=Back]') && !document.querySelector('[aria-label="Step 8 of 8"]') && /Have a paper at CHI/.test(document.body.innerText)`)) != null, {});
   check('no uncaught errors', errors.length === 0, { errors });
 } catch (e) {
   fails.push(`stopped: ${e.message}`);
