@@ -100,17 +100,17 @@ try {
 
   // 07b
   await p.goto(`${server.base}#/ask`);
-  await p.locator('input').fill('VR presence');
+  await p.locator('main textarea').fill('VR presence');
   const note = await p.waitForFunction(() => /That’s a topic\. \d+ talks? match/.test(document.body.innerText), null, { timeout: 10000 }).then(() => true, () => false);
   await sleep(300);
   const cards = await p.locator('ul[aria-labelledby="topic-note"] button').allInnerTexts();
   const keep = p.getByRole('button', { name: 'Keep ‘VR presence’ as a topic' });
   R.check('07b: "VR presence" shows the note, 1–3 question cards with counts, and Keep', note && cards.length >= 1 && cards.length <= 3 && cards.every(t => /\?/.test(t) && /↑ \d+\s+↻ \d+\s+⊣ \d+/.test(t)) && (await keep.count()) === 1, { note, cards });
   await shot(p, '07b');
-  await p.locator('input').fill('VR presence?');
+  await p.locator('main textarea').fill('VR presence?');
   await sleep(800);
   R.check('07b: a question hides it', (await p.locator('#topic-note').count()) === 0, {});
-  await p.locator('input').fill('VR presence');
+  await p.locator('main textarea').fill('VR presence');
   await keep.waitFor({ timeout: 10000 });
   await keep.click();
   const toAngles = await p.waitForFunction(() => location.hash === '#/when', null, { timeout: 5000 }).then(() => true, () => false);
