@@ -36,7 +36,7 @@ export const EDIT_TOUR: TourStep[] = [
 // the sheet of 15, the first time it shows talks (user 11/27 「노드 꾹 누르는게 아니라 서칭 창에서 꾹 누르면 << 이거 가이드가 정정해주고」)
 export const SHEET_TOUR: TourStep[] = [
   { at: '[data-tour="sheet-chips"]', title: 'Pick the angle', text: 'Switch between Supports, Reframes and Challenges right here.' },
-  { at: '[data-tour="sheet-cards"]', title: 'Hold to read, tap to add', text: 'Hold a card: the paper opens above it, and closes when you let go. Tap a card to add it; ARC asks first.' },
+  { at: '[data-tour="sheet-cards"]', title: 'Hold to read, tap to add', text: 'Hold a card: the paper opens above it and stays, to scroll; tap outside or × to close. Tap a card to add it; ARC asks first.' },
 ];
 
 export function MapTour({ onDone, steps: all = TOUR, label = 'How to read your Arc' }: { onDone: () => void; steps?: TourStep[]; label?: string }) {

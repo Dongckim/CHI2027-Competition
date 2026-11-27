@@ -44,7 +44,7 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
   const [confirm, setConfirm] = useState<Card | null>(null);
   const [peek, setPeek] = useState<Card | null>(null);
   const [abs, setAbs] = useState<string | null>(null);
-  const hold = useRef(0), held = useRef(false), sheet = useRef<HTMLElement>(null);
+  const hold = useRef(0), held = useRef(false), opened = useRef(0), sheet = useRef<HTMLElement>(null);
   const kb = useKeyboardInset();
   // its own short tour the first time it has talks to show, after the map's (so not in a stranger's first look)
   const dev = arcOf(useDevice());
@@ -122,9 +122,9 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
               <button key={c.key} type="button" onClick={() => { if (held.current) { held.current = false; return; } if (!c.off) setConfirm(c); }} disabled={c.off}
                 // user 11/27 「꾹 누르면 그 위쪽으로 다른 창으로 보이게 해주고, 때면 사라지는」: the preview lives while the finger does
                 onPointerDown={e => { held.current = false; clearTimeout(hold.current); const el = e.currentTarget, id = e.pointerId;
-                  hold.current = window.setTimeout(() => { held.current = true; try { el.setPointerCapture(id); } catch { /* gone */ } setPeek(c); }, 450); }}
-                onPointerUp={() => { clearTimeout(hold.current); setPeek(null); }} onPointerLeave={() => { if (!held.current) clearTimeout(hold.current); }}
-                onPointerCancel={() => { clearTimeout(hold.current); setPeek(null); }}
+                  hold.current = window.setTimeout(() => { held.current = true; opened.current = Date.now(); try { el.setPointerCapture(id); } catch { /* gone */ } setPeek(c); }, 450); }}
+                onPointerUp={() => clearTimeout(hold.current)} onPointerLeave={() => { if (!held.current) clearTimeout(hold.current); }}
+                onPointerCancel={() => clearTimeout(hold.current)}
                 onContextMenu={e => e.preventDefault()} style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', userSelect: 'none' }} aria-label={`${action}: ${[...status, p?.title ?? c.label, where].join(' · ')}`}
                 className={`flex w-[232px] shrink-0 flex-col gap-1.5 rounded-3xl border border-arc-line bg-arc-surface px-3.5 py-3 text-left ${c.off ? 'border-dashed' : ''}`}>
                 <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[12px] font-semibold text-arc-text/80">
@@ -143,17 +143,25 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
       </div>
       <p className="mt-1 text-[12px] text-arc-text-3">Hold a card to read the paper · tap it to add</p>
       {peek && (() => {
+        // user 11/27 「B로 해줘」, as iOS does: the preview opens on a long press and stays after the finger lifts, so the
+        // abstract can be scrolled; a press outside it or × closes it, and Add is right there
         const i = info(peek.key), p = paper(peek.key);
         const top = sheet.current?.getBoundingClientRect().top ?? innerHeight * 0.5;
-        return createPortal( // drawn on the page, not in the sheet (inside it, it took the sheet's width)
-          <div role="dialog" aria-label={p?.title ?? peek.label} className="pointer-events-none fixed inset-x-0 z-40 mx-auto flex max-w-[480px] flex-col px-4"
-            style={{ bottom: innerHeight - top + 10, top: 'max(12px, env(safe-area-inset-top, 0px))', justifyContent: 'flex-end' }}>
-            <div className="arc-peek flex max-h-full flex-col overflow-hidden rounded-[22px] font-sans text-arc-text border border-arc-line bg-arc-sheet px-5 py-4 shadow-[0_12px_48px_rgba(0,0,0,0.6)]">
-              <p className="text-[12px] font-semibold text-arc-text-2">{ANGLE_NAME[peek.angle]} · {i.time}{i.room && ` · ${i.room}`}</p>
-              <p className="mt-1.5 text-[17px] leading-[22px] font-semibold tracking-[-0.012em]">{p?.title ?? peek.label}</p>
-              {i.first && <p className="mt-1.5 text-[13px] font-medium text-arc-text-2">by {i.first}{p && p.authors.length > 1 && ` and ${p.authors.length - 1} more`}</p>}
-              <p className="mt-2.5 min-h-0 overflow-hidden text-[14px] leading-[21px] text-arc-text-2">{abs == null ? 'Loading the abstract…' : abs || 'No abstract in the programme.'}</p>
-              <p className="mt-2 text-[12px] text-arc-text-3">Let go to close · tap the card to add it</p>
+        return createPortal(
+          <div className="fixed inset-0 z-40 bg-black/40" onClick={() => { if (Date.now() - opened.current > 450) setPeek(null); }}>{/* the lift that opened it lands here too: not a close */}
+            <div role="dialog" aria-modal="true" aria-label={p?.title ?? peek.label} onClick={e => e.stopPropagation()}
+              className="arc-peek absolute inset-x-0 mx-auto flex max-w-[448px] flex-col overflow-hidden rounded-[22px] border border-arc-line bg-arc-sheet font-sans text-arc-text shadow-[0_12px_48px_rgba(0,0,0,0.6)]"
+              style={{ bottom: innerHeight - top + 10, top: 'max(12px, env(safe-area-inset-top, 0px))', marginInline: 16 }}>
+              <div className="flex items-start gap-2 px-5 pt-4">
+                <p className="min-w-0 flex-1 text-[12px] font-semibold text-arc-text-2">{ANGLE_NAME[peek.angle]} · {i.time}{i.room && ` · ${i.room}`}</p>
+                <button type="button" onClick={() => setPeek(null)} aria-label="Close" className="-mt-2.5 -mr-2.5 flex size-11 shrink-0 items-center justify-center"><span aria-hidden="true" className="flex size-7 items-center justify-center rounded-full bg-white/10 text-[15px] text-arc-text-2">×</span></button>
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-2">
+                <p className="text-[17px] leading-[22px] font-semibold tracking-[-0.012em]">{p?.title ?? peek.label}</p>
+                {i.first && <p className="mt-1.5 text-[13px] font-medium text-arc-text-2">by {i.first}{p && p.authors.length > 1 && ` and ${p.authors.length - 1} more`}</p>}
+                <p className="mt-2.5 text-[14px] leading-[21px] text-arc-text-2">{abs == null ? 'Loading the abstract…' : abs || 'No abstract in the programme.'}</p>
+              </div>
+              {!peek.off && <div className="border-t border-arc-line px-5 py-3"><ArcButton onClick={() => { const c = peek; setPeek(null); pick(c); }}>{swap ? 'Swap in' : `Add to ${ANGLE_NAME[peek.angle]}`}</ArcButton></div>}
             </div>
           </div>, document.body);
       })()}
