@@ -72,7 +72,7 @@ try {
   check('07p No paper → 07 with dots and Skip', !!(await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label="Step 8 of 8"]') && /Skip/.test(document.body.innerText)`)), { hash: await hash() });
 
   // 07: type a question (React needs the native setter + an input event), the tribe chip appears
-  await ev(`(() => { const i = document.querySelector('main input'); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+  await ev(`(() => { const i = document.querySelector('main textarea'); const set = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
     set.call(i, 'Does VR fidelity raise presence?'); i.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
   const chipMs = await waitFor(`/XR & immersive/.test(document.querySelector('main').innerText)`, 15000);
   check('07 tribe chip follows the question', chipMs != null, { chipMs });

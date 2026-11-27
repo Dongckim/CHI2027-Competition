@@ -66,8 +66,12 @@ export async function saveArc(arc: Arc) {
   keepOnPhone();
 }
 
+/** The Arc just deleted, so My Arcs can offer "Deleted · Undo" for a few seconds. */
+export let lastDeleted: { arc: Arc; at: number } | null = null;
 export async function deleteArc(id: string) {
   await loadArcs();
+  const gone = memory.get(id);
+  if (gone) lastDeleted = { arc: gone, at: Date.now() };
   memory.delete(id);
   changed();
   await tx('readwrite', s => s.delete(id));

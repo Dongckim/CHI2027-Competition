@@ -3,6 +3,7 @@
 // — and cards to swap in or add. Nothing is saved until Done.
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { go } from '../../router';
+import { deleteArc } from '../../arc/store';
 import { type Angle, type Arc, type ArcNode } from '../../engine';
 import { firstSlot } from '../../explore/format';
 import { tensionFor } from '../../arc/yours.js';
@@ -123,6 +124,10 @@ export function Edit({ id }: { id: string }) {
             );
           })}
         </section>
+      )}
+      {!target && (
+        <button type="button" onClick={async () => { if (!confirm('Delete this Arc? You can undo it for a few seconds.')) return; await deleteArc(id); go('home', { replace: true }); }}
+          className="mb-8 min-h-touch self-center rounded-full px-5 text-[15px] font-semibold text-arc-text-2 underline">Delete this Arc</button>
       )}
       {tour && <MapTour steps={EDIT_TOUR} label="How to edit" onDone={endTour} />}
       {target && <AddSheet key={selected ?? 'add'} query={arc.query} engineName={arc.engine} filters={arc.filters} target={target} exclude={exclude} swap={!!selected} info={info} paper={paper} clash={clash} sameTime={sameTime} onPick={pick} onTarget={selected ? undefined : a => setAdding(a)} onClose={() => { setSelected(null); setAdding(null); }} />}

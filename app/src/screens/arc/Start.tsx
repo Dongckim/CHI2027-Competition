@@ -66,7 +66,9 @@ function Welcome() {
         {/* Figma 11px at x 33; 12px is the floor (same line centre) */}
         <p className={`mt-[1.5px] pl-[9px] text-[12px] font-medium whitespace-pre text-arc-text-3`}>{'Unofficial  ·  No account  ·  Stays on your phone'}</p>
         {/* user 11/27 「Soniox 언급하지 말고 어디에도 저장되지 않는다는걸 확인만」 */}
-        <p className={`${LAST} -mt-3 pl-[9px] text-[12px] font-medium text-arc-text-3`}>Live interpreting is never saved, anywhere</p>
+        <p className={`-mt-3 pl-[9px] text-[12px] font-medium text-arc-text-3`}>Live interpreting is never saved, anywhere</p>
+        {/* user 11/27 「01에 "처음 한 번 약 46MB, Wi-Fi 추천" 안내」 (measured 46.3 MB on a first visit, 11/27) */}
+        <p className={`${LAST} -mt-3 pl-[9px] text-[12px] font-medium text-arc-text-3`}>First open downloads about 46 MB once · Wi-Fi recommended</p>
       </>}>
       <Frame top={102} height={368} className="arc-welcome-art">
         {/* Figma 844:1847 (11/23): a filled orb; the ring draws itself and the neighbourhoods land and drift (prototype) */}

@@ -92,9 +92,9 @@ function Formats() {
     [panel, 'Debate', 'Panel'], [meetup, 'Join', 'SIG & meetup'], [keynote, 'Zoom out', 'Keynote']];
   return (
     <Page dot={3} label="Formats" title={['What are all these formats?', 'Here’s what to do at each one.']} next="start/5">
-      <ul className="mt-[64px] grid grid-cols-2 gap-3">{/* Figma 590:650…: 165×132 tiles, radius 20, fade from 6% white */}
+      <ul className="mt-[64px] [@media(max-height:700px)]:mt-6 grid grid-cols-2 gap-3">{/* short screens (Safari 664): less air so the last row clears Next (audit 11/27) */}{/* Figma 590:650…: 165×132 tiles, radius 20, fade from 6% white */}
         {cells.map(([icon, verb, name]) => (
-          <li key={name} className="flex h-[132px] flex-col items-center justify-center rounded-[20px] px-2 text-center" style={FADE}>
+          <li key={name} className="flex h-[132px] [@media(max-height:700px)]:h-[120px] flex-col items-center justify-center rounded-[20px] px-2 text-center" style={FADE}>
             <Pic src={icon} size={26} />
             <p className="mt-3 text-[20px] font-semibold tracking-[-0.012em]">{verb}</p>
             <p className="mt-1 text-[13px] font-medium text-arc-text-3">{name}</p>
@@ -109,7 +109,7 @@ function HowPeopleTalk() {
   const rules: [string, string][] = [[pin, 'Switch rooms anytime'], [clock, 'Keep questions short'], [chat, 'Say hi at posters']];
   return (
     <Page dot={4} label="How people talk" title={['How do people meet?', 'Mostly in the breaks. Three rules help.']} next="start/6">
-      <Frame top={184} height={286}>{/* rules start at y 470 */}
+      <Frame top={184} height={286} className="[@media(max-height:700px)]:!h-[230px]">{/* rules start at y 470; 56 less on short screens so the Code of Conduct link clears Next */}
         <img src={arc05} alt="" data-anim="reveal 620 700" style={at(0, 0, 390, 844)} />{/* prototype 05: ? then !, then the arc between them */}
         <img src={bubbleQ} alt="" data-anim="pop 120" data-flash="640" style={at(68, 328, 84)} />
         <img src={bubbleE} alt="" data-anim="pop 360" data-flash="1320" style={at(238, 328, 84)} />
@@ -169,7 +169,7 @@ function YourColour() {
   return (
     <Page dot={6} label="Your colour" title={['Where are my people?', 'ARC finds people who share your interests. Same colour, same neighbourhood.']} next="start/6c">
       <img src={peopleArt} alt="" aria-hidden="true" width={390} height={226} className="mt-4 w-[390px] max-w-none shrink-0 self-center" />
-      <ul className="mt-[42px] grid grid-cols-2 gap-3">{/* cards 165×190 at y 500, the picture is the card */}
+      <ul className="mt-[42px] [@media(max-height:700px)]:mt-[14px] grid grid-cols-2 gap-3">{/* cards 165×190 at y 500, the picture is the card */}
         {ways.map(([art, title, text]) => (
           <li key={title} className="relative h-[190px] overflow-hidden rounded-[20px]">
             <img src={art} alt="" aria-hidden="true" width={165} height={190} className="absolute inset-0 h-full w-full max-w-none" />

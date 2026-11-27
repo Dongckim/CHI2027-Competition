@@ -50,8 +50,8 @@ try {
   await click('Skip');
   await waitFor(`location.hash === '#/home' && /Start with one question/.test(document.body.innerText)`); // the screen's chunk comes from the worker
   await click('New Arc');
-  await waitFor(`location.hash === '#/ask' && !!document.querySelector('main input') && /Find my angles/.test(document.body.innerText)`);
-  await ev(`(() => { const i = document.querySelector('main input'); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+  await waitFor(`location.hash === '#/ask' && !!document.querySelector('main textarea') && /Find my angles/.test(document.body.innerText)`);
+  await ev(`(() => { const i = document.querySelector('main textarea'); const set = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
     set.call(i, 'haptic feedback'); i.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
   await waitFor(`/Ready offline/.test(document.body.innerText)`, 30000);
   await click('Find my angles');

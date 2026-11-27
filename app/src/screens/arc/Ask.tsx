@@ -3,7 +3,7 @@
 import book from '../../assets/arc/icon-book.svg';
 import { fold, sameName, findAuthors, type Author } from '../../arc/authors.js';
 import { authorsOf } from './Paper';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { go, href } from '../../router';
 import { update, useDevice } from '../../state/useDevice';
 import { arcOf, setQuery, setOnboarded, quickDraft, QUERY_MAX } from '../../arc/draft.js';
@@ -110,6 +110,8 @@ export function Ask() {
   }, [topic]);
   const shown = help && help.topic === topic && help.count > 0 && !named.length ? help : null; // a name: 07p, not 07b
   const ready = hasWords(draft.query);
+  const grow = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => { const el = grow.current; if (!el) return; el.style.height = 'auto'; el.style.height = `${Math.min(el.scrollHeight, 19 * 2 + 26 * 3)}px`; }, [draft.query]);
   // user 11/26 「choose angle 부분은 지워주고」: 07 goes straight to 09 (no 08); the engine picks the angles
   const next = () => { if (!ready) return; update(setOnboarded); go('when'); };
   const now = () => { if (!ready) return; update(quickDraft); update(setOnboarded); go('building'); };
@@ -137,9 +139,11 @@ export function Ask() {
       <h1 id="ask-title" className="mt-[10px] text-[30px] leading-9 font-semibold tracking-[-0.024em]">What are you<br />bringing to CHI?</h1>
       {/* Figma 591:680: input at y 226. The 1.5px edge is an inset shadow: Chromium draws a 1.5px border as 1px */}
       <form className="mt-5" onSubmit={e => { e.preventDefault(); next(); }}>
-        <input aria-labelledby="ask-title" value={draft.query} maxLength={QUERY_MAX} enterKeyHint="go" autoComplete="off" placeholder="A word or a question…"
-          onChange={e => update(s => setQuery(s, e.target.value))}
-          className="h-16 w-full rounded-[20px] bg-arc-surface pr-4 pl-[16.5px] text-[17px] font-medium tracking-[-0.012em] text-arc-text shadow-[inset_0_0_0_1.5px_rgba(244,246,255,0.2)] placeholder:text-arc-text-3 focus:shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.6),0_0_0_4px_rgba(255,255,255,0.07)] focus:outline-none" />
+        {/* user 11/27 「07 긴 질문 잘림」: grows to 3 lines so the whole question can be read; Enter still goes */}
+        <textarea ref={grow} rows={1} aria-labelledby="ask-title" value={draft.query} maxLength={QUERY_MAX} enterKeyHint="go" autoComplete="off" placeholder="A word or a question…"
+          onChange={e => update(s => setQuery(s, e.target.value.replace(/\n/g, ' ')))}
+          onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) { e.preventDefault(); next(); } }}
+          className="block min-h-16 resize-none py-[19px] leading-[26px] w-full rounded-[20px] bg-arc-surface pr-4 pl-[16.5px] text-[17px] font-medium tracking-[-0.012em] text-arc-text shadow-[inset_0_0_0_1.5px_rgba(244,246,255,0.2)] placeholder:text-arc-text-3 focus:shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.6),0_0_0_4px_rgba(255,255,255,0.07)] focus:outline-none" />
       </form>
       {/* Figma 591:684: chip at 26,303, the whole chip at 75%; the row keeps its height so the list below does not jump */}
       <div className="mt-[13px] h-[30px]" aria-live="polite">

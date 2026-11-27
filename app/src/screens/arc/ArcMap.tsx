@@ -13,7 +13,7 @@ import { MapTour } from './MapTour';
 import { NodePopup } from './NodePopup';
 import { go, href } from '../../router';
 import { Screen, ArcLink, ArcButton, Pic } from '../../components/arc';
-import type { Angle } from '../../engine';
+import type { Angle, Arc } from '../../engine';
 import { AngleHelp, ANGLE_NAME } from './AngleHelp';
 const STATE_WORD = { next: 'Next', upcoming: 'Upcoming', heard: 'Heard', ended: 'Ended' } as const;
 import { ArcView, ANGLE_ICON, useMapFit } from './ArcView';
@@ -49,6 +49,8 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
   const toFocus = (a: Angle | null) => { setSel(null); go(a ? `arc/${id}/${a}` : `arc/${id}`, a && focus ? { replace: true } : undefined); };
   useEffect(() => { setSel(null); }, [focus]);
   const [others, setOthers] = useState<Partial<Record<Angle, ArcNode[]>>>({});
+  const [added, setAdded] = useState<{ n: ArcNode; tension: Arc['tension'] } | null>(null); // 24b "Added · Undo", 5 s like a swap
+  useEffect(() => { if (!added) return; const t = setTimeout(() => setAdded(null), 5000); return () => clearTimeout(t); }, [added]);
   const keys = use.arc?.nodes.map(n => n.key).join() ?? '';
   useEffect(() => {
     const arc = use.arc;
@@ -94,6 +96,14 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
   const add = async (n: ArcNode) => { // 24b Add: onto this Arc, in its angle (prototype "내 Arc에 더해집니다")
     await use.save({ ...arc, nodes: [...arc.nodes, n], tension: n.angle === 'T' ? 'found' : arc.tension });
     setOthers(o => ({ ...o, [n.angle]: (o[n.angle] ?? []).filter(x => x.key !== n.key) }));
+    setAdded({ n, tension: arc.tension });
+  };
+  // takes back only that talk (an Undo of the whole Arc would drop other changes made meanwhile)
+  const unadd = async () => {
+    const a = added; setAdded(null); if (!a || !use.arc) return;
+    const n = a.n, nodes = use.arc.nodes.filter(x => x.key !== n.key);
+    await use.save({ ...use.arc, nodes, tension: n.angle === 'T' ? a.tension : use.arc.tension });
+    setOthers(o => ({ ...o, [n.angle]: [n, ...(o[n.angle] ?? [])] }));
   };
   // the stop the card already shows opens 14 at once (prototype 12: the Next node → 14); any other is picked first (12c)
   // prototype 12c: the Next stop while another is picked goes back to plain 12 (nothing picked)
@@ -106,6 +116,13 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
       </h2>) : undefined} />}
       bottom={<>
         <SwapUndo hs={hs} />
+        {added && !hs.undo && (
+          <div role="status" className="pointer-events-none absolute inset-x-6 bottom-full mb-3 flex justify-center">
+            <p className="pointer-events-auto flex items-center rounded-full border border-arc-line bg-arc-sheet pl-4 text-[14px] font-medium text-arc-text shadow-[0_8px_24px_rgba(0,0,0,0.4)]">
+              Added ·<button type="button" onClick={unadd} className="min-h-touch min-w-touch px-3.5 font-semibold">Undo</button>
+            </p>
+          </div>
+        )}
         {next && ni && outside && ( /* prototype 24b: a talk not on the Arc, with Add */
           <div className="flex min-h-[88px] items-center gap-3.5 rounded-[20px] border border-arc-line bg-arc-surface py-3.5 pr-4 pl-3.5">
             <span className="m-px flex size-[38px] shrink-0 items-center justify-center rounded-full border border-arc-line bg-arc-surface"><Pic src={ANGLE_ICON[next.angle]} size={18} /></span>

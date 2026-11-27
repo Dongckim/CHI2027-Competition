@@ -45,9 +45,9 @@ try {
   await click(tab, 'Skip');
   await tab.waitFor(`location.hash === '#/home' && /Start with one question/.test(document.body.innerText)`);
   await click(tab, 'New Arc');
-  await tab.waitFor(`location.hash === '#/ask' && !!document.querySelector('main input')`);
+  await tab.waitFor(`location.hash === '#/ask' && !!document.querySelector('main textarea')`);
   window = true; // 07 → 12: the question stays on the phone
-  await tab.ev(`(() => { const i = document.querySelector('main input'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, ${JSON.stringify(QUESTION)});
+  await tab.ev(`(() => { const i = document.querySelector('main textarea'); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(i, ${JSON.stringify(QUESTION)});
     i.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
   await tab.waitFor(`/Ready offline/.test(document.body.innerText)`, 60000);
   await click(tab, 'Find my angles');

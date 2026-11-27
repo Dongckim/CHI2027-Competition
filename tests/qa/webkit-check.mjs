@@ -82,8 +82,8 @@ try {
   await tap(p.locator('a, button').filter({ hasText: /^Skip$/ }).first());
   steps.home = await at(() => location.hash === '#/home' && /Start with one question/.test(document.body.innerText));
   await tap(p.locator('a').filter({ hasText: 'New Arc' }).last());
-  steps.ask = await at(() => location.hash === '#/ask' && !!document.querySelector('main input'));
-  await p.locator('main input').fill('haptic feedback');
+  steps.ask = await at(() => location.hash === '#/ask' && !!document.querySelector('main textarea'));
+  await p.locator('main textarea').fill('haptic feedback');
   await at(() => [...document.querySelectorAll('button')].some(b => b.innerText.trim() === 'Find my angles' && !b.disabled));
   await tap(p.locator('button').filter({ hasText: 'Find my angles' }));
   steps.angles = true; // 08 is gone (user 11/26): 07 goes to 09

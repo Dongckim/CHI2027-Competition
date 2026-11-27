@@ -40,7 +40,7 @@ try {
   const B = await chrome.openTab();
   await phone(B, { cpu: 2 });
   await B.send('Page.navigate', { url: `${server.base}?at=${AT}#/talk/${HEARD}` });
-  const aReady = await A.waitFor(`location.hash === '#/ask' && !!document.querySelector('main input')`);
+  const aReady = await A.waitFor(`location.hash === '#/ask' && !!document.querySelector('main textarea')`);
   const bReady = await B.waitFor(`/I heard it/.test(document.body.innerText)`);
   R.check('both tabs open (A on 07, B on 14 with "I heard it")', aReady != null && bReady != null, { aReady, bReady });
 
@@ -50,7 +50,7 @@ try {
   R.check('B: "I heard it" is written to DeviceState', heardB != null, {});
 
   // A: types a question (A's DeviceState was read before B's heard)
-  await A.ev(`(() => { const i = document.querySelector('main input'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, 'children learning with robots');
+  await A.ev(`(() => { const i = document.querySelector('main textarea'); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(i, 'children learning with robots');
     i.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
   await sleep(400);
   const afterTyping = await heardNow(A);

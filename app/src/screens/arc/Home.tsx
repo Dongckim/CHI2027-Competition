@@ -2,7 +2,7 @@
 // talks (filled = heard) and the day of the next talk ("Today", "Wed", or "… · all heard"). Newest Arc first.
 import { useEffect, useId, useMemo, useState } from 'react';
 import { href } from '../../router';
-import { useArcs, isPersistent } from '../../arc/store';
+import { useArcs, isPersistent, lastDeleted, saveArc } from '../../arc/store';
 import { TRIBE } from '../../arc/tribes.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
 import { heardOf, resetDraft } from '../../arc/draft.js';
@@ -104,6 +104,9 @@ function dayLine(arc: Arc, schedule: Schedule | null, now: number, heard: Set<st
 
 export function Home() {
   const arcs = useArcs();
+  // "Deleted · Undo" for 5 s after Delete on 15
+  const [undo, setUndo] = useState(() => (lastDeleted && Date.now() - lastDeleted.at < 5000 ? lastDeleted.arc : null));
+  useEffect(() => { if (!undo) return; const t = setTimeout(() => setUndo(null), 5000); return () => clearTimeout(t); }, [undo]);
   const heard = heardOf(useDevice());
   const now = useNow();
   const [schedule, setSchedule] = useState<Schedule | null>(null);
@@ -146,6 +149,11 @@ export function Home() {
         </a>
         <p className="mt-[23px] text-center text-[26px] leading-8 font-semibold tracking-[-0.02em]">Start with one question.</p>
       </div>
+      {undo && (
+        <div role="status" className="fixed inset-x-0 top-[max(16px,env(safe-area-inset-top))] z-50 mx-auto flex w-fit items-center gap-1 rounded-full bg-arc-primary py-1 pr-1 pl-4 text-[14px] font-semibold text-arc-on-primary">
+          Deleted<button type="button" onClick={() => { const a = undo; setUndo(null); saveArc(a); }} className="min-h-touch rounded-full px-3 underline">Undo</button>
+        </div>
+      )}
     </Screen>
   );
   return (
@@ -234,6 +242,11 @@ export function Home() {
         })}
       </ul></div>
       <div className="mt-[30px] mb-6">{chi101}</div>
+      {undo && (
+        <div role="status" className="fixed inset-x-0 top-[max(16px,env(safe-area-inset-top))] z-50 mx-auto flex w-fit items-center gap-1 rounded-full bg-arc-primary py-1 pr-1 pl-4 text-[14px] font-semibold text-arc-on-primary">
+          Deleted<button type="button" onClick={() => { const a = undo; setUndo(null); saveArc(a); }} className="min-h-touch rounded-full px-3 underline">Undo</button>
+        </div>
+      )}
     </Screen>
   );
 }
