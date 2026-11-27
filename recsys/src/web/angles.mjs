@@ -70,7 +70,7 @@ export const P = { JUDGE_N: 40, POOL: 200, SIZE: 7, MAX_READ: 2, GAP_MIN: 5, CAL
                    THEME_COS: 0.45, CLOSE_COS: 0.50,
                    MATCH: 0.70, STRICT: 0.80, COS_LO: 0.45, COS_HI: 0.80, CLAIM_W: 0.95, GEN_W: 0.95, ABOUT_W: 0.9, UP_W1: 0.8, UP_W2: 0.75,
                    NEAR_SCORE: 1.5, NEAR_TOP: 5, NEAR_CONF: 0.2, TOPIC_CONF: 0.1, COST: true, COST_BOTH: true, COST_TOP: 10,
-                   MINE_K: 8, MINE_Q: 3, BALANCE: true, SUGGEST_K: 3, WARN_WORDS: 3, WARN_MATCH: 5, PAIR_MIN: 5, PAIR_OUT: 0.6, CARDQ_COS: 0.75, CARDQ_X: 0.40, CQ_ONE: true, CQ_ONE_WORDS: 10, NARROW: true,
+                   MINE_K: 8, MINE_Q: 3, BALANCE: true, SUGGEST_K: 3, WARN_WORDS: 3, WARN_MATCH: 5, TRIBE_NB: 0.5, PAIR_MIN: 5, PAIR_OUT: 0.6, CARDQ_COS: 0.75, CARDQ_X: 0.40, CQ_ONE: true, CQ_ONE_WORDS: 10, NARROW: true,
                    CQ_SUGGEST: true, CQ_SAME: 0.85, CQ_ONLY: 1, CQ_TOPIC: 0.40, CQ_WORDS: 12 };
 
 const set = (s) => new Set(s.split(/\s+/).filter(Boolean));
@@ -313,6 +313,18 @@ const RE_GOODBAD = new RegExp("^(?<be>is|are)\\s+(?<x>.+?)\\s+(?:really\\s+|actu
 // inputs that are only the field's own short names ("AI", "VR"): CHI covers them, though the
 // off-topic check reads two letters as too little to go on
 const PROW_CAP = 30000;   // decoded phrase rows kept (30 MB at most)
+// the words that name a tribe in what was typed: the keyword rules build_angles.py gives a talk
+// without an LLM tribe, plus words of the tribe definitions (gen_findings.py TRIBES)
+const TRIBE_RX = [
+  ["Accessibility & aging", /\b(accessib\w*|blind|low[- ]vision|deaf|hard of hearing|disabilit\w*|screen reader\w*|older adults?|aging|ageing|dementia|autis\w*|adhd|wheelchair|neurodiver\w*|assistive)\b/i],
+  ["XR & immersive", /\b(virtual reality|vr|augmented reality|ar|mixed reality|xr|immersive|head-mounted|hmd|avatar\w*|metaverse|presence|embodiment)\b/i],
+  ["Health & wellbeing", /\b(health\w*|mental|wellbeing|well-being|clinic\w*|patient\w*|therap\w*|medical|stress|anxiety|depress\w*|sleep|fitness|physical activity|care)\b/i],
+  ["Learning & families", /\b(learn\w*|educat\w*|student\w*|teacher\w*|classroom\w*|children|child|kids?|parent\w*|famil\w*|tutor\w*|school\w*)\b/i],
+  ["Devices & interaction", /\b(haptic\w*|wearable\w*|sensor\w*|input|gesture\w*|touch\w*|fabricat\w*|smartwatch\w*|eye[- ]tracking|gaze|textile\w*|keyboard\w*|robot\w*|drone\w*|mobile)\b/i],
+  ["Design & creativity", /\b(design\w*|creativ\w*|arts?|artist\w*|artwork\w*|music\w*|gam(?:e|ing)\w*|play\w*|visuali[sz]\w*|sketch\w*|craft\w*)\b/i],
+  ["Society & communities", /\b(social media|communit\w*|privacy|security|ethic\w*|politic\w*|labou?r|worker\w*|misinformation|sustainab\w*|culture\w*|online)\b/i],
+  ["AI & agents", /\b(ai|llms?|large language models?|agents?|chatbots?|machine learning|generative|gpt\w*)\b/i],
+];
 const FIELD_TERMS = new Set(["ai", "vr", "ar", "xr", "mr", "llm", "llms", "ux", "ui", "hci", "iot", "ml", "nlp", "bci", "hri", "cscw", "ehmi"]);
 
 export function parseQuestion(text) {
@@ -460,6 +472,7 @@ export class Angles {
     this.version = d.version;
     this.tribes = d.tribes;
     this.narrow = pkg.narrow || {};
+    this.tribeCounts = pkg.tribeCounts || null;
     // "AI", "health", "XR": the words of each tribe's own name (see _tribe)
     this.tribeWords = this.tribes.map((t) => new Set(t.name.toLowerCase().match(W_RE()) || []));
     this.phrases = d.phrases;
@@ -1029,12 +1042,29 @@ export class Angles {
       if (t !== undefined && t !== null) w.set(t, (w.get(t) || 0) + score[i]);
     }
     if (!w.size) return null;
-    const s = sortedBy([...w.entries()], (kv) => [-kv[1], kv[0]]);
+    // the talks' vote (a share) plus what the typed words say on their own (naive Bayes over the
+    // talks' words, TRIBE_NB of it)
+    let tot = 0;
+    for (const v of w.values()) tot += v;
+    const sc = new Map(this.tribes.map((_, j) => [j, (w.get(j) || 0.0) / tot]));
+    const nb = this._tribeNb(text);
+    if (nb) for (const j of sc.keys()) sc.set(j, sc.get(j) + P.TRIBE_NB * nb[j]);
+    const s = sortedBy([...sc.entries()], (kv) => [-kv[1], kv[0]]);
     let [t1, w1] = s[0];
-    let [t2, w2] = s.length > 1 ? s[1] : [null, 0.0];
+    let [t2, w2] = s[1];
     let margin = w1 ? pyRound((w1 - w2) / w1, 3) : 0.0;
     const named = this._namedTribe(text);
     if (named !== null && named !== t1) [t1, t2, margin] = [named, t1, 1.0];
+    else if (named === null && text) {
+      // the typed words name a tribe ("generative AI", "gaming"): one named, that one; several,
+      // the one of them most of the talks belong to
+      const hit = TRIBE_RX.filter(([, rx]) => rx.test(text)).map(([n]) => this.tribes.findIndex((t) => t.name === n));
+      if (hit.length && !hit.includes(t1)) {
+        let best = hit[0];
+        for (const j of hit) if (sc.get(j) > sc.get(best)) best = j;
+        [t1, t2, margin] = [best, t1, 0.5];
+      }
+    }
     const tr = { ...this.tribes[t1] };
     tr.margin = guess ? 0.0 : margin;
     tr.runner_up = t2 !== null ? this.tribes[t2].name : null;
@@ -1053,6 +1083,26 @@ export class Angles {
     for (let k = 0; k < this.D; k++) r[k] = this._pval(p, k) / nrm;
     this._prows.set(p, r);
     return r;
+  }
+
+  // each tribe's share by the typed words alone (naive Bayes, add-one), or null
+  _tribeNb(text) {
+    if (!text || !this.tribeCounts) return null;
+    const { docs, words } = this.tribeCounts;
+    const ws = [...new Set(content(text.toLowerCase())[0].map((t) => stem(t)))].filter((t) => t in words).sort();
+    if (!ws.length) return null;
+    let total = 0;
+    for (const d of docs) total += d;
+    const logp = docs.map((d, j) => {
+      let s = Math.log(d / total);
+      for (const t of ws) s += Math.log((words[t][j] + 1) / (d + 2));
+      return s;
+    });
+    const m = Math.max(...logp);
+    const e = logp.map((x) => Math.exp(x - m));
+    let z = 0;
+    for (const x of e) z += x;
+    return e.map((x) => x / z);
   }
 
   _namedTribe(text) {

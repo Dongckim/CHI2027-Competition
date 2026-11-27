@@ -47,7 +47,7 @@ from collections import Counter
 
 import numpy as np
 
-from retriever import BM25, InputError, QueryEncoder, Speller, _minmax, _non_latin, load_expansions, load_program
+from retriever import BM25, InputError, QueryEncoder, Speller, _minmax, _non_latin, load_expansions, load_program, word_list
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FILTERS = ("institution", "department", "country", "author", "type", "session", "day")
@@ -174,7 +174,7 @@ class Explorer:
         exp = load_expansions(root, self.items) or [[] for _ in self.items]
         self.bm25 = BM25([f"{it['title']}. {it['abstract']}" + (f" ; {' ; '.join(e)}" if e else "")
                           for it, e in zip(self.items, exp)])
-        self.speller = Speller(self.bm25)
+        self.speller = Speller(self.bm25, word_list(root))
         self.inst = InstitutionIndex(af["institution"] for it in self.items
                                      for a in it["authors"] for af in a["affiliations"])
         self.types = sorted({it["type"] for it in self.items if it["type"]})

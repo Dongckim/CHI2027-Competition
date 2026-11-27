@@ -131,13 +131,44 @@ def _osa(a, b, cap):
     return prev[-1]
 
 
+# endings stripped to find a word's stem in the encoder's word list ("caching" -> cache)
+_ENDINGS = ("ings", "ing", "ed", "es", "s", "ers", "er", "ly", "ness", "ments", "ment", "ations", "ation", "ity")
+
+
+def word_list(root):
+    """The whole words of the query encoder's WordPiece vocabulary (tokenizer.json): an
+    English word list that ships anyway (20,365 of 4+ letters)."""
+    path = os.path.join(root, "tokenizer.json")
+    if not os.path.exists(path):
+        return set()
+    with open(path, encoding="utf-8") as f:
+        vocab = json.load(f)["model"]["vocab"]
+    return {w for w in vocab if w.isalpha() and not w.startswith("##") and len(w) >= 3}
+
+
+def known_word(w, words):
+    """An English word, if not a CHI one: in the word list as it is, or its stem is
+    ("caching": cache, "passwords": password, "embedding": embed)."""
+    if w in words:
+        return True
+    for e in _ENDINGS:
+        if w.endswith(e) and len(w) - len(e) >= 3:
+            b = w[:-len(e)]
+            if b in words or b + "e" in words or (len(b) >= 4 and b[-1] == b[-2] and b[:-1] in words):
+                return True
+    return False
+
+
 class Speller:
     """Typos in the query, fixed against the words the program itself uses: a word no
     paper contains (4+ letters, not a stop word) becomes the closest program word that
     starts with the same letter and is in at least 2 papers (1 edit for 4-5 letters,
-    2 for longer; ties go to the more common word). No model, just the keyword index."""
+    2 for longer; ties go to the more common word). No model, just the keyword index.
+    An English word no talk uses is left alone (11/27: "KV caching" became "KV coaching"),
+    by the encoder's own word list (`words`, word_list)."""
 
-    def __init__(self, bm25):
+    def __init__(self, bm25, words=None):
+        self.words = words or set()
         self.vocab = bm25.idf
         self.by_first = {}
         for w, (d, _) in bm25.post.items():
@@ -160,7 +191,7 @@ class Speller:
         def fix(m):
             w = m.group(0)
             lw = w.lower()
-            if len(lw) < 4 or not lw.isalpha() or lw in self.vocab or lw in STOP:
+            if len(lw) < 4 or not lw.isalpha() or lw in self.vocab or lw in STOP or known_word(lw, self.words):
                 return w
             # a word with no closer program word keeps its own spelling ("ChatGPT", "VR에서")
             c = self.word(lw)
@@ -250,7 +281,7 @@ class Ranker:
       (raw cosine under relevance_floor), CHI may not cover the topic.
     """
 
-    def __init__(self, emb, texts, embed, cfg, expansions=None):
+    def __init__(self, emb, texts, embed, cfg, expansions=None, words=None):
         self.emb, self.embed, self.cfg = emb, embed, cfg
         self.bm25 = BM25(texts)
         # expansion_mode "separate": the papers' search phrases (doc2query) as their
@@ -259,7 +290,7 @@ class Ranker:
         self.bm25x = BM25([" ; ".join(e) for e in expansions]) if expansions else None
         self.normed = [" " + _norm(t) + " " for t in texts]
         self._df = {}
-        self.speller = Speller(self.bm25)
+        self.speller = Speller(self.bm25, words)
 
     def df(self, phrase):
         if phrase not in self._df:
@@ -477,7 +508,7 @@ class Retriever:
             # the papers' search phrases join their title + abstract in one keyword index
             texts = [f"{t} ; {' ; '.join(e)}" for t, e in zip(texts, expansions)]
             expansions = None
-        self.ranker = Ranker(self.emb, texts, self.embed, self.cfg, expansions)
+        self.ranker = Ranker(self.emb, texts, self.embed, self.cfg, expansions, word_list(root))
         self.bm25 = self.ranker.bm25
         # a few talks appear twice (same title, another session slot); group them
         # so one talk takes one top-k slot and its other slots are listed
