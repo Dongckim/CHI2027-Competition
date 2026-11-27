@@ -25,6 +25,14 @@ export const TALK_TOUR: TourStep[] = [
   { at: '[data-tour="qa"]', title: 'Ask the authors', text: 'The authors answer in the session. Questions with the most votes come first, so vote for the ones you want asked.' },
 ];
 
+// 15, the first time Edit opens after the map tour (user 11/27 「처음 editing들어가면 다른 곳처럼 가이드」)
+export const EDIT_TOUR: TourStep[] = [
+  { at: 'button[aria-label^="Add a talk to"]', title: 'Add a talk', text: 'Tap + to see talks for that angle; switch angles in the sheet. Tap one, then confirm. Hold one to read it first.' },
+  { at: '[data-arc-map] [data-node-key]', title: 'Swap a talk', text: 'Tap a talk on your Arc to swap it for another of the same angle.' },
+  { at: 'button[aria-label^="Remove"]', title: 'Remove', text: 'The − takes a talk off your Arc.' },
+  { at: 'header button', title: 'Done', text: 'Done keeps your changes.' },
+];
+
 export function MapTour({ onDone, steps: all = TOUR, label = 'How to read your Arc' }: { onDone: () => void; steps?: TourStep[]; label?: string }) {
   const steps = useRef(all.filter(s => find(s.at))).current;
   const [i, setI] = useState(0);

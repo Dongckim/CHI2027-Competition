@@ -11,6 +11,9 @@ import { Screen } from '../../components/arc';
 import { ArcView, useMapFit } from './ArcView';
 import { AddSheet } from './AddSheet';
 import { useArc } from './useArc';
+import { MapTour, EDIT_TOUR } from './MapTour';
+import { arcOf, setEditTourSeen } from '../../arc/draft.js';
+import { update, useDevice } from '../../state/useDevice';
 
 type Slot = { start: number | null; end: number };
 
@@ -23,13 +26,19 @@ export function Edit({ id }: { id: string }) {
   const [room, setRoom] = useState(0);
   // the map fills the screen as on 12 until a + or a talk is pressed; then 0.74 and the sheet rises from below (user 11/26
   // 「일단 화면 꽉차게 있다가 누르면 이제 아래에서 editing 화면이 올라오는 식으로」)
-  const [fill, mapRef] = useMapFit();
+  const [fill, mapRef] = useMapFit(1, `${!!(selected || adding)}|${nodes?.map(n => n.key).join() ?? ''}`); // start over when the sheet closes or a talk comes in (11/27: it shrank)
   const box = useCallback((el: HTMLDivElement | null) => {
     (mapRef as { current: HTMLDivElement | null }).current = el;
     if (!el || typeof ResizeObserver !== 'function') return;
     new ResizeObserver(() => setRoom(el.getBoundingClientRect().height)).observe(el);
   }, [mapRef]);
   useEffect(() => { if (arc && !nodes) setNodes(arc.nodes); }, [arc, nodes]);
+  // the first Edit after the map's tour, once (user 11/27 「처음 editing들어가면 다른 곳처럼 가이드」)
+  const dev = arcOf(useDevice());
+  const [tour, setTour] = useState(false);
+  const tourDue = !!dev.tour && !dev.editTour && !!nodes;
+  useEffect(() => { if (!tourDue) return; const t = setTimeout(() => setTour(true), 900); return () => clearTimeout(t); }, [tourDue]);
+  const endTour = useCallback(() => { setTour(false); update(setEditTourSeen); }, []);
   const target = selected ? nodes?.find(n => n.key === selected)?.angle ?? null : adding;
   const exclude = useMemo(() => nodes?.map(n => n.key) ?? [], [nodes]);
 
@@ -47,9 +56,8 @@ export function Edit({ id }: { id: string }) {
   const out = selected ? slotOf(selected) : null;
   const sameTime = out ? (key: string) => { const s = slotOf(key); return !!s && s.start < out.end && out.start < s.end; } : undefined;
   const pick = (card: ArcNode) => {
-    if (selected) setNodes(nodes.map(n => (n.key === selected ? card : n)));
-    else setNodes([...nodes, card]);
-    setSelected(null); setAdding(null);
+    if (selected) { setNodes(nodes.map(n => (n.key === selected ? card : n))); setSelected(null); }
+    else setNodes([...nodes, card]); // Add keeps the sheet open on its angle: add more, or switch angle in the sheet (11/27)
   };
   const done = async () => { await save(draft); go(`arc/${id}`); };
 
@@ -67,7 +75,8 @@ export function Edit({ id }: { id: string }) {
             onRemove: k => { setNodes(nodes.filter(n => n.key !== k)); if (selected === k) setSelected(null); },
             onAdd: a => { setAdding(x => (x === a ? null : a)); setSelected(null); } }} />
       </div>
-      {target && <AddSheet key={selected ?? adding} query={arc.query} engineName={arc.engine} filters={arc.filters} target={target} exclude={exclude} swap={!!selected} info={info} paper={paper} clash={clash} sameTime={sameTime} onPick={pick} />}
+      {tour && <MapTour steps={EDIT_TOUR} label="How to edit" onDone={endTour} />}
+      {target && <AddSheet key={selected ?? 'add'} query={arc.query} engineName={arc.engine} filters={arc.filters} target={target} exclude={exclude} swap={!!selected} info={info} paper={paper} clash={clash} sameTime={sameTime} onPick={pick} onTarget={selected ? undefined : a => setAdding(a)} onClose={() => { setSelected(null); setAdding(null); }} />}
     </Screen>
   );
 }

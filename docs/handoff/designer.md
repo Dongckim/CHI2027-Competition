@@ -398,3 +398,11 @@ Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your p
 - 사용자 결정 「D: "No clear challenge at CHI this year." 유지 (관점 이름과 통일)」 (11/27): 23 문구는 프로토타입의 "clash"가 아니라 "challenge" 그대로.
 - 사용자 결정 「캐싱은 지금 방식 유지」 (11/27): 서버 백업 없음. Arc는 폰(IndexedDB, persist 요청)에만, 홈 화면 추가·앱 안 브라우저 안내 그대로.
 - 사용자 「Soniox 언급하지 말고 어디에도 저장되지 않는다는걸 확인만」 (11/27): 01 "Live interpreting is never saved, anywhere", 14g 안내 "Nothing you say is saved, anywhere." Soniox 이름은 동의 시트에만(사용자 11/27 동의 화면 요청).
+
+## 29. Edit 흐름 (2026-11-27, 테스트 기간, 사용자 요청)
+- 사용자 「추가하면 추가하시겠습니다 창 띄워주고 그다음 넣어주고」: 시트에서 카드를 누르면 "Add this talk to Reframes?"(Swap은 "Swap in this talk?") 확인 → Add to …/Cancel.
+- 사용자 「각 3파트 자유롭게 돌아다니면서 editing」: Add 시트의 칩이 Supports · Reframes · Challenges(+ Same time · Wildcard), 시트 안에서 각도를 바꿈. 추가해도 시트는 열린 채(계속 추가), × 로 닫음.
+- 사용자 「추가하고 나서 갑자기 scale이 쑥 작아지는데」: 시트가 닫히거나 발표가 들어올 때 지도 맞춤을 화면 폭부터 다시 잼.
+- 사용자 「꾹 누르면 전체 논문 제목, 저자 시간 장소 abstract까지 나오는 미리보기」: 시트 카드를 0.45초 누르면 미리보기(각도 · 시간 · 방, 제목, 1저자 · 소속과 저자 수, 초록), 거기서 바로 추가.
+- 사용자 「처음 editing들어가면 다른 곳처럼 가이드」: 지도 가이드를 본 뒤 처음 여는 15에서 4단계(+, 발표 바꾸기, −, Done), 한 번만.
+- Q&A: iOS 26 Safari는 키보드가 없을 때도 툴바만큼 보이는 영역이 짧아, 그 차이를 빼고 키보드만큼만 올림(입력창이 70pt 떠 있던 것). 안내 "Ask the authors anything"(16px에서 잘리던 것).

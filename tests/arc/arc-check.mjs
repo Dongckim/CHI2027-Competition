@@ -134,6 +134,8 @@ try {
   await shot('15');
   const swapIn = await ev(`[...document.querySelectorAll('section[aria-label=Swap] button')].find(b => b.getAttribute('aria-label')?.startsWith('Swap in'))?.getAttribute('aria-label')`);
   await click(`[...document.querySelectorAll('section[aria-label=Swap] button')].find(b => b.getAttribute('aria-label')?.startsWith('Swap in'))`);
+  await waitFor(`!!document.querySelector('section[aria-label=Swap] [role=dialog]')`, 5000); // 11/27: it asks first
+  await click(`[...document.querySelectorAll('section[aria-label=Swap] [role=dialog] button')].at(-1)`);
   await click(`[...document.querySelectorAll('section[aria-label=Swap] button[role=radio]')].find(b => b.innerText.includes('Wildcard'))`); // sheet closed after a swap: no-op
   await click(`[...document.querySelectorAll('button')].find(b => b.innerText.trim() === 'Done')`);
   await waitFor(`location.hash === '#/arc/${ARCS.normal.id}'`, 10000);

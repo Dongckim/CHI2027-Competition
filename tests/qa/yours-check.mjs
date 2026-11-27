@@ -77,6 +77,7 @@ try {
     const card = p.locator('section[aria-label=Swap] button[aria-label^="Add to "]:not([disabled])').first();
     await card.waitFor({ timeout: 20000 });
     await card.click();
+    await p.locator('section[aria-label=Swap] [role=dialog] button').last().click(); // 11/27: "Add this talk?" first
     await p.waitForFunction(() => [...document.querySelectorAll('main span')].some(s => /(^| · )Yours$/.test(s.textContent)));
     const yoursKept = await p.locator('main button[aria-pressed="true"][aria-description*="Yours"]').count()
       + await p.locator('section[aria-label="All talks"] button[aria-pressed="true"]', { hasText: '· Yours' }).count();
