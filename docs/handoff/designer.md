@@ -416,3 +416,7 @@ Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your p
 - 실기기 측정(?kbdebug): innerHeight 714, 보이는 영역 404 → 키보드·Safari 막대가 310을 가림. 질문 상자는 fixed + top/translate인데 원래 class의 bottom-0이 남아 상자가 아래로 늘어났음(위 94 · 아래 404, 입력 밑 310 빈 공간). 
 - 사용자 「검색창이 있는 모든 부분 전면 재교체 해야할꺼 같아 안전화」: 키보드 계산을 useKeyboardInset 하나로(보이는 영역 아래 끝까지의 거리, 입력 중이고 80 넘을 때만). 붙이는 곳은 두 곳만: 14 질문 상자(Screen pinBottom: fixed, bottom = 그 거리) · Add/Swap 시트(bottom = 그 거리, 높이는 보이는 영역 안). 07 · 07p 같은 검색 화면은 아래 버튼을 키보드 밑에 둠(결과가 가려지지 않게). 모든 입력 글자 16px 이상(Add 시트 검색 14 → 16), 이름·검색 입력은 자동 고침·맞춤법 끔. ?kbdebug는 그대로(측정용).
 - 사용자 「editing 할때 각 파트 전부 다 노드 볼 수 있도록」: 15 지도 아래에 각도별 전체 목록(제목, 시간·방, Swap, −, 각도마다 + Add). 지도는 화면 높이를 그대로 쓰고 목록은 스크롤로.
+
+## 32. 14 질문 입력 = 입력 전용 시트 (2026-11-27)
+- 사용자(붙여 넣은 지시) 「visualViewport로 입력창 따라붙이는 방식은 Safari가 레이아웃 뷰포트를 밀어 올리는 것과 계속 충돌해서 안 돼. 방식 바꿔」: 14 아래 상자는 누르면 열리는 버튼("Ask the authors anything"). 누르면 같은 탭 안에서 시트가 열리고 textarea에 초점(iOS는 같은 탭에서 초점을 줘야 키보드가 뜸). 시트는 fixed, top = visualViewport.offsetTop, height = visualViewport.height(resize·scroll 때 다시), 뒤 페이지는 body 고정(닫을 때 스크롤 위치 복원), 글자 16px, Esc·×로 닫기, 보내면 닫힘. 비슷한 질문이 있으면 시트 안에 "Me too + add mine"/"Post on its own".
+- 확인: iOS 26.5 시뮬레이터 Safari(safaridriver)에서 시트가 보이는 영역을 꽉 채움(0–678). 소프트웨어 키보드는 자동화로 띄울 수 없어 실기기 또는 시뮬레이터에서 손으로 확인 필요(tests/qa/sim-qa-ios.mjs).
