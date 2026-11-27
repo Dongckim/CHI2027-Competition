@@ -61,7 +61,7 @@ export function MiniArc({ arc, heard, d = 200 }: { arc: Arc; heard: Set<string>;
   const c = TRIBE[arc.tribe].color, id = useId().replace(/[^a-zA-Z0-9]/g, ''); // safe inside url(#…)
   const seats = (['S', 'T', 'R'] as const).flatMap(a => arc.nodes.filter(n => n.angle === a).slice(0, SEAT[a].length).map((n, i) => ({ n, a, i, xy: SEAT[a][i] })));
   return (
-    <svg aria-hidden="true" width={100} height={100} viewBox="0 0 100 100" fill="none" className="block shrink-0">
+    <svg aria-hidden="true" width={100} height={100} viewBox="0 0 100 100" fill="none" className="block aspect-square h-auto max-w-full shrink">{/* shrinks in 20b's 3-column grid at 375 (audit 11/27) */}
       <defs>
         <radialGradient id={`${id}t`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50 50) scale(50)">
           <stop stopColor={c} stopOpacity="0.35" /><stop offset="0.7" stopColor={c} stopOpacity="0.14" /><stop offset="1" stopColor={c} stopOpacity="0.06" />
@@ -185,6 +185,12 @@ export function Home() {
           <ArcButton kind="secondary" className="min-w-[160px]" onClick={() => setPicked('week')}>See this week</ArcButton>
         </div>
       )}
+      {period === 'week' && !rows.some(r => r.period.week) && rows.length > 0 && ( /* audit 11/27: after CHI this tab was empty with no word */
+        <div className="mt-8 flex flex-col items-center gap-4">
+          <p className="text-center text-[16px] text-arc-text-2">Nothing left this week in your Arcs.</p>
+          <ArcButton kind="secondary" className="min-w-[160px]" onClick={() => setPicked('after')}>See After CHI</ArcButton>
+        </div>
+      )}
       <div id="arc-list" role="tabpanel">
       {/* opens 20b (Figma 743:1741) once CHI is over; Figma 20 has no such card: its words are ours, designer to confirm */}
       {/* during CHI the tab was an empty page (persona review 11/25): say what will come here */}
@@ -246,8 +252,8 @@ function KeepNote() {
   return (
     <div role="note" className="mt-2.5 flex flex-col gap-2 rounded-[18px] border border-arc-line bg-arc-surface px-4 py-3 text-[14px] leading-5 text-arc-text-2">
       {advice === 'inApp'
-        ? <p><span className="font-semibold text-arc-text">This app&rsquo;s browser may delete your Arcs.</span> Open {location.host} in Safari or Chrome to keep them all week.</p>
-        : <p><span className="font-semibold text-arc-text">Keep your Arcs all week:</span> add ARC to your Home Screen. Tap Share <span aria-hidden="true">↑</span> and then &ldquo;Add to Home Screen&rdquo;.</p>}
+        ? <p><span className="font-semibold text-arc-text">This app&rsquo;s browser may delete your Arcs.</span> Open {location.host} in Safari or Chrome to keep them all week; Arcs made here don&rsquo;t move by themselves, so share each one and open its link there.</p>
+        : <p><span className="font-semibold text-arc-text">Keep your Arcs all week:</span> add ARC to your Home Screen (Share <span aria-hidden="true">↑</span> → &ldquo;Add to Home Screen&rdquo;) and use it from there. The Home Screen app starts empty: to bring an Arc made here, share it and open its link there.</p>}{/* iOS keeps a Home Screen app's data apart from Safari's (audit 11/27) */}
       <div className="flex gap-2">
         {advice === 'inApp' && <button type="button" onClick={copy} className="min-h-touch rounded-full bg-arc-chip-on px-4 text-[14px] font-semibold text-arc-on-primary">{copied ? 'Copied' : 'Copy link'}</button>}
         {advice === 'homeScreen' && <button type="button" onClick={hide} className="min-h-touch rounded-full border border-arc-line px-4 text-[14px] font-semibold text-arc-text">Got it</button>}

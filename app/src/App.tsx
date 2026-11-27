@@ -6,7 +6,12 @@ import { Start, START_PAGES } from './screens/arc/Start';
 
 // Arc screens (decision 006). 01–06 load with the app (the first screen); every other screen is its own chunk, so the
 // first download does not grow with the app. The planner screens (Legacy) load only when their address is opened.
-const named = <K extends string>(load: () => Promise<Record<K, React.ComponentType<any>>>, name: K) => lazy(() => load().then(m => ({ default: m[name] }))); // eslint-disable-line @typescript-eslint/no-explicit-any
+// a screen's file from an older deploy is gone after a new one (audit 11/27): reload once to get the new version
+const fresh = <T,>(load: () => Promise<T>) => () => load().catch(e => {
+  try { if (navigator.onLine && !sessionStorage.getItem('arc.reloaded')) { sessionStorage.setItem('arc.reloaded', '1'); location.reload(); return new Promise<T>(() => {}); } } catch { /* storage blocked */ }
+  throw e;
+});
+const named = <K extends string>(load: () => Promise<Record<K, React.ComponentType<any>>>, name: K) => lazy(() => fresh(load)().then(m => { try { sessionStorage.removeItem('arc.reloaded'); } catch { /* blocked */ } return { default: m[name] }; })); // eslint-disable-line @typescript-eslint/no-explicit-any
 const Ask = named(() => import('./screens/arc/Ask'), 'Ask');
 const FindPaper = named(() => import('./screens/arc/Paper'), 'FindPaper');
 const ConfirmPaper = named(() => import('./screens/arc/Paper'), 'ConfirmPaper');
@@ -38,10 +43,13 @@ class ScreenGuard extends Component<{ children: ReactNode }, { failed: boolean }
   static getDerivedStateFromError() { return { failed: true }; }
   render() {
     if (!this.state.failed) return this.props.children;
+    // offline: the screen was never saved here; online: something broke, a reload fixes most (audit 11/27: it always said
+    // "connect" even when the phone was online)
+    const offline = typeof navigator !== 'undefined' && !navigator.onLine;
     return (
       <main className="flex min-h-dvh flex-col justify-center gap-4 bg-arc-bg px-6 text-arc-text" role="alert">
-        <h1 className="text-[22px] leading-7 font-semibold">This screen isn't on your phone yet</h1>
-        <p className="text-[16px] text-arc-text-2">Connect to the internet once and try again. Your Arcs are safe on this phone.</p>
+        <h1 className="text-[22px] leading-7 font-semibold">{offline ? "This screen isn't on your phone yet" : 'Something went wrong on this screen'}</h1>
+        <p className="text-[16px] text-arc-text-2">{offline ? 'Connect to the internet once and try again.' : 'Try again. If it keeps happening, go to My Arcs.'} Your Arcs are safe on this phone.</p>
         <button type="button" onClick={() => location.reload()} className="h-[54px] rounded-full bg-arc-primary text-[16px] font-semibold text-arc-on-primary">Try again</button>
         <a href="#/home" className="flex h-[54px] items-center justify-center rounded-full border border-arc-line text-[16px] font-semibold">My Arcs</a>
       </main>

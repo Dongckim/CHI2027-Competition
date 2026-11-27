@@ -1,5 +1,6 @@
 // My Arcs, on this phone only: IndexedDB database "arc", object store "arcs" (key = Arc.id). Never sent to a server.
 // When IndexedDB is blocked (some private windows) the Arcs live in memory until the tab closes; `persistent` says so.
+import { TRIBE } from './tribes.js';
 import { useSyncExternalStore } from 'react';
 import type { Arc } from '../engine/types';
 
@@ -15,6 +16,9 @@ function open(): Promise<IDBDatabase | null> {
       req.onupgradeneeded = () => req.result.createObjectStore(STORE, { keyPath: 'id' });
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => { persistent = false; resolve(null); };
+      req.onblocked = () => { persistent = false; resolve(null); };
+      // a browser that never answers (audit 11/27: Home stayed blank): after 3 s, memory only, with the note that says so
+      setTimeout(() => { persistent = false; resolve(null); }, 3000);
     } catch { persistent = false; resolve(null); }
   }));
 }
@@ -38,18 +42,27 @@ const changed = () => { list = [...memory.values()].sort((a, b) => b.createdAt -
 
 export async function loadArcs(): Promise<Arc[]> {
   if (list) return list;
-  const stored = (await tx<Arc[]>('readonly', s => s.getAll() as IDBRequest<Arc[]>)) ?? [];
+  // a record this version cannot draw is left out, not shown (audit 11/27: one bad record took Home down)
+  const stored = ((await tx<Arc[]>('readonly', s => s.getAll() as IDBRequest<Arc[]>)) ?? [])
+    .filter(a => a && typeof a.id === 'string' && typeof a.query === 'string' && Array.isArray(a.nodes) && a.tribe in TRIBE);
   memory = new Map([...stored, ...memory.values()].map(a => [a.id, a]));
   changed();
   if (list!.length) keepOnPhone();
   return list!;
 }
 
+// another tab that saves or deletes an Arc tells this one, which reads them again (audit 11/27: a link opened in a new
+// tab added an Arc the first tab never showed)
+const channel = typeof BroadcastChannel === 'function' ? new BroadcastChannel('arc') : null;
+if (channel) channel.onmessage = () => { if (!persistent) return; list = null; memory = new Map(); loadArcs(); }; // memory-only Arcs are this tab's alone
+const tell = () => { try { channel?.postMessage('changed'); } catch { /* closed */ } };
+
 export async function saveArc(arc: Arc) {
   await loadArcs(); // first save in this tab (e.g. a link opened 18): read the stored Arcs, or the list would be just this one
   memory.set(arc.id, arc);
   changed();
   await tx('readwrite', s => s.put(arc));
+  tell();
   keepOnPhone();
 }
 
@@ -58,6 +71,7 @@ export async function deleteArc(id: string) {
   memory.delete(id);
   changed();
   await tx('readwrite', s => s.delete(id));
+  tell();
 }
 
 // Ask the browser to keep this site's data when the phone runs short of space (user 11/25 「하루 지나면 페이지가 사라지는데
