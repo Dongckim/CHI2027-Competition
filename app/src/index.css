@@ -165,3 +165,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* 12b hold (user 11/27 「꾹 눌렀을때 아무것도 안되는데」): on iPhone a long press on a stop started text selection or the
    link callout, which cancels the pointer before the 0.5 s hold; the map does not scroll, so the stop takes the touch */
 [data-node-key] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: none; }
+
+/* 15: the paper a held card shows, popping up above the sheet (user 11/27) */
+.arc-peek { animation: arc-peek 0.18s cubic-bezier(.2, .8, .2, 1); transform-origin: 50% 100%; }
+@keyframes arc-peek { from { opacity: 0; transform: translateY(8px) scale(.97); } }
+@media (prefers-reduced-motion: reduce) { .arc-peek { animation: none; } }

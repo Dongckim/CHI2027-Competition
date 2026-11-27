@@ -18,7 +18,7 @@ export const freshDraft = () => ({ query: '', topicsFor: null, topics: { S: [], 
 const freshArc = () => ({ onboarded: false, firstChi: null, draft: freshDraft() });
 
 /** holdHint: 12a's "Hold a stop" hint was shown (Figma 854:2034, once). walk: 09 "How you walk", kept for every Arc (this
- * phone only, never in an Arc or a link). @returns {{ onboarded: boolean, firstChi: boolean | null, draft: ReturnType<typeof freshDraft>, holdHint?: boolean, tour?: boolean, tourDue?: string, talkTour?: boolean, editTour?: boolean, walk?: string[] }} */
+ * phone only, never in an Arc or a link). @returns {{ onboarded: boolean, firstChi: boolean | null, draft: ReturnType<typeof freshDraft>, holdHint?: boolean, tour?: boolean, tourDue?: string, talkTour?: boolean, editTour?: boolean, sheetTour?: boolean, walk?: string[] }} */
 export const arcOf = state => state.arc ?? { ...freshArc(), onboarded: !!state.builtAt || state.mode === 'browse' };
 const withArc = (state, change) => ({ ...state, arc: { ...arcOf(state), ...change } });
 const withDraft = (state, change) => withArc(state, { draft: { ...arcOf(state).draft, ...change } });
@@ -36,6 +36,7 @@ export const setTourDue = (state, id) => (arcOf(state).tour || arcOf(state).tour
 export const setTourSeen = state => (arcOf(state).tour ? state : withArc(state, { tour: true }));
 export const setTalkTourSeen = state => (arcOf(state).talkTour ? state : withArc(state, { talkTour: true }));
 export const setEditTourSeen = state => (arcOf(state).editTour ? state : withArc(state, { editTour: true }));
+export const setSheetTourSeen = state => (arcOf(state).sheetTour ? state : withArc(state, { sheetTour: true }));
 export const setHoldHintSeen = state => (arcOf(state).holdHint ? state : withArc(state, { holdHint: true }));
 
 /** 07: the question, at most 200 characters (the share link carries it). */

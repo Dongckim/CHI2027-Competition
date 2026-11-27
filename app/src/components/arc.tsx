@@ -48,13 +48,20 @@ export function Screen({ header, children, bottom, label, clock }: { header?: Re
     const typing = () => { const a = document.activeElement; return !!a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName); };
     const gap = () => Math.max(0, Math.round(innerHeight - vv.height - vv.offsetTop));
     let base = typing() ? 0 : gap();
+    // With the keyboard up the box is pinned to the visual viewport's bottom edge (fixed, top = offsetTop + height): a
+    // translate from its sticky place left a gap over the keyboard once the page was scrolled to its end (iPhone 11/27).
+    // The root keeps the box's height as padding meanwhile, so nothing under it jumps.
+    const reset = () => { const el = bar.current; if (!el) return; Object.assign(el.style, { position: '', top: '', left: '', right: '', transform: '', marginInline: '', maxWidth: '' }); if (root.current) root.current.style.paddingBottom = ''; };
     const place = () => {
-      if (!typing()) { base = gap(); if (bar.current) bar.current.style.transform = ''; return; }
-      const kb = gap() - base;
-      if (bar.current) bar.current.style.transform = kb > 40 ? `translateY(${-kb}px)` : ''; // under 40: toolbars, not a keyboard
+      const el = bar.current;
+      if (!el) return;
+      if (!typing()) { base = gap(); reset(); return; }
+      if (gap() - base <= 40) { reset(); return; } // under 40: toolbars, not a keyboard
+      if (el.style.position !== 'fixed' && root.current) root.current.style.paddingBottom = `${el.offsetHeight}px`;
+      Object.assign(el.style, { position: 'fixed', left: '0', right: '0', marginInline: 'auto', maxWidth: '480px', top: `${vv.offsetTop + vv.height}px`, transform: 'translateY(-100%)' });
     };
-    vv.addEventListener('resize', place); vv.addEventListener('scroll', place); addEventListener('focusout', place);
-    return () => { vv.removeEventListener('resize', place); vv.removeEventListener('scroll', place); removeEventListener('focusout', place); };
+    vv.addEventListener('resize', place); vv.addEventListener('scroll', place); addEventListener('focusout', place); addEventListener('focusin', place);
+    return () => { vv.removeEventListener('resize', place); vv.removeEventListener('scroll', place); removeEventListener('focusout', place); removeEventListener('focusin', place); reset(); };
   }, [!!bottom]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div ref={root} className="arc mx-auto flex min-h-[calc(100dvh-env(safe-area-inset-top,0px))] max-w-[480px] flex-col overflow-x-clip bg-arc-bg font-sans text-arc-text">{/* nothing scrolls sideways (QA V7); the screen minus body's top safe-area padding, so a short screen never scrolls (user 11/20) */}
