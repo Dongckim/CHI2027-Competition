@@ -71,8 +71,10 @@ try {
   await tab.ev(`document.querySelector('main button[aria-description]').click(), true`); // 12c: the first tap picks the stop
   await sleep(300);
   await tab.ev(`document.querySelector('main button[aria-description]').click(), true`); // a second opens 14
-  await tab.waitFor(`location.hash.startsWith('#/talk/') && !!document.querySelector('input[aria-describedby="qa-note"]')`, 20000);
-  await tab.ev(`(() => { const i = document.querySelector('input[aria-describedby="qa-note"]'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, 'requests-check question');
+  await tab.waitFor(`location.hash.startsWith('#/talk/') && !!document.querySelector('button[aria-describedby="qa-note"]')`, 20000);
+  await tab.ev(`document.querySelector('button[aria-describedby="qa-note"]').click(), true`); // 11/27: the composer sheet
+  await tab.waitFor(`!!document.querySelector('[role=dialog][aria-label="Ask the authors"] textarea')`, 5000);
+  await tab.ev(`(() => { const i = document.querySelector('[role=dialog] textarea'); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(i, 'requests-check question');
     i.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
   await sleep(200);
   await click(tab, 'Ask');

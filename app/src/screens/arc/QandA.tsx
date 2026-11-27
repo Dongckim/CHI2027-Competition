@@ -1,6 +1,7 @@
 // 14 Q&A (Figma 597:972, decision 007): questions by votes, one vote per phone, Report (three hide a question), Delete
 // for your own. The ask box is the screen's one bottom element. Text is plain React text, never HTML.
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { flushSync, createPortal } from 'react-dom';
 import { update, useDevice } from '../../state/useDevice';
 import { votedOf, addVoted } from '../../arc/draft.js';
 import { useQaToken, listQuestions, ask, vote, flag, remove, type Question } from '../../arc/qa';
@@ -30,15 +31,16 @@ export function useQandA(paperKey: string) {
   // 14b: an existing question close to the one being typed, matched on the phone (nothing is sent until a button)
   const close = useMemo(() => closeQuestion(text, questions) as { question: Question; count: number } | null, [text, questions]);
   // also: "Me too + add mine" votes for the close question first (the existing vote), then posts the typed one
-  const send = async (also?: Question) => {
+  const send = async (also?: Question): Promise<boolean> => {
     const t = text.trim();
-    if (!t || busy || !token) return;
+    if (!t || busy || !token) return false;
     setBusy(true); setNote('');
     try {
       if (also && !(also.voted || voted.has(also.id))) { await vote(token, also.id); update(s => addVoted(s, also.id)); }
       await ask(token, paperKey, t); setText(''); setNote('Question added.'); reload();
+      return true;
     }
-    catch (e) { setNote(String((e as Error).message)); }
+    catch (e) { setNote(String((e as Error).message)); return false; }
     finally { setBusy(false); }
   };
   const act = async (f: () => Promise<unknown>, done: string) => { try { await f(); setNote(done); reload(); } catch (e) { setNote(String((e as Error).message)); } };
@@ -94,36 +96,25 @@ export function QandAList({ qa }: { qa: ReturnType<typeof useQandA> }) {
 export function QandAAsk({ qa }: { qa: ReturnType<typeof useQandA> }) {
   const left = MAX - qa.text.length;
   const [about, setAbout] = useState(false);
-  const close = qa.online && qa.text.trim() ? qa.close : null;
+  const [open, setOpen] = useState(false);
+  const field = useRef<HTMLTextAreaElement>(null);
+  // the composer opens and takes the focus in the same tap, or iOS does not raise the keyboard
+  const start = () => { flushSync(() => setOpen(true)); field.current?.focus(); };
+  const note = qa.note || (left < 40 ? `${left} characters left` : 'Public · No personal info · Deleted 13 Jun 2027');
   return (
-    // Figma: the input at y 742; the one-line note goes under it, in the space above the home indicator.
-    // With a close question shown, Enter is "Post on its own" (the plain Ask).
-    <form onSubmit={e => { e.preventDefault(); qa.send(); }} className="-mb-[13px] flex flex-col">
-      {close && (
-        // 14b (Figma 744:1695, buttons 744:1660 at y 676 and 742): the close question, then the two buttons 12 apart, in place of Ask
-        <div className="mb-[14px] flex flex-col">
-          <div role="status" className="arc-fade rounded-[20px] px-4 pt-3.5 pb-[18px]">
-            <p className="text-[14px] font-semibold tracking-[-0.006em]">{closeText(close.count)}</p>
-            {/* Figma 62%; 65% (text-2) */}
-            <p className="mt-[7px] line-clamp-3 text-[13px] leading-[18px] font-medium break-words text-arc-text-2">“{close.question.text}”</p>
-          </div>
-          <ArcButton className="mt-[14px]" disabled={qa.busy} onClick={() => qa.send(close.question)}>Me too + add mine</ArcButton>
-          <ArcButton kind="secondary" className="mt-3" disabled={qa.busy} onClick={() => qa.send()}>Post on its own</ArcButton>
-        </div>
-      )}
-      <label className="flex h-[52px] items-center gap-2.5 rounded-full border border-arc-line bg-arc-surface pr-2 pl-[18px]">
+    // 14 (user 11/27): the box under the talk only opens the composer; typing happens there, over the page
+    <div className="-mb-[13px] flex flex-col">
+      <button type="button" onClick={start} disabled={!qa.online} aria-haspopup="dialog" aria-describedby="qa-note"
+        className="flex h-[52px] items-center gap-2.5 rounded-full border border-arc-line bg-arc-surface pr-2 pl-[18px] text-left select-none disabled:opacity-60">
         <Pic src={chat} size={18} className="opacity-50" />
-        <input value={qa.text} onChange={e => qa.setText(e.target.value.slice(0, MAX))} maxLength={MAX} disabled={!qa.online} enterKeyHint="send"
-          placeholder="Ask the authors anything" aria-describedby="qa-note"
-          className="min-w-0 flex-1 bg-transparent text-[16px] tracking-[-0.006em] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />
-        {qa.text.trim() && !close && <button type="submit" disabled={qa.busy} className="h-10 shrink-0 rounded-full bg-arc-primary px-4 text-[14px] font-semibold text-arc-on-primary">Ask</button>}
-      </label>
+        <span className={`min-w-0 flex-1 truncate text-[16px] tracking-[-0.006em] ${qa.text ? 'text-arc-text' : 'text-arc-text-3'}`}>{qa.text || 'Ask the authors anything'}</span>
+      </button>
       <p id="qa-note" className="flex min-h-[15px] items-center justify-center gap-1 text-center text-[12px] leading-[15px] text-arc-text-3" aria-live="polite">
-        {/* user 「안내는 한 줄 "Public · No personal info · Deleted 13 Jun 2027" + ⓘ(누르면 자세한 설명)」; a status note takes the
-            line's words for a while, the ⓘ stays */}
-        {qa.note || (left < 40 ? `${left} characters left` : 'Public · No personal info · Deleted 13 Jun 2027')}
-          <button type="button" onClick={() => setAbout(true)} aria-label="About questions" className="relative -my-[4.5px] inline-flex size-6 items-center justify-center text-[13px] leading-[15px] text-arc-text-2 before:absolute before:-inset-[10px] before:content-['']">ⓘ</button>{/* 24 px box (axe target-size), 44 px touch area, the line stays 15 */}
+        {/* user 「안내는 한 줄 "Public · No personal info · Deleted 13 Jun 2027" + ⓘ(누르면 자세한 설명)」 */}
+        {note}
+          <button type="button" onClick={() => setAbout(true)} aria-label="About questions" className="relative -my-[4.5px] inline-flex size-6 items-center justify-center text-[13px] leading-[15px] text-arc-text-2 before:absolute before:-inset-[10px] before:content-['']">ⓘ</button>{/* 24 px box (axe target-size), 44 px touch area */}
       </p>
+      {open && <Composer qa={qa} field={field} note={note} onClose={() => setOpen(false)} />}
       <Sheet open={about} onClose={() => setAbout(false)} title="About questions">
         {/* 해석(확인 전): the detail text, from decision 007 and functions/qa.mjs (it keeps sha256(salt + device token)) */}
         <ul className="mt-3 flex list-disc flex-col gap-2 pl-5 text-[15px] leading-[21px] text-arc-text-2">
@@ -134,6 +125,53 @@ export function QandAAsk({ qa }: { qa: ReturnType<typeof useQandA> }) {
           <li>Everything is deleted on 13 June 2027.</li>
         </ul>
       </Sheet>
-    </form>
+    </div>
   );
 }
+
+/**
+ * The question composer (user 11/27, after the box kept fighting Safari's keyboard): a sheet exactly over the visual
+ * viewport (fixed, top = offsetTop, height = height, kept so on its resize and scroll), the page under it held still
+ * (body fixed, its scroll put back on close). Nothing to follow: the keyboard can only push the sheet's own bottom.
+ */
+function Composer({ qa, field, note, onClose }: { qa: ReturnType<typeof useQandA>; field: React.RefObject<HTMLTextAreaElement | null>; note: string; onClose: () => void }) {
+  const [box, setBox] = useState(() => ({ top: visualViewport?.offsetTop ?? 0, height: visualViewport?.height ?? innerHeight }));
+  useEffect(() => {
+    const vv = visualViewport;
+    const fit = () => setBox({ top: vv?.offsetTop ?? 0, height: vv?.height ?? innerHeight });
+    vv?.addEventListener('resize', fit); vv?.addEventListener('scroll', fit);
+    const y = scrollY, b = document.body.style, was = { position: b.position, top: b.top, left: b.left, right: b.right, width: b.width };
+    Object.assign(b, { position: 'fixed', top: `${-y}px`, left: '0', right: '0', width: '100%' });
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    addEventListener('keydown', esc);
+    return () => { vv?.removeEventListener('resize', fit); vv?.removeEventListener('scroll', fit); removeEventListener('keydown', esc); Object.assign(b, was); scrollTo(0, y); };
+  }, [onClose]);
+  const close = qa.online && qa.text.trim() ? qa.close : null;
+  const send = async (also?: Parameters<typeof qa.send>[0]) => { if (await qa.send(also)) onClose(); }; // a failure stays, with its note
+  return createPortal(
+    <div role="dialog" aria-modal="true" aria-label="Ask the authors" className="fixed inset-x-0 z-[70] mx-auto flex max-w-[480px] flex-col bg-arc-sheet px-5 pt-3 pb-3 font-sans text-arc-text"
+      style={{ top: box.top, height: box.height }}>
+      <div className="flex items-center justify-between">
+        <h2 className="text-[17px] font-semibold tracking-[-0.012em]">Ask the authors</h2>
+        <button type="button" onClick={onClose} aria-label="Close" className="-mr-2 flex size-11 items-center justify-center"><span aria-hidden="true" className="flex size-7 items-center justify-center rounded-full bg-white/10 text-[15px] text-arc-text-2">×</span></button>
+      </div>
+      <textarea ref={field} value={qa.text} onChange={e => qa.setText(e.target.value.slice(0, MAX))} maxLength={MAX} rows={4} enterKeyHint="send"
+        placeholder="Ask the authors anything" aria-describedby="qa-note-sheet"
+        onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!close) send(); } }}
+        className="mt-2 min-h-0 flex-1 resize-none rounded-2xl border border-arc-line bg-arc-surface px-4 py-3 text-[16px] leading-[22px] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />
+      {close && (
+        <div role="status" className="mt-2 rounded-2xl bg-white/5 px-4 py-2.5">
+          <p className="text-[13px] font-semibold">{closeText(close.count)}</p>
+          <p className="mt-1 line-clamp-2 text-[13px] leading-[18px] text-arc-text-2">“{close.question.text}”</p>
+        </div>
+      )}
+      <p id="qa-note-sheet" className="mt-1.5 text-center text-[12px] text-arc-text-3">{note}</p>
+      <div className="mt-2 flex gap-2">
+        {close
+          ? <><ArcButton kind="secondary" className="flex-1" disabled={qa.busy} onClick={() => send()}>Post on its own</ArcButton>
+              <ArcButton className="flex-1" disabled={qa.busy} onClick={() => send(close.question)}>Me too + add mine</ArcButton></>
+          : <ArcButton disabled={qa.busy || !qa.text.trim()} onClick={() => send()}>Ask</ArcButton>}
+      </div>
+    </div>, document.body);
+}
+

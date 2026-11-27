@@ -140,7 +140,7 @@ export function TalkDetail({ paperKey, shape = false, interpret = false }: { pap
   if (shape && found && slot && roomName) return <ShowShape schedule={schedule} roomKey={slot.roomKey} roomName={roomName} tribe={found.arc.tribe} paperKey={paperKey} />;
 
   return (
-    <Screen clock pinBottom header={header(p.doi, liveText)} label="Talk"
+    <Screen clock header={header(p.doi, liveText)} label="Talk"
       bottom={<div data-tour="qa"><QandAAsk qa={qa} /></div>}>
       {tour && <MapTour steps={TALK_TOUR} label="How to read a talk" onDone={endTour} />}
       <div data-tour="tags" className="mt-3 flex flex-wrap gap-2">

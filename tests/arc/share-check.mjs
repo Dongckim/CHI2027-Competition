@@ -120,8 +120,10 @@ try {
   // 14 Q&A against the memory store
   const talk = (await stored()).find(a => a.query === 'Does VR fidelity raise presence?').nodes[0].key;
   await open(`#/talk/${talk}`);
-  await waitFor(`/Be the first to ask|Questions/.test(document.body.innerText) && !!document.querySelector('input[aria-describedby="qa-note"]')`, 20000);
-  await ev(`(() => { const i = document.querySelector('input[aria-describedby="qa-note"]'); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+  await waitFor(`/Be the first to ask|Questions/.test(document.body.innerText) && !!document.querySelector('button[aria-describedby="qa-note"]')`, 20000);
+  await ev(`document.querySelector('button[aria-describedby="qa-note"]').click(), true`); // 11/27: the composer sheet
+  await waitFor(`!!document.querySelector('[role=dialog][aria-label="Ask the authors"] textarea')`, 5000);
+  await ev(`(() => { const i = document.querySelector('[role=dialog] textarea'); const set = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
     set.call(i, 'Did presence hold after 20 minutes?'); i.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
   await click(byText('Ask'));
   const asked = await waitFor(`[...document.querySelectorAll('section[aria-labelledby=qa] li')].some(l => l.innerText.includes('Did presence hold after 20 minutes?'))`, 10000);

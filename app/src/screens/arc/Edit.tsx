@@ -9,7 +9,7 @@ import { tensionFor } from '../../arc/yours.js';
 import { BOX } from '../../arc/map.js';
 import { Screen, Pic } from '../../components/arc';
 import { ANGLE_NAME } from './AngleHelp';
-import { ArcView, useMapFit, ANGLE_ICON } from './ArcView';
+import { ArcView, ANGLE_ICON } from './ArcView';
 import { AddSheet } from './AddSheet';
 import { useArc } from './useArc';
 import { MapTour, EDIT_TOUR } from './MapTour';
@@ -23,16 +23,21 @@ export function Edit({ id }: { id: string }) {
   const [nodes, setNodes] = useState<ArcNode[] | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [adding, setAdding] = useState<Angle | null>(null);
+  // user 11/27 「edit도 원래 화면이랑 비슷하게 각 영역에 가려진 애들 더 넓은 영역에서」: a region's count opens it as 24b does
+  const [wide, setWide] = useState<Angle | null>(null);
   // the regions reach the bottom of the screen, as on 12 (prototype 15: no bare lower half before the sheet opens)
   const [room, setRoom] = useState(0);
   // the map fills the screen as on 12 until a + or a talk is pressed; then 0.74 and the sheet rises from below (user 11/26
   // 「일단 화면 꽉차게 있다가 누르면 이제 아래에서 editing 화면이 올라오는 식으로」)
-  const [fill, mapRef] = useMapFit(1, `${!!(selected || adding)}|${nodes?.map(n => n.key).join() ?? ''}`); // start over when the sheet closes or a talk comes in (11/27: it shrank)
+  // the map's size from its box alone (full width, no taller than the box): a fit that measured the page shrank it while the
+  // list under it scrolled (11/27), and after a talk was added
+  const [vw, setVw] = useState(() => (typeof innerWidth === 'number' ? innerWidth : BOX.w));
+  useEffect(() => { const on = () => setVw(innerWidth); addEventListener('resize', on); return () => removeEventListener('resize', on); }, []);
+  const fill = Math.max(0.6, Math.min(1, vw / BOX.w, room ? (room - 24) / (BOX.h + 60) : 1));
   const box = useCallback((el: HTMLDivElement | null) => {
-    (mapRef as { current: HTMLDivElement | null }).current = el;
     if (!el || typeof ResizeObserver !== 'function') return;
     new ResizeObserver(() => setRoom(el.getBoundingClientRect().height)).observe(el);
-  }, [mapRef]);
+  }, []);
   useEffect(() => { if (arc && !nodes) setNodes(arc.nodes); }, [arc, nodes]);
   // the first Edit after the map's tour, once (user 11/27 「처음 editing들어가면 다른 곳처럼 가이드」)
   const dev = arcOf(useDevice());
@@ -65,13 +70,14 @@ export function Edit({ id }: { id: string }) {
   return (
     <Screen clock label="Editing" header={<>
       {/* Figma: "Editing" at y 66, Done 40 high at y 58 ending 24 from the edge */}
-      <h1 className="mb-[3px] pl-2 text-[17px] font-semibold tracking-[-0.012em]">Editing</h1>
+      {wide ? <button type="button" onClick={() => setWide(null)} className="flex min-h-touch items-center gap-1 rounded-full pl-2 pr-3 text-[16px] font-semibold"><span aria-hidden="true">‹</span>See all three angles</button>
+        : <h1 className="mb-[3px] pl-2 text-[17px] font-semibold tracking-[-0.012em]">Editing</h1>}
       <button type="button" onClick={done} className="relative z-10 mr-2 h-10 rounded-full tracking-[-0.006em] before:absolute before:inset-x-0 before:-inset-y-0.5 before:content-[''] bg-arc-primary px-5 text-[16px] font-semibold text-arc-on-primary shadow-[var(--arc-shadow-primary)]">Done</button>
     </>}>
       <div ref={box} className="-mx-6 -mt-1.5 flex min-h-[calc(100dvh-110px)] flex-1 flex-col">{/* Figma: the 0.74 map at y 96; the list of every talk is under it */}
         {/* before a press: the room the map leaves split above and below it, so no bare band at the bottom (user 11/26) */}
         <div style={{ height: pad }} className="transition-[height] duration-300 motion-reduce:transition-none" />
-        <ArcView arc={draft} states={states} info={info} scale={target ? 0.74 : fill} room={room - pad} lift={pad}
+        <ArcView arc={draft} states={states} info={info} scale={target ? 0.74 : fill} room={room - pad} lift={pad} focus={wide} onBundle={target ? undefined : a => setWide(a)} onOrb={wide ? () => setWide(null) : undefined}
           edit={{ selected, adding, onSelect: k => { setSelected(s => (s === k ? null : k)); setAdding(null); },
             onRemove: k => { setNodes(nodes.filter(n => n.key !== k)); if (selected === k) setSelected(null); },
             onAdd: a => { setAdding(x => (x === a ? null : a)); setSelected(null); } }} />
