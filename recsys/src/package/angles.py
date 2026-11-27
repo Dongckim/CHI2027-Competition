@@ -157,6 +157,22 @@ SUGGEST_K = 3         # ... of this many
 # way up, with its Y the asked Y and its X near the asked X (tuned on data/eval)
 CARDQ_COS = 0.75      # cosine of the two questions at or above which
 CARDQ_X = 0.40        # ... and X at or above this (Y at MATCH)
+# a topic narrowed to the claim most of its talks' results answer "yes" to (team 11/25):
+# those questions, written by the LLM, read the way attendees ask
+CQ_SUGGEST = True
+CQ_SAME = 0.85        # two such questions closer than this are the same suggestion
+CQ_ONLY = 1           # ... used alone when there are at least this many
+CQ_TOPIC = 0.40       # ... each at or above this cosine to what was typed
+CQ_WORDS = 12         # ... and at most this many words
+AFFECTS = 2           # angles.json "cq" lean of a "How does X affect Y?" question
+# the why line: what the angle means for the asker, then the card's finding (LLM, offline)
+WHY_LEAD = {"support": {"evidence": "Goes the way your question expects.", "try": "Something you can try."},
+            "challenge": {"opposite": "Found the other way.", "null": "Found no clear effect.",
+                          "only_when": "Holds only under some conditions.", "cost": "A cost of the same thing."},
+            "reframe": {"factor": "A different factor behind your outcome.",
+                        "measure": "Your factor, seen through another outcome.",
+                        "people": "Same question, other people or setting.",
+                        "related": "Same subject, no result for your exact question."}}
 MINE_K = 8            # "Did you submit a paper?": authors listed for a typed name
 MINE_Q = 3            # ... and questions offered from one of their papers
 
@@ -180,7 +196,8 @@ burden frustration loneliness isolation harm harms risk risks bias biases pain d
 abandonment dropout overreliance over-reliance dependence misinformation harassment toxicity""".split())
 PEOPLE = set("""people users user adults adult children child kids students student teachers workers
 designers developers programmers clinicians patients parents families older blind deaf communities
-community individuals participants learners players members viewers readers writers""".split())
+community individuals participants learners players members viewers readers writers
+bystanders pedestrians drivers passengers caregivers educators artists musicians researchers employees customers residents visitors teenagers teens adolescents refugees novices experts""".split())
 
 _POS = ["raise", "increase", "improve", "enhance", "boost", "strengthen", "foster", "promote",
         "facilitate", "encourage", "empower", "support", "help", "benefit", "lead to", "cause",
@@ -217,6 +234,7 @@ STATE = {"lonely": "loneliness", "motivated": "motivation", "engaged": "engageme
 LINK = {"feel", "become", "be", "get", "stay", "are", "is"}
 DET = {"the", "a", "an", "their", "his", "her", "its", "our", "my", "your", "better", "more", "well"}
 SPLIT_PREP = (" in ", " on ", " for ", " among ", " during ", " within ", " across ", " at ", " over time")
+IDIOM = (" in control ", " in charge ", " in person ", " at ease ", " at home ")
 WH = ("what", "which", "who", "where", "when", "why", "how", "is there", "are there")
 # verbs that are also nouns ("emotional support from ...", "creativity support tools make ...")
 NOUN_VERBS = {"support", "supports", "help", "helps", "impact", "impacts", "influence", "influences",
@@ -357,7 +375,11 @@ def _clean(s):
 def _split_ctx(phrase):
     """"typing on touchscreens" -> ("typing", "touchscreens")."""
     low = f" {phrase} "
-    cut = [low.find(p) for p in SPLIT_PREP if low.find(p) > 0]
+    # "feeling in control" is no place: the idiom is masked (same length) before the search
+    masked = low
+    for idiom in IDIOM:
+        masked = masked.replace(idiom, idiom.replace(" ", "_"))
+    cut = [masked.find(p) for p in SPLIT_PREP if masked.find(p) > 0]
     if not cut:
         return phrase, ""
     k = min(cut)
@@ -452,9 +474,11 @@ def parse_question(text):
         if v.split()[0] in ("help", "helps", "helped", "support", "supports") :
             y = re.sub(r"^(?:with|to|in)\s+", "", y)
             hp = y.split()
-            # "help people understand uncertainty": the people, then what they do
-            if len(hp) >= 2 and hp[0] in PEOPLE and hp[-1] not in PEOPLE:
-                k = 1
+            # "help (everyday) people understand uncertainty": the people, then what they do
+            j = next((j for j in range(min(2, len(hp) - 1)) if hp[j] in PEOPLE), None)
+            if (j is not None and hp[-1] not in PEOPLE
+                    and (j == 0 or (hp[0] not in VERB_DIR and hp[0] not in DOING))):
+                k = j + 1
                 while k < len(hp) - 1 and hp[k] in PEOPLE:
                     k += 1
                 out["ctx_people"] = " ".join(hp[:k])
@@ -550,6 +574,7 @@ class Angles:
                             "claims": {c[0]: (c[1], c[2]) for c in rec.get("claims", [])},
                             "val": {v[0]: (v[1], v[2]) for v in rec.get("val", [])},
                             "cq": rec.get("cq", []),
+                            "sum": {c[0]: c[1] for c in rec.get("sum", [])},
                             "up": {u[0]: (u[1], u[2]) for u in rec.get("up", [])},
                             "about": {"f": about[0], "o": about[1], "p": about[2]},
                             "debut": set(rec.get("debut", [])), "first_debut": bool(rec.get("first_debut"))}
@@ -686,7 +711,8 @@ class Angles:
         absset = self._absset(i)
         lean = self._lean(q)
         for k, qp, xp, yp, g in info["cq"]:
-            if lean and g and lean != g:
+            # g 2: "How does X affect Y?", a result with no direction, for undirected questions only
+            if (g == AFFECTS and lean) or (g != AFFECTS and lean and g and lean != g):
                 continue
             cos = sum(float(a) * float(b) for a, b in zip(q["V"], self.pvec[qp]))
             if cos < CARDQ_COS:
@@ -695,7 +721,7 @@ class Angles:
             if my >= MATCH and self._pm(q["X"], xp, absset) >= CARDQ_X:
                 sub = "try" if self.items[i]["type"] in NO_FINDINGS else "evidence"
                 return {"angle": "support", "subtype": sub, "conf": round(0.7 * my, 3), "card": k,
-                        "caveat": None}
+                        "caveat": None, "asks": qp}
         return None
 
     def _judge_cards(self, i, q):
@@ -865,6 +891,10 @@ class Angles:
             out = {"sentence": None, "factor": "", "outcome": "", "effect": "", "status": ""}
         if v.get("caveat") is not None:
             out["caveat"] = self._sentence(i, info["cards"][v["caveat"]])
+        # the card's finding in one plain sentence (LLM, offline), and the question it answers
+        out["finding"] = (info.get("sum") or {}).get(v["card"], "") if v.get("card") is not None else ""
+        out["answers"] = show(self.phrases[v["asks"]][:1].upper() + self.phrases[v["asks"]][1:]) \
+            if v.get("asks") is not None else ""
         out["text"] = show(self._why_text(v, out))
         return out
 
@@ -872,6 +902,12 @@ class Angles:
     def _why_text(v, w):
         a, s = v["angle"], v["subtype"]
         f, o = w.get("factor"), w.get("outcome")
+        if w.get("answers"):
+            return f"Answers yes to \u201c{w['answers']}\u201d {w.get('finding', '')}".strip()
+        if w.get("finding"):
+            return f"{WHY_LEAD[a][s]} {w['finding']}"
+        if not o:
+            return WHY_LEAD[a][s]
         if a == "support":
             return (f"Shows {f} going with {o}, as your question expects." if s == "evidence" else
                     f"Lets you try {f} for {o} yourself.")
@@ -1141,6 +1177,18 @@ class Angles:
         ranked = sorted(((round(g["w"] * (1 + ov[key]), 6), key) for key, g in groups.items()
                          if len(g["items"]) >= 2 or ov[key] > 0), key=lambda t: (-t[0], t[1]))
         out, used_f, used_o, used_i = [], set(), set(), set()
+        if CQ_SUGGEST:
+            # "chatbots and mental health": the asker's own two things, asked as they gave them
+            a_, b_ = _pair(q["x"]) if q["kind"] != "relation" else ("", "")
+            mine = []
+            if a_ and b_:
+                text = self._wording(a_, b_, Counter({"increase": 1}))
+                if self.question(text)["kind"] == "relation":
+                    mine = [self._suggestion(text, a_, b_, [], types)]
+            out = mine + [o for o in self._claims(q, pool, score, types, k) if o["question"] != (mine or [{}])[0].get("question")]
+            out = out[:k]
+            if len(out) >= CQ_ONLY:
+                return self._balanced(out, q)
         # a topic keeps its own words when its talks share an outcome or a cause
         if q["kind"] == "topic":
             for x, y, e, items in self._anchored(q, pool, score):
@@ -1166,6 +1214,52 @@ class Angles:
             if len(out) == k:
                 break
         return self._balanced(out, q)
+
+    def _claims(self, q, pool, score, types, k):
+        """Sharper questions from the questions the topic's talks answer (angles.json "cq"):
+        the ones most talks back (cosine CARDQ_COS, same way up), those with the topic's
+        words first, no two alike. Each needs two talks."""
+        # questions with a direction only: the claim the Supports back and the Challenges push on
+        cands = [(i, qp, g) for i in pool[:60] for _, qp, _, _, g in (self.info.get(i) or {}).get("cq", [])
+                 if g != AFFECTS]
+        if not cands:
+            return []
+        V = self.pvec[[qp for _, qp, _ in cands]]
+        S = V @ V.T
+        qt = content(q["x"])[0] if q["kind"] != "relation" else []
+        A_, B_ = (self._phrase(t) for t in _pair(q["x"])) if q["kind"] != "relation" else (None, None)
+        rows = []
+        for a, (i, qp, g) in enumerate(cands):
+            # talks, not listings: a talk listed twice backs a question once
+            backers = list(dict.fromkeys(self.arc._canon(cands[b][0]) for b in range(len(cands))
+                                         if S[a, b] >= CARDQ_COS and not (g and cands[b][2] and g != cands[b][2])))
+            if len(backers) < 2:
+                continue
+            # on the typed topic, and short enough to read as a question
+            if len(self.phrases[qp].split()) > CQ_WORDS or float(V[a] @ q["V"]) < CQ_TOPIC:
+                continue
+            keeps = any(_same(w, t) for w in qt for t in self.ptoks[qp])
+            # "chatbots and mental health": the two named things as the question's X and Y
+            pair = 1
+            if A_ is not None and B_ is not None:
+                _, _, xp, yp, _ = next(r for r in (self.info.get(i) or {}).get("cq", []) if r[1] == qp)
+                pair = 0 if self._pm(A_, xp, set()) >= MATCH and self._pm(B_, yp, set()) >= MATCH else 1
+            rows.append((pair, 0 if keeps else 1, -len(backers), -round(sum(float(score[j]) for j in backers), 6), a, backers))
+        rows.sort()
+        out, picked = [], []
+        for _, _, _, _, a, backers in rows:
+            if any(S[a, b] >= CQ_SAME for b in picked):
+                continue
+            i, qp, _ = cands[a]
+            text = show(self.phrases[qp][:1].upper() + self.phrases[qp][1:])
+            pq = self.question(text)
+            if pq["kind"] != "relation":
+                continue
+            picked.append(a)
+            out.append(self._suggestion(text, show(pq["x"]), show(pq["y"]), backers, types))
+            if len(out) == k:
+                break
+        return out
 
     @staticmethod
     def _balanced(out, q):
@@ -2063,6 +2157,18 @@ class Angles:
         if s not in screens:
             raise InputError(f"screen must be one of {', '.join(screens)}")
         return screens[s](req)
+
+
+def _pair(topic):
+    """"chatbots and mental health", "AI for learning" -> ("chatbots", "mental health");
+    ("", "") when the topic names one thing or the second is who ("for blind users")."""
+    m = re.match(r"^(.+?)\s+(?:and|for|vs|versus|on|&)\s+(.+)$", topic)
+    if not m:
+        return "", ""
+    a, b = m.group(1).strip(), m.group(2).strip()
+    if not content(a)[0] or not content(b)[0] or _W.findall(b)[-1] in PEOPLE:
+        return "", ""
+    return a, b
 
 
 def _fold(s):

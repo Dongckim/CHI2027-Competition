@@ -86,150 +86,149 @@
  {
   "case": "arc: VR fidelity, Tuesday",
   "ok": true,
-  "ms": 398.1,
+  "ms": 386.5,
   "errors": [],
   "note": "7 stops · 2 support · 5 reframe · 0 challenge"
  },
  {
   "case": "arc: AI and critical thinking, whole week, 9 nodes",
   "ok": true,
-  "ms": 430.6,
+  "ms": 443.1,
   "errors": [],
   "note": "9 stops · 0 support · 9 reframe · 0 challenge"
  },
  {
   "case": "arc: demos and posters only",
   "ok": true,
-  "ms": 401.3,
+  "ms": 343.5,
   "errors": [],
   "note": "7 stops · 0 support · 7 reframe · 0 challenge"
  },
  {
   "case": "arc: a topic becomes its sharpest question",
   "ok": true,
-  "ms": 2092.4,
+  "ms": 1761.8,
   "errors": [],
-  "note": "Does session duration improve VR presence?"
+  "note": "Does longer embodiment time increase presence in virtual reality?"
  },
  {
   "case": "arc: remove, lock, add with the user's angle",
   "ok": true,
-  "ms": 766.5,
+  "ms": 778.3,
   "errors": [],
   "note": null
  },
  {
   "case": "ask: topic -> sharper questions",
   "ok": true,
-  "ms": 1995.9,
+  "ms": 1552.4,
   "errors": [],
-  "note": "Does session duration improve VR presence? | Does session duration improve presence? | How do personalized avatars affect VR presence?"
+  "note": "Does longer embodiment time increase presence in virtual reality? | Does spending more time in social VR increase the sense of presence? | Does using social VR often increase the sense of presence?"
  },
  {
   "case": "ask: open question",
   "ok": true,
-  "ms": 1819.8,
+  "ms": 1767.5,
   "errors": [],
-  "note": "Does LLM-based question-answering system improve accessibility? | How does accessibility challenges at the vessel-quay interface affect user experience (UX)? | How do automatically generated personas affect latent accessibility requirements?"
+  "note": "How does accessibility challenges at the vessel-quay interface affect user experience (UX)? | Does LLM-based question-answering system improve accessibility? | How do automatically generated personas affect latent accessibility requirements?"
  },
  {
   "case": "ask: a real question gets its counts",
   "ok": true,
-  "ms": 561.9,
+  "ms": 578.9,
   "errors": [],
   "note": "{\"support\": 2, \"reframe\": 22, \"challenge\": 0}"
  },
  {
   "case": "ask: typos fixed against the program's words",
   "ok": true,
-  "ms": 578.5,
+  "ms": 473.5,
   "errors": [],
   "note": "Does haptic feedback improve typing?"
  },
  {
   "case": "ask: off-topic and non-English notes",
   "ok": true,
-  "ms": 413.1,
+  "ms": 421.1,
   "errors": [],
   "note": "CHI may not cover this. Try a question about people and technology."
  },
  {
   "case": "topic Arc: edit and detail use the same question",
   "ok": true,
-  "ms": 5887.1,
+  "ms": 6050.6,
   "errors": [],
   "note": "How do older adults affect portal use?"
  },
  {
   "case": "angles: acronyms upper case on chips",
   "ok": true,
-  "ms": 364.5,
+  "ms": 377.2,
   "errors": [],
   "note": "Action fidelity | Personalized avatars | Digital twin instructor | Ego-centric perspectives"
  },
  {
   "case": "shared: hand-set angles survive the link (18-19)",
   "ok": true,
-  "ms": 1671.7,
+  "ms": 1792.9,
   "errors": [],
   "note": "222872: engine says None, user says support; map, list, detail, link agree"
  },
  {
   "case": "ask: verb-phrase outcomes read as outcomes",
   "ok": true,
-  "ms": 383.1,
+  "ms": 398.8,
   "errors": [],
   "note": "web browsing speed; loneliness; motivation; target selection; sleep quality; 5 nodes"
  },
  {
   "case": "topic: suggestions keep the topic, the Arc is full",
   "ok": false,
-  "ms": 10768.8,
+  "ms": 11621.7,
   "errors": [
-   "smartwatch interaction: 6 nodes",
    "How do people track their sleep?: 6 nodes"
   ],
-  "note": "Do haptics improve immersion? | Do conversational agents improve engagement? | Do LLM agents improve trust?"
+  "note": "Do haptic systems improve user experience? | Does interacting with conversational AI agents improve understanding of abstract concepts? | Do LLM agents improve trust?"
  },
  {
   "case": "edit: swap keeps the angle, add, search, debut, wildcard",
   "ok": true,
-  "ms": 2165.0,
+  "ms": 2244.8,
   "errors": [],
   "note": "0 swaps (0 clash), 6 wildcards, 5 debut"
  },
  {
   "case": "angles: chips per angle steer the Arc",
   "ok": true,
-  "ms": 743.9,
+  "ms": 781.0,
   "errors": [],
   "note": "Supports: Action fidelity | Reframes: Personalized avatars, Digital twin instructor, Ego-centric perspectives | Challenges: "
  },
  {
   "case": "home: My Arcs, today and all heard, empty",
   "ok": true,
-  "ms": 375.0,
+  "ms": 386.9,
   "errors": [],
   "note": "Today | Tue · all heard"
  },
  {
   "case": "node: why, session, authors",
   "ok": true,
-  "ms": 3.1,
+  "ms": 3.3,
   "errors": [],
-  "note": "Shows interaction fidelity going with interaction presence, as your question expects."
+  "note": "Goes the way your question expects. Interaction fidelity increases interaction presence."
  },
  {
   "case": "shared: same angles on the receiver's phone",
   "ok": true,
-  "ms": 504.5,
+  "ms": 522.7,
   "errors": [],
   "note": "It's 09:12 · 6 of 7 stops still ahead · first one 11:24, Rm 116"
  },
  {
   "case": "summary: groups, reading list, still open",
   "ok": true,
-  "ms": 438.1,
+  "ms": 463.4,
   "errors": [],
   "note": "{\"support\": 2, \"reframe\": 5, \"challenge\": 0}"
  },
@@ -264,14 +263,14 @@
  {
   "case": "error: unknown day",
   "ok": true,
-  "ms": 0.7,
+  "ms": 0.6,
   "errors": [],
   "note": "unknown day \"sat\"; the conference days are 2026-04-13 (Mon 13), 2026-0"
  },
  {
   "case": "error: unknown id",
   "ok": true,
-  "ms": 1.5,
+  "ms": 1.4,
   "errors": [],
   "note": "no program item with id 1"
  },

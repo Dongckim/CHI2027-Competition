@@ -196,52 +196,52 @@
  },
  "holdout": {
   "n": 480,
-  "accuracy": 0.625,
+  "accuracy": 0.623,
   "support": {
-   "precision": 0.5,
-   "recall": 0.038,
-   "f1": 0.071,
-   "predicted": 2,
+   "precision": 0.556,
+   "recall": 0.192,
+   "f1": 0.286,
+   "predicted": 9,
    "gold": 26
   },
   "reframe": {
-   "precision": 0.611,
-   "recall": 0.724,
-   "f1": 0.663,
-   "predicted": 283,
+   "precision": 0.604,
+   "recall": 0.741,
+   "f1": 0.665,
+   "predicted": 293,
    "gold": 239
   },
   "challenge": {
-   "precision": 1.0,
+   "precision": 0.667,
    "recall": 0.667,
-   "f1": 0.8,
-   "predicted": 2,
+   "f1": 0.667,
+   "predicted": 3,
    "gold": 3
   },
   "off": {
-   "precision": 0.642,
-   "recall": 0.585,
-   "f1": 0.612,
-   "predicted": 193,
+   "precision": 0.657,
+   "recall": 0.542,
+   "f1": 0.594,
+   "predicted": 175,
    "gold": 212
   },
-  "macro_f1": 0.536,
+  "macro_f1": 0.553,
   "on_map": {
-   "precision": 0.693,
-   "recall": 0.743
+   "precision": 0.682,
+   "recall": 0.776
   },
   "confusion": {
    "support": {
-    "support": 1,
-    "reframe": 22,
+    "support": 5,
+    "reframe": 19,
     "challenge": 0,
-    "off": 3
+    "off": 2
    },
    "reframe": {
-    "support": 1,
-    "reframe": 173,
-    "challenge": 0,
-    "off": 65
+    "support": 4,
+    "reframe": 177,
+    "challenge": 1,
+    "off": 57
    },
    "challenge": {
     "support": 0,
@@ -251,9 +251,9 @@
    },
    "off": {
     "support": 0,
-    "reframe": 88,
+    "reframe": 97,
     "challenge": 0,
-    "off": 124
+    "off": 115
    }
   }
  },

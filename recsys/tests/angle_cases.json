@@ -1081,5 +1081,57 @@
    "question": "Perceptual Haptics",
    "when": "week"
   }
+ },
+ {
+  "id": "ask_pair_0",
+  "input": {
+   "screen": "ask",
+   "text": "chatbots and mental health"
+  }
+ },
+ {
+  "id": "arc_pair_1",
+  "input": {
+   "screen": "arc",
+   "question": "gamification and motivation",
+   "when": "week"
+  }
+ },
+ {
+  "id": "ask_topic_cq",
+  "input": {
+   "screen": "ask",
+   "text": "haptics"
+  }
+ },
+ {
+  "id": "arc_undirected",
+  "input": {
+   "screen": "arc",
+   "question": "How does playing games in groups affect player experience?",
+   "when": "week"
+  }
+ },
+ {
+  "id": "node_why_cq",
+  "input": {
+   "screen": "arc",
+   "question": "Does frequent phone checking increase information overload?",
+   "when": "week"
+  }
+ },
+ {
+  "id": "ask_help_people",
+  "input": {
+   "screen": "ask",
+   "text": "Do interface tools help everyday users find bias in AI?"
+  }
+ },
+ {
+  "id": "ask_in_control",
+  "input": {
+   "screen": "ask",
+   "text": "Does feeling in control improve attention in VR?"
+  }
  }
 ]

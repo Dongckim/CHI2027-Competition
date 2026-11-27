@@ -199,6 +199,30 @@ holdout(튜닝에 안 쓴 32문항): Challenge 정답 3개 가운데 2개를 찾
 
 좁힌 질문이 어색한 경우("Does locomotion intention improve sensory conflict?")는 전에도 있었고 균형 선택으로 다른 어색한 질문이 고를 때가 있다. 방향 없는 질문을 줄이려 "효과 없음" 카드가 많아도 방향을 붙이는 방법은 주제어의 단어로 만드는 경로가 먼저 쓰여서 바뀐 것이 없어 넣지 않았다. 방법 문장("We assessed …, measured …, analyzed …")이 결과로 남던 것(230223)은 aim이 되게 고쳤다(결과에서 106개가 더 빠졌다).
 
+## 넓은 질문, 주제어 좁히기, 근거 문구 (11/25 저녁)
+
+**결과가 답하는 질문 2판.** 1판 질문은 좁았다("Does an attention-guiding eHMI improve driver confidence?"). 사용자는 넓게 묻는다("Do external displays on self-driving cars improve pedestrian safety?"). 2판은 카드마다 세 단계로 하나씩 쓴다: 이 연구가 본 그대로(시스템 이름 없이), 그 종류, 분야 밖 사람이 물을 말(요인은 일상어, 결과는 safety, wellbeing, user experience 같은 큰 갈래). 방향 없는 결과(associated)에도 "How does X affect Y?"를 쓰고(`affects`), 이런 질문은 사용자 질문도 방향이 없을 때만 맞춘다. 1판과 2판을 합쳐 쓴다(2,283개 발표). 질문을 해석하다 놓치던 것도 고쳤다: "help everyday users find …"(사람 앞 형용사), "feeling in control"(in control은 장소가 아님), bystanders·pedestrians 같은 사람 단어.
+
+| Support precision / recall | 48개 질문 | holdout 32문항 |
+|---|---|---|
+| PR #94 (11/25b) | 0.70 / 0.28 | 0.50 / 0.04 (26개 중 1개) |
+| 지금 | 0.70 / 0.28 | 0.56 / 0.19 (26개 중 5개) |
+
+기준(cosine 0.75, X 0.40)은 그대로 두었다. 0.70·0.20으로 낮추면 holdout이 0.73 / 0.31이 되지만, holdout을 보고 고른 값이 되므로 쓰지 않았다.
+
+**주제어 좁히기.** 주제어는 이제 그 주제 상위 60개 발표의 "결과가 답하는 질문" 가운데 가장 많은 발표가 함께 받치는 질문(cosine 0.75, 같은 방향, 서로 다른 발표 2개 이상)으로 좁힌다. 입력과 cosine 0.40 이상, 12단어 이하, 방향 있는 질문만 쓴다(팀 제안 2번). "chatbots and mental health", "AI for learning"처럼 두 가지를 이어 쓰면 그 말 그대로 "Do chatbots improve mental health?"를 먼저 제안한다. 후보가 없으면 예전 방식으로 만든다.
+
+| 주제어 98개의 Arc | Challenge 있음 | Support 있음 | 각도 2종류 이상 | 방향 있는 질문 |
+|---|---|---|---|---|
+| PR #94 | 20% | 77% | 78% | 76% |
+| 지금 | 20% | 88% | 94% | 78% |
+
+예: Autonomous Driving은 "Do interacting with autonomous systems reduce cooperative driving behavior?"에서 "Do external displays on self-driving cars improve trust?"로, Educational Gaming은 "How do grief and domestic disruptions affect gaming?"에서 "Do educational games improve learning?"으로 바뀌었다. 바뀐 38개 가운데 8개쯤은 오히려 좁아졌다("Does a nose-mounted speech interface improve speech quality?").
+
+**근거 문구.** Qwen3-14B가 카드마다 결과를 한 문장으로 써 둔다(`scripts/gen_card_summary.py`, 11,296장). 화면의 why 문장은 각도의 뜻 + 그 문장이다("A different factor behind your outcome. Higher frequency of use increases presence in social virtual reality."). 결과가 답하는 질문으로 Support가 된 발표는 "Answers yes to “Do AI design tools improve creativity?” …"로 그 질문을 보여 준다. 카드가 없는 발표는 각도의 뜻만 쓴다(전에는 "Looks at  from another side."처럼 비었다).
+
+패키지는 zip 23.9 MB에서 28.6 MB로 늘었다(phrase 120,376개). Python·JavaScript 일치 266/266, Arc 80/80, 검색 42/42, 앵글 39/40.
+
 ## 다시 만들기
 
 ```bash
@@ -207,11 +231,12 @@ python scripts/build_angles.py                         # 원문 확인, offsets,
 sbatch scripts/gen_concepts.slurm                      # 일반어 (약 15분)
 CHI_TASK=claims sbatch scripts/gen_concepts.slurm      # 질문 말투 claim (약 12분)
 sbatch scripts/gen_valence.slurm                       # 결과가 좋아졌나 나빠졌나 (GPU 4개 약 4분)
-sbatch scripts/gen_card_questions.slurm                # 결과가 답하는 질문 (GPU 4개 약 11분, valence 다음)
+sbatch scripts/gen_card_questions.slurm                # 결과가 답하는 질문 (GPU 4개 약 30분, valence 다음; 1판은 cardq_raw에 합쳐 둠)
+sbatch scripts/gen_card_summary.slurm                  # why 문장: 카드마다 결과 한 문장 (GPU 4개 약 8분)
 python scripts/build_angles.py                         # 일반어까지 합쳐 다시
 python scripts/eval_angles.py                          # docs/angle_eval.json (--sweep: 임계값 탐색)
 sbatch scripts/compare_llm.slurm && python scripts/compare_llm_report.py   # 일반 LLM과 비교 (GPU 7개 약 15분)
 python scripts/package_model.py
 python tests/run_angle_cases.py                        # 40개 사례
-python tests/web_reference.py && node tests/run_web_parity.mjs   # JavaScript가 Python과 같은지 (259개)
+python tests/web_reference.py && node tests/run_web_parity.mjs   # JavaScript가 Python과 같은지 (266개)
 ```

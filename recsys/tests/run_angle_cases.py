@@ -327,7 +327,8 @@ def main():
             s = eng.handle({"screen": "ask", "text": t})["suggestions"]
             top = s[0]["question"] if s else ""
             seen.append(top)
-            if t.lower() not in top.lower():
+            # its own words, by stem ("haptics" -> "haptic systems", "conversational AI agents")
+            if not all(any(A._same(w, u) for u in A.content(top)[0]) for w in A.content(t)[0]):
                 errs.append(f"{t}: first suggestion without the topic: {top!r}")
         for t in ("mixed reality", "smartwatch interaction", "How do people track their sleep?"):
             n = len(eng.handle({"screen": "arc", "question": t, "days": ["tue"]})["nodes"])
