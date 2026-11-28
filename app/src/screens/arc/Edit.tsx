@@ -12,6 +12,7 @@ import { Screen, Pic } from '../../components/arc';
 import { ANGLE_NAME, ANGLE_MEANING } from './AngleHelp';
 import { ArcView, ANGLE_ICON } from './ArcView';
 import { AddSheet } from './AddSheet';
+import { NodePopup } from './NodePopup';
 import { useArc } from './useArc';
 import { MapTour, EDIT_TOUR } from './MapTour';
 import { arcOf, setEditTourSeen } from '../../arc/draft.js';
@@ -23,6 +24,8 @@ export function Edit({ id }: { id: string }) {
   const { arc, states, info, paper, save } = useArc(id);
   const [nodes, setNodes] = useState<ArcNode[] | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  // user 11/28 「노드 탭 → Details · Swap · Remove. 편집 상태 저장해서 14 다녀와도 유지」: a tap opens the talk's menu
+  const [menu, setMenu] = useState<string | null>(null);
   const [adding, setAdding] = useState<Angle | null>(null);
   // user 11/27 「edit도 원래 화면이랑 비슷하게 각 영역에 가려진 애들 더 넓은 영역에서」: a region's count opens it as 24b does
   const [wide, setWide] = useState<Angle | null>(null);
@@ -42,7 +45,19 @@ export function Edit({ id }: { id: string }) {
     if (!el || typeof ResizeObserver !== 'function') return;
     new ResizeObserver(() => setRoom(el.getBoundingClientRect().height)).observe(el);
   }, []);
-  useEffect(() => { if (arc && !nodes) setNodes(arc.nodes); }, [arc, nodes]);
+  // the unsaved edit survives a visit to 14 and back (this tab only); Done and Cancel clear it
+  const keep = `arc.edit.${id}`;
+  useEffect(() => {
+    if (!arc || nodes) return;
+    let kept: ArcNode[] | null = null;
+    try { const v = JSON.parse(sessionStorage.getItem(keep) ?? 'null'); if (Array.isArray(v) && v.every(n => n && typeof n.key === 'string' && 'SRT'.includes(n.angle))) kept = v; } catch { /* none */ }
+    setNodes(kept ?? arc.nodes);
+  }, [arc, nodes]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!arc || !nodes) return;
+    try { if (nodes.map(n => n.key).join() === arc.nodes.map(n => n.key).join()) sessionStorage.removeItem(keep); else sessionStorage.setItem(keep, JSON.stringify(nodes)); } catch { /* blocked */ }
+  }, [arc, nodes, keep]);
+  const forget = () => { try { sessionStorage.removeItem(keep); } catch { /* blocked */ } };
   // the first Edit after the map's tour, once (user 11/27 「처음 editing들어가면 다른 곳처럼 가이드」)
   const dev = arcOf(useDevice());
   const [tour, setTour] = useState(false);
@@ -75,10 +90,10 @@ export function Edit({ id }: { id: string }) {
       setUndo({ word: 'Added', back: ns => ns.filter(n => n.key !== card.key) });
     }
   };
-  const done = async () => { await save(draft); go(`arc/${id}`, { replace: true }); }; // back after Done does not reopen Edit (audit 11/27)
+  const done = async () => { await save(draft); forget(); go(`arc/${id}`, { replace: true }); }; // back after Done does not reopen Edit (audit 11/27)
   // Cancel throws the changes away, asking first when there are some (audit 11/27: back dropped them without a word)
   const changed = nodes.map(n => n.key).join() !== arc.nodes.map(n => n.key).join();
-  const cancel = () => { if (!changed || confirm('Discard your changes?')) go(`arc/${id}`, { replace: true }); };
+  const cancel = () => { if (!changed || confirm('Discard your changes?')) { forget(); go(`arc/${id}`, { replace: true }); } };
   // a talk taken off can be put back for a few seconds, as a swap can on 12
   const take = (k: string) => { const at = nodes.findIndex(n => n.key === k); if (at < 0) return; const node = nodes[at]; setUndo({ word: 'Removed', back: ns => [...ns.slice(0, at), node, ...ns.slice(at)] }); setNodes(nodes.filter(n => n.key !== k)); if (selected === k) setSelected(null); };
 
@@ -94,7 +109,7 @@ export function Edit({ id }: { id: string }) {
         {/* before a press: the room the map leaves split above and below it, so no bare band at the bottom (user 11/26) */}
         <div style={{ height: pad }} className="transition-[height] duration-300 motion-reduce:transition-none" />
         <ArcView arc={draft} states={states} info={info} scale={target ? 0.74 : fill} room={room - pad} lift={pad} focus={wide} onBundle={target ? undefined : a => setWide(a)} onOrb={wide ? () => setWide(null) : undefined}
-          edit={{ selected, adding, onSelect: k => { setSelected(s => (s === k ? null : k)); setAdding(null); },
+          edit={{ selected, adding, onSelect: k => { setMenu(m => (m === k ? null : k)); setSelected(null); setAdding(null); },
             onRemove: take,
             onAdd: a => { setAdding(x => (x === a ? null : a)); setSelected(null); } }} />
       </div>
@@ -136,6 +151,12 @@ export function Edit({ id }: { id: string }) {
         <button type="button" onClick={async () => { if (!confirm('Delete this Arc? You can undo it for a few seconds.')) return; await deleteArc(id); go('home', { replace: true }); }}
           className="mb-8 min-h-touch self-center rounded-full px-5 text-[15px] font-semibold text-arc-text-2 underline">Delete this Arc</button>
       )}
+      {menu && !target && (() => {
+        const n = nodes.find(x => x.key === menu); if (!n) return null;
+        const i = info(n.key);
+        return <NodePopup k={n.key} line={`${ANGLE_NAME[n.angle]} · ${i.when}`} title={i.title} by={i.first} quote={n.evidence?.sentence} outside={false} onAdd={() => {}}
+          onSwap={() => { setMenu(null); setSelected(n.key); }} onRemove={() => { setMenu(null); take(n.key); }} onClose={() => setMenu(null)} />;
+      })()}
       {tour && <MapTour steps={EDIT_TOUR} label="How to edit" onDone={endTour} />}
       {target && <AddSheet key={selected ?? 'add'} query={arc.query} engineName={arc.engine} filters={arc.filters} target={target} exclude={exclude} swap={!!selected} info={info} paper={paper} clash={clash} sameTime={sameTime} onPick={pick} onTarget={selected ? undefined : a => setAdding(a)} onClose={() => { setSelected(null); setAdding(null); }} />}
     </Screen>
