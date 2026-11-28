@@ -15,7 +15,7 @@ import { AddSheet } from './AddSheet';
 import { NodePopup } from './NodePopup';
 import { useArc } from './useArc';
 import { MapTour, EDIT_TOUR } from './MapTour';
-import { arcOf, setEditTourSeen } from '../../arc/draft.js';
+import { arcOf, setEditTourSeen, hiddenOf } from '../../arc/draft.js';
 import { update, useDevice } from '../../state/useDevice';
 
 type Slot = { start: number | null; end: number };
@@ -65,7 +65,8 @@ export function Edit({ id }: { id: string }) {
   useEffect(() => { if (!tourDue) return; const t = setTimeout(() => setTour(true), 900); return () => clearTimeout(t); }, [tourDue]);
   const endTour = useCallback(() => { setTour(false); update(setEditTourSeen); }, []);
   const target = selected ? nodes?.find(n => n.key === selected)?.angle ?? null : adding;
-  const exclude = useMemo(() => nodes?.map(n => n.key) ?? [], [nodes]);
+  const hidden = hiddenOf(useDevice(), id); // Not relevant on 12 (feedback 7): not offered here either
+  const exclude = useMemo(() => [...(nodes?.map(n => n.key) ?? []), ...hidden], [nodes, hidden.join()]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pad = target ? 0 : Math.max(0, Math.round((room - (BOX.h + 40) * fill) / 2)); // 40: the labels under the lowest seats
   if (!arc || !nodes) return null;

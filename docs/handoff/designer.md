@@ -458,3 +458,8 @@ Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your p
 
 ## 36. Edit에서 발표를 누르면 Details · Swap · Remove (2026-11-28)
 - 사용자 결정 「노드 탭 → Details · Swap · Remove. 편집 상태 저장해서 14 다녀와도 유지」: 15에서 발표를 누르면 12와 같은 팝업(시간·제목·저자·근거 문장 + View details · Swap · Remove). Swap은 시트, Remove는 바로 빼고 "Removed · Undo". 저장 전 편집은 이 탭의 sessionStorage에 두어 14에 다녀와도 그대로, Done·Cancel이 지움. 편집 모드를 없애는 건 결선 전(사용자).
+
+## 37. Not relevant · 초록까지 검색 (2026-11-28)
+- 사용자 결정(피드백 7) 「노드마다 "Not relevant" 버튼을 둬요. 누르면 빠지고 다음 후보가 채워져요. 이 정보는 폰에만 저장해요」: 12 팝업에 "Not relevant? Replace it". 누르면 그 발표 자리에 같은 관점의 엔진 다음 후보(끝난 발표 제외), 없으면 빠짐. "Replaced · Undo"/"Removed · Undo"(5초). 뺀 발표는 이 폰에만 Arc별로 기억해서 24b·꾹 누르기·Edit 후보에서 다시 안 나옴.
+- 사용자 결정(피드백 10) 「검색 범위를 제목 → 저자 → 초록 순서로 넓혀요. 초록에서 찾았으면 맞은 구절을 굵게 … 검색은 폰 안에서만」: 15 검색은 제목·저자·주제 다음에 초록(모든 단어가 있을 때), 카드 제목 아래 2줄로 맞은 구절(전체 구절, 없으면 가장 긴 단어)을 굵게. 검색창 "Search titles, authors, abstracts".
+

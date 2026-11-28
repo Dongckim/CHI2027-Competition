@@ -2,6 +2,8 @@
 // 15's Swap) fan out under the map; let go on one to swap it in and save, anywhere else to close. "Swapped · Undo" stays
 // 5 s (user 「12b는 바꾼 직후 "Swapped · Undo" 알림을 5초 띄워서 되돌릴 수 있게」). Keyboard and screen readers: each node's
 // "Swap" button opens the same three as buttons; Escape (or a press outside) closes. A short tap still opens 14.
+import { useDevice } from '../../state/useDevice';
+import { hiddenOf } from '../../arc/draft.js';
 import { notOver } from './useArc';
 import { useEffect, useLayoutEffect, useRef, useState, type DOMAttributes } from 'react';
 import { engineFor, type Angle, type Arc, type ArcNode } from '../../engine';
@@ -22,6 +24,7 @@ const cardAt = (x: number, y: number) => (document.elementFromPoint(x, y) as HTM
 const nodeEl = (key: string) => document.querySelector<HTMLElement>(`[data-node-key="${CSS.escape(key)}"]`);
 
 export function useHoldSwap({ arc, save, paper, schedule }: ReturnType<typeof useArc>) {
+  const device = useDevice(); // talks marked Not relevant for this Arc are not offered (feedback 7)
   const [fan, setFan] = useState<{ key: string; keyboard: boolean } | null>(null);
   const [cards, setCards] = useState<ArcNode[] | null>(null);
   const [over, setOver] = useState<string | null>(null);
@@ -32,7 +35,7 @@ export function useHoldSwap({ arc, save, paper, schedule }: ReturnType<typeof us
   const choices = (key: string) => {
     const node = arc?.nodes.find(n => n.key === key);
     if (!arc || !node) return Promise.resolve([]);
-    if (!asked.current.has(key)) asked.current.set(key, engineFor(arc.engine).suggest(arc.query, node.angle, arc.nodes.map(n => n.key), 12, arc.filters).then(l => l.filter(notOver(paper, nowMs())).slice(0, 3)).catch(() => [])); // more asked, the over ones dropped, three kept
+    if (!asked.current.has(key)) asked.current.set(key, engineFor(arc.engine).suggest(arc.query, node.angle, [...arc.nodes.map(n => n.key), ...hiddenOf(device, arc.id)], 12, arc.filters).then(l => l.filter(notOver(paper, nowMs())).slice(0, 3)).catch(() => [])); // more asked, the over ones dropped, three kept
     return asked.current.get(key)!;
   };
   const open = (key: string, keyboard: boolean) => {

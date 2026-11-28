@@ -6,6 +6,14 @@ import { now as nowMs } from '../../clock.js';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { loadAbstracts } from '../../data/load';
+import current from '../../../../data/build/app-data/chi2026/current.json';
+import { abstractHit } from '../../arc/snip.js';
+
+// user 11/28 (feedback 10) 「검색 범위를 제목 → 저자 → 초록 순서로 넓혀요. 초록에서 찾았으면 맞은 구절을 굵게 … 검색은 폰 안에서만」:
+// every abstract once (the same files 14 reads, on this phone), then the words found in one, with a little around them
+let everyAbstract: Promise<Record<string, string>> | null = null;
+const abstracts = () => (everyAbstract ??= Promise.all([...current.days, 'unscheduled'].map(d => loadAbstracts(d))).then(l => Object.assign({}, ...l)).catch(e => { everyAbstract = null; throw e; }));
+type Snip = { before: string; hit: string; after: string };
 import { abstractFileDay } from '../../explore/format';
 import { TIME_ZONE } from './When';
 import { MapTour, SHEET_TOUR } from './MapTour';
@@ -46,6 +54,7 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
   const [failed, setFailed] = useState(false);
   // user 11/27: a card asks before it goes in ("Add …?"), and a long press shows the whole paper first
   const [confirm, setConfirm] = useState<Card | null>(null);
+  const [snips, setSnips] = useState<Map<string, Snip>>(new Map());
   const [peek, setPeek] = useState<Card | null>(null);
   const [abs, setAbs] = useState<string | null>(null);
   const hold = useRef(0), held = useRef(false), opened = useRef(0), sheet = useRef<HTMLElement>(null);
@@ -76,9 +85,22 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
     if (query.trim() && data) {
       // user 11/25 「A로 하고」: a found talk goes where the engine puts it for this question, never simply the target angle;
       // one it finds not about the question is shown but cannot be added
-      const hits = searchTalks(data.index, query).filter(h => !exclude.includes(h.key)).slice(0, 10);
-      if (!hits.length) { setCards([]); return; }
-      const timer = setTimeout(() => {
+      const found = searchTalks(data.index, query).filter(h => !exclude.includes(h.key)).slice(0, 10);
+      const timer = setTimeout(async () => {
+        // title → author → topic first (searchTalks), then abstracts for the rest of the ten
+        const snip = new Map<string, Snip>();
+        if (found.length < 10) {
+          const all = await abstracts().catch(() => ({} as Record<string, string>));
+          for (const [k, text] of Object.entries(all)) {
+            if (found.length + snip.size >= 10) break;
+            if (exclude.includes(k) || found.some(h => h.key === k) || !paper(k)) continue;
+            const h = abstractHit(text as string, query) as Snip | null; if (h) snip.set(k, h);
+          }
+        }
+        if (!live) return;
+        setSnips(snip);
+        const hits = [...found, ...[...snip.keys()].map(key => ({ key }))];
+        if (!hits.length) { setCards([]); return; }
         e.judge(arcQuery, hits.map(h => h.key)).then(l => live && setCards(hits.map((h, i) => l[i] ?? off(h.key, labelOf(paper(h.key)?.title ?? h.key)))),
           () => { if (live) { setCards([]); setFailed(true); } });
       }, 300); // after a pause in typing
@@ -100,7 +122,7 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
       </div>
       <label className="mt-3 flex h-11 items-center gap-2 rounded-full border border-arc-line bg-arc-surface pl-3.5">
         <Pic src={searchIcon} size={18} />
-        <input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search talks or authors" aria-label="Search talks"
+        <input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search titles, authors, abstracts" aria-label="Search talks"
           autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} enterKeyHint="search"
           className="h-full min-w-0 flex-1 bg-transparent pr-3 text-[16px] tracking-[-0.006em] text-arc-text placeholder:text-arc-text-3 focus:outline-none" />{/* 16 px: iOS zooms into smaller fields */}
       </label>
@@ -151,6 +173,7 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
                   </>}
                 </span>
                 <span className="line-clamp-2 text-[15px] leading-[19px] font-semibold tracking-[-0.006em]">{p?.title ?? c.label}</span>
+                {snips.get(c.key) && (() => { const h = snips.get(c.key)!; return <span className="line-clamp-2 text-[12px] leading-4 text-arc-text-2">{h.before}<b className="font-semibold text-arc-text">{h.hit}</b>{h.after}</span>; })()}
                 {/* Figma 11px; 12px is the floor */}
                 <span className="text-[12px] font-medium text-arc-text-3">{i.time}{i.room && ` · ${i.room}`}</span>
               </button>
