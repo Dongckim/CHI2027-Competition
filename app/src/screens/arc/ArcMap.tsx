@@ -9,7 +9,8 @@ import { play, OUT, still } from '../../arc/motion';
 // 12c: the picked stop's card rises into place (prototype: 16 px, 520 ms)
 const cardIn = (el: HTMLElement | null) => { play(el, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 120, easing: OUT }); };
 import { update, useDevice } from '../../state/useDevice';
-import { arcOf, setHoldHintSeen, setTourSeen, viewsOf, countView, MEANING_VIEWS } from '../../arc/draft.js';
+import { arcOf, setHoldHintSeen, setTourSeen, viewsOf, countView, MEANING_VIEWS, hiddenOf, hideTalk, unhideTalk } from '../../arc/draft.js';
+import { tensionFor } from '../../arc/yours.js';
 import { MapTour } from './MapTour';
 import { NodePopup } from './NodePopup';
 import { go, href } from '../../router';
@@ -57,7 +58,9 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
   const toFocus = (a: Angle | null) => { setSel(null); go(a ? `arc/${id}/${a}` : `arc/${id}`, a && focus ? { replace: true } : undefined); };
   useEffect(() => { setSel(null); }, [focus]);
   const [others, setOthers] = useState<Partial<Record<Angle, ArcNode[]>>>({});
-  const [added, setAdded] = useState<{ n: ArcNode; tension: Arc['tension'] } | null>(null); // 24b "Added · Undo", 5 s like a swap
+  const [added, setAdded] = useState<{ n: ArcNode; tension: Arc['tension'] } | null>(null);
+  const [replaced, setReplaced] = useState<{ old: ArcNode; next: ArcNode | null; before: Arc } | null>(null);
+  useEffect(() => { if (!replaced) return; const t = setTimeout(() => setReplaced(null), 5000); return () => clearTimeout(t); }, [replaced]); // 24b "Added · Undo", 5 s like a swap
   useEffect(() => { if (!added) return; const t = setTimeout(() => setAdded(null), 5000); return () => clearTimeout(t); }, [added]);
   const keys = use.arc?.nodes.map(n => n.key).join() ?? '';
   useEffect(() => {
@@ -68,7 +71,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
     for (const a of ['S', 'R', 'T'] as Angle[]) {
       const mine = arc.nodes.filter(n => n.angle === a).length;
       if (mine >= 12) continue;
-      engineFor(arc.engine).suggest(arc.query, a, arc.nodes.map(n => n.key), 12 - mine, arc.filters)
+      engineFor(arc.engine).suggest(arc.query, a, [...arc.nodes.map(n => n.key), ...hiddenOf({ arc: dev }, id)], 12 - mine, arc.filters)
         .then(c => { if (live) setOthers(o => ({ ...o, [a]: c.filter(n => n.angle === a).filter(notOver(use.paper, nowMs())) })); }, () => {});
     }
     return () => { live = false; };
@@ -117,6 +120,24 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
   const outside = !!next && candidates.has(next.key);
   // the talk under way says Now, not Next (14 says "Now · Talk 2 of 7")
   const word = next ? (outside ? '' : ni?.on && states.get(next.key) === 'next' ? 'Now' : STATE_WORD[states.get(next.key) ?? 'upcoming']) : '';
+  // user 11/28 (feedback 7): "Not relevant" takes the talk off and fills its place with the engine's next one for that angle;
+  // the talk is remembered on this phone only, so this Arc is not offered it again
+  const notRelevant = async (n: ArcNode) => {
+    if (!arc) return;
+    setSel(null);
+    update(s => hideTalk(s, id, n.key));
+    const l = await engineFor(arc.engine).suggest(arc.query, n.angle, [...arc.nodes.map(x => x.key), ...hiddenOf({ arc: dev }, id), n.key], 12, arc.filters).catch(() => [] as ArcNode[]);
+    const next = l.filter(notOver(use.paper, nowMs()))[0] ?? null;
+    const before = arc.nodes, nodes = next ? before.map(x => (x.key === n.key ? next : x)) : before.filter(x => x.key !== n.key);
+    await use.save({ ...arc, nodes, tension: tensionFor(arc, nodes) as Arc['tension'] });
+    setReplaced({ old: n, next, before: arc });
+  };
+  const unreplace = async () => {
+    const r = replaced; setReplaced(null); if (!r || !use.arc) return;
+    update(s => unhideTalk(s, id, r.old.key));
+    const nodes = r.next ? use.arc.nodes.map(x => (x.key === r.next!.key ? r.old : x)) : [...use.arc.nodes, r.old];
+    await use.save({ ...use.arc, nodes, tension: r.before.tension });
+  };
   const add = async (n: ArcNode) => { // 24b Add: onto this Arc, in its angle (prototype "내 Arc에 더해집니다")
     await use.save({ ...arc, nodes: [...arc.nodes, n], tension: n.angle === 'T' ? 'found' : arc.tension });
     setOthers(o => ({ ...o, [n.angle]: (o[n.angle] ?? []).filter(x => x.key !== n.key) }));
@@ -147,7 +168,14 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
             <span className="shrink-0 pt-0.5 text-[13px] font-semibold text-[#9db2ff]">{stage < REVEAL.length - 1 ? 'Next ›' : 'Got it'}</span>
           </button>
         )}
-        {added && !hs.undo && (
+        {replaced && !hs.undo && (
+          <div role="status" className="pointer-events-none absolute inset-x-6 bottom-full mb-3 flex justify-center">
+            <p className="pointer-events-auto flex items-center rounded-full border border-arc-line bg-arc-sheet pl-4 text-[14px] font-medium text-arc-text shadow-[0_8px_24px_rgba(0,0,0,0.4)]">
+              {replaced.next ? 'Replaced' : 'Removed'} ·<button type="button" onClick={unreplace} className="min-h-touch min-w-touch px-3.5 font-semibold">Undo</button>
+            </p>
+          </div>
+        )}
+        {added && !hs.undo && !replaced && (
           <div role="status" className="pointer-events-none absolute inset-x-6 bottom-full mb-3 flex justify-center">
             <p className="pointer-events-auto flex items-center rounded-full border border-arc-line bg-arc-sheet pl-4 text-[14px] font-medium text-arc-text shadow-[0_8px_24px_rgba(0,0,0,0.4)]">
               Added ·<button type="button" onClick={unadd} className="min-h-touch min-w-touch px-3.5 font-semibold">Undo</button>
@@ -240,7 +268,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
         const pi = info(picked.key), off = candidates.has(picked.key), st = states.get(picked.key) ?? 'upcoming';
         const w = off ? '' : pi.on && st === 'next' ? 'Now' : st === 'upcoming' ? '' : STATE_WORD[st];
         const line = [w, pi.when.replace(' · Rm ', ' · Room '), off && 'Not on your Arc'].filter(Boolean).join(' · ');
-        return <NodePopup k={picked.key} line={line} title={pi.title} by={pi.first} quote={picked.evidence?.sentence} outside={off} onClose={closePop} onAdd={() => { setSel(null); add(picked); }} onSwap={off || pending || focus ? undefined : () => { setSel(null); hs.open(picked.key, true); }} />;
+        return <NodePopup k={picked.key} line={line} title={pi.title} by={pi.first} quote={picked.evidence?.sentence} outside={off} onClose={closePop} onAdd={() => { setSel(null); add(picked); }} onSwap={off || pending || focus ? undefined : () => { setSel(null); hs.open(picked.key, true); }} onNotRelevant={off || pending ? undefined : () => notRelevant(picked)} />;
       })()}
       {tour && <MapTour onDone={endTour} />}
     </Screen>
