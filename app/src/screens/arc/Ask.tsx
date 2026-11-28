@@ -16,7 +16,7 @@ import { TRIBE } from '../../arc/tribes.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
 import { useWarm, warm, useTribe, setPreviewTribe } from '../../arc/live';
 import { Screen, ArcButton, TextAction, BackButton, Pic } from '../../components/arc';
-import { SKIP_CLASS, StepDots } from './Start';
+import { SKIP_CLASS } from './Start';
 import offline from '../../assets/arc/icon-offline.svg';
 import chevron from '../../assets/arc/icon-chevron-right.svg';
 
@@ -121,7 +121,7 @@ export function Ask() {
 
   return (
     <Screen label="Ask"
-      header={onboarded ? <BackButton href={href('home')} /> : <><StepDots at={8} /><TextAction href={href('home')} className={SKIP_CLASS} onClick={e => { e.preventDefault(); update(setOnboarded); go('home'); }}>Skip</TextAction></>}
+      header={onboarded ? <BackButton href={href('home')} /> : <><BackButton href={href('start/1')} /><TextAction href={href('home')} className={SKIP_CLASS} onClick={e => { e.preventDefault(); update(setOnboarded); go('home'); }}>Skip</TextAction></>}
       // 07b (Figma 741:1605) has no bottom bar: "Keep ‘<topic>’ as a topic" is the same step as Find my angles, and the
       // bar covered it and "Or keep typing your own." (independent check 11/22)
       bottom={shown ? undefined : <>

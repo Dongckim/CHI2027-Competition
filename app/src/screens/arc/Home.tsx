@@ -5,7 +5,7 @@ import { href } from '../../router';
 import { useArcs, isPersistent, lastDeleted, saveArc } from '../../arc/store';
 import { TRIBE } from '../../arc/tribes.js';
 import { TRIBE_ICON } from '../../arc/tribeIcons';
-import { heardOf, resetDraft } from '../../arc/draft.js';
+import { heardOf, resetDraft, arcOf, setGuideSeen } from '../../arc/draft.js';
 import { acrossArcs } from '../../arc/across.js';
 import { keepAdvice } from '../../arc/keep.js';
 import { whenLine } from './useArc';
@@ -107,7 +107,7 @@ export function Home() {
   // "Deleted · Undo" for 5 s after Delete on 15
   const [undo, setUndo] = useState(() => (lastDeleted && Date.now() - lastDeleted.at < 5000 ? lastDeleted.arc : null));
   useEffect(() => { if (!undo) return; const t = setTimeout(() => setUndo(null), 5000); return () => clearTimeout(t); }, [undo]);
-  const heard = heardOf(useDevice());
+  const device = useDevice(), heard = heardOf(device), dev = arcOf(device);
   const now = useNow();
   const [schedule, setSchedule] = useState<Schedule | null>(null);
   useEffect(() => { if (arcs?.length) loadSchedule().then(setSchedule, () => {}); }, [arcs?.length]);
@@ -131,11 +131,13 @@ export function Home() {
   const [picked, setPicked] = useState<Period | null>(null);
   const period: Period = picked ?? (schedule ? firstPeriod(rows.map(r => r.period)) : 'week');
   if (!arcs) return null;
+  // user 11/28 「CHI 소개·사용법(02–06c)은 홈 "New to CHI?" 카드로」: first-timers find it on top until they open it
   const chi101 = (
-    <a href={href('start/2')} className="flex h-14 items-center gap-3 rounded-[20px] border border-arc-line bg-arc-surface pr-3.5 pl-4 text-[15px] font-semibold tracking-[-0.006em]">
-      <Pic src={book} size={20} /><span className="flex-1">CHI 101</span><Pic src={chevron} size={18} />
+    <a href={href('start/2')} onClick={() => update(setGuideSeen)} className="flex min-h-14 items-center gap-3 rounded-[20px] border border-arc-line bg-arc-surface py-2.5 pr-3.5 pl-4 text-[15px] font-semibold tracking-[-0.006em]">
+      <Pic src={book} size={20} /><span className="flex flex-1 flex-col">New to CHI?<span className="text-[13px] font-medium text-arc-text-3">How the week works, in 7 short pages</span></span><Pic src={chevron} size={18} />
     </a>
   );
+  const guideFirst = dev.firstChi === true && !dev.guideSeen;
   if (!arcs.length) return (
     <Screen label="My Arcs" bottom={<div className="flex flex-col gap-5 pb-1.5">{/* Figma 21: 20 between, New Arc 20 above the home indicator */}{chi101}<ArcLink href={href('ask')} onClick={fresh}><Pic src={plusDark} size={20} />New Arc</ArcLink></div>}>
       <h1 className="mt-3 text-[30px] font-semibold tracking-[-0.024em]">My Arcs</h1>
@@ -166,6 +168,7 @@ export function Home() {
       <DemoBanner />
       {!isPersistent() && <p className="mt-2 text-[14px] text-arc-text-2">This browser does not keep Arcs. They stay until you close the tab.</p>}
       <KeepNote />
+      {guideFirst && <div className="mt-2.5">{chi101}</div>}
       {across.length > 0 && (
         <section aria-labelledby="across-h" className="mt-2.5 flex flex-col gap-2">
           <h2 id="across-h" className="text-[15px] font-semibold tracking-[-0.006em]">Talks across your Arcs</h2>
@@ -241,7 +244,7 @@ export function Home() {
           );
         })}
       </ul></div>
-      <div className="mt-[30px] mb-6">{chi101}</div>
+      {!guideFirst && <div className="mt-[30px] mb-6">{chi101}</div>}
       {undo && (
         <div role="status" className="fixed inset-x-0 top-[max(16px,env(safe-area-inset-top))] z-50 mx-auto flex w-fit items-center gap-1 rounded-full bg-arc-primary py-1 pr-1 pl-4 text-[14px] font-semibold text-arc-on-primary">
           Deleted<button type="button" onClick={() => { const a = undo; setUndo(null); saveArc(a); }} className="min-h-touch rounded-full px-3 underline">Undo</button>

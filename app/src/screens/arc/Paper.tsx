@@ -13,7 +13,7 @@ import { firstSlot, weekdayOf } from '../../explore/format';
 import { venueClock } from '../../time.js';
 import { questionOf } from '../../arc/topic.js';
 import { Screen, ArcButton, ArcLink, BackButton, TextAction, Pic } from '../../components/arc';
-import { SKIP_CLASS, StepDots } from './Start';
+import { SKIP_CLASS } from './Start';
 import { FORMAT, Tag } from './TalkDetail';
 import { roomLabelOf } from './Meet';
 import searchIcon from '../../assets/arc/icon-search.svg';
@@ -36,7 +36,7 @@ const initials = (name: string) => { const w = name.split(/\s+/).filter(Boolean)
 
 function Header({ onboarded }: { onboarded: boolean }) {
   return onboarded ? <BackButton href={href('home')} />
-    : <><StepDots at={8} /><TextAction href={href('home')} className={SKIP_CLASS} onClick={e => { e.preventDefault(); update(setOnboarded); go('home'); }}>Skip</TextAction></>;
+    : <><BackButton href={href('start/1')} /><TextAction href={href('home')} className={SKIP_CLASS} onClick={e => { e.preventDefault(); update(setOnboarded); go('home'); }}>Skip</TextAction></>;
 }
 
 /** 07p */

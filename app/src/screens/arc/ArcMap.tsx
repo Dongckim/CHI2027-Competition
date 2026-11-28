@@ -5,11 +5,11 @@ import { notOver } from './useArc';
 import { now as nowMs } from '../../clock.js';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { engineFor, type ArcNode } from '../../engine';
-import { play, OUT } from '../../arc/motion';
+import { play, OUT, still } from '../../arc/motion';
 // 12c: the picked stop's card rises into place (prototype: 16 px, 520 ms)
 const cardIn = (el: HTMLElement | null) => { play(el, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 120, easing: OUT }); };
 import { update, useDevice } from '../../state/useDevice';
-import { arcOf, setHoldHintSeen, setTourSeen } from '../../arc/draft.js';
+import { arcOf, setHoldHintSeen, setTourSeen, viewsOf, countView, MEANING_VIEWS } from '../../arc/draft.js';
 import { MapTour } from './MapTour';
 import { NodePopup } from './NodePopup';
 import { go, href } from '../../router';
@@ -25,6 +25,13 @@ import editIcon from '../../assets/arc/icon-edit.svg';
 import chevron from '../../assets/arc/icon-chevron-right.svg';
 import spinner from '../../assets/arc/25-spinner.svg';
 import elevator from '../../assets/arc/icon-elevator.svg';
+
+const REVEAL: { angles: Angle[]; text: string }[] = [
+  { angles: [], text: 'Your question. Every talk that lights up around it answers it.' },
+  { angles: ['S'], text: '↑ Supports agree: talks with the same finding.' },
+  { angles: ['S', 'T'], text: '⊣ Challenges push back: a different finding. Not a verdict on the paper.' },
+  { angles: ['S', 'T', 'R'], text: '↻ Reframes take another angle: another factor, measure or group.' },
+];
 
 export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null }) {
   const use = useArc(id);
@@ -73,7 +80,23 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
   const endTour = useCallback(() => { setTour(false); update(setTourSeen); }, []);
   // after the map has come in (its entrance is about 1 s), on 12 with a built Arc only
   const ready = !!arc && arc.tension !== 'pending' && !focus && !!use.schedule;
-  useEffect(() => { if (toured || !ready) return; const t = setTimeout(() => setTour(true), 1400); return () => clearTimeout(t); }, [toured, ready]);
+  // user 11/28 「첫 Arc는 질문 원 → Supports → Challenges → Reframes 하나씩 켜지며 그 자리에 뜻 한 문장 … 동작 줄이기 설정이면 한 번에」:
+  // the first Arc lights its angles one at a time, each with its sentence, then the 2-step tour
+  const [stage, setStage] = useState<number | null>(null);
+  const endReveal = () => { setStage(null); setTimeout(() => setTour(true), 500); }; // the card is back before the tour points at it
+  useEffect(() => {
+    if (toured || !ready) return;
+    if (still()) { const t = setTimeout(() => setTour(true), 600); return () => clearTimeout(t); }
+    setStage(0);
+  }, [toured, ready]);
+  useEffect(() => {
+    if (stage == null) return;
+    const t = setTimeout(() => { if (stage < REVEAL.length - 1) setStage(stage + 1); else endReveal(); }, 2600);
+    return () => clearTimeout(t);
+  }, [stage]);
+  // the first few times this Arc opens, each count says what its angle means ("⊣ 1 · pushes back"), then "⊣ 1 ›"
+  const [meaning] = useState(() => viewsOf({ arc: dev }, id) < MEANING_VIEWS);
+  useEffect(() => { update(s => countView(s, id)); }, [id]);
   const seen = !!arcOf(useDevice()).holdHint || !toured; // the hold bubble waits until the tour has been
   const [hint, setHint] = useState(!seen);
   useEffect(() => { if (hint && !seen) update(setHoldHintSeen); }, [hint, seen]);
@@ -117,6 +140,13 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
       </h2>) : undefined} />}
       bottom={<>
         <SwapUndo hs={hs} />
+        {stage != null && (
+          <button type="button" role="status" onClick={() => { if (stage < REVEAL.length - 1) setStage(stage + 1); else endReveal(); }}
+            className="arc-peek flex w-full items-start gap-3 rounded-[20px] border border-arc-line bg-arc-sheet px-4 py-3.5 text-left">
+            <span className="min-w-0 flex-1 text-[15px] leading-[21px] font-semibold">{REVEAL[stage].text}</span>
+            <span className="shrink-0 pt-0.5 text-[13px] font-semibold text-[#9db2ff]">{stage < REVEAL.length - 1 ? 'Next ›' : 'Got it'}</span>
+          </button>
+        )}
         {added && !hs.undo && (
           <div role="status" className="pointer-events-none absolute inset-x-6 bottom-full mb-3 flex justify-center">
             <p className="pointer-events-auto flex items-center rounded-full border border-arc-line bg-arc-sheet pl-4 text-[14px] font-medium text-arc-text shadow-[0_8px_24px_rgba(0,0,0,0.4)]">
@@ -134,7 +164,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
             <ArcButton className="h-11 w-auto shrink-0 px-4 text-[14px]" onClick={() => add(next)}>Add<span className="sr-only"> {ni.title} to this Arc</span></ArcButton>
           </div>
         )}
-        {next && ni && !outside && (
+        {stage == null && next && ni && !outside && (
           <a data-tour="card" key={next.key} href={href(`talk/${next.key}`)} inert={!!held || undefined} aria-description={`${word === 'Next' ? 'Next up' : word}: ${ANGLE_NAME[next.angle]} · ${ni.title} · ${ni.time}`}
             className="flex min-h-[88px] items-center gap-3.5 rounded-[20px] border border-arc-line bg-arc-surface py-3.5 pr-4 pl-3.5">
             {/* Figma: a 38 circle in a 40 frame, 18 px symbol */}
@@ -181,7 +211,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
             <img src={spinner} alt="" width={16} height={16} />Sorting angles…{/* Figma 25: a still 3/4 arc */}
           </p>
         )}
-        {use.schedule && <ArcView arc={shown} states={states} info={info} scale={fit} fit onNode={tapNode} selected={sel} hint={hint && !pending && !focus} onBundle={a => toFocus(a)} focus={focus} onOrb={focus ? () => toFocus(null) : undefined}
+        {use.schedule && <ArcView arc={stage == null ? shown : { ...shown, nodes: shown.nodes.filter(n => REVEAL[stage].angles.includes(n.angle)) }} reveal={stage == null ? undefined : REVEAL[stage].angles} meaning={meaning && stage == null} states={states} info={info} scale={fit} fit onNode={tapNode} selected={sel} hint={hint && !pending && !focus} onBundle={a => toFocus(a)} focus={focus} onOrb={focus ? () => toFocus(null) : undefined}
           totals={pending ? undefined : totals} candidates={candidates} room={room}
           hold={pending || focus ? undefined : { held, press: hs.press, onSwap: k => hs.open(k, true) }} />}{/* drawn once the times are in: the bloom orders talks by their state */}
         {/* 24b Reframes / Challenges: the other lower angle's count sits in its own corner, the way it lies on the map

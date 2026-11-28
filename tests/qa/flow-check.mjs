@@ -18,12 +18,12 @@ const fresh = JSON.stringify({ ...JSON.parse(device(false)) });
 let browser, code = 1;
 // [screen, start hash, what to press (role + name, or a CSS selector), where it must land (hash pattern), device]
 const ROWS = [
-  ['01', '#/start/1', ['button', "It's my first CHI"], /^#\/start\/2$/, fresh],
-  ['01', '#/start/1', ['button', "I've been before"], /^#\/start\/6$/, fresh],
+  ['01', '#/start/1', ['button', "It's my first CHI"], /^#\/ask$/, fresh], // user 11/28: 01 → 07, the guide is on My Arcs
+  ['01', '#/start/1', ['button', "I've been before"], /^#\/ask$/, fresh],
   ['02', '#/start/2', ['link', 'Next'], /^#\/start\/3$/, fresh],
   ['05', '#/start/5', ['link', 'Next'], /^#\/start\/6$/, fresh],
   ['06', '#/start/6', ['link', 'Next'], /^#\/start\/6b$/, fresh],
-  ['06c', '#/start/6c', ['link', 'Next'], /^#\/paper$/, fresh], // Figma 11/25: 07p
+  ['06c', '#/start/6c', ['link', 'Next'], /^#\/home$/, fresh], // 11/28: the guide goes back to My Arcs
   ['07p', '#/paper', ['link', 'No paper? Start from a question'], /^#\/ask$/, fresh],
   ['03', '#/start/3', ['link', 'Skip'], /^#\/home$/, fresh],
   ['09', '#/when', ['link', 'Back'], /^#\/ask$/],
