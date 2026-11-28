@@ -275,6 +275,6 @@ export function Yours({ payload }: { payload: string }) {
 function Intro() {
   return (
     <p className="mt-2 text-[13px] leading-[18px] text-arc-text-2">ARC finds CHI talks that support, challenge or reframe a question.{' '}
-      <a href={href('start/1')} className="inline-flex min-h-touch items-center font-semibold whitespace-nowrap text-[#9db2ff]">Make your own ›</a></p>
+      <a href={href('start/1')} className="relative font-semibold whitespace-nowrap text-[#9db2ff] before:absolute before:-inset-x-2 before:-inset-y-3.5 before:content-['']">Make your own ›</a></p>
   );
 }

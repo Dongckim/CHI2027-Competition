@@ -27,6 +27,7 @@ type Filter = 'angle' | 'same' | 'wild';
 type Card = ArcNode & { off?: true }; // off: the engine finds it not about the question
 const off = (key: string, label: string): Card => ({ key, angle: 'R', label, evidence: null, debut: false, off: true });
 const NOT_ABOUT = 'Not about your question';
+const VERB = { S: 'supports', R: 'reframes', T: 'challenges' } as const;
 const ANYWAY = 'ARC doesn’t find this talk answering your question.';
 
 export function AddSheet({ query: arcQuery, engineName, filters, target, exclude, swap, info, paper, clash, sameTime, onPick, onTarget, onClose }: {
@@ -117,6 +118,11 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
         </div>
       )}
       {!query.trim() && filter === 'wild' && <p className="mt-2 text-[12px] font-medium text-arc-text-2">Wildcard picks its own angle for each talk.</p>}
+      {/* user 11/28, a participant: 「Challenge와 support는 암만 추가하려고 해도 추가가 안 되고 Reframe만 추가돼서 원래 막아
+          놓았나 헷갈렸어요… 이 점을 명시하면 좋겠어요」: when every talk found goes to another angle, say why */}
+      {!swap && query.trim() && !!cards?.length && cards.every(c => c.off || c.angle !== target) && cards.some(c => !c.off) && (
+        <p className="mt-2 text-[13px] leading-[18px] font-medium text-arc-text-2">No talk at CHI {VERB[target]} your question, so these go to {ANGLE_NAME[cards.find(c => !c.off)!.angle]}.</p>
+      )}
       <div data-tour="sheet-cards" className="-mx-6 mt-3 flex min-h-[112px] gap-3 overflow-x-auto px-6 pb-1" aria-live="polite">
         {cards == null ? <p className="py-4 text-[14px] text-arc-text-3">Looking…</p>
           : !cards.length ? <p className="py-4 text-[14px] text-arc-text-3">{failed ? 'Could not sort these talks. Try again.' : query.trim() ? 'No talks match.' : 'Nothing more here.'}</p>
@@ -128,14 +134,15 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
             const action = c.off ? `${NOT_ABOUT} · Add anyway` : swap ? `Swap in · ${name}` : `Add to ${name}`;
             const where = `${i.time}${i.room && ` · ${i.room}`}`;
             return (
-              <button key={c.key} type="button" onClick={() => { if (held.current) { held.current = false; return; } if (c.off) setConfirm(c); else pick(c); }}
+              <div key={c.key} className="flex w-[232px] shrink-0 flex-col">
+              <button type="button" onClick={() => { if (held.current) { held.current = false; return; } if (c.off) setConfirm(c); else pick(c); }}
                 // user 11/27 「꾹 누르면 그 위쪽으로 다른 창으로 보이게 해주고, 때면 사라지는」: the preview lives while the finger does
                 onPointerDown={e => { held.current = false; clearTimeout(hold.current); const el = e.currentTarget, id = e.pointerId;
                   hold.current = window.setTimeout(() => { held.current = true; opened.current = Date.now(); try { el.setPointerCapture(id); } catch { /* gone */ } document.getSelection()?.removeAllRanges(); setPeek(c); }, 450); }}
                 onPointerUp={() => clearTimeout(hold.current)} onPointerLeave={() => { if (!held.current) clearTimeout(hold.current); }}
                 onPointerCancel={() => clearTimeout(hold.current)}
                 onContextMenu={e => e.preventDefault()} style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', userSelect: 'none' }} aria-label={`${action}: ${[...status, p?.title ?? c.label, where].join(' · ')}`}
-                className={`flex w-[232px] shrink-0 flex-col gap-1.5 rounded-3xl border border-arc-line bg-arc-surface px-3.5 py-3 text-left ${c.off ? 'border-dashed' : ''}`}>
+                className={`flex w-full flex-col gap-1.5 rounded-3xl border border-arc-line bg-arc-surface px-3.5 py-3 text-left ${c.off ? 'border-dashed' : ''}`}>
                 <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[12px] font-semibold text-arc-text/80">
                   {c.off ? <span className="text-arc-text">{NOT_ABOUT} · <span className="text-[#9db2ff]">Add anyway</span></span> : <>
                     <Pic src={ANGLE_ICON[c.angle]} size={16} />
@@ -147,6 +154,8 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
                 {/* Figma 11px; 12px is the floor */}
                 <span className="text-[12px] font-medium text-arc-text-3">{i.time}{i.room && ` · ${i.room}`}</span>
               </button>
+              {elsewhere && !swap && <button type="button" onClick={() => pick({ ...c, angle: target })} className="min-h-touch text-left text-[13px] font-semibold text-[#9db2ff]">Add to {ANGLE_NAME[target]} anyway</button>}
+              </div>
             );
           })}
       </div>
