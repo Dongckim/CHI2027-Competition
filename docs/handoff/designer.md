@@ -455,3 +455,6 @@ Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your p
   - 그다음 가이드 2장: A talk("Tap it for details and Swap.") · Next up. 동작 줄이기: 켜지는 단계 없이 가이드만.
 - 사용자 결정 「배지에 뜻을 붙여서 "⊣ 1 · pushes back" (이 Arc를 처음 몇 번 볼 때), 익숙해지면 "⊣ 1 ›". 지도 아래 따로 둔 한 줄은 빼」: 각 Arc를 처음 3번 열 때 배지 아래에 뜻(agrees / another angle / pushes back, 12px). 배지 안에 넣으면 모서리 배지가 화면 밖으로 나가서 바로 아래 줄로. 4번째부터 "⊣ 1 ›"만.
 
+
+## 36. Edit에서 발표를 누르면 Details · Swap · Remove (2026-11-28)
+- 사용자 결정 「노드 탭 → Details · Swap · Remove. 편집 상태 저장해서 14 다녀와도 유지」: 15에서 발표를 누르면 12와 같은 팝업(시간·제목·저자·근거 문장 + View details · Swap · Remove). Swap은 시트, Remove는 바로 빼고 "Removed · Undo". 저장 전 편집은 이 탭의 sessionStorage에 두어 14에 다녀와도 그대로, Done·Cancel이 지움. 편집 모드를 없애는 건 결선 전(사용자).

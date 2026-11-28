@@ -6,8 +6,8 @@ import { href } from '../../router';
 import { Pic } from '../../components/arc';
 import chevron from '../../assets/arc/icon-chevron-right.svg';
 
-export function NodePopup({ k, line, title, by, quote, outside, onAdd, onSwap, onClose }: {
-  k: string; line: string; title: string; by?: string | null; quote?: string | null; outside: boolean; onAdd: () => void; onSwap?: () => void; onClose: () => void;
+export function NodePopup({ k, line, title, by, quote, outside, onAdd, onSwap, onRemove, onClose }: {
+  k: string; line: string; title: string; by?: string | null; quote?: string | null; outside: boolean; onAdd: () => void; onSwap?: () => void; onRemove?: () => void; onClose: () => void;
 }) {
   const [box, setBox] = useState<DOMRect | null>(null);
   const card = useRef<HTMLDivElement>(null);
@@ -58,7 +58,11 @@ export function NodePopup({ k, line, title, by, quote, outside, onAdd, onSwap, o
           {outside && <button ref={el => { if (outside) first.current = el; }} type="button" onClick={onAdd} className="min-h-touch rounded-full bg-arc-primary px-4 text-[14px] font-semibold text-arc-on-primary">Add to my Arc</button>}
           <a ref={el => { if (!outside) first.current = el; }} href={href(`talk/${k}`)} className="inline-flex min-h-touch items-center gap-1 text-[14px] font-semibold text-[#9db2ff]">View details<Pic src={chevron} size={14} /></a>
           {/* user 11/28 (feedback 8): Swap as a button, not only a hold; the hold stays as a shortcut */}
-          {onSwap && <button type="button" onClick={onSwap} className="ml-auto min-h-touch rounded-full border border-arc-line px-4 text-[14px] font-semibold text-arc-text">Swap</button>}
+          {(onSwap || onRemove) && <span className="ml-auto flex gap-2">
+            {onSwap && <button type="button" onClick={onSwap} className="min-h-touch rounded-full border border-arc-line px-4 text-[14px] font-semibold text-arc-text">Swap</button>}
+            {/* 15 (user 11/28 「노드 탭 → Details · Swap · Remove」) */}
+            {onRemove && <button type="button" onClick={onRemove} className="min-h-touch rounded-full border border-arc-line px-4 text-[14px] font-semibold text-arc-text">Remove</button>}
+          </span>}
         </div>
       </div>
     </>

@@ -25,7 +25,7 @@ export const TALK_TOUR: TourStep[] = [
 // 15, the first time Edit opens after the map tour (user 11/27 「처음 editing들어가면 다른 곳처럼 가이드」)
 export const EDIT_TOUR: TourStep[] = [
   { at: 'button[aria-label^="Add a talk to"]', title: 'Add a talk', text: 'Tap + to open the talks for that angle in a sheet below.' },
-  { at: '[data-arc-map] [data-node-key]', title: 'Swap a talk', text: 'Tap a talk on your Arc to swap it for another of the same angle. (Holding a talk here does nothing in Edit.)' },
+  { at: '[data-arc-map] [data-node-key]', title: 'A talk', text: 'Tap a talk for its details, Swap or Remove. Your changes wait here while you read it.' },
   { at: 'button[aria-label^="Remove"]', title: 'Remove', text: 'The − takes a talk off your Arc.' },
   { at: '[data-tour="done"]', title: 'Done', text: 'Done keeps your changes; Cancel throws them away.' },
 ];

@@ -131,6 +131,9 @@ try {
   await click(`document.querySelector('button[aria-label^="Remove "]')`);
   // a Reframe: at Tue 12:00 every other Support is over, and ended talks are not offered (audit 11/27)
   await click(`[...document.querySelectorAll('main button[aria-pressed]')].filter(b => b.hasAttribute('aria-description')).find(b => b.closest('[data-angle=R]'))`);
+  // 11/28: a tap opens the talk's menu (Details · Swap · Remove); Swap opens the sheet
+  const menu = await waitFor(`!!document.querySelector('[role=dialog]') && [...document.querySelectorAll('[role=dialog] button')].some(b => b.innerText.trim() === 'Remove')`, 5000);
+  await click(`[...document.querySelectorAll('[role=dialog] button')].find(b => b.innerText.trim() === 'Swap')`);
   const cardsMs = await waitFor(`[...document.querySelectorAll('section[data-sheet] button')].some(b => b.getAttribute('aria-label')?.startsWith('Swap in'))`, 20000);
   await shot('15');
   const swapIn = await ev(`[...document.querySelectorAll('section[data-sheet] button')].find(b => b.getAttribute('aria-label')?.startsWith('Swap in'))?.getAttribute('aria-label')`);
@@ -141,11 +144,13 @@ try {
   await waitFor(`location.hash === '#/arc/${ARCS.normal.id}'`, 10000);
   const stored = await ev(`new Promise(r => { const q = indexedDB.open('arc'); q.onsuccess = () => { const g = q.result.transaction('arcs').objectStore('arcs').get('${ARCS.normal.id}'); g.onsuccess = () => r(g.result.nodes.map(n => n.key)); }; })`);
   const swapped = swapIn?.split(' · ')[1];
-  check('15 edit: − removes, a card swaps in (Swapped · Undo), Done saves', undoShown != null && cardsMs != null && stored.length === before - 1 && !!swapped, { before, after: stored.length, swappedIn: swapped });
+  check('15 edit: − removes, a tap opens Details · Swap · Remove, a card swaps in (Swapped · Undo), Done saves', menu != null && undoShown != null && cardsMs != null && stored.length === before - 1 && !!swapped, { before, after: stored.length, swappedIn: swapped });
   // Wildcard chip gives cards too
   await open(`#/arc/${ARCS.normal.id}/edit`);
   await waitFor(`document.querySelectorAll('button[aria-label^="Add a talk to "], button[aria-label^="Remove "]').length > 0`, 20000);
   await click(`[...document.querySelectorAll('main button[aria-pressed]')].find(b => b.hasAttribute('aria-description'))`);
+  await waitFor(`[...document.querySelectorAll('[role=dialog] button')].some(b => b.innerText.trim() === 'Swap')`, 5000);
+  await click(`[...document.querySelectorAll('[role=dialog] button')].find(b => b.innerText.trim() === 'Swap')`); // 11/28: through the menu
   await waitFor(`!!document.querySelector('section[data-sheet]')`, 5000);
   await click(`[...document.querySelectorAll('section[data-sheet] button[role=radio]')].find(b => b.innerText.includes('Wildcard'))`);
   check('15 Wildcard chip shows cards', (await waitFor(`[...document.querySelectorAll('section[data-sheet] button')].filter(b => b.getAttribute('aria-label')?.startsWith('Swap in')).length > 0`, 20000)) != null, {});
