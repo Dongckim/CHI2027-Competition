@@ -16,7 +16,7 @@ import { searchTalks } from '../../../../data/scripts/search.mjs';
 import { useExploreData } from '../../explore/useExplore';
 import { labelOf } from '../../arc/label.js';
 import { Pic, ArcButton, useKeyboardInset } from '../../components/arc';
-import { ANGLE_NAME } from './AngleHelp';
+import { ANGLE_MEANING, ANGLE_NAME } from './AngleHelp';
 import { ANGLE_ICON, type Info } from './ArcView';
 import searchIcon from '../../assets/arc/icon-search.svg';
 import sparkle from '../../assets/arc/icon-sparkle.svg';
@@ -27,6 +27,8 @@ type Filter = 'angle' | 'same' | 'wild';
 type Card = ArcNode & { off?: true }; // off: the engine finds it not about the question
 const off = (key: string, label: string): Card => ({ key, angle: 'R', label, evidence: null, debut: false, off: true });
 const NOT_ABOUT = 'Not about your question';
+const VERB = { S: 'supports', R: 'reframes', T: 'challenges' } as const;
+const ANYWAY = 'ARC doesn’t find this talk answering your question.';
 
 export function AddSheet({ query: arcQuery, engineName, filters, target, exclude, swap, info, paper, clash, sameTime, onPick, onTarget, onClose }: {
   query: string; engineName: string; filters?: Arc['filters']; target: Angle; exclude: string[]; swap: boolean; info: (key: string) => Info;
@@ -116,6 +118,11 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
         </div>
       )}
       {!query.trim() && filter === 'wild' && <p className="mt-2 text-[12px] font-medium text-arc-text-2">Wildcard picks its own angle for each talk.</p>}
+      {/* user 11/28, a participant: 「Challenge와 support는 암만 추가하려고 해도 추가가 안 되고 Reframe만 추가돼서 원래 막아
+          놓았나 헷갈렸어요… 이 점을 명시하면 좋겠어요」: when every talk found goes to another angle, say why */}
+      {!swap && query.trim() && !!cards?.length && cards.every(c => c.off || c.angle !== target) && cards.some(c => !c.off) && (
+        <p className="mt-2 text-[13px] leading-[18px] font-medium text-arc-text-2">No talk at CHI {VERB[target]} your question, so these go to {ANGLE_NAME[cards.find(c => !c.off)!.angle]}.</p>
+      )}
       <div data-tour="sheet-cards" className="-mx-6 mt-3 flex min-h-[112px] gap-3 overflow-x-auto px-6 pb-1" aria-live="polite">
         {cards == null ? <p className="py-4 text-[14px] text-arc-text-3">Looking…</p>
           : !cards.length ? <p className="py-4 text-[14px] text-arc-text-3">{failed ? 'Could not sort these talks. Try again.' : query.trim() ? 'No talks match.' : 'Nothing more here.'}</p>
@@ -124,19 +131,20 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
             const name = ANGLE_NAME[c.angle], elsewhere = !c.off && c.angle !== target;
             // every visible word in the name (WCAG 2.5.3), where it goes first
             const status = c.off ? [] : [elsewhere && `Goes to ${name}`, clashWith ? `Same time as ${clashWith}` : c.debut && 'New to CHI'].filter(Boolean);
-            const action = c.off ? NOT_ABOUT : swap ? `Swap in · ${name}` : `Add to ${name}`;
+            const action = c.off ? `${NOT_ABOUT} · Add anyway` : swap ? `Swap in · ${name}` : `Add to ${name}`;
             const where = `${i.time}${i.room && ` · ${i.room}`}`;
             return (
-              <button key={c.key} type="button" onClick={() => { if (held.current) { held.current = false; return; } if (!c.off) setConfirm(c); }} disabled={c.off}
+              <div key={c.key} className="flex w-[232px] shrink-0 flex-col">
+              <button type="button" onClick={() => { if (held.current) { held.current = false; return; } if (c.off) setConfirm(c); else pick(c); }}
                 // user 11/27 「꾹 누르면 그 위쪽으로 다른 창으로 보이게 해주고, 때면 사라지는」: the preview lives while the finger does
                 onPointerDown={e => { held.current = false; clearTimeout(hold.current); const el = e.currentTarget, id = e.pointerId;
                   hold.current = window.setTimeout(() => { held.current = true; opened.current = Date.now(); try { el.setPointerCapture(id); } catch { /* gone */ } document.getSelection()?.removeAllRanges(); setPeek(c); }, 450); }}
                 onPointerUp={() => clearTimeout(hold.current)} onPointerLeave={() => { if (!held.current) clearTimeout(hold.current); }}
                 onPointerCancel={() => clearTimeout(hold.current)}
                 onContextMenu={e => e.preventDefault()} style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', userSelect: 'none' }} aria-label={`${action}: ${[...status, p?.title ?? c.label, where].join(' · ')}`}
-                className={`flex w-[232px] shrink-0 flex-col gap-1.5 rounded-3xl border border-arc-line bg-arc-surface px-3.5 py-3 text-left ${c.off ? 'border-dashed' : ''}`}>
+                className={`flex w-full flex-col gap-1.5 rounded-3xl border border-arc-line bg-arc-surface px-3.5 py-3 text-left ${c.off ? 'border-dashed' : ''}`}>
                 <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[12px] font-semibold text-arc-text/80">
-                  {c.off ? <span className="text-arc-text">{NOT_ABOUT}</span> : <>
+                  {c.off ? <span className="text-arc-text">{NOT_ABOUT} · <span className="text-[#9db2ff]">Add anyway</span></span> : <>
                     <Pic src={ANGLE_ICON[c.angle]} size={16} />
                     {elsewhere && <span className="text-arc-text">Goes to {name}</span>}
                     {clashWith ? <><Pic src={warning} size={14} />Same time as {clashWith}</> : c.debut ? <><Pic src={sparkle} size={12} />New to CHI</> : null}
@@ -146,6 +154,8 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
                 {/* Figma 11px; 12px is the floor */}
                 <span className="text-[12px] font-medium text-arc-text-3">{i.time}{i.room && ` · ${i.room}`}</span>
               </button>
+              {elsewhere && !swap && <button type="button" onClick={() => pick({ ...c, angle: target })} className="min-h-touch text-left text-[13px] font-semibold text-[#9db2ff]">Add to {ANGLE_NAME[target]} anyway</button>}
+              </div>
             );
           })}
       </div>
@@ -173,19 +183,20 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
             </div>
           </div>, document.body);
       })()}
-      {confirm && (() => {
-        const c = confirm, i = info(c.key), p = paper(c.key), name = ANGLE_NAME[c.angle];
-        const go = () => { setConfirm(null); pick(c); };
-        const close = () => setConfirm(null);
+      {confirm && (() => { /* user 11/28 「"Add anyway": 누르면 관점 3개 중 사용자가 고르게 (엔진이 판단 못 한 발표라서)」 */
+        const c = confirm, i = info(c.key), p = paper(c.key);
         return (
-          <div role="dialog" aria-label={`${swap ? 'Swap in' : 'Add'} this talk?`} className="absolute inset-0 z-10 flex flex-col rounded-t-[32px] bg-arc-sheet px-6 pt-5 pb-[calc(var(--safe-bottom)+16px)]">
-            <p className="text-[13px] font-semibold text-arc-text-2">{`${swap ? 'Swap in' : 'Add'} this talk to ${name}?`}</p>
-            <p className="mt-1.5 text-[18px] leading-[23px] font-semibold tracking-[-0.012em]">{p?.title ?? c.label}</p>
-            {i.first && <p className="mt-1.5 text-[13px] font-medium text-arc-text-2">by {i.first}{p && p.authors.length > 1 && ` and ${p.authors.length - 1} more`}</p>}
+          <div role="dialog" aria-label="Add anyway" className="absolute inset-0 z-10 flex flex-col rounded-t-[32px] bg-arc-sheet px-6 pt-5 pb-[calc(var(--safe-bottom)+16px)]">
+            <p className="text-[13px] font-semibold text-arc-text-2">{ANYWAY} Which angle is it?</p>
+            <p className="mt-1.5 line-clamp-2 text-[18px] leading-[23px] font-semibold tracking-[-0.012em]">{p?.title ?? c.label}</p>
             <p className="mt-1 text-[13px] text-arc-text-3">{i.time}{i.room && ` · ${i.room}`}</p>
-            <div className="mt-auto flex gap-3 pt-4">
-              <ArcButton kind="secondary" className="flex-1" onClick={close}>Cancel</ArcButton>
-              <ArcButton className="flex-[1.4]" onClick={go}>{swap ? 'Swap in' : `Add to ${name}`}</ArcButton>
+            <div className="mt-auto flex flex-col gap-2 pt-3">
+              {(['S', 'R', 'T'] as Angle[]).map(a => (
+                <ArcButton key={a} kind="secondary" onClick={() => { setConfirm(null); pick({ ...c, angle: a, off: undefined } as ArcNode); }}>
+                  <span className="inline-flex items-center gap-2"><Pic src={ANGLE_ICON[a]} size={16} />{swap ? 'Swap in as' : 'Add to'} {ANGLE_NAME[a]} <span className="font-medium text-arc-text-3">· {ANGLE_MEANING[a]}</span></span>
+                </ArcButton>
+              ))}
+              <button type="button" onClick={() => setConfirm(null)} className="min-h-touch text-[15px] font-semibold text-arc-text-2">Cancel</button>
             </div>
           </div>
         );

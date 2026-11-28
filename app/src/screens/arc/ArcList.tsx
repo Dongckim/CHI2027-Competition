@@ -3,7 +3,8 @@
 import { useCallback, useState } from 'react';
 import { go, href } from '../../router';
 import { Screen, ArcLink, Pic } from '../../components/arc';
-import { AngleHelp, ANGLE_NAME, KIND_NAME } from './AngleHelp';
+import { AngleHelp, ANGLE_NAME, ANGLE_MEANING, KIND_NAME } from './AngleHelp';
+import { Broader, EMPTY_LINE } from './Broader';
 import { ANGLE_ICON } from './ArcView';
 import { ArcHeader } from './ArcHeader';
 import { useArc } from './useArc';
@@ -32,7 +33,7 @@ export function ArcList({ id }: { id: string }) {
         {arc.nodes.map(n => <span key={n.key} className={`size-2 rounded-full ${states.get(n.key) === 'heard' ? 'bg-tribe' : 'border border-arc-text/40'}`} />)}
       </div>
       {pending && <p className="mt-4 text-[14px] text-arc-text-2" role="status">Sorting angles… The talks are here; their angles come next.</p>}
-      <AngleRows arc={onMap ?? arc} states={states} info={info} />
+      <AngleRows arc={onMap ?? arc} states={states} info={info} own />
       <OtherDays nodes={other} states={states} info={info} />
       <AngleHelp open={help} onClose={closeHelp} />
     </Screen>
@@ -40,7 +41,7 @@ export function ArcList({ id }: { id: string }) {
 }
 
 /** 13's rows by angle; also 18's "Just read" (prototype LINKS: Just read → 13), for an Arc that is not saved. */
-export function AngleRows({ arc, states, info }: { arc: Arc; states: Map<string, string>; info: (key: string) => Info }) {
+export function AngleRows({ arc, states, info, own }: { arc: Arc; states: Map<string, string>; info: (key: string) => Info; own?: boolean }) {
   return (
     <div className="mt-[26px] flex flex-col gap-[18px] pb-4">
       {(['S', 'R', 'T'] as Angle[]).map(a => {
@@ -48,10 +49,11 @@ export function AngleRows({ arc, states, info }: { arc: Arc; states: Map<string,
         return (
           <section key={a} aria-labelledby={`list-${a}`} className="flex flex-col gap-2">
             <h2 id={`list-${a}`} className="flex items-center gap-2 text-[15px] font-semibold tracking-[-0.006em]">
-              <Pic src={ANGLE_ICON[a]} size={18} />{ANGLE_NAME[a]}
+              <Pic src={ANGLE_ICON[a]} size={18} />{ANGLE_NAME[a]}<span className="font-medium text-arc-text-3">· {ANGLE_MEANING[a]}</span>
               <span className="text-[12px] font-medium text-arc-text-3">{nodes.length}</span>
             </h2>
-            {a === 'T' && arc.tension === 'none' && <p className="text-[14px] text-arc-text/60">No clear challenge at CHI this year.</p>}
+            {!nodes.length && arc.tension !== 'pending' && <p className="text-[14px] text-arc-text/60">{EMPTY_LINE[a]}</p>}
+            {!nodes.length && own && arc.tension !== 'pending' && <Broader arc={arc} angle={a} onSee={b => go(`arc/${arc.id}/${b}`)} className="items-start self-start" />}
             {nodes.map(n => <Row key={n.key} n={n} info={info} states={states} />)}
           </section>
         );

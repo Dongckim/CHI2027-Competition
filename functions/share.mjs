@@ -19,7 +19,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 export function describe(n, edition, talks = TALKS) {
   const c = angleCounts(n);
   const day = talks?.edition === edition && n.map(([id]) => talks.papers[String(id)]).find(Boolean)?.[0];
-  return [`ARC · ↑ ${c.S} support · ↻ ${c.R} reframe · ⊣ ${c.T} challenge`, day].filter(Boolean).join(' · ');
+  return [`ARC finds CHI talks for a question · ↑ ${c.S} support · ↻ ${c.R} reframe · ⊣ ${c.T} challenge`, day].filter(Boolean).join(' · ');
 }
 
 export function sharePage(payload, origin, talks = TALKS) {

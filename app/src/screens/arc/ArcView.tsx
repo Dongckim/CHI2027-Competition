@@ -308,12 +308,17 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           </div>;
         })()}
 
-        {l.emptyT && !edit && !own && (
-          <div className="absolute flex flex-col items-center" style={{ left: l.emptyT[0] - 56, top: l.emptyT[1] - 23, width: 112 }}>
-            <span data-empty-slot="" className="arc-node-dash flex size-[46px] items-center justify-center rounded-full"><img src={challenge} alt="" width={24} height={24} className="opacity-35" /></span>{/* prototype 23: the empty ⊣ at 0.35 */}
-            <p style={{ fontSize: real(12), lineHeight: `${real(16)}px` }} className="mt-2 text-center text-arc-text/60">No clear challenge at CHI this year.</p>
-          </div>
-        )}
+        {l.emptyT && !edit && !own && (() => {
+          // the empty ⊣ is one button to 24b ⊣, where the wider question is (user 11/28: the next thing to do, always)
+          const Tag = onBundle ? 'button' : 'div';
+          return (
+            <Tag {...(onBundle ? { type: 'button' as const, onClick: () => onBundle('T') } : {})} className="absolute flex flex-col items-center" style={{ left: l.emptyT[0] - 56, top: l.emptyT[1] - 23, width: 112 }}>
+              <span data-empty-slot="" className="arc-node-dash flex size-[46px] items-center justify-center rounded-full"><img src={challenge} alt="" width={24} height={24} className="opacity-35" /></span>{/* prototype 23: the empty ⊣ at 0.35 */}
+              <span style={{ fontSize: real(12), lineHeight: `${real(16)}px` }} className="mt-2 block text-center text-arc-text/60">No clear challenge at CHI this year.</span>
+              {onBundle && <span style={{ fontSize: real(12), lineHeight: `${real(16)}px` }} className="mt-1 block font-semibold whitespace-nowrap text-[#9db2ff]">Try a broader question ›</span>}
+            </Tag>
+          );
+        })()}
 
         {(edit ?? own) && !pending && !focus && (['S', 'R', 'T'] as Angle[]).map(a => {
           const add = (edit ?? own)!;

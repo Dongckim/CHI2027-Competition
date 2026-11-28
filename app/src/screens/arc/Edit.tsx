@@ -9,7 +9,7 @@ import { firstSlot } from '../../explore/format';
 import { tensionFor } from '../../arc/yours.js';
 import { BOX } from '../../arc/map.js';
 import { Screen, Pic } from '../../components/arc';
-import { ANGLE_NAME } from './AngleHelp';
+import { ANGLE_NAME, ANGLE_MEANING } from './AngleHelp';
 import { ArcView, ANGLE_ICON } from './ArcView';
 import { AddSheet } from './AddSheet';
 import { useArc } from './useArc';
@@ -26,8 +26,9 @@ export function Edit({ id }: { id: string }) {
   const [adding, setAdding] = useState<Angle | null>(null);
   // user 11/27 「edit도 원래 화면이랑 비슷하게 각 영역에 가려진 애들 더 넓은 영역에서」: a region's count opens it as 24b does
   const [wide, setWide] = useState<Angle | null>(null);
-  const [removed, setRemoved] = useState<{ node: ArcNode; at: number } | null>(null);
-  useEffect(() => { if (!removed) return; const t = setTimeout(() => setRemoved(null), 5000); return () => clearTimeout(t); }, [removed]);
+  // user 11/28 「추가·빼기는 확인 창 대신 실행 후 Undo로 통일」: every add, swap and removal acts at once and can be taken back for 5 s
+  const [undo, setUndo] = useState<{ word: 'Added' | 'Removed' | 'Swapped'; back: (ns: ArcNode[]) => ArcNode[] } | null>(null);
+  useEffect(() => { if (!undo) return; const t = setTimeout(() => setUndo(null), 5000); return () => clearTimeout(t); }, [undo]);
   // the regions reach the bottom of the screen, as on 12 (prototype 15: no bare lower half before the sheet opens)
   const [room, setRoom] = useState(0);
   // the map fills the screen as on 12 until a + or a talk is pressed; then 0.74 and the sheet rises from below (user 11/26
@@ -65,15 +66,21 @@ export function Edit({ id }: { id: string }) {
   const out = selected ? slotOf(selected) : null;
   const sameTime = out ? (key: string) => { const s = slotOf(key); return !!s && s.start < out.end && out.start < s.end; } : undefined;
   const pick = (card: ArcNode) => {
-    if (selected) { setNodes(nodes.map(n => (n.key === selected ? card : n))); setSelected(null); }
-    else setNodes([...nodes, card]); // Add keeps the sheet open on its angle: add more, or switch angle in the sheet (11/27)
+    if (selected) {
+      const old = nodes.find(n => n.key === selected)!;
+      setNodes(nodes.map(n => (n.key === selected ? card : n))); setSelected(null);
+      setUndo({ word: 'Swapped', back: ns => ns.map(n => (n.key === card.key ? old : n)) });
+    } else { // Add keeps the sheet open on its angle: add more, or switch angle in the sheet (11/27)
+      setNodes([...nodes, card]);
+      setUndo({ word: 'Added', back: ns => ns.filter(n => n.key !== card.key) });
+    }
   };
   const done = async () => { await save(draft); go(`arc/${id}`, { replace: true }); }; // back after Done does not reopen Edit (audit 11/27)
   // Cancel throws the changes away, asking first when there are some (audit 11/27: back dropped them without a word)
   const changed = nodes.map(n => n.key).join() !== arc.nodes.map(n => n.key).join();
   const cancel = () => { if (!changed || confirm('Discard your changes?')) go(`arc/${id}`, { replace: true }); };
   // a talk taken off can be put back for a few seconds, as a swap can on 12
-  const take = (k: string) => { const at = nodes.findIndex(n => n.key === k); if (at < 0) return; setRemoved({ node: nodes[at], at }); setNodes(nodes.filter(n => n.key !== k)); if (selected === k) setSelected(null); };
+  const take = (k: string) => { const at = nodes.findIndex(n => n.key === k); if (at < 0) return; const node = nodes[at]; setUndo({ word: 'Removed', back: ns => [...ns.slice(0, at), node, ...ns.slice(at)] }); setNodes(nodes.filter(n => n.key !== k)); if (selected === k) setSelected(null); };
 
   return (
     <Screen clock label="Editing" header={<>
@@ -93,9 +100,9 @@ export function Edit({ id }: { id: string }) {
       </div>
       {/* user 11/27 「editing 할때 각 파트 전부 다 노드 볼 수 있도록」: the map shows three a region; every talk of each angle
           is listed under it, to swap or take off from here too */}
-      {removed && (
-        <div role="status" className="fixed inset-x-0 bottom-[calc(var(--safe-bottom)+20px)] z-30 mx-auto flex w-fit items-center gap-1 rounded-full bg-arc-primary py-1 pr-1 pl-4 text-[14px] font-semibold text-arc-on-primary">
-          Removed<button type="button" onClick={() => { const r = removed; setRemoved(null); setNodes(ns => ns && [...ns.slice(0, r.at), r.node, ...ns.slice(r.at)]); }} className="min-h-touch rounded-full px-3 underline">Undo</button>
+      {undo && ( /* at the top: the sheet is open at the bottom while adding */
+        <div role="status" className="fixed inset-x-0 top-[calc(env(safe-area-inset-top,0px)+76px)] z-50 mx-auto flex w-fit items-center gap-1 rounded-full bg-arc-primary py-1 pr-1 pl-4 text-[14px] font-semibold text-arc-on-primary">
+          {undo.word}<button type="button" onClick={() => { const u = undo; setUndo(null); setNodes(ns => ns && u.back(ns)); }} className="min-h-touch rounded-full px-3 underline">Undo</button>
         </div>
       )}
       {!target && arc.tension !== 'pending' && ( /* sorting: the map shows no angles yet, nor does the list (audit 11/27) */
@@ -104,7 +111,7 @@ export function Edit({ id }: { id: string }) {
             const list = nodes.filter(n => n.angle === a);
             return (
               <div key={a} className="flex flex-col gap-2">
-                <h2 className="flex items-center gap-2 text-[15px] font-semibold"><Pic src={ANGLE_ICON[a]} size={18} />{ANGLE_NAME[a]}<span className="font-medium text-arc-text-3">{list.length}</span>
+                <h2 className="flex items-center gap-2 text-[15px] font-semibold"><Pic src={ANGLE_ICON[a]} size={18} />{ANGLE_NAME[a]}<span className="font-medium text-arc-text-3">· {ANGLE_MEANING[a]}</span><span className="font-medium text-arc-text-3">{list.length}</span>
                   <button type="button" onClick={() => { setAdding(a); setSelected(null); }} className="ml-auto min-h-touch px-2 text-[14px] font-semibold text-arc-text-2">+ Add</button></h2>
                 {!list.length && <p className="text-[13px] text-arc-text-3">None yet.</p>}
                 {list.map(n => {

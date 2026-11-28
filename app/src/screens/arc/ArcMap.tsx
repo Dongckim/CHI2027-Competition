@@ -1,5 +1,6 @@
 // 12 · My Arc · map (Figma 597:711) with its states: 23 no clear Challenge, 24 crowded (+N), 25 angles still sorting.
 // Bottom: the next talk (to 14), Edit (15) and Share (A3).
+import { Broader, EMPTY_LINE } from './Broader';
 import { notOver } from './useArc';
 import { now as nowMs } from '../../clock.js';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -14,7 +15,7 @@ import { NodePopup } from './NodePopup';
 import { go, href } from '../../router';
 import { Screen, ArcLink, ArcButton, Pic } from '../../components/arc';
 import type { Angle, Arc } from '../../engine';
-import { AngleHelp, ANGLE_NAME } from './AngleHelp';
+import { AngleHelp, ANGLE_NAME, ANGLE_MEANING } from './AngleHelp';
 const STATE_WORD = { next: 'Next', upcoming: 'Upcoming', heard: 'Heard', ended: 'Ended' } as const;
 import { ArcView, ANGLE_ICON, useMapFit } from './ArcView';
 import { ArcHeader } from './ArcHeader';
@@ -143,6 +144,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
               <span className="line-clamp-2 text-[15px] leading-[19px] font-semibold tracking-[-0.006em]">{ni.title}</span>
               {/* user 11/25 E: the first author (and the session's chair) to look for */}
               {(ni.first || ni.chair) && <span className="truncate text-[12px] font-medium text-arc-text-3">{[ni.first && `by ${ni.first}`, ni.chair && `Chair ${ni.chair.split(' · ')[0]}`].filter(Boolean).join(' · ')}</span>}
+              {next.evidence && <span className="truncate text-[12px] text-arc-text-2">&ldquo;{next.evidence.sentence}&rdquo; <span className="text-arc-text-3">· From the abstract</span></span>}{/* user 11/28 */}
               <span className="truncate text-[13px] text-arc-text/60">{word} · {ni.when.replace(' · Rm ', ' · Room ') /* prototype 12: the card spells "Room", the nodes keep "Rm" */}{use.lift(next.key) && <> · <span className="inline-flex items-center gap-1 align-[-2px]"><Pic src={elevator} size={14} className="opacity-80" />Elevator</span></>}</span>
             </span>
             <Pic src={chevron} size={20} className="opacity-50" />
@@ -185,7 +187,10 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
         {/* 24b Reframes / Challenges: the other lower angle's count sits in its own corner, the way it lies on the map
             (user 11/27 「우하단을 눌렀을때 … 좌하단쪽에 버튼이 있어야 … vice versa」); 24b Supports keeps its corners in the map */}
         {focus && use.schedule && !shown.nodes.some(n => n.angle === focus) && ( /* audit 11/27: an empty angle showed nothing at all */
-          <p className="absolute inset-x-6 top-1/2 text-center text-[15px] text-arc-text-2">{focus === 'T' ? 'No clear challenge at CHI this year.' : `No ${ANGLE_NAME[focus]} at CHI for this question yet.`}</p>
+          <div className="absolute inset-x-6 top-[38%] flex flex-col items-center gap-4">
+            <p className="text-center text-[15px] text-arc-text-2">{EMPTY_LINE[focus]}</p>
+            <Broader arc={arc} angle={focus} onSee={toFocus} />
+          </div>
         )}
         {(focus === 'R' || focus === 'T') && (() => {
           const a: Angle = focus === 'R' ? 'T' : 'R';
@@ -205,7 +210,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
         const pi = info(picked.key), off = candidates.has(picked.key), st = states.get(picked.key) ?? 'upcoming';
         const w = off ? '' : pi.on && st === 'next' ? 'Now' : st === 'upcoming' ? '' : STATE_WORD[st];
         const line = [w, pi.when.replace(' · Rm ', ' · Room '), off && 'Not on your Arc'].filter(Boolean).join(' · ');
-        return <NodePopup k={picked.key} line={line} title={pi.title} by={pi.first} outside={off} onClose={closePop} onAdd={() => { setSel(null); add(picked); }} />;
+        return <NodePopup k={picked.key} line={line} title={pi.title} by={pi.first} quote={picked.evidence?.sentence} outside={off} onClose={closePop} onAdd={() => { setSel(null); add(picked); }} />;
       })()}
       {tour && <MapTour onDone={endTour} />}
     </Screen>

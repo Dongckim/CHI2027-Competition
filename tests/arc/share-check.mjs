@@ -54,7 +54,7 @@ try {
 
   // the share page itself (what messengers read)
   const page = await (await fetch(`${BASE}s/${PAYLOAD}`)).text();
-  check('/s/<payload>: preview tags from the link, then on to #/r/', page.includes(`<meta property="og:title" content="privacy of smart home devices">`) && page.includes(`location.replace("/#/r/${PAYLOAD}")`) && /content="ARC · ↑ \d+ support · ↻ \d+ reframe · ⊣ \d+ challenge/.test(page) && page.includes('og:site_name" content="arc2027.com"'), {});
+  check('/s/<payload>: preview tags from the link, then on to #/r/', page.includes(`<meta property="og:title" content="privacy of smart home devices">`) && page.includes(`location.replace("/#/r/${PAYLOAD}")`) && /content="ARC finds CHI talks for a question · ↑ \d+ support · ↻ \d+ reframe · ⊣ \d+ challenge/.test(page) && page.includes('og:site_name" content="arc2027.com"'), {});
 
   await open('#/home');
   await ev(onboarded);
