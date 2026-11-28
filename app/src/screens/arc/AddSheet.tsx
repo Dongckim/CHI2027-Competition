@@ -130,7 +130,7 @@ export function AddSheet({ query: arcQuery, engineName, filters, target, exclude
               <button key={c.key} type="button" onClick={() => { if (held.current) { held.current = false; return; } if (!c.off) setConfirm(c); }} disabled={c.off}
                 // user 11/27 「꾹 누르면 그 위쪽으로 다른 창으로 보이게 해주고, 때면 사라지는」: the preview lives while the finger does
                 onPointerDown={e => { held.current = false; clearTimeout(hold.current); const el = e.currentTarget, id = e.pointerId;
-                  hold.current = window.setTimeout(() => { held.current = true; opened.current = Date.now(); try { el.setPointerCapture(id); } catch { /* gone */ } setPeek(c); }, 450); }}
+                  hold.current = window.setTimeout(() => { held.current = true; opened.current = Date.now(); try { el.setPointerCapture(id); } catch { /* gone */ } document.getSelection()?.removeAllRanges(); setPeek(c); }, 450); }}
                 onPointerUp={() => clearTimeout(hold.current)} onPointerLeave={() => { if (!held.current) clearTimeout(hold.current); }}
                 onPointerCancel={() => clearTimeout(hold.current)}
                 onContextMenu={e => e.preventDefault()} style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', userSelect: 'none' }} aria-label={`${action}: ${[...status, p?.title ?? c.label, where].join(' · ')}`}
