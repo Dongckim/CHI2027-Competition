@@ -87,8 +87,8 @@ try {
   await sleep(300);
   await shot(p, '12b-keyboard');
   await p.keyboard.press('Escape');
-  await sleep(200);
-  R.check('Escape closes', (await p.locator('[data-swap-fan]').count()) === 0, {});
+  // under load (the full qa:auto run) the close can take longer than a fixed 200 ms: wait for it, up to 3 s
+  R.check('Escape closes', await p.waitForFunction(() => !document.querySelector('[data-swap-fan]'), null, { timeout: 3000 }).then(() => true, () => false), {});
   await swapBtn.focus(); await p.keyboard.press('Enter');
   await p.waitForFunction(() => document.activeElement?.hasAttribute('data-swap-key'), null, { timeout: 5000 });
   const kbPick = await p.evaluate(() => document.activeElement.getAttribute('data-swap-key'));
