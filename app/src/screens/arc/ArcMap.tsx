@@ -161,10 +161,10 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
       {/* Figma: the map box at y 112 on every state; 25's pill sits over its top, its centre 2.75 right of the middle */}
       {/* 24b Reframes / Challenges (no Figma): the other two angles as a centred row under the header, the same pills as
           the map's counts. Pinned inside the scaled map they sat at odd places against the region lines (iPhone 11/25) */}
-      {(focus === 'R' || focus === 'T') && (
+      {focus && totals[focus] > 0 && ( /* user 11/28 (feedback 8): every angle's list first, "See all N ›" */
         <div className="relative z-[1] mt-2 flex justify-center gap-2">{/* over the region field, which runs up behind it */}
-          {totals[focus] > drawn && (
-            <a href={href(`arc/${id}/list`)} className="flex min-h-touch items-center gap-1 px-1 text-[13px] font-medium text-arc-text-2">{drawn} on the map · <span className="font-semibold text-arc-text">See all {totals[focus]}</span><Pic src={chevron} size={12} /></a>
+          {(
+            <a href={href(`arc/${id}/list`)} className="flex min-h-touch items-center gap-1 px-1 text-[13px] font-medium text-arc-text-2">{totals[focus] > drawn && `${drawn} on the map · `}<span className="font-semibold text-arc-text">See all {totals[focus]}</span><Pic src={chevron} size={12} /></a>
           )}
           {(['S'] as Angle[]).filter(a => a !== focus).map(a => ( /* Supports lies up: its count stays on top */
             <button key={a} type="button" onClick={() => toFocus(a)} aria-label={`All ${totals[a]} ${ANGLE_NAME[a]}`} className="flex min-h-touch items-center">
@@ -210,7 +210,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
         const pi = info(picked.key), off = candidates.has(picked.key), st = states.get(picked.key) ?? 'upcoming';
         const w = off ? '' : pi.on && st === 'next' ? 'Now' : st === 'upcoming' ? '' : STATE_WORD[st];
         const line = [w, pi.when.replace(' · Rm ', ' · Room '), off && 'Not on your Arc'].filter(Boolean).join(' · ');
-        return <NodePopup k={picked.key} line={line} title={pi.title} by={pi.first} quote={picked.evidence?.sentence} outside={off} onClose={closePop} onAdd={() => { setSel(null); add(picked); }} />;
+        return <NodePopup k={picked.key} line={line} title={pi.title} by={pi.first} quote={picked.evidence?.sentence} outside={off} onClose={closePop} onAdd={() => { setSel(null); add(picked); }} onSwap={off || pending || focus ? undefined : () => { setSel(null); hs.open(picked.key, true); }} />;
       })()}
       {tour && <MapTour onDone={endTour} />}
     </Screen>
