@@ -21,6 +21,7 @@ const CHECKS = [
   ['orb', 'tests/qa/orb-check.mjs'],
   ['webkit', 'tests/qa/webkit-check.mjs'], // Playwright WebKit (npx playwright install webkit once)
   ['height', 'tests/qa/height-check.mjs'], // short screens do not scroll (safe area 54/34)
+  ['desktop', 'tests/qa/desktop-check.mjs'], // user 11/28: the phone frame at 1440×900 and 1280×720
   ['cards', 'tests/qa/cards-check.mjs'], // 16 card paging: dots, arrow keys, WebKit touch swipe, desktop drag
   ['flow', 'tests/qa/flow-check.mjs'], // every prototype link lands where it should; motion ends where the still screen is
   ['yours', 'tests/qa/yours-check.mjs'], // 19b Make it yours (keep, add, save) and 20b After CHI (numbers, .txt / .bib)
