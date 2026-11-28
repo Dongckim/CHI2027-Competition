@@ -279,7 +279,8 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
             <span data-badge={a} className="flex items-center rounded-full border border-white/10 bg-arc-surface font-semibold text-arc-text/78" style={{ height: h, gap: real(5 * Math.max(scale, 0.8)), paddingLeft: real(9 * Math.max(scale, 0.8)), paddingRight: real(11 * Math.max(scale, 0.8)), fontSize: font }}>
               <img src={ANGLE_ICON[a]} alt="" width={icon} height={icon} /><span key={count} data-count="">{count}</span>
               {/* more talks wait there: a chevron inside the count (it stood outside, tilted, and read as a bracket) */}
-              {more1 && onBundle && <svg aria-hidden="true" data-more={a} width={real(6)} height={real(10)} viewBox="0 0 6 10" style={{ marginLeft: real(1) }}><path d="M1 1l4 4-4 4" stroke="#f4f6ff" strokeOpacity={0.6} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>}
+              {/* user 11/28 (feedback 8): every count looks pressable, "↻ 3 ›", the way to all of an angle */}
+              {onBundle && !still && !own && !pick && !pending && <svg aria-hidden="true" data-more={more1 ? a : undefined} width={real(6)} height={real(10)} viewBox="0 0 6 10" style={{ marginLeft: real(1) }}><path d="M1 1l4 4-4 4" stroke="#f4f6ff" strokeOpacity={0.6} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>}
             </span>
           </>;
           const box = { left: x, top: y, transform: 'translate(-50%, -50%)' };
