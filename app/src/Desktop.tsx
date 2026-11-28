@@ -7,8 +7,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { qrPath } from './screens/arc/Share';
 
 const W = 390, H = 844, GAP = 48, SIDE = 300;
-const inFrame = (() => { try { return window.top !== window.self; } catch { return true; } })();
-export const isDesktop = () => !inFrame && typeof matchMedia === 'function' && matchMedia('(min-width: 768px) and (hover: hover) and (pointer: fine)').matches;
 
 /** The address a phone should open: a received Arc's short share link, else this page as it is. */
 export const phoneUrl = (href: string) => {
@@ -25,10 +23,15 @@ export function Desktop() {
   // the address bar follows the frame; Back or a typed address moves the frame
   useEffect(() => {
     const f = frame.current; if (!f) return;
-    let win: Window | null = null;
+    let win: Window | null = null, loaded = false;
     const fromFrame = () => { const h = win?.location.hash ?? ''; if (h !== location.hash) history.replaceState(null, '', h || location.pathname + location.search); setHref(location.href); };
-    const load = () => { try { win = f.contentWindow; win?.addEventListener('hashchange', fromFrame); fromFrame(); } catch { /* other origin */ } };
-    const toFrame = () => { try { if (win && win.location.hash !== location.hash) win.location.hash = location.hash; } catch { /* gone */ } setHref(location.href); };
+    // on load the page's address wins (it may have moved while the frame was loading); after that the frame leads
+    const load = () => { loaded = true; try { win = f.contentWindow; win?.addEventListener('hashchange', fromFrame); if (win && win.location.hash !== location.hash) win.location.hash = location.hash; } catch { /* other origin */ } };
+    const toFrame = () => {
+      if (!loaded) f.src = location.pathname + location.search + location.hash; // not in yet: load the new place instead
+      else try { const w = f.contentWindow; if (w && w.location.hash !== location.hash) w.location.hash = location.hash; } catch { /* gone */ }
+      setHref(location.href);
+    };
     f.addEventListener('load', load); addEventListener('hashchange', toFrame);
     return () => { f.removeEventListener('load', load); removeEventListener('hashchange', toFrame); try { win?.removeEventListener('hashchange', fromFrame); } catch { /* gone */ } };
   }, []);

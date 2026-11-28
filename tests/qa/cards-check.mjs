@@ -66,7 +66,7 @@ try {
   }
   ch = await chromium.launch({ executablePath: CHROME, args: ['--force-prefers-reduced-motion'] });
   {
-    const { ctx, p } = await open(ch, { viewport: { width: 1280, height: 900 } });
+    const { ctx, p } = await open(ch, { viewport: { width: 390, height: 844 } }); // 11/28: a desktop shows the app in a 390×844 frame, with a mouse
     const next = p.getByRole('button', { name: 'Next card' }), prev = p.getByRole('button', { name: 'Previous card' });
     const seen = await next.isVisible() && await prev.isVisible();
     await next.click(); const afterNext = await settled(p);
