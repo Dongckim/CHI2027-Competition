@@ -434,3 +434,13 @@ Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your p
 - 01: 맨 아래 "First open downloads about 46 MB once · Wi-Fi recommended"(첫 방문 실측 46.3 MB).
 - "Find my angles" → "Pick days ›"는 은비 확인 대기(아직 안 바꿈).
 
+
+## 34. 믿음 묶음: 근거 문장 · 공유 소개 · 관점 뜻 · 빈 관점 · Undo (2026-11-28)
+- 사용자 결정(11/28) 「추가·빼기는 확인 창 대신 실행 후 Undo로 통일 (되돌릴 수 있는 일). 되돌릴 수 없는 일(Arc 삭제, 신고)만 확인 창. designer.md에 사용자 결정으로 기록 (11/27 확인 창 요청 대체)」
+  - §31 위 "Add this talk to …?" 확인 창(11/27)은 이걸로 **대체**. 15 시트에서 카드를 누르면 바로 들어가고 화면 위에 "Added · Undo" / "Swapped · Undo" / "Removed · Undo"(5초). 24b "Added · Undo", 12b "Swapped · Undo"와 같은 규칙.
+  - 확인 창이 남는 곳: Arc 삭제, Q&A 신고·삭제, Edit Cancel(바꾼 게 있을 때 — 되돌릴 수 없음).
+- 사용자 「"Add anyway": 누르면 관점 3개 중 사용자가 고르게 (엔진이 판단 못 한 발표라서)」: 검색에서 "Not about your question" 카드는 "· Add anyway". 누르면 "ARC doesn’t find this talk answering your question. Which angle is it?" + Supports/Reframes/Challenges 버튼 3개 + Cancel.
+- 근거 문장(사용자 「6번 근거 문장은 "From the abstract" 출처 꼭 붙이기」): 12 노드 팝업에 “문장” 3줄까지 + "From the abstract"(누르면 14). 12 아래 카드에 한 줄 “문장” · From the abstract.
+- 관점 뜻: ↑ agrees · ↻ another angle · ⊣ pushes back. 12 지도 아래 한 줄(지도 자체는 Figma 그대로), 24b는 그 관점만("Challenges · pushes back"), 13·15 목록 머리에 "· 뜻".
+- 빈 관점(사용자 「"No clear challenge at CHI this year." 유지 + 아래에 "Try a broader question ›" + 질문 1개. Supports 비었을 때도 같은 틀」): 24b·13에서 빈 관점 문구 아래 "Try a broader question ›" + 질문 버튼 1개(누르면 07에 그 질문). 질문은 이 폰의 엔진이 질문의 요인(없으면 주제)으로 07b처럼 만들고 그 관점이 나오는 것만. 12 지도의 빈 ⊣ 자리 밑에는 "Try a broader question ›"(24b ⊣로). Supports/Reframes 빈 문구: "No talk at CHI supports this yet." / "No talk at CHI reframes this yet."
+- 공유 링크(18): 받은 Arc 위에 한 줄 "ARC finds CHI talks that support, challenge or reframe a question. Make your own ›"(→ 01). 미리보기 설명 "ARC finds CHI talks for a question · ↑ 2 support · ↻ 2 reframe · ⊣ 1 challenge · Tue 14".

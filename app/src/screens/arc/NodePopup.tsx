@@ -6,8 +6,8 @@ import { href } from '../../router';
 import { Pic } from '../../components/arc';
 import chevron from '../../assets/arc/icon-chevron-right.svg';
 
-export function NodePopup({ k, line, title, by, outside, onAdd, onClose }: {
-  k: string; line: string; title: string; by?: string | null; outside: boolean; onAdd: () => void; onClose: () => void;
+export function NodePopup({ k, line, title, by, quote, outside, onAdd, onClose }: {
+  k: string; line: string; title: string; by?: string | null; quote?: string | null; outside: boolean; onAdd: () => void; onClose: () => void;
 }) {
   const [box, setBox] = useState<DOMRect | null>(null);
   const card = useRef<HTMLDivElement>(null);
@@ -46,6 +46,14 @@ export function NodePopup({ k, line, title, by, outside, onAdd, onClose }: {
             <span aria-hidden="true" className="flex size-7 items-center justify-center rounded-full bg-white/10 text-[15px] leading-none text-arc-text-2">×</span>
           </button>
         </div>
+        {/* user 11/28 「근거 문장은 "From the abstract" 출처 꼭 붙이기」: the sentence that puts this talk in its angle, in the
+            paper's own words; the whole abstract is on 14 */}
+        {quote && (
+          <a href={href(`talk/${k}`)} className="mt-2 block border-l-2 border-arc-line pl-2.5">
+            <span className="line-clamp-3 text-[13px] leading-[18px] text-arc-text-2">&ldquo;{quote}&rdquo;</span>
+            <span className="mt-0.5 block text-[12px] font-medium text-arc-text-3">From the abstract</span>
+          </a>
+        )}
         <div className="mt-2 flex items-center gap-3">
           {outside && <button ref={el => { if (outside) first.current = el; }} type="button" onClick={onAdd} className="min-h-touch rounded-full bg-arc-primary px-4 text-[14px] font-semibold text-arc-on-primary">Add to my Arc</button>}
           <a ref={el => { if (!outside) first.current = el; }} href={href(`talk/${k}`)} className="inline-flex min-h-touch items-center gap-1 text-[14px] font-semibold text-[#9db2ff]">View details<Pic src={chevron} size={14} /></a>

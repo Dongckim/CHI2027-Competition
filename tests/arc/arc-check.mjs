@@ -135,14 +135,13 @@ try {
   await shot('15');
   const swapIn = await ev(`[...document.querySelectorAll('section[data-sheet] button')].find(b => b.getAttribute('aria-label')?.startsWith('Swap in'))?.getAttribute('aria-label')`);
   await click(`[...document.querySelectorAll('section[data-sheet] button')].find(b => b.getAttribute('aria-label')?.startsWith('Swap in'))`);
-  await waitFor(`!!document.querySelector('section[data-sheet] [role=dialog]')`, 5000); // 11/27: it asks first
-  await click(`[...document.querySelectorAll('section[data-sheet] [role=dialog] button')].at(-1)`);
+  const undoShown = await waitFor(`[...document.querySelectorAll('[role=status]')].some(e => /^Swapped/.test(e.innerText))`, 5000); // 11/28: at once, with Undo
   await click(`[...document.querySelectorAll('section[data-sheet] button[role=radio]')].find(b => b.innerText.includes('Wildcard'))`); // sheet closed after a swap: no-op
   await click(`[...document.querySelectorAll('button')].find(b => b.innerText.trim() === 'Done')`);
   await waitFor(`location.hash === '#/arc/${ARCS.normal.id}'`, 10000);
   const stored = await ev(`new Promise(r => { const q = indexedDB.open('arc'); q.onsuccess = () => { const g = q.result.transaction('arcs').objectStore('arcs').get('${ARCS.normal.id}'); g.onsuccess = () => r(g.result.nodes.map(n => n.key)); }; })`);
   const swapped = swapIn?.split(' · ')[1];
-  check('15 edit: − removes, a card swaps in, Done saves', cardsMs != null && stored.length === before - 1 && !!swapped, { before, after: stored.length, swappedIn: swapped });
+  check('15 edit: − removes, a card swaps in (Swapped · Undo), Done saves', undoShown != null && cardsMs != null && stored.length === before - 1 && !!swapped, { before, after: stored.length, swappedIn: swapped });
   // Wildcard chip gives cards too
   await open(`#/arc/${ARCS.normal.id}/edit`);
   await waitFor(`document.querySelectorAll('button[aria-label^="Add a talk to "], button[aria-label^="Remove "]').length > 0`, 20000);

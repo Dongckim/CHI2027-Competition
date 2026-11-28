@@ -5,6 +5,8 @@ import reframe from '../../assets/arc/22-sheet-reframe.svg';
 import challenge from '../../assets/arc/22-sheet-challenge.svg';
 
 export const ANGLE_NAME = { S: 'Supports', R: 'Reframes', T: 'Challenges' } as const; // screen names; keys stay S/R/T
+// user 11/28 「관점 이름 옆에 짧은 뜻을 항상」 ("Challenges" was read as a contest)
+export const ANGLE_MEANING = { S: 'agrees', R: 'another angle', T: 'pushes back' } as const;
 // Arc 0.2.0 `kind` of a Reframe, shown on 12, 13, 14 (user 11/21; Wonjune's engine words, new to the design: designer to confirm)
 export const KIND_NAME = { subject: 'Same subject', factor: 'Other factor', measure: 'Other measure', people: 'Other people' } as const;
 const ROWS = [

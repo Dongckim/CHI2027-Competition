@@ -118,6 +118,7 @@ export function Received({ payload }: { payload: string }) {
       <ArcButton kind="ghost" className="mt-3" onClick={() => go(`r/${payload}/read`)} disabled={!arc.nodes.length}>Just read</ArcButton>
     </div>}>
       <p className="mt-2 inline-flex items-center gap-1.5 self-start rounded-2xl border border-arc-line bg-arc-surface py-1.5 pr-3 pl-2.5 text-[13px] font-semibold"><Pic src={linkIcon} size={14} />Shared Arc</p>
+      <Intro />
       <h1 className="mt-3 text-[26px] leading-8 font-semibold tracking-[-0.02em] break-words">{arc.query}</h1>
       {missing > 0 && <p className="mt-2 text-[14px] text-arc-text-2">{missing} {missing === 1 ? 'talk is' : 'talks are'} not in this programme and were left out.</p>}
       <div ref={mapRef} className="-mx-6 mt-4"><ArcView arc={arc} states={states} info={info} scale={fit} readOnly fit /></div>
@@ -139,6 +140,7 @@ export function JustRead({ payload }: { payload: string }) {
         <p className="flex-1 text-[14px] font-medium text-arc-text-2">Not saved · Add to keep it</p>
         <ArcButton kind="primary" className="h-11 min-w-[72px]" onClick={() => keep(arc)}>Add</ArcButton>
       </div>
+      <Intro />
       <h1 className="mt-4 max-w-[300px] text-[22px] leading-7 font-semibold tracking-[-0.02em] break-words">{arc.query}</h1>
       <AngleRows arc={arc} states={states} info={info} />
     </Screen>
@@ -266,5 +268,13 @@ export function Yours({ payload }: { payload: string }) {
       {adding && <AddSheet key={adding} query={q} engineName={arc.engine} target={adding} exclude={exclude} swap={false} info={info} paper={paper} clash={clash}
         onPick={c => { setAdded(a => [...a, c]); setKept(k => new Set([...k, c.key])); setAdding(null); }} />}
     </Screen>
+  );
+}
+
+/** A link opened by someone who has never seen ARC (user 11/28 「공유 링크로 들어오니 무슨 앱인지 몰랐다」): one line on what this is */
+function Intro() {
+  return (
+    <p className="mt-2 text-[13px] leading-[18px] text-arc-text-2">ARC finds CHI talks that support, challenge or reframe a question.{' '}
+      <a href={href('start/1')} className="inline-flex min-h-touch items-center font-semibold whitespace-nowrap text-[#9db2ff]">Make your own ›</a></p>
   );
 }

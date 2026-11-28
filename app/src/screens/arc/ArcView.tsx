@@ -312,6 +312,8 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           <div className="absolute flex flex-col items-center" style={{ left: l.emptyT[0] - 56, top: l.emptyT[1] - 23, width: 112 }}>
             <span data-empty-slot="" className="arc-node-dash flex size-[46px] items-center justify-center rounded-full"><img src={challenge} alt="" width={24} height={24} className="opacity-35" /></span>{/* prototype 23: the empty ⊣ at 0.35 */}
             <p style={{ fontSize: real(12), lineHeight: `${real(16)}px` }} className="mt-2 text-center text-arc-text/60">No clear challenge at CHI this year.</p>
+            {/* user 11/28: the next thing to do, on 24b ⊣ (a wider question) */}
+            {onBundle && <button type="button" onClick={() => onBundle('T')} style={{ fontSize: real(12) }} className="min-h-touch px-2 font-semibold whitespace-nowrap text-[#9db2ff]">Try a broader question ›</button>}
           </div>
         )}
 
