@@ -18,7 +18,7 @@ export const freshDraft = () => ({ query: '', topicsFor: null, topics: { S: [], 
 const freshArc = () => ({ onboarded: false, firstChi: null, draft: freshDraft() });
 
 /** holdHint: 12a's "Hold a stop" hint was shown (Figma 854:2034, once). walk: 09 "How you walk", kept for every Arc (this
- * phone only, never in an Arc or a link). @returns {{ onboarded: boolean, firstChi: boolean | null, draft: ReturnType<typeof freshDraft>, holdHint?: boolean, tour?: boolean, tourDue?: string, talkTour?: boolean, editTour?: boolean, sheetTour?: boolean, walk?: string[] }} */
+ * phone only, never in an Arc or a link). @returns {{ onboarded: boolean, firstChi: boolean | null, draft: ReturnType<typeof freshDraft>, holdHint?: boolean, tour?: boolean, tourDue?: string, talkTour?: boolean, editTour?: boolean, sheetTour?: boolean, walk?: string[], views?: Record<string, number>, guideSeen?: boolean }} */
 export const arcOf = state => state.arc ?? { ...freshArc(), onboarded: !!state.builtAt || state.mode === 'browse' };
 const withArc = (state, change) => ({ ...state, arc: { ...arcOf(state), ...change } });
 const withDraft = (state, change) => withArc(state, { draft: { ...arcOf(state).draft, ...change } });
@@ -34,6 +34,12 @@ export const toggleWalk = (state, w) => { const now = walkOf(state); return with
 /** the first Arc built on this phone: its map gives the tour (not an Arc opened, received or made before this) */
 export const setTourDue = (state, id) => (arcOf(state).tour || arcOf(state).tourDue ? state : withArc(state, { tourDue: id }));
 export const setTourSeen = state => (arcOf(state).tour ? state : withArc(state, { tour: true }));
+/** How many times each Arc's map was opened (user 11/28: counts say what each angle means the first few times). */
+export const MEANING_VIEWS = 3;
+export const viewsOf = (state, id) => arcOf(state).views?.[id] ?? 0;
+export const countView = (state, id) => (viewsOf(state, id) > MEANING_VIEWS ? state : withArc(state, { views: { ...arcOf(state).views, [id]: viewsOf(state, id) + 1 } }));
+/** "New to CHI?" on My Arcs (user 11/28: 02–06c moved there) was opened or put away. */
+export const setGuideSeen = state => (arcOf(state).guideSeen ? state : withArc(state, { guideSeen: true }));
 export const setTalkTourSeen = state => (arcOf(state).talkTour ? state : withArc(state, { talkTour: true }));
 export const setEditTourSeen = state => (arcOf(state).editTour ? state : withArc(state, { editTour: true }));
 export const setSheetTourSeen = state => (arcOf(state).sheetTour ? state : withArc(state, { sheetTour: true }));

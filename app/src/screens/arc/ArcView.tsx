@@ -14,7 +14,7 @@ const textWidth = (t: string) => {
   canvas.font = '600 12px Inter, system-ui, sans-serif';
   return canvas.measureText(t).width;
 };
-import { ANGLE_NAME, KIND_NAME } from './AngleHelp';
+import { ANGLE_NAME, ANGLE_MEANING, KIND_NAME } from './AngleHelp';
 import sortingOrb from '../../assets/arc/25-orb-sorting.svg';
 import support from '../../assets/arc/angle-support.svg';
 import reframe from '../../assets/arc/angle-reframe.svg';
@@ -113,7 +113,9 @@ export type Own = { kept: Set<string>; yours: Set<string>; onToggle: (key: strin
 // rest dim to Figma's 22% and go inert); onSwap: the keyboard and screen reader way in, a "Swap" button per node.
 type Hold = { held: string | null; press: (key: string) => DOMAttributes<HTMLButtonElement>; onSwap: (key: string) => void };
 
-export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, pick, picture, readOnly, fit, hold, own, selected: chosen, hint, focus, totals, candidates, room, lift = 0, onOrb }: {
+export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, pick, picture, readOnly, fit, hold, own, selected: chosen, hint, focus, totals, candidates, room, lift = 0, onOrb, reveal, meaning }: {
+  /** first Arc (user 11/28): only these angles' counts, as they light up one by one; meaning: "⊣ 1 · pushes back" on the counts */
+  reveal?: Angle[]; meaning?: boolean;
   /** 24b: the map moved toward this angle, all its talks shown (onBundle switches to another angle) */
   focus?: Angle | null;
   /** totals: each region's whole count, the Arc's talks + the engine's others at CHI (user 11/23 「각 영역을 보면 전체갯수」);
@@ -267,7 +269,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
         })}
 
         {/* 16's card has its own count row (prototype 16); 24b Reframes / Challenges: the other angles are a row above the map (ArcMap) */}
-        {!picture && !(focus && focus !== 'S') && l.regions.map(({ angle: a, count: own0, more: more0 }) => {
+        {!picture && !(focus && focus !== 'S') && l.regions.filter(r => !reveal || reveal.includes(r.angle)).map(({ angle: a, count: own0, more: more0 }) => {
           const count = totals?.[a] ?? own0, more = focus ? more0 : count - (own0 - more0); // shown on the map: own0 - more0
           // Figma "Angle · support" etc.: the region's symbol and how many talks it holds, 30 tall (22 on the 0.74 map, so
           // its text stays 12 px at least). With more talks than seats (24) it is the way to them, a button.
@@ -280,14 +282,19 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
               <img src={ANGLE_ICON[a]} alt="" width={icon} height={icon} /><span key={count} data-count="">{count}</span>
               {/* more talks wait there: a chevron inside the count (it stood outside, tilted, and read as a bracket) */}
               {/* user 11/28 (feedback 8): every count looks pressable, "↻ 3 ›", the way to all of an angle */}
+              {/* user 11/28 「배지에 뜻을 붙여서 "⊣ 1 · pushes back" (이 Arc를 처음 몇 번 볼 때), 익숙해지면 "⊣ 1 ›"」 */}
               {onBundle && !still && !own && !pick && !pending && <svg aria-hidden="true" data-more={more1 ? a : undefined} width={real(6)} height={real(10)} viewBox="0 0 6 10" style={{ marginLeft: real(1) }}><path d="M1 1l4 4-4 4" stroke="#f4f6ff" strokeOpacity={0.6} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>}
             </span>
           </>;
           const box = { left: x, top: y, transform: 'translate(-50%, -50%)' };
+          // user 11/28 「배지에 뜻을 붙여서 "⊣ 1 · pushes back" (이 Arc를 처음 몇 번 볼 때), 익숙해지면 "⊣ 1 ›"」: beside ↑ (talks sit
+          // under it), under the corner counts (beside them would leave the screen); outside the button, so its name stays "All 2 Supports"
+          const said = meaning && !edit && !own && !pick && !pending ? <span aria-hidden="true" className="pointer-events-none absolute font-medium whitespace-nowrap text-arc-text/60"
+            style={{ fontSize: real(12), ...(a === 'S' ? { left: x + real(32), top: y, transform: 'translateY(-50%)' } : { left: x, top: y + real(17), transform: 'translateX(-50%)' }) }}>{a === 'S' ? '· ' : ''}{ANGLE_MEANING[a]}</span> : null;
           // every region's count moves the map toward it (prototype 12 "Angle · " → 24b), the chevron only when talks wait there
           return onBundle && !still && !own && !pick && !pending /* 15 too (11/27): a count opens its angle wide, to edit all of it */
-            ? <span key={a}><button type="button" onClick={() => onBundle?.(a)} inert={!!hold?.held || undefined} aria-label={`All ${count} ${ANGLE_NAME[a]}`}
-                className="absolute z-[2] flex items-center justify-center" style={{ ...box, minWidth: real(44), minHeight: real(44) }}>{body}</button></span>
+            ? <span key={a}><button type="button" onClick={() => onBundle?.(a)} inert={!!hold?.held || undefined} aria-label={`All ${count} ${ANGLE_NAME[a]}`} aria-description={said ? ANGLE_MEANING[a] : undefined}
+                className="absolute z-[2] flex items-center justify-center" style={{ ...box, minWidth: real(44), minHeight: real(44) }}>{body}</button>{said}</span>
             : <span key={a} aria-hidden="true" data-a11y-decor="region-count" className="pointer-events-none absolute flex" style={box}>{body}</span>; /* prototype 12b: counts stay at full while a stop is held */
         })}
 
@@ -316,7 +323,7 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
             <Tag {...(onBundle ? { type: 'button' as const, onClick: () => onBundle('T') } : {})} className="absolute flex flex-col items-center" style={{ left: l.emptyT[0] - 56, top: l.emptyT[1] - 23, width: 112 }}>
               <span data-empty-slot="" className="arc-node-dash flex size-[46px] items-center justify-center rounded-full"><img src={challenge} alt="" width={24} height={24} className="opacity-35" /></span>{/* prototype 23: the empty ⊣ at 0.35 */}
               <span style={{ fontSize: real(12), lineHeight: `${real(16)}px` }} className="mt-2 block text-center text-arc-text/60">No clear challenge at CHI this year.</span>
-              {onBundle && <span style={{ fontSize: real(12), lineHeight: `${real(16)}px` }} className="mt-1 block font-semibold whitespace-nowrap text-[#9db2ff]">Try a broader question ›</span>}
+              {onBundle && <span style={{ fontSize: real(12), lineHeight: `${real(16)}px` }} className="mt-1 block font-semibold text-[#9db2ff]">Try a broader question ›</span>}
             </Tag>
           );
         })()}

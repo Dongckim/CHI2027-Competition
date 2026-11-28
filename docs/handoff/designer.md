@@ -432,7 +432,7 @@ Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your p
 - 24b "Add to my Arc" → "Added · Undo"(5초, 그 발표만 되돌림. 12b Swap과 같은 모양).
 - 같은 논문 거르기: 같은 초록이 두 키로 있는 논문 28편(CHI 2026 데이터) — Arc·후보에 한 번만, Arc에 이미 있는 논문은 후보에서 뺌.
 - 01: 맨 아래 "First open downloads about 46 MB once · Wi-Fi recommended"(첫 방문 실측 46.3 MB).
-- "Find my angles" → "Pick days ›"는 은비 확인 대기(아직 안 바꿈).
+- "Find my angles" → "Pick days ›": 후보(아직 안 바꿈). 11/28부터 디자인은 사용자 결정(아래 §35), 적용 여부는 사용자에게.
 
 
 ## 34. 믿음 묶음: 근거 문장 · 공유 소개 · 관점 뜻 · 빈 관점 · Undo (2026-11-28)
@@ -444,3 +444,14 @@ Figma 갱신: 07p "Do you have a paper at CHI?"(950:2182)와 07r "Is this your p
 - 관점 뜻: ↑ agrees · ↻ another angle · ⊣ pushes back. 12 지도 아래 한 줄(지도 자체는 Figma 그대로), 24b는 그 관점만("Challenges · pushes back"), 13·15 목록 머리에 "· 뜻".
 - 빈 관점(사용자 「"No clear challenge at CHI this year." 유지 + 아래에 "Try a broader question ›" + 질문 1개. Supports 비었을 때도 같은 틀」): 24b·13에서 빈 관점 문구 아래 "Try a broader question ›" + 질문 버튼 1개(누르면 07에 그 질문). 질문은 이 폰의 엔진이 질문의 요인(없으면 주제)으로 07b처럼 만들고 그 관점이 나오는 것만. 12 지도의 빈 ⊣ 자리 밑에는 "Try a broader question ›"(24b ⊣로). Supports/Reframes 빈 문구: "No talk at CHI supports this yet." / "No talk at CHI reframes this yet."
 - 공유 링크(18): 받은 Arc 위에 한 줄 "ARC finds CHI talks that support, challenge or reframe a question. Make your own ›"(→ 01). 미리보기 설명 "ARC finds CHI talks for a question · ↑ 2 support · ↻ 2 reframe · ⊣ 1 challenge · Tue 14".
+
+## 35. 첫 실행을 짧게 · 첫 Arc가 하나씩 켜짐 · 배지에 뜻 (2026-11-28)
+- 사용자 결정(11/28) 「은비 확인 단계 없음. 디자인 결정은 내가 다 해. … designer.md의 은비 확인 표시는 "사용자 결정"으로, 기준은 앱.」: 이 문서의 디자인 결정은 사용자 결정이고, Figma와 앱이 다르면 **앱이 기준**.
+- 사용자 결정 「01 → 07 바로. CHI 소개·사용법(02–06c)은 홈 "New to CHI?" 카드로」:
+  - 01의 두 버튼 모두 07로(첫 CHI인지는 그대로 저장). 07·07p 머리는 단계 점 대신 ‹(01로) + Skip.
+  - 02–06c는 My Arcs의 "New to CHI? · How the week works, in 7 short pages" 카드에서 열림, 06c Next → My Arcs. 첫 CHI라고 한 사람에겐 이 카드가 목록 위(열면 원래 자리 아래로).
+- 사용자 결정 「첫 Arc는 질문 원 → Supports → Challenges → Reframes 하나씩 켜지며 그 자리에 뜻 한 문장. 지도 가이드 7장 → 2장. 동작 줄이기 설정이면 한 번에」:
+  - 첫 Arc의 12: 질문 원만 → ↑ → ⊣ → ↻ 순서로 2.6초마다 켜짐(누르면 바로 다음). 아래 카드 자리에 한 문장: "Your question. Every talk that lights up around it answers it." / "↑ Supports agree: talks with the same finding." / "⊣ Challenges push back: a different finding. Not a verdict on the paper." / "↻ Reframes take another angle: another factor, measure or group."
+  - 그다음 가이드 2장: A talk("Tap it for details and Swap.") · Next up. 동작 줄이기: 켜지는 단계 없이 가이드만.
+- 사용자 결정 「배지에 뜻을 붙여서 "⊣ 1 · pushes back" (이 Arc를 처음 몇 번 볼 때), 익숙해지면 "⊣ 1 ›". 지도 아래 따로 둔 한 줄은 빼」: 각 Arc를 처음 3번 열 때 배지 아래에 뜻(agrees / another angle / pushes back, 12px). 배지 안에 넣으면 모서리 배지가 화면 밖으로 나가서 바로 아래 줄로. 4번째부터 "⊣ 1 ›"만.
+

@@ -59,17 +59,19 @@ try {
   check('fresh phone opens 01', at01 != null, page01);
   await shot('01');
   await click("It's my first CHI");
+  // user 11/28: 01 → 07 at once (Back to 01, Skip); 02–06c are the "New to CHI?" guide from My Arcs
+  check('01 → 07 with Back and Skip', !!(await waitFor(`location.hash === '#/ask' && !!document.querySelector('a[aria-label="Back"], a[href$="#/start/1"]') && /Skip/.test(document.body.innerText)`)), { hash: await ev('location.hash') });
+  await shot('07-first');
+  await ev(`location.hash = '#/start/2'`);
   const seen = [];
   for (const [n, title] of [[2, 'What is CHI 2027?'], [3, 'What do I do all day?'], [4, 'What are all these formats?'], [5, 'How do people meet?'], [6, 'What is ARC?'], ['6b', 'Where are my people?'], ['6c', 'When do I use ARC?']]) {
     const ok = await waitFor(`location.hash === '#/start/${n}' && document.body.innerText.includes(${JSON.stringify(title)})`);
     seen.push(ok != null); await shot(`0${n}`);
     await click('Next');
   }
-  check('02–06c in order, each with Next', seen.every(Boolean), { seen });
-  // Figma 11/25: 06c → 07p "Do you have a paper at CHI?"; no paper → 07
-  check('06c Next → 07p with dots and Skip', !!(await waitFor(`location.hash === '#/paper' && !!document.querySelector('[aria-label="Step 8 of 8"]') && /Find your paper/.test(document.body.innerText)`)), { hash: await hash() });
-  await click('No paper? Start from a question');
-  check('07p No paper → 07 with dots and Skip', !!(await waitFor(`location.hash === '#/ask' && !!document.querySelector('[aria-label="Step 8 of 8"]') && /Skip/.test(document.body.innerText)`)), { hash: await hash() });
+  check('guide 02–06c in order, each with Next, then My Arcs', seen.every(Boolean) && !!(await waitFor(`location.hash === '#/home'`)), { seen });
+  await ev(`location.hash = '#/ask'`);
+  await waitFor(`location.hash === '#/ask' && !!document.querySelector('main textarea')`);
 
   // 07: type a question (React needs the native setter + an input event), the tribe chip appears
   await ev(`(() => { const i = document.querySelector('main textarea'); const set = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;

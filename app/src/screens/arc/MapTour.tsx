@@ -7,13 +7,9 @@ export type TourStep = { at: string | string[]; title: string; text: string }; /
 // a count of 0 is not a step to point at (audit 11/27: "Challenges" over ⊣ 0)
 const find = (at: TourStep['at']) => [at].flat().map(q => document.querySelector(q)).find(el => el && el.querySelector('[data-count]')?.textContent?.trim() !== '0') ?? null;
 export const TOUR: TourStep[] = [
-  { at: '[data-arc-map] .arc-orb', title: 'Your question', text: 'Every talk on this map answers it. The ring is your field’s colour.' },
-  { at: '[data-badge="S"]', title: '↑ Supports', text: 'Talks with the same finding.' },
-  { at: '[data-badge="R"]', title: '↻ Reframes', text: 'The same question through another factor, measure, or group.' },
-  { at: '[data-badge="T"]', title: '⊣ Challenges', text: 'A different finding. Not a verdict on the paper.' },
-  { at: ['[data-arc-map] button:has(.arc-node-next)', '[data-arc-map] [data-node-wrap] button'], title: 'A talk', text: 'White is your next stop; dashed has ended. Tap twice to open it, hold to swap it.' },
+  // user 11/28 「지도 가이드 7장 → 2장」: the angles light up one by one before this (ArcMap REVEAL); the ? keeps them all
+  { at: ['[data-arc-map] button:has(.arc-node-next)', '[data-arc-map] [data-node-wrap] button'], title: 'A talk', text: 'White is your next stop; dashed has ended. Tap it for details and Swap.' },
   { at: '[data-tour="card"]', title: 'Next up', text: 'When and where, and the first author to look for.' },
-  { at: 'button[aria-label="What are the three angles?"]', title: 'Any time', text: 'The angles and colours, explained again.' },
 ];
 
 // 14, the first talk opened after the map tour (user 11/26 「논문 페이지 처음 들어왔을때 지금 처럼 가이드 있으면 좋을꺼 같아」)

@@ -61,8 +61,9 @@ function Welcome() {
     <Screen header={<><span /><Skip /></>} label="Welcome"
       bottom={<>
         {/* Figma: buttons 640 and 706 (12 apart), footnote 16 under them */}
-        <ArcButton className="-mb-0.5" onClick={() => { update(s => setFirstChi(s, true)); go('start/2'); }}>It's my first CHI</ArcButton>
-        <ArcButton kind="secondary" onClick={() => { update(s => setFirstChi(s, false)); go('start/6'); }}>I've been before</ArcButton>
+        {/* user 11/28 「01 → 07 바로. CHI 소개·사용법(02–06c)은 홈 "New to CHI?" 카드로」: both start with the question; first-timers see the card on My Arcs */}
+        <ArcButton className="-mb-0.5" onClick={() => { update(s => setFirstChi(s, true)); go('ask'); }}>It's my first CHI</ArcButton>
+        <ArcButton kind="secondary" onClick={() => { update(s => setFirstChi(s, false)); go('ask'); }}>I've been before</ArcButton>
         {/* Figma 11px at x 33; 12px is the floor (same line centre) */}
         <p className={`mt-[1.5px] pl-[9px] text-[12px] font-medium whitespace-pre text-arc-text-3`}>{'Unofficial  ·  No account  ·  Stays on your phone'}</p>
         {/* user 11/27 「Soniox 언급하지 말고 어디에도 저장되지 않는다는걸 확인만」 */}

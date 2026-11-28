@@ -188,7 +188,7 @@ function BeforeDuringAfter() {
   const stages: [string, string, string, string][] = [[sparkle, 'Before', 'Ask', 'Bring one question tonight.'],
     [mapIcon, 'During', 'Arc', 'Follow it. Swap a stop. Share it.'], [book, 'After', 'Keep', 'CHI’s answer, a reading list, and what’s still open.']];
   return (
-    <Page dot={7} label="Before, during, after" title={['When do I use ARC?', 'ARC helps you get the most out of CHI, before, during and after.']} next="paper">{/* Figma 11/25: 06c → 07p (a paper?) → 07r, or 07 */}
+    <Page dot={7} label="Before, during, after" title={['When do I use ARC?', 'ARC helps you get the most out of CHI, before, during and after.']} next="home">{/* 11/28: the guide is opened from My Arcs, and goes back there */}{/* Figma 11/25: 06c → 07p (a paper?) → 07r, or 07 */}
       <ul className="mt-12 flex flex-col gap-3">{/* Figma 741:1536…: 342×110 at y 232 / 354 / 476 */}
         {stages.map(([icon, when, name, text]) => (
           <li key={name} className="relative h-[110px] rounded-[20px]" style={FADE}>
