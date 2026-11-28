@@ -279,21 +279,22 @@ export function ArcView({ arc, states, info, scale = 1, onNode, onBundle, edit, 
           const [x, y] = l.regions.find(r => r.angle === a)?.at ?? (edit || own ? BADGE_AT[a] : MORE_AT[a].badge), h = real(Math.max(30 * scale, 30)), font = real(Math.max(12.5, 13 * scale)) /* 12.5: at 0.78 a 12 px digit measures 11.8 */, icon = real(Math.max(12, 16 * scale));
           const body = <>
             <span data-badge={a} className="flex items-center rounded-full border border-white/10 bg-arc-surface font-semibold text-arc-text/78" style={{ height: h, gap: real(5 * Math.max(scale, 0.8)), paddingLeft: real(9 * Math.max(scale, 0.8)), paddingRight: real(11 * Math.max(scale, 0.8)), fontSize: font }}>
-              <img src={ANGLE_ICON[a]} alt="" width={icon} height={icon} /><span key={count} data-count="">{count}</span>{meaning && !edit && !own && !pick && a === 'S' && <span className="font-medium text-arc-text/60"> · {ANGLE_MEANING[a]}</span>}
+              <img src={ANGLE_ICON[a]} alt="" width={icon} height={icon} /><span key={count} data-count="">{count}</span>
               {/* more talks wait there: a chevron inside the count (it stood outside, tilted, and read as a bracket) */}
               {/* user 11/28 (feedback 8): every count looks pressable, "↻ 3 ›", the way to all of an angle */}
               {/* user 11/28 「배지에 뜻을 붙여서 "⊣ 1 · pushes back" (이 Arc를 처음 몇 번 볼 때), 익숙해지면 "⊣ 1 ›"」 */}
               {onBundle && !still && !own && !pick && !pending && <svg aria-hidden="true" data-more={more1 ? a : undefined} width={real(6)} height={real(10)} viewBox="0 0 6 10" style={{ marginLeft: real(1) }}><path d="M1 1l4 4-4 4" stroke="#f4f6ff" strokeOpacity={0.6} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>}
             </span>
-            {/* user 11/28 「배지에 뜻을 붙여서 "⊣ 1 · pushes back" (이 Arc를 처음 몇 번 볼 때)」: under the count, so the
-                corner counts stay on screen */}
-            {meaning && !edit && !own && !pick && a !== 'S' && <>{' '}<span className="absolute top-full left-1/2 mt-0.5 -translate-x-1/2 font-medium whitespace-nowrap text-arc-text/60" style={{ fontSize: real(12) }}>{ANGLE_MEANING[a]}</span></>}
           </>;
           const box = { left: x, top: y, transform: 'translate(-50%, -50%)' };
+          // user 11/28 「배지에 뜻을 붙여서 "⊣ 1 · pushes back" (이 Arc를 처음 몇 번 볼 때), 익숙해지면 "⊣ 1 ›"」: beside ↑ (talks sit
+          // under it), under the corner counts (beside them would leave the screen); outside the button, so its name stays "All 2 Supports"
+          const said = meaning && !edit && !own && !pick && !pending ? <span aria-hidden="true" className="pointer-events-none absolute font-medium whitespace-nowrap text-arc-text/60"
+            style={{ fontSize: real(12), ...(a === 'S' ? { left: x + real(32), top: y, transform: 'translateY(-50%)' } : { left: x, top: y + real(17), transform: 'translateX(-50%)' }) }}>{a === 'S' ? '· ' : ''}{ANGLE_MEANING[a]}</span> : null;
           // every region's count moves the map toward it (prototype 12 "Angle · " → 24b), the chevron only when talks wait there
           return onBundle && !still && !own && !pick && !pending /* 15 too (11/27): a count opens its angle wide, to edit all of it */
-            ? <span key={a}><button type="button" onClick={() => onBundle?.(a)} inert={!!hold?.held || undefined} aria-label={meaning && !edit ? `${count}${a === 'S' ? ' ·' : ''} ${ANGLE_MEANING[a]}, all ${count} ${ANGLE_NAME[a]}` : `All ${count} ${ANGLE_NAME[a]}`}
-                className="absolute z-[2] flex items-center justify-center" style={{ ...box, minWidth: real(44), minHeight: real(44) }}>{body}</button></span>
+            ? <span key={a}><button type="button" onClick={() => onBundle?.(a)} inert={!!hold?.held || undefined} aria-label={`All ${count} ${ANGLE_NAME[a]}`} aria-description={said ? ANGLE_MEANING[a] : undefined}
+                className="absolute z-[2] flex items-center justify-center" style={{ ...box, minWidth: real(44), minHeight: real(44) }}>{body}</button>{said}</span>
             : <span key={a} aria-hidden="true" data-a11y-decor="region-count" className="pointer-events-none absolute flex" style={box}>{body}</span>; /* prototype 12b: counts stay at full while a stop is held */
         })}
 
