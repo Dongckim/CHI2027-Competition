@@ -118,8 +118,31 @@ function osa(a, b, cap) {
 }
 
 /** Typos fixed against the words the program uses (retriever.py Speller). */
+// endings stripped to find a word's stem in the encoder's word list ("caching" -> cache)
+const ENDINGS = ["ings", "ing", "ed", "es", "s", "ers", "er", "ly", "ness", "ments", "ment", "ations", "ation", "ity"];
+
+/** The whole words of the query encoder's WordPiece vocabulary (tokenizer.json). */
+export function wordList(tokenizerJson) {
+  const vocab = (tokenizerJson && tokenizerJson.model && tokenizerJson.model.vocab) || {};
+  return new Set(Object.keys(vocab).filter((w) => /^[a-z]+$/i.test(w) && w.length >= 3));
+}
+
+/** An English word, if not a CHI one: in the word list, or its stem is ("caching": cache). */
+export function knownWord(w, words) {
+  if (words.has(w)) return true;
+  for (const e of ENDINGS) {
+    if (w.endsWith(e) && w.length - e.length >= 3) {
+      const b = w.slice(0, -e.length);
+      if (words.has(b) || words.has(b + "e") || (b.length >= 4 && b[b.length - 1] === b[b.length - 2] && words.has(b.slice(0, -1)))) return true;
+    }
+  }
+  return false;
+}
+
+// an English word no talk uses is left alone (11/27: "KV caching" became "KV coaching")
 export class Speller {
-  constructor(bm25) {
+  constructor(bm25, words = null) {
+    this.words = words || new Set();
     this.vocab = bm25.idf;
     this.byFirst = new Map();
     for (const [w, [d]] of bm25.post) {
@@ -151,7 +174,7 @@ export class Speller {
   fix(text) {
     return text.replace(new RegExp(`[${W}]+`, "gu"), (w) => {
       const lw = w.toLowerCase();
-      if (Array.from(lw).length < 4 || !/^\p{L}+$/u.test(lw) || this.vocab.has(lw) || STOP.has(lw)) return w;
+      if (Array.from(lw).length < 4 || !/^\p{L}+$/u.test(lw) || this.vocab.has(lw) || STOP.has(lw) || knownWord(lw, this.words)) return w;
       // a word with no closer program word keeps its own spelling ("ChatGPT", "VR에서")
       const c = this.word(lw);
       return c === lw ? w : c;
@@ -234,7 +257,7 @@ export function expansionLists(byId, items) {
 /** The hybrid score and the relevance check (retriever.py's Ranker with the settings
  * that ship: no aspect pass, no MMR). */
 export class Ranker {
-  constructor(emb, texts, embed, cfg, expansions = null) {
+  constructor(emb, texts, embed, cfg, expansions = null, words = null) {
     this.emb = emb;            // {data: Float32Array, n, d}
     this.embed = embed;
     this.cfg = cfg;
@@ -242,7 +265,7 @@ export class Ranker {
     this.bm25x = expansions ? new BM25(expansions.map((e) => e.join(" ; "))) : null;
     this.normed = texts.map((t) => " " + norm(t) + " ");
     this._df = new Map();
-    this.speller = new Speller(this.bm25);
+    this.speller = new Speller(this.bm25, words);
   }
 
   df(phrase) {
@@ -340,7 +363,7 @@ export class Retriever {
       texts = texts.map((t, i) => `${t} ; ${expansions[i].join(" ; ")}`);
       expansions = null;
     }
-    this.ranker = new Ranker(this.emb, texts, this.embed, this.cfg, expansions);
+    this.ranker = new Ranker(this.emb, texts, this.embed, this.cfg, expansions, pkg.words);
     this.bm25 = this.ranker.bm25;
     this.sameTalk = new Map();
     this.papers.forEach((p, i) => {

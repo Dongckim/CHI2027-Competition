@@ -139,7 +139,7 @@ export class Explorer {
     const exp = expansionLists(pkg.expansions, this.items) || this.items.map(() => []);
     this.bm25 = new BM25(this.items.map((it, i) => `${it.title}. ${it.abstract}`
       + (exp[i].length ? ` ; ${exp[i].join(" ; ")}` : "")));
-    this.speller = new Speller(this.bm25);
+    this.speller = new Speller(this.bm25, pkg.words);
     this.inst = new InstitutionIndex(this.items.flatMap((it) => it.authors.flatMap((a) =>
       a.affiliations.map((af) => af.institution))));
     this.types = [...new Set(this.items.map((it) => it.type).filter(Boolean))].sort();

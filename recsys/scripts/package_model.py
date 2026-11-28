@@ -17,6 +17,8 @@
     explorer.py        filter the whole program by institution, country, author, day
     arc.py             the ARC app's screen API (one JSON request per wireframe screen)
     angles.py          the Arc engine: Support / Reframe / Challenge around a question
+    narrow.json        sharper questions written offline for typed words and session names
+    tribe_words.json   how many talks of each tribe use each word (the tribe of what is typed)
     angles.json        finding cards per talk (offsets into program.json), tribes, labels,
                        debut authors; phrase_vec.npy + phrase_scale.npy: their phrase vectors
     venue.json         conference days, floors + map images, rooms, sponsors, sessions
@@ -37,6 +39,28 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 import config  # noqa: E402
 
+
+def write_tribe_words():
+    """How many talks of each tribe use each word (stemmed, as angles.py reads what is typed):
+    the word part of the tribe of what was typed (11/27). Words in at least 3 talks."""
+    sys.path.insert(0, os.path.join(config.ROOT, "src", "package"))
+    import angles as A
+    proc = os.path.join(config.ROOT, "data", "processed")
+    ang = json.load(open(os.path.join(proc, "angles.json"), encoding="utf-8"))
+    prog = {str(it["id"]): it for it in json.load(open(os.path.join(proc, "program.json"), encoding="utf-8"))}
+    n = len(ang["tribes"])
+    docs, words = [0] * n, {}
+    for xid, rec in sorted(ang["items"].items()):
+        t, it = rec.get("tribe"), prog.get(xid)
+        if t is None or it is None:
+            continue
+        docs[t] += 1
+        for w in {A.stem(w) for w in A.content((it["title"] + ". " + (it["abstract"] or "")).lower())[0]}:
+            words.setdefault(w, [0] * n)[t] += 1
+    words = {w: c for w, c in sorted(words.items()) if sum(c) >= 3}
+    with open(os.path.join(OUT, "tribe_words.json"), "w", encoding="utf-8") as f:
+        json.dump({"docs": docs, "words": words}, f, separators=(",", ":"))
+
 TAG = os.environ.get("CHI_RUN_TAG", "_en")
 STUDENT = os.path.join(config.MODELS_DIR, "student" + TAG)
 # the light encoder (scripts/train_light.py --deploy); CHI_LIGHT=0 packages the old one
@@ -44,7 +68,8 @@ LIGHT = os.path.join(config.MODELS_DIR, "student_light")
 USE_LIGHT = os.environ.get("CHI_LIGHT", "1") != "0" and os.path.exists(os.path.join(LIGHT, "light_config.json"))
 # files an earlier package may have left that this one may not write
 STALE = ["model_int8.onnx", "paper_emb.npy", "program_emb.npy", "encoder.json", "static_tokens.npy",
-         "static_scales.npy", "static_head.npy", "program_vec.npy", "program_scale.npy", "program_ids.json",
+         "static_scales.npy", "static_head.npy", "program_vec.npy", "program_scale.npy", "program_ids.json", "narrow.json",
+         "tribe_words.json",
          "tokenizer_config.json", "summaries.json"]
 NAME = "chi2026-retriever"
 OUT = os.path.join(config.ROOT, "dist", NAME)
@@ -154,7 +179,7 @@ accuracy on real user queries may be lower.
 | `tokenizer.json`, `tokenizer_config.json` | MIT, unchanged from `BAAI/bge-small-en-v1.5` (© BAAI) |
 | `web/vendor/tokenizers.min.mjs` | Apache 2.0, the npm package `@huggingface/tokenizers`, bundled unchanged |
 | `program.json`, `papers.json`, `venue.json`, `program_*.npy`, `program_ids.json` | CC BY-NC-SA 4.0: ACM CHI 2026 programme data, and vectors of its abstracts |
-| `angles.json`, `phrase_*.npy`, `summaries.json`, `expansions.json`, `clusters.json` | CC BY-NC-SA 4.0, as derived from the programme data: finding cards and phrases quoted from the abstracts, and text written offline by `Qwen/Qwen3-14B` and `Qwen/Qwen2.5-7B-Instruct` (Apache 2.0, no claim on their outputs) |
+| `angles.json`, `phrase_*.npy`, `summaries.json`, `expansions.json`, `clusters.json`, `narrow.json`, `tribe_words.json` | CC BY-NC-SA 4.0, as derived from the programme data: finding cards and phrases quoted from the abstracts, and text written offline by `Qwen/Qwen3-14B` and `Qwen/Qwen2.5-7B-Instruct` (Apache 2.0, no claim on their outputs) |
 """
 
 
@@ -341,8 +366,10 @@ def main():
     # (scripts/gen_findings.py + scripts/build_angles.py)
     if os.path.exists(os.path.join(config.ROOT, "data", "processed", "angles.json")):
         shutil.copy(os.path.join(config.ROOT, "src", "package", "angles.py"), OUT)
-        for f in ("angles.json", "phrase_vec.npy", "phrase_scale.npy"):
-            shutil.copy(os.path.join(config.ROOT, "data", "processed", f), OUT)
+        for f in ("angles.json", "phrase_vec.npy", "phrase_scale.npy", "narrow.json"):
+            if os.path.exists(os.path.join(config.ROOT, "data", "processed", f)):
+                shutil.copy(os.path.join(config.ROOT, "data", "processed", f), OUT)
+        write_tribe_words()
     # the same models in JavaScript, for the phone's browser (src/web)
     web = os.path.join(OUT, "web")
     shutil.rmtree(web, ignore_errors=True)

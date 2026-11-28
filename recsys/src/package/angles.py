@@ -167,6 +167,7 @@ CQ_SAME = 0.85        # two such questions closer than this are the same suggest
 CQ_ONLY = 1           # ... used alone when there are at least this many
 CQ_TOPIC = 0.40       # ... each at or above this cosine to what was typed
 CQ_WORDS = 12         # ... and at most this many words
+NARROW = True         # sharper questions written offline for typed words and session names
 CQ_ONE = True         # a short topic ("sleep", "older adults") may take a written question only one
 CQ_ONE_WORDS = 10     # ... talk answers, when it names the topic and is at most this many words
 AFFECTS = 2           # angles.json "cq" lean of a "How does X affect Y?" question
@@ -445,6 +446,32 @@ RE_GOODBAD = re.compile(r"^(?P<be>is|are)\s+(?P<x>.+?)\s+(?:really\s+|actually\s
 # off-topic check reads two letters as too little to go on
 PAIR_MIN = 5           # "A & B": a word counts as an outcome (or a factor) at CHI when it heads at
 PAIR_OUT = 0.6         # ... least this many cards' outcomes and this share of its cards (11/26)
+# the words that name a tribe in what was typed: the keyword rules build_angles.py gives a talk
+# without an LLM tribe, plus words of the tribe definitions (gen_findings.py TRIBES); "gaming" and
+# "artificial" (not art) fixed
+TRIBE_RULES = [
+    ("Accessibility & aging", r"\b(accessib\w*|blind|low[- ]vision|deaf|hard of hearing|disabilit\w*|"
+                              r"screen reader\w*|older adults?|aging|ageing|dementia|autis\w*|adhd|"
+                              r"wheelchair|neurodiver\w*|assistive)\b"),
+    ("XR & immersive", r"\b(virtual reality|vr|augmented reality|ar|mixed reality|xr|immersive|"
+                       r"head-mounted|hmd|avatar\w*|metaverse|presence|embodiment)\b"),
+    ("Health & wellbeing", r"\b(health\w*|mental|wellbeing|well-being|clinic\w*|patient\w*|therap\w*|"
+                           r"medical|stress|anxiety|depress\w*|sleep|fitness|physical activity|care)\b"),
+    ("Learning & families", r"\b(learn\w*|educat\w*|student\w*|teacher\w*|classroom\w*|children|child|"
+                            r"kids?|parent\w*|famil\w*|tutor\w*|school\w*)\b"),
+    ("Devices & interaction", r"\b(haptic\w*|wearable\w*|sensor\w*|input|gesture\w*|touch\w*|"
+                              r"fabricat\w*|smartwatch\w*|eye[- ]tracking|gaze|textile\w*|keyboard\w*|"
+                              r"robot\w*|drone\w*|mobile)\b"),
+    ("Design & creativity", r"\b(design\w*|creativ\w*|arts?|artist\w*|artwork\w*|music\w*|gam(?:e|ing)\w*|play\w*|visuali[sz]\w*|"
+                            r"sketch\w*|craft\w*)\b"),
+    ("Society & communities", r"\b(social media|communit\w*|privacy|security|ethic\w*|politic\w*|"
+                              r"labou?r|worker\w*|misinformation|sustainab\w*|culture\w*|online)\b"),
+    ("AI & agents", r"\b(ai|llms?|large language models?|agents?|chatbots?|machine learning|"
+                    r"generative|gpt\w*)\b"),
+]
+# ASCII word edges, as the phone's JavaScript reads them ("VR에서" is VR)
+_TRIBE_RX = [(n, re.compile(p, re.I | re.A)) for n, p in TRIBE_RULES]
+TRIBE_NB = 0.5         # weight of the typed words' own tribe beside the talks' vote
 WARN_WORDS = 3         # a topic this short ("loneliness", "TikTok") is on topic when
 WARN_MATCH = 5         # ... at least this many talks name it (real words 5-17, junk 0-1, 11/26)
 FIELD_TERMS = {"ai", "vr", "ar", "xr", "mr", "llm", "llms", "ux", "ui", "hci", "iot", "ml", "nlp", "bci", "hri", "cscw", "ehmi"}
@@ -574,6 +601,13 @@ class Angles:
         with open(os.path.join(adir, "angles.json"), encoding="utf-8") as f:
             d = json.load(f)
         self.version = d["version"]
+        # sharper questions written offline for what attendees type (scripts/build_narrow.py)
+        np_ = next((p for p in (os.path.join(adir, "narrow.json"), os.path.join(root, "narrow.json"))
+                    if os.path.exists(p)), None)
+        self.narrow = json.load(open(np_, encoding="utf-8")) if np_ else {}
+        # how many talks of each tribe use each word (scripts/package_model.py), for _tribe
+        tp = os.path.join(root, "tribe_words.json")
+        self.tribe_counts = json.load(open(tp, encoding="utf-8")) if os.path.exists(tp) else None
         self.tribes = d["tribes"]
         # "AI", "health", "XR": the words of each tribe's own name (see _tribe)
         self.tribe_words = [set(_W.findall(t["name"].lower())) for t in self.tribes]
@@ -808,6 +842,10 @@ class Angles:
         for k, qp, xp, yp, g in info["cq"]:
             # g 2: "How does X affect Y?", a result with no direction, for undirected questions only
             if (g == AFFECTS and lean) or (g != AFFECTS and lean and g and lean != g):
+                continue
+            # "Does the absence of privacy policies reduce bystander privacy?" does not answer
+            # "Do privacy policies reduce bystander privacy?" (11/27): the factors must agree on "no"
+            if self.pneg[xp] != q["X"]["neg"]:
                 continue
             cos = sum(float(a) * float(b) for a, b in zip(q["V"], self.pvec[qp]))
             if cos < CARDQ_COS:
@@ -1130,18 +1168,52 @@ class Angles:
                 w[t] += float(score[i])
         if not w:
             return None
-        (t1, w1), *rest = sorted(w.items(), key=lambda kv: (-kv[1], kv[0]))
-        t2, w2 = rest[0] if rest else (None, 0.0)
+        # the talks' vote (a share) plus what the typed words say on their own (naive Bayes over
+        # the talks' words, TRIBE_NB of it: 11/27, questions 68 -> 70 of 80)
+        tot = sum(w.values())
+        sc = {j: w.get(j, 0.0) / tot for j in range(len(self.tribes))}
+        nb = self._tribe_nb(text)
+        if nb:
+            sc = {j: sc[j] + TRIBE_NB * nb[j] for j in sc}
+        (t1, w1), (t2, w2) = sorted(sc.items(), key=lambda kv: (-kv[1], kv[0]))[:2]
         margin = round((w1 - w2) / w1, 3) if w1 else 0.0
         named = self._named_tribe(text)
         if named is not None and named != t1:
             t1, t2, margin = named, t1, 1.0
+        elif named is None and text:
+            # the typed words name a tribe ("generative AI", "gaming"): one named, that one; several,
+            # the one of them most of the talks belong to (11/27: questions 67 -> 68 of 80)
+            hit = [k for k, (n, rx) in enumerate(_TRIBE_RX) if rx.search(text)]
+            hit = [next(j for j, t in enumerate(self.tribes) if t["name"] == _TRIBE_RX[k][0]) for k in hit]
+            if hit and t1 not in hit:
+                best = max(hit, key=lambda j: (sc[j], -hit.index(j)))
+                t1, t2, margin = best, t1, 0.5
         tr = dict(self.tribes[t1])
         tr["margin"] = 0.0 if guess else margin
         tr["runner_up"] = self.tribes[t2]["name"] if t2 is not None else None
         # 11: "YOU'RE IN XR & immersive · Look for the blue diamond."
         tr["look_for"] = f"Look for the {COLOR_NAME.get(tr['color'], 'white')} {tr['shape']}."
         return tr
+
+    def _tribe_nb(self, text):
+        """Each tribe's share by the typed words alone (naive Bayes, add-one), or None."""
+        if not text or not self.tribe_counts:
+            return None
+        docs, words = self.tribe_counts["docs"], self.tribe_counts["words"]
+        ws = sorted({stem(t) for t in content(text.lower())[0]} & set(words))
+        if not ws:
+            return None
+        total = sum(docs)
+        logp = []
+        for j, d in enumerate(docs):
+            s = math.log(d / total)
+            for t in ws:
+                s += math.log((words[t][j] + 1) / (d + 2))
+            logp.append(s)
+        m = max(logp)
+        e = [math.exp(x - m) for x in logp]
+        z = sum(e)
+        return {j: e[j] / z for j in range(len(docs))}
 
     def _named_tribe(self, text):
         words = [w for w in _W.findall((text or "").lower()) if w not in STOPW]
@@ -1286,9 +1358,24 @@ class Angles:
                 n += 1
         return n
 
+    @staticmethod
+    def _narrow_key(x):
+        """"LLMs", "llm" and "LLM" alike: content words, stemmed (scripts/build_narrow_todo.py)."""
+        return " ".join(stem(w) for w in content(x.lower())[0])
+
     def _suggest(self, q, pool, score, types, k=3):
         """Sharper questions from the findings of the talks that match a topic: the most
         common factor -> outcome pairs, each with the Arc it would give."""
+        # a word or a session name an LLM already wrote questions for, from its talks, and the
+        # engine found Supports for (11/27: "sleep", "older adults", "Music & Haptics")
+        if NARROW and q["kind"] != "relation":
+            out = []
+            for text in self.narrow.get(self._narrow_key(q["x"]), [])[:k]:
+                pq = self.question(text)
+                if pq["kind"] == "relation":
+                    out.append(self._suggestion(show(text), show(pq["x"]), show(pq["y"]), [], types))
+            if out:
+                return self._balanced(out, q)
         groups = {}
         for rank, i in enumerate(pool[:60]):
             info = self.info.get(i)

@@ -306,6 +306,49 @@ Python·JavaScript 일치 271/271, Arc 80/80, 검색 42/42, 앵글 41/42("How do
 
 Python·JavaScript 일치 271/271(주제어 99개 제안도 같음), Arc 80/80, 검색 42/42, 앵글 42/43.
 
+## 단어·주제 좁히기를 미리 써 두기 (11/27)
+
+단어를 질문으로 좁히는 단계가 가장 약했다(단어 70개 첫 제안: 어색함 13, 좁음 35). 사람들이 넣을 말은 대부분 예상할 수 있어서, 질문을 LLM이 미리 써 두고 폰은 찾아보기만 한다.
+
+1. `scripts/build_narrow_todo.py`: 단어·주제 3,099개. 세션과 클러스터·세부 클러스터 이름, 그리고 초록 5편 이상에 나오고 카드의 요인·결과·대상 구절 3개 이상에 들어 있는 말(한 단어는 구절 끝에 2번 이상, 또는 구절 6개 이상, 분야 약어는 짧아도). 단어마다 엔진이 읽는 상위 12편의 제목과 "결과가 답하는 질문"(없으면 결과 한 줄 요약).
+2. `scripts/gen_narrow.py` (`gen_narrow.slurm`, GPU 4개 약 24분, RTXPro6000은 지금 torch로 안 돌아서 뺐다): Qwen3-14B가 단어마다 질문 5개(단어를 요인이나 결과로, 발표 두 편 이상이 답하고, 6~14단어, 시스템 이름 없이, 세션 제목은 베끼지 말고 그 주제를).
+3. `scripts/build_narrow.py` (`build_narrow.slurm`, CPU 노드 8코어 약 11분, `--qos=nogpu`): 엔진이 각 질문을 폰처럼 읽어 관계 질문이고, 16단어 이하이고, 단어(긴 세션 제목은 절반)를 담고, Arc에 Support가 하나 이상인 것만, 채워지는 각도 수, Support 수, LLM이 쓴 순서로 3개까지. 2,156개 단어에 질문 4,176개(`narrow.json`, 351 KB).
+
+폰은 입력의 내용어 어간이 목록에 있으면 그 질문들의 Arc를 판정해 균형 순으로 보여 주고, 없으면 지금 방식이다(`NARROW`).
+
+| 첫 제안 (단어 70개, 직접 판정) | 좋음 | 좁음 | 어색함 | 없음 |
+|---|---|---|---|---|
+| 11/26 | 21 | 35 | 13 | 1 |
+| 미리 쓴 질문 | 35 | 28 | 7 | 0 |
+
+예: AI "Does AI reduce identity?" → "How does AI affect accessibility efforts?", security "Does security improve user accuracy?" → "Do security interfaces improve accuracy of user decisions?", notifications "How do notifications affect ignored over time?" → "Do notifications increase user awareness of tasks or actions?". 처음 보는 단어 30개는 11개만 목록에 있었고(telepresence, smart glasses, chronic pain은 없음), 바뀐 10개 중 4개가 좋아지고 나빠진 것은 없었다. 주제어 99개 Arc: Support 있음 91 → 94, 각도 2종류 이상 94 → 97, Challenge 있음 13 → 8.
+
+**같은 조건이면 짧은 질문 먼저(시도, 안 씀).** "blind"가 "Does being blind reduce connection to nature?", "sleep"이 "Do app-based sleep metrics reduce engagement in older adults?"가 되는 등 오히려 나빠졌다.
+
+**"없음"이 붙은 요인.** "Do privacy policies reduce bystander privacy in smart home apps?"가 Support를 받았는데, 근거는 "Does the absence of privacy policies reduce bystander privacy …?"라는 결과 질문이었다. 결과 질문으로 Support를 정할 때 방향만 비교하고 요인의 부정(absence, lack, without)은 보지 않았다. 이제 둘이 다르면 Support가 아니다(엔진 전체에 적용, 정답 라벨 수치는 그대로).
+
+Python·JavaScript 일치 271/271, Arc 80/80, 검색 42/42, 실시간 feed 2/2, 앵글 42/43.
+
+## 입력한 말의 종족(분야) 분류와 맞춤법 (11/27)
+
+**종족.** 지금까지 입력한 말의 종족은 검색 상위 20개 발표의 종족 투표로만 정했다. 질문 80개(48문항 + holdout, 질문마다 만들 때의 종족이 있다)와 단어 100개(종족 설명을 보고 손으로 붙인 정답, 둘 이상 허용)로 재니 질문 67/80, 단어 83/100(허용 92)이었다. "generative AI"가 Society, "journaling"이 Design, "AI assistance가 비판적 사고를 줄이나"가 Learning으로 나왔다. 두 가지를 더했다.
+- 입력에 종족을 가리키는 말이 있으면 그것을 본다(`TRIBE_RULES`: 발표에 LLM 종족이 없을 때 쓰는 build_angles.py의 키워드 규칙과 종족 설명의 말, "gaming"·"artificial" 고침). 하나면 그 종족, 여럿이면 그중 점수가 높은 것.
+- 투표에 입력한 말만으로 본 종족 확률을 더한다(발표 단어로 센 naive Bayes, `tribe_words.json` 160 KB, 압축 50 KB, 가중치 0.5).
+
+| | 질문 80 | 단어 100 (가장 맞음 / 허용) |
+|---|---|---|
+| 투표만 | 67 | 83 / 92 |
+| + 키워드 규칙 | 68 | 86 / 94 |
+| + 단어 확률 | 70 | 86 / 94 |
+
+남은 질문 10개는 대부분 두 종족에 걸친 것이다("대화형 에이전트가 외로움을 줄이나"는 AI와 Health). 단어 중 voice assistants, empathy, remote work, journaling, body image는 아직 틀린다. 규칙은 JavaScript처럼 ASCII 단어 경계로 읽는다("VR에서"는 VR).
+
+**맞춤법.** 교정이 CHI 발표에 나오는 단어만 기준으로 해서 "KV caching"이 "KV coaching"이 되었다. 질문 encoder의 WordPiece 단어 목록(4글자 이상 20,365개, 원래 패키지에 있음)에 있거나, 어미(-ing, -s, -ed …)를 뗀 꼴이 있으면 고치지 않는다(caching은 cache, passwords는 password). "hapitc feedbak … presense"는 그대로 고친다.
+
+**폰.** zip 28.5 MB(11/26e)에서 28.7 MB, 질문 제안 중앙값 0.30초에서 0.19초(미리 쓴 질문이 있으면 조합 계산을 건너뜀), Arc 0.35초에서 0.22초, 234번 호출 뒤 메모리 455 MB에서 466 MB, 오류 0.
+
+Python·JavaScript 일치 271/271, Arc 80/80, 검색 42/42, 실시간 feed 2/2, 앵글 44/45.
+
 ## 다시 만들기
 
 ```bash
@@ -319,6 +362,8 @@ sbatch scripts/gen_card_summary.slurm                  # why 문장: 카드마�
 python scripts/build_angles.py                         # 일반어까지 합쳐 다시
 python scripts/eval_angles.py                          # docs/angle_eval.json (--sweep: 임계값 탐색)
 sbatch scripts/compare_llm.slurm && python scripts/compare_llm_report.py   # 일반 LLM과 비교 (GPU 7개 약 15분)
+python scripts/build_narrow_todo.py && sbatch scripts/gen_narrow.slurm   # 단어·주제 질문 미리 쓰기 (GPU 4개 약 24분)
+sbatch scripts/build_narrow.slurm                     # 엔진이 거르기 → narrow.json (CPU 약 11분)
 python scripts/package_model.py
 python tests/run_angle_cases.py                        # 43개 사례
 python tests/run_feed_cases.py                         # 실시간 피드: 발표가 빠지고 끼고 순서가 바뀌어도 (Python, JS)

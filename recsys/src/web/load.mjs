@@ -5,7 +5,7 @@
 //   Node:     const arc = await loadARC("/path/to/chi2026-retriever");
 import { readNpy } from "./py.mjs";
 import { staticEncoder, onnxEncoder } from "./encoder.mjs";
-import { Retriever } from "./retriever.mjs";
+import { Retriever, wordList } from "./retriever.mjs";
 import { Explorer } from "./explorer.mjs";
 import { ARC } from "./arc.mjs";
 import { Angles } from "./angles.mjs";
@@ -77,12 +77,18 @@ export async function loadPackage(base, opts = {}) {
   const rd = await reader(base);
   const [config, program, venue] = await Promise.all([json(rd, "config.json"), json(rd, "program.json"), json(rd, "venue.json")]);
   const pkg = { config, program, venue };
+  // the encoder's whole words: English words the spell corrector leaves alone ("caching")
+  pkg.words = wordList(await json(rd, "tokenizer.json"));
   pkg.expansions = (await rd.exists("expansions.json")) ? await json(rd, "expansions.json") : null;
   pkg.clusters = (await rd.exists("clusters.json")) ? await json(rd, "clusters.json") : null;
   pkg.summaries = (await rd.exists("summaries.json")) ? await json(rd, "summaries.json") : null;
   // the Arc engine's finding cards and phrase vectors (angles.json, phrase_vec.npy)
   if (await rd.exists("angles.json")) {
     pkg.angles = await json(rd, "angles.json");
+    // sharper questions written offline for what attendees type (scripts/build_narrow.py)
+    pkg.narrow = (await rd.exists("narrow.json")) ? await json(rd, "narrow.json") : null;
+    // how many talks of each tribe use each word (scripts/package_model.py), for _tribe
+    pkg.tribeCounts = (await rd.exists("tribe_words.json")) ? await json(rd, "tribe_words.json") : null;
     pkg.phraseEmb = await matrix(rd, "phrase", true);
   }
   pkg.programEmb = alignRows(await matrix(rd, "program"), program.map((it) => it.id),
