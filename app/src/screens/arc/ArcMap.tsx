@@ -117,10 +117,6 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
       </h2>) : undefined} />}
       bottom={<>
         <SwapUndo hs={hs} />
-        {/* user 11/28 「관점 이름 옆에 짧은 뜻을 항상」: one quiet line under the map, the map itself as in Figma */}
-        {!pending && <p data-legend="" className="flex flex-wrap items-center justify-center gap-x-3 text-[12px] font-medium text-arc-text-3">
-          {(focus ? [focus] : (['S', 'R', 'T'] as Angle[])).map(a => <span key={a} className="inline-flex items-center gap-1"><Pic src={ANGLE_ICON[a]} size={12} />{focus ? `${ANGLE_NAME[a]} · ` : ''}{ANGLE_MEANING[a]}</span>)}
-        </p>}
         {added && !hs.undo && (
           <div role="status" className="pointer-events-none absolute inset-x-6 bottom-full mb-3 flex justify-center">
             <p className="pointer-events-auto flex items-center rounded-full border border-arc-line bg-arc-sheet pl-4 text-[14px] font-medium text-arc-text shadow-[0_8px_24px_rgba(0,0,0,0.4)]">
@@ -193,7 +189,7 @@ export function ArcMap({ id, focus = null }: { id: string; focus?: Angle | null 
         {focus && use.schedule && !shown.nodes.some(n => n.angle === focus) && ( /* audit 11/27: an empty angle showed nothing at all */
           <div className="absolute inset-x-6 top-[38%] flex flex-col items-center gap-4">
             <p className="text-center text-[15px] text-arc-text-2">{EMPTY_LINE[focus]}</p>
-            <Broader arc={arc} angle={focus} />
+            <Broader arc={arc} angle={focus} onSee={toFocus} />
           </div>
         )}
         {(focus === 'R' || focus === 'T') && (() => {

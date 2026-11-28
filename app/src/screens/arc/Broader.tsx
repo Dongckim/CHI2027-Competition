@@ -31,10 +31,15 @@ function broader(query: string, angle: Angle) {
   return found.get(id)!;
 }
 
-export function Broader({ arc, angle, className = '' }: { arc: Arc; angle: Angle; className?: string }) {
-  const [q, setQ] = useState<string | null>(null);
-  useEffect(() => { let live = true; broader(arc.query, angle).then(t => { if (live) setQ(t); }); return () => { live = false; }; }, [arc.query, angle]);
-  if (!q) return null;
+// user 11/28 「넓은 질문을 못 만들 때도 다음 할 일 하나는 항상: "See Reframes ›"」: an angle of this Arc that has talks
+export function Broader({ arc, angle, onSee, className = '' }: { arc: Arc; angle: Angle; onSee: (a: Angle) => void; className?: string }) {
+  const [q, setQ] = useState<string | null | undefined>(undefined);
+  useEffect(() => { let live = true; setQ(undefined); broader(arc.query, angle).then(t => { if (live) setQ(t); }); return () => { live = false; }; }, [arc.query, angle]);
+  if (q === undefined) return null;
+  if (!q) {
+    const other = (['R', 'S', 'T'] as Angle[]).find(a => a !== angle && arc.nodes.some(n => n.angle === a));
+    return other ? <button type="button" onClick={() => onSee(other)} className={`min-h-touch px-2 text-[14px] font-semibold text-[#9db2ff] ${className}`}>See {ANGLE_NAME[other]} ›</button> : null;
+  }
   return (
     <div className={`flex flex-col gap-1 ${className || 'items-center'}`}>
       <p className="text-[13px] font-semibold text-arc-text">Try a broader question ›</p>

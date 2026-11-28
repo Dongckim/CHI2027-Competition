@@ -53,7 +53,7 @@ export function AngleRows({ arc, states, info, own }: { arc: Arc; states: Map<st
               <span className="text-[12px] font-medium text-arc-text-3">{nodes.length}</span>
             </h2>
             {!nodes.length && arc.tension !== 'pending' && <p className="text-[14px] text-arc-text/60">{EMPTY_LINE[a]}</p>}
-            {!nodes.length && own && arc.tension !== 'pending' && <Broader arc={arc} angle={a} className="items-start" />}
+            {!nodes.length && own && arc.tension !== 'pending' && <Broader arc={arc} angle={a} onSee={b => go(`arc/${arc.id}/${b}`)} className="items-start self-start" />}
             {nodes.map(n => <Row key={n.key} n={n} info={info} states={states} />)}
           </section>
         );
